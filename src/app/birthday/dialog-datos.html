@@ -1,0 +1,76 @@
+<div class="formRevisar">
+  <h1 mat-dialog-title>NUEVO</h1>
+
+  <div mat-dialog-content>
+    <p>
+      <mat-form-field >
+        <input matInput placeholder="Id" disabled="false" [(ngModel)]="data.id">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput placeholder="Marca" disabled="false" [(ngModel)]="data.marca">
+      </mat-form-field>
+    </p>
+    <mat-form-field >
+      <input matInput placeholder="Modelo" disabled="false" [(ngModel)]="data.modelo">
+    </mat-form-field>
+    <mat-form-field >
+      <input matInput placeholder="Ubicación" disabled="false" [(ngModel)]="data.ubicacion">
+    </mat-form-field>
+    <p>
+      <mat-form-field >
+        <input matInput placeholder="Propietario" disabled="false" [(ngModel)]="data.propietario">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput placeholder="Fabricante" disabled="false" [(ngModel)]="data.fabricante">
+      </mat-form-field>
+    </p>
+    <p>
+      <mat-form-field >
+        <input matInput placeholder="Cantidad" disabled="false" [(ngModel)]="data.cantidad">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput placeholder="Observación" disabled="false" [(ngModel)]="data.observacion">
+      </mat-form-field>
+    </p>
+    <p>
+      <mat-form-field >
+        <input matInput placeholder="Id" disabled="false" [(ngModel)]="data.id">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput placeholder="Registro" disabled="false" [(ngModel)]="data.registro">
+      </mat-form-field>
+    </p>
+<!--     <p>
+      <mat-form-field >
+        <input matInput placeholder="Monto del premio" disabled="true" [(ngModel)]="data.sala">
+      </mat-form-field>
+    </p>
+    <p>
+      <mat-form-field >
+        <input matInput placeholder="Fecha del sorteo" disabled="true" [(ngModel)]="data.sala">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput placeholder="Hora del sorteo" disabled="true" [(ngModel)]="data.sala">
+      </mat-form-field>
+    </p>
+
+    <p>
+      <mat-form-field class="obs">
+        <input matInput placeholder="Observaciones (Opcional)" disabled="false" [(ngModel)]="data.sala" >
+      </mat-form-field>
+
+      <mat-form-field class="seguridad">
+        <input matInput placeholder="Nombres y apellidos del personal de seguridad" disabled="false" [(ngModel)]="data.sala" (keyup)="onKeyUpEvent($event)">
+      </mat-form-field>
+    </p> -->
+
+  </div>
+
+  <div mat-dialog-actions>
+
+    <button mat-raised-button [disabled]="false" class="btnValidar" (click)="btnSave()" >OK</button>
+    <button mat-button (click)="onNoClick()">Cancelar</button>
+
+  </div>
+
+</div>

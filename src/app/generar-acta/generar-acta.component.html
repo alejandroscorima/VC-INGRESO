@@ -1,0 +1,89 @@
+<!-- <div class="container" style="margin:20px;" >
+    <div class="datos">
+        <img mat-card-image class="logo" src="{{linkLogo}}"  height="150px">
+        <p class="superiorP">
+
+            <mat-form-field class="doc_id" appearance="fill">
+                <mat-label>Documento de identidad:</mat-label>
+                <input matInput [(ngModel)]="doc_number">
+            </mat-form-field>
+            <button mat-raised-button (click)="buscarCliente()">BUSCAR</button>
+        </p>
+        <p>
+            <mat-form-field class="cupon_number" appearance="fill">
+                <mat-label>Número de cupón:</mat-label>
+                <input matInput [(ngModel)]="cupon_number">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field class="nombre" id="nombre" appearance="fill">
+                <mat-label>Nombre:</mat-label>
+                <input matInput [disabled]="nombreInput" [(ngModel)]="nombreSorteo">
+                <button mat-icon-button matSuffix disabled="false" (click)="changeNombreInput()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field class="direccion" appearance="fill">
+                <mat-label>Direccion:</mat-label>
+                <input matInput id="direccion" [disabled]="direccionInput" [(ngModel)]="direccionSorteo">
+                <button mat-icon-button matSuffix disabled="false" (click)="changeDireccionInput()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field class="sorteo" id="sorteo" appearance="fill">
+                <mat-label>Nombre del sorteo:</mat-label>
+                <input matInput [disabled]="nombreSorteoInput" [(ngModel)]="nombreDeSorteo">
+                <button mat-icon-button matSuffix disabled="false" (click)="changeSorteoNombreInput()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field class="premio" id="premio" appearance="fill">
+                <mat-label>Premio sorteado:</mat-label>
+                <input matInput [disabled]="premioInput" [(ngModel)]="premioSorteo">
+                <span matPrefix disabled="true">S/.&nbsp;</span>
+                <button mat-icon-button matSuffix disabled="false" (click)="changePremioInput()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field class="fecha" id="fecha" appearance="fill">
+                <mat-label>Fecha:</mat-label>
+                <input matInput [matDatepicker]="datepicker" [(ngModel)]="fecha">
+                <mat-datepicker-toggle matSuffix [for]="datepicker" disabled="false"></mat-datepicker-toggle>
+                <mat-datepicker #datepicker disabled="false"></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field class="hora" id="hora" appearance="fill">
+                <mat-label>Hora:</mat-label>
+                <input matInput [disabled]="horaInput" [(ngModel)]="horaLongSorteo">
+                <button mat-icon-button matSuffix disabled="false" (click)="changeHoraInput()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field class="admin" id="admin" appearance="fill">
+                <mat-label>Administrador(a):</mat-label>
+                <mat-select [(value)]="admin">
+                    <mat-option *ngFor="let adm of adminList" [value]="adm">{{adm.nombre}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="adj" id="adj" appearance="fill">
+                <mat-label>Adjunto(a):</mat-label>
+                <mat-select [(value)]="adj">
+                    <mat-option *ngFor="let ad of adjList" [value]="ad">{{ad.nombre}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+        </p>
+        <p>
+            <button mat-raised-button class="btnGenerar" routerLink="/">Generar Acta</button>
+        </p>
+
+
+    </div>
+</div>
+
+ -->

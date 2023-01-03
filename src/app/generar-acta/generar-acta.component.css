@@ -1,0 +1,37 @@
+.nombre, .direccion{
+    min-width: 600px;
+}
+
+p{
+    margin: 0px;
+}
+
+mat-form-field {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-right:20px;
+    margin-left:20px;
+    border-radius: 20px;
+}
+
+.logo{
+    margin-left: 30px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    vertical-align: center;
+}
+
+.doc_id{
+    margin-top: 0px;
+}
+
+.superiorP{
+    vertical-align: center;
+}
+
+.btnGenerar{
+    background-color: rgb(30, 190, 83);
+    color: white;
+    height: 50px;
+    margin-left: 30px;
+}

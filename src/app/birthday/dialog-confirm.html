@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>ELIMINAR PRODUCTO</h1>
+
+<mat-dialog-content>
+  <p>
+    ¿Deseas eliminar el producto seleccionado?
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+
+  <button mat-raised-button [disabled]="false" class="btnDelete" (click)="delete()" >Sí</button>
+  <button mat-button (click)="onNoClick()">NO</button>
+
+</mat-dialog-actions>

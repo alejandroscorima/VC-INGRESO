@@ -1,0 +1,13 @@
+<div class="container" style="margin: 20px;" >
+    <div style="width:100%;display:display-inline;text-align: center;">
+        {{docname}}
+        <p style="align-content: center;text-align: center;">
+            <input (change)="onFileChange($event)" #npt class="form-control" type="file" id="formFile" style="display: none;">
+            <button (click)="npt.click()" mat-raised-button style="background-color: rgb(23, 71, 113); color:white;">
+                <mat-icon>cloud_upload</mat-icon>
+                CLICK AQUÍ
+            </button>
+        </p>
+        RECUERDE nombre del archivo: "Sistema consulta de Ludopatía.pdf"
+    </div>
+</div>

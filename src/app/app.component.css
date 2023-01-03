@@ -1,0 +1,31 @@
+.contenedor-padre {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.barra {
+    flex: 0 1 auto;
+    color:white;
+    background-color: rgb(34, 146, 161);
+}
+
+.icon1{
+  color: rgba(20, 102, 20, 0.817);
+}
+
+.icon2{
+  color: rgb(95, 10, 95);
+}
+
+.icon3{
+  color: red;
+}
+
+.contenido {
+    flex: 1 1 auto;
+}
+
+.padding-10 {
+    padding: 10px;
+}

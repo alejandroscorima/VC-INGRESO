@@ -1,0 +1,72 @@
+<div class="contenedor-padre">
+  <mat-toolbar class="barra"  id="barra">
+    <mat-toolbar-row >
+      <button (click)="cajon.toggle()" mat-icon-button>
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>
+        CONTROL DE INGRESO&nbsp;
+      </span>
+<!--       <span>
+        <a mat-stroked-button >Vision Games Corporation</a>
+      </span> -->
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <mat-sidenav-container class="contenido">
+    <mat-sidenav style="min-width: 150px;" #cajon mode="side">
+      <mat-nav-list>
+        <a mat-list-item (click)="cajon.toggle()" routerLink="/">
+          <mat-icon class="icon1" >dashboard</mat-icon>
+          Dashboard
+        </a>
+        <a mat-list-item (click)="cajon.toggle()" routerLink="/listas">
+          <mat-icon class="icon4" >category</mat-icon>
+          Listas
+        </a>
+        <a mat-list-item (click)="cajon.toggle()" routerLink="/hb">
+          <mat-icon class="icon2" >cake</mat-icon>
+          Cumpleaños
+        </a>
+        <a mat-list-item (click)="cajon.toggle()" routerLink="/history">
+          <mat-icon class="icon3" >history</mat-icon>
+          Historial
+        </a>
+        <a mat-list-item class="listitem" (click)="cajon.toggle()" routerLink="/upload">
+          <mat-icon class="icon5" >upload_file</mat-icon>
+          Subir PDF
+        </a>
+        <!-- <a mat-list-item routerLink="/mascotas/agregar">
+          <mat-icon color="accent">add</mat-icon>
+          Agregar mascota
+        </a> -->
+<!--         <a mat-list-item routerLink="/acerca-de">
+          <mat-icon color="accent">info</mat-icon>
+          Acerca de
+        </a> -->
+        <a mat-stroked-button color="primary">Oscorp Technology</a>
+      </mat-nav-list>
+      <!--<mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Más
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <mat-nav-list>
+            <a mat-list-item routerLink="/acerca-de">
+              <mat-icon color="accent">info</mat-icon>
+              Acerca de
+            </a>
+            <a mat-list-item href='https://parzibyte.me/blog/contrataciones-ayuda/'>
+              Ayuda
+            </a>
+          </mat-nav-list>
+        </mat-expansion-panel>
+      </mat-accordion> -->
+    </mat-sidenav>
+    <mat-sidenav-content class="padding-10">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

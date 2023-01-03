@@ -1,0 +1,113 @@
+<div class="container" style="margin:20px" >
+
+  <div style="width:100%; display:display-inline;">
+    <div style="width:95%; float:center; min-width: 550px; margin:10px">
+      <h2>Historial : </h2>
+
+      <p style="margin:-10px">
+        <mat-form-field class="sala" id="sala" appearance="outline" >
+          <mat-label>Sala:</mat-label>
+          <mat-select [(value)]="sala" (selectionChange)="salaChange()">
+              <mat-option *ngFor="let s of salas" [value]="s">{{s}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha:</mat-label>
+          <input matInput [matDatepicker]="dp3" disabled [(ngModel)]="fecha" #ref (dateChange)="change(ref.value)">
+          <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
+          <mat-datepicker #dp3 disabled="false"></mat-datepicker>
+        </mat-form-field>
+
+        <button mat-raised-button style="background-color: rgb(23, 71, 113); color:white" (click)="viewLudops()">
+          <mat-icon>description</mat-icon>PDF DE LUDOPATAS
+        </button>
+      </p>
+
+      <mat-form-field appearance="standard" style="display:display-inline">
+          <mat-label>Búsqueda</mat-label>
+          <input matInput (keyup)="applyFilterList($event)" placeholder="Escribe algo para buscar" #input1>
+      </mat-form-field>
+
+      <div class="mat-elevation-z8" style="width:100%;">
+          <table mat-table style="width:100%;" [dataSource]="dataSourceHistory" matSort multiTemplateDataRows>
+
+            <ng-container matColumnDef="doc">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> DNI </th>
+              <td mat-cell *matCellDef="let a"> {{a.doc_number}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> NOMBRE </th>
+              <td mat-cell *matCellDef="let a"> {{a.name}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="age">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> EDAD </th>
+              <td mat-cell *matCellDef="let a"> {{a.age}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="gender">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> GENERO </th>
+              <td mat-cell *matCellDef="let a"> {{a.gender}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> FECHA </th>
+              <td mat-cell *matCellDef="let a"> {{a.date_entrance}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="hora">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> HORA </th>
+              <td mat-cell *matCellDef="let a"> {{a.hour_entrance}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="obs">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> RESULTADO </th>
+              <td mat-cell *matCellDef="let a" > {{a.obs}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="indicador">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>  </th>
+              <td mat-cell *matCellDef="let a" >
+                <mat-icon *ngIf="a.obs=='PERMITIDO'||a.obs=='permitido'" style="color:rgb(14, 132, 14)">check</mat-icon>
+                <mat-icon *ngIf="a.obs=='DENEGADO'||a.obs=='denegado'" style="color:rgb(147, 14, 14)">block</mat-icon>
+                <mat-icon *ngIf="a.obs=='RESTRINGIDO'" style="color:orange">warning</mat-icon>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="vis">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> VISITAS </th>
+              <td mat-cell *matCellDef="let a"> {{a.visits}}
+                <button mat-icon-button *ngIf="a.visits>1" (click)="viewDetail(a)">
+                  <mat-icon style="color:rgb(23, 71, 113)">search</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="a.obs=='DENEGADO'" (click)="viewLudops()">
+                  <mat-icon style="color:rgb(23, 71, 113)">description</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+
+            <tr mat-header-row *matHeaderRowDef="['doc','name','age','gender','fecha','hora','obs','indicador','vis'];"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['doc','name','age','gender','fecha','hora','obs','indicador','vis'];"></tr>
+<!--             <tr mat-row *matRowDef="let row; columns: ['codigo','cantidad','edit'];"
+            class="example-element-row"
+            [class.example-expanded-row]="expandedElement === row"
+            (click)="expandedElement = expandedElement === row ? null : row"></tr>
+
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr> -->
+
+
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" colspan="6">No se encontró "{{input1.value}}"</td>
+            </tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[100, 200, 300, 400]" aria-label="Página"></mat-paginator>
+      </div>
+    </div>
+
+  </div>
+
+</div>
