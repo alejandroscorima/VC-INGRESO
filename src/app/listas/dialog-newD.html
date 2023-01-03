@@ -12,7 +12,15 @@
     </p>
     <p>
       <mat-form-field style="width:95%">
-        <input matInput placeholder="Motivo" disabled="true" [(ngModel)]="data.motivo">
+        <input matInput placeholder="Motivo" disabled="false" [(ngModel)]="data.motivo">
+      </mat-form-field>
+    </p>
+    <p>
+      <mat-form-field>
+        <mat-label>Sala:</mat-label>
+        <mat-select [(value)]="data.sala_list">
+          <mat-option *ngFor="let s of salas" [value]="s">{{s}}</mat-option>
+        </mat-select>
       </mat-form-field>
     </p>
 

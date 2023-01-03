@@ -68,7 +68,7 @@ export class GenerarActaComponent implements OnInit {
   linkLogo:string;
 
 
-  cliente: Cliente = new Cliente('','','','','','','','','','','','');
+  cliente: Cliente = new Cliente('','','','','','','','','','','','','','');
 
   doc = new jsPDF();
   img = new Image();

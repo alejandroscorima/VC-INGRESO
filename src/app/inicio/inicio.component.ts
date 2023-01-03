@@ -25,7 +25,7 @@ import { Product } from '../product';
 })
 export class InicioComponent implements OnInit {
   clientes: Cliente[] = [
-    new Cliente("none", "Jugador Prueba", '', "none",'','','','','','','','')
+    new Cliente("none", "Jugador Prueba", '', "none",'','','','','','','','','','')
   ];
 
   @ViewChild("content",{static:true}) content:ElementRef;

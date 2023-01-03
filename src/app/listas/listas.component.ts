@@ -40,11 +40,17 @@ export class ListasComponent implements OnInit {
   destacados: Cliente[]= [];
   restringidos: Cliente[] = [];
 
+  fecha;
+  fechaString;
+
   dataSourceDestacados: MatTableDataSource<Cliente>;
   dataSourceRestringidos: MatTableDataSource<Cliente>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
+  day: string;
+  month: string;
+  year: string;
 
   constructor(    private clientesService: ClientesService,
     public dialog: MatDialog,
@@ -128,8 +134,26 @@ export class ListasComponent implements OnInit {
 
   newD(){
     var dialogRef;
+   
+    this.fecha=new Date();
 
-    this.cliente = new Cliente('','','','','','','','','','','DESTACADO','')
+    this.year=this.fecha.getFullYear();
+    this.month=(this.fecha.getMonth())+1;
+    this.day=this.fecha.getDate();
+
+    if(parseInt(this.month)<10){
+      this.month='0'+this.month;
+    }
+
+    if(parseInt(this.day)<10){
+      this.day='0'+this.day;
+    }
+
+    this.fechaString=this.year+'-'+this.month+'-'+this.day;
+
+    console.log(this.fechaString);
+
+    this.cliente = new Cliente('','','','','','','','','','','DESTACADO','','','')
 
     dialogRef=this.dialog.open(DialogNewD,{
       data:this.cliente,
@@ -137,9 +161,14 @@ export class ListasComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((res:Cliente) => {
       this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+        console.log(this.fechaString);
+        
         if(c){
           c.condicion=res.condicion;
           c.motivo=res.motivo;
+          c.fecha_list=this.fechaString;
+          c.sala_list=res.sala_list;
+
           this.clientesService.updateClient(c).subscribe(r=>{
             if(r){
               this.toastr.success('Agregado');
@@ -164,7 +193,7 @@ export class ListasComponent implements OnInit {
         else{
           this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
             if(res['success']){
-              var clienteNew = new Cliente('','','','','','','','','','','','');
+              var clienteNew = new Cliente('','','','','','','','','','','','','','');
               clienteNew.doc_number = res['data']['numero'];
               clienteNew.client_name = res['data']['nombre_completo'];
               clienteNew.birth_date = res['data']['fecha_nacimiento'];
@@ -206,7 +235,7 @@ export class ListasComponent implements OnInit {
   newR(){
     var dialogRef;
 
-    this.cliente = new Cliente('','','','','','','','','','','RESTRINGIDO','')
+    this.cliente = new Cliente('','','','','','','','','','','RESTRINGIDO','','','')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,
@@ -241,7 +270,7 @@ export class ListasComponent implements OnInit {
         else{
           this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
             if(res['success']){
-              var clienteNew = new Cliente('','','','','','','','','','','','');
+              var clienteNew = new Cliente('','','','','','','','','','','','','','');
               clienteNew.doc_number = res['data']['numero'];
               clienteNew.client_name = res['data']['nombre_completo'];
               clienteNew.birth_date = res['data']['fecha_nacimiento'];
@@ -291,7 +320,11 @@ export class ListasComponent implements OnInit {
 })
 export class DialogNewD implements OnInit {
 
-  disableBtnOk;
+    disableBtnOk;
+    sala;
+    salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
+    
+
   constructor(
     public dialogRef: MatDialogRef<DialogNewD>,
     @Inject(MAT_DIALOG_DATA) public data:Cliente,
@@ -316,6 +349,7 @@ export class DialogNewD implements OnInit {
   btnSave(){
     this.data.doc_number=this.data.doc_number.toUpperCase();
     this.data.condicion=this.data.condicion.toUpperCase();
+
 /*     this.data.fabricante=this.data.fabricante.toUpperCase();
     this.data.lugar=this.data.lugar.toUpperCase();
     this.data.marca=this.data.marca.toUpperCase();

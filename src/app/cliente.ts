@@ -13,6 +13,8 @@ export class Cliente {
     public sala_registro: string,
     public condicion: string,
     public motivo: string,
+    public sala_list:string,
+    public fecha_list: string,
   ) { }
 
 }
