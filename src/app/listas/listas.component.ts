@@ -110,6 +110,8 @@ export class ListasComponent implements OnInit {
   delete(c:Cliente){
     c.condicion='PERMITIDO';
     c.motivo='';
+    c.sala_list='';
+    c.fecha_list='';
     this.clientesService.deleteCliente(c).subscribe(a=>{
       if(a){
         this.toastr.success('Eliminado');
@@ -204,6 +206,8 @@ export class ListasComponent implements OnInit {
               clienteNew.address = res['data']['direccion'];
               clienteNew.condicion = res.condicion;
               clienteNew.motivo = res.motivo;
+              clienteNew.sala_list = res.sala_list;
+              clienteNew.fecha_list = this.fechaString;
 
               this.clientesService.addCliente(clienteNew).subscribe(n=>{
                 if(n){
@@ -235,6 +239,24 @@ export class ListasComponent implements OnInit {
   newR(){
     var dialogRef;
 
+    this.fecha=new Date();
+
+    this.year=this.fecha.getFullYear();
+    this.month=(this.fecha.getMonth())+1;
+    this.day=this.fecha.getDate();
+
+    if(parseInt(this.month)<10){
+      this.month='0'+this.month;
+    }
+
+    if(parseInt(this.day)<10){
+      this.day='0'+this.day;
+    }
+
+    this.fechaString=this.year+'-'+this.month+'-'+this.day;
+
+    console.log(this.fechaString);
+
     this.cliente = new Cliente('','','','','','','','','','','RESTRINGIDO','','','')
 
     dialogRef=this.dialog.open(DialogNewR,{
@@ -243,9 +265,13 @@ export class ListasComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((res:Cliente) => {
       this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+        
         if(c){
           c.condicion=res.condicion;
           c.motivo=res.motivo;
+          c.fecha_list=this.fechaString;
+          c.sala_list=res.sala_list;
+
           this.clientesService.updateClient(c).subscribe(r=>{
             if(r){
               this.toastr.success('Agregado');
@@ -281,6 +307,8 @@ export class ListasComponent implements OnInit {
               clienteNew.address = res['data']['direccion'];
               clienteNew.condicion = res.condicion;
               clienteNew.motivo = res.motivo;
+              clienteNew.sala_list = res.sala_list;
+              clienteNew.fecha_list = this.fechaString;
 
               this.clientesService.addCliente(clienteNew).subscribe(n=>{
                 if(n){
@@ -349,8 +377,8 @@ export class DialogNewD implements OnInit {
   btnSave(){
     this.data.doc_number=this.data.doc_number.toUpperCase();
     this.data.condicion=this.data.condicion.toUpperCase();
-
-/*     this.data.fabricante=this.data.fabricante.toUpperCase();
+    this.data.motivo=this.data.motivo.toUpperCase();
+/*    this.data.fabricante=this.data.fabricante.toUpperCase();
     this.data.lugar=this.data.lugar.toUpperCase();
     this.data.marca=this.data.marca.toUpperCase();
     this.data.modelo=this.data.modelo.toUpperCase();
@@ -376,6 +404,9 @@ export class DialogNewD implements OnInit {
 export class DialogNewR implements OnInit {
 
   disableBtnOk;
+  sala;
+  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
+
   constructor(
     public dialogRef: MatDialogRef<DialogNewR>,
     @Inject(MAT_DIALOG_DATA) public data:Cliente,
