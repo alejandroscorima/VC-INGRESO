@@ -18,7 +18,6 @@ import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 
-
 @Component({
   selector: 'app-listas',
   templateUrl: './listas.component.html',
@@ -153,7 +152,7 @@ export class ListasComponent implements OnInit {
 
     this.fechaString=this.year+'-'+this.month+'-'+this.day;
 
-    console.log(this.fechaString);
+    /* console.log(this.fechaString); */
 
     this.cliente = new Cliente('','','','','','','','','','','DESTACADO','','','')
 
@@ -162,77 +161,79 @@ export class ListasComponent implements OnInit {
     })
 
     dialogRef.afterClosed().subscribe((res:Cliente) => {
-      this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
-        console.log(this.fechaString);
-        
-        if(c){
-          c.condicion=res.condicion;
-          c.motivo=res.motivo;
-          c.fecha_list=this.fechaString;
-          c.sala_list=res.sala_list;
-
-          this.clientesService.updateClient(c).subscribe(r=>{
-            if(r){
-              this.toastr.success('Agregado');
-
-              this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                this.destacados=destacadosList;
-                this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
-                  this.restringidos=restringidosList;
-
-                  this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                  this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                  this.dataSourceDestacados.sort = this.sort.toArray()[0];
-
-                  this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
-                  this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
-                  this.dataSourceRestringidos.sort = this.sort.toArray()[1];
-                });
-              });
-            }
-          })
-        }
-        else{
-          this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
-            if(res['success']){
-              var clienteNew = new Cliente('','','','','','','','','','','','','','');
-              clienteNew.doc_number = res['data']['numero'];
-              clienteNew.client_name = res['data']['nombre_completo'];
-              clienteNew.birth_date = res['data']['fecha_nacimiento'];
-              clienteNew.gender = res['data']['sexo'];
-              clienteNew.departamento = res['data']['departamento'];
-              clienteNew.provincia = res['data']['provincia'];
-              clienteNew.distrito = res['data']['distrito'];
-              clienteNew.address = res['data']['direccion'];
-              clienteNew.condicion = res.condicion;
-              clienteNew.motivo = res.motivo;
-              clienteNew.sala_list = res.sala_list;
-              clienteNew.fecha_list = this.fechaString;
-
-              this.clientesService.addCliente(clienteNew).subscribe(n=>{
-                if(n){
-                  this.toastr.success('Agregado');
-
-                  this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                    this.destacados=destacadosList;
-                    this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
-                      this.restringidos=restringidosList;
-
-                      this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                      this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                      this.dataSourceDestacados.sort = this.sort.toArray()[0];
-
-                      this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
-                      this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
-                      this.dataSourceRestringidos.sort = this.sort.toArray()[1];
-                    });
+      /*console.log(res);*/
+      if(res){
+        this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+          // console.log(this.fechaString);       
+          if(c){
+            c.condicion=res.condicion;
+            c.motivo=res.motivo;
+            c.fecha_list=this.fechaString;
+            c.sala_list=res.sala_list;
+  
+            this.clientesService.updateClient(c).subscribe(r=>{
+              if(r){
+                this.toastr.success('Observación añadida');
+  
+                this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
+                  this.destacados=destacadosList;
+                  this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                    this.restringidos=restringidosList;
+  
+                    this.dataSourceDestacados = new MatTableDataSource(this.destacados);
+                    this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
+                    this.dataSourceDestacados.sort = this.sort.toArray()[0];
+  
+                    this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
+                    this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
+                    this.dataSourceRestringidos.sort = this.sort.toArray()[1];
                   });
-                }
-              });
-            }
-          })
-        }
-      })
+                });
+              }
+            })
+          }
+          else{
+            this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
+              if(res['success']){
+                var clienteNew = new Cliente('','','','','','','','','','','','','','');
+                clienteNew.doc_number = res['data']['numero'];
+                clienteNew.client_name = res['data']['nombre_completo'];
+                clienteNew.birth_date = res['data']['fecha_nacimiento'];
+                clienteNew.gender = res['data']['sexo'];
+                clienteNew.departamento = res['data']['departamento'];
+                clienteNew.provincia = res['data']['provincia'];
+                clienteNew.distrito = res['data']['distrito'];
+                clienteNew.address = res['data']['direccion'];
+                clienteNew.condicion = res.condicion;
+                clienteNew.motivo = res.motivo;
+                clienteNew.sala_list = res.sala_list;
+                clienteNew.fecha_list = this.fechaString;
+  
+                this.clientesService.addCliente(clienteNew).subscribe(n=>{
+                  if(n){
+                    this.toastr.success('Observación añadida');
+  
+                    this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
+                      this.destacados=destacadosList;
+                      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                        this.restringidos=restringidosList;
+  
+                        this.dataSourceDestacados = new MatTableDataSource(this.destacados);
+                        this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
+                        this.dataSourceDestacados.sort = this.sort.toArray()[0];
+  
+                        this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
+                        this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
+                        this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+                      });
+                    });
+                  }
+                });
+              }
+            })
+          }
+        })
+      }   
     })
   }
 
@@ -255,7 +256,7 @@ export class ListasComponent implements OnInit {
 
     this.fechaString=this.year+'-'+this.month+'-'+this.day;
 
-    console.log(this.fechaString);
+    // console.log(this.fechaString);
 
     this.cliente = new Cliente('','','','','','','','','','','RESTRINGIDO','','','')
 
@@ -264,76 +265,78 @@ export class ListasComponent implements OnInit {
     })
 
     dialogRef.afterClosed().subscribe((res:Cliente) => {
-      this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+      if(res){
+        this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
         
-        if(c){
-          c.condicion=res.condicion;
-          c.motivo=res.motivo;
-          c.fecha_list=this.fechaString;
-          c.sala_list=res.sala_list;
-
-          this.clientesService.updateClient(c).subscribe(r=>{
-            if(r){
-              this.toastr.success('Agregado');
-
-              this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                this.destacados=destacadosList;
-                this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
-                  this.restringidos=restringidosList;
-
-                  this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                  this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                  this.dataSourceDestacados.sort = this.sort.toArray()[0];
-
-                  this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
-                  this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
-                  this.dataSourceRestringidos.sort = this.sort.toArray()[1];
-                });
-              });
-            }
-          })
-        }
-        else{
-          this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
-            if(res['success']){
-              var clienteNew = new Cliente('','','','','','','','','','','','','','');
-              clienteNew.doc_number = res['data']['numero'];
-              clienteNew.client_name = res['data']['nombre_completo'];
-              clienteNew.birth_date = res['data']['fecha_nacimiento'];
-              clienteNew.gender = res['data']['sexo'];
-              clienteNew.departamento = res['data']['departamento'];
-              clienteNew.provincia = res['data']['provincia'];
-              clienteNew.distrito = res['data']['distrito'];
-              clienteNew.address = res['data']['direccion'];
-              clienteNew.condicion = res.condicion;
-              clienteNew.motivo = res.motivo;
-              clienteNew.sala_list = res.sala_list;
-              clienteNew.fecha_list = this.fechaString;
-
-              this.clientesService.addCliente(clienteNew).subscribe(n=>{
-                if(n){
-                  this.toastr.success('Agregado');
-
-                  this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                    this.destacados=destacadosList;
-                    this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
-                      this.restringidos=restringidosList;
-
-                      this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                      this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                      this.dataSourceDestacados.sort = this.sort.toArray()[0];
-
-                      this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
-                      this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
-                      this.dataSourceRestringidos.sort = this.sort.toArray()[1];
-                    });
+          if(c){
+            c.condicion=res.condicion;
+            c.motivo=res.motivo;
+            c.fecha_list=this.fechaString;
+            c.sala_list=res.sala_list;
+  
+            this.clientesService.updateClient(c).subscribe(r=>{
+              if(r){
+                this.toastr.success('Restricción añadida');
+  
+                this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
+                  this.destacados=destacadosList;
+                  this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                    this.restringidos=restringidosList;
+  
+                    this.dataSourceDestacados = new MatTableDataSource(this.destacados);
+                    this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
+                    this.dataSourceDestacados.sort = this.sort.toArray()[0];
+  
+                    this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
+                    this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
+                    this.dataSourceRestringidos.sort = this.sort.toArray()[1];
                   });
-                }
-              });
-            }
-          })
-        }
-      })
+                });
+              }
+            })
+          }
+          else{
+            this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
+              if(res['success']){
+                var clienteNew = new Cliente('','','','','','','','','','','','','','');
+                clienteNew.doc_number = res['data']['numero'];
+                clienteNew.client_name = res['data']['nombre_completo'];
+                clienteNew.birth_date = res['data']['fecha_nacimiento'];
+                clienteNew.gender = res['data']['sexo'];
+                clienteNew.departamento = res['data']['departamento'];
+                clienteNew.provincia = res['data']['provincia'];
+                clienteNew.distrito = res['data']['distrito'];
+                clienteNew.address = res['data']['direccion'];
+                clienteNew.condicion = res.condicion;
+                clienteNew.motivo = res.motivo;
+                clienteNew.sala_list = res.sala_list;
+                clienteNew.fecha_list = this.fechaString;
+  
+                this.clientesService.addCliente(clienteNew).subscribe(n=>{
+                  if(n){
+                    this.toastr.success('Restricción añadida');
+  
+                    this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
+                      this.destacados=destacadosList;
+                      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                        this.restringidos=restringidosList;
+  
+                        this.dataSourceDestacados = new MatTableDataSource(this.destacados);
+                        this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
+                        this.dataSourceDestacados.sort = this.sort.toArray()[0];
+  
+                        this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
+                        this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
+                        this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+                      });
+                    });
+                  }
+                });
+              }
+            })
+          }
+        })
+      }
     })
   }
 
@@ -375,23 +378,27 @@ export class DialogNewD implements OnInit {
   }
 
   btnSave(){
-    this.data.doc_number=this.data.doc_number.toUpperCase();
-    this.data.condicion=this.data.condicion.toUpperCase();
-    this.data.motivo=this.data.motivo.toUpperCase();
-/*    this.data.fabricante=this.data.fabricante.toUpperCase();
-    this.data.lugar=this.data.lugar.toUpperCase();
-    this.data.marca=this.data.marca.toUpperCase();
-    this.data.modelo=this.data.modelo.toUpperCase();
-    this.data.numero=this.data.numero.toUpperCase();
-    this.data.observacion=this.data.observacion.toUpperCase();
-    this.data.propietario=this.data.propietario.toUpperCase();
-    this.data.registro=this.data.registro.toUpperCase();
-    this.data.serie=this.data.serie.toUpperCase();
-    this.data.tipo=this.data.tipo.toUpperCase();
-    this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
-    this.dialogRef.close(this.data);
+    if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
+      this.data.doc_number=this.data.doc_number.toUpperCase();
+      this.data.condicion=this.data.condicion.toUpperCase();
+      this.data.motivo=this.data.motivo.toUpperCase();
+  /*    this.data.fabricante=this.data.fabricante.toUpperCase();
+      this.data.lugar=this.data.lugar.toUpperCase();
+      this.data.marca=this.data.marca.toUpperCase();
+      this.data.modelo=this.data.modelo.toUpperCase();
+      this.data.numero=this.data.numero.toUpperCase();
+      this.data.observacion=this.data.observacion.toUpperCase();
+      this.data.propietario=this.data.propietario.toUpperCase();
+      this.data.registro=this.data.registro.toUpperCase();
+      this.data.serie=this.data.serie.toUpperCase();
+      this.data.tipo=this.data.tipo.toUpperCase();
+      this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
+      this.dialogRef.close(this.data);
+    }
+    else {
+      this.toastr.warning('¡DESPIERTA! Algo faltó');
+    }
   }
-
 }
 
 
@@ -430,21 +437,26 @@ export class DialogNewR implements OnInit {
   }
 
   btnSave(){
-    this.data.doc_number=this.data.doc_number.toUpperCase();
-    this.data.condicion=this.data.condicion.toUpperCase();
-    this.data.motivo=this.data.motivo.toUpperCase();
+    if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
+      this.data.doc_number=this.data.doc_number.toUpperCase();
+      this.data.condicion=this.data.condicion.toUpperCase();
+      this.data.motivo=this.data.motivo.toUpperCase();
 /*     this.data.fabricante=this.data.fabricante.toUpperCase();
-    this.data.lugar=this.data.lugar.toUpperCase();
-    this.data.marca=this.data.marca.toUpperCase();
-    this.data.modelo=this.data.modelo.toUpperCase();
-    this.data.numero=this.data.numero.toUpperCase();
-    this.data.observacion=this.data.observacion.toUpperCase();
-    this.data.propietario=this.data.propietario.toUpperCase();
-    this.data.registro=this.data.registro.toUpperCase();
-    this.data.serie=this.data.serie.toUpperCase();
-    this.data.tipo=this.data.tipo.toUpperCase();
-    this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
-    this.dialogRef.close(this.data);
+      this.data.lugar=this.data.lugar.toUpperCase();
+      this.data.marca=this.data.marca.toUpperCase();
+      this.data.modelo=this.data.modelo.toUpperCase();
+      this.data.numero=this.data.numero.toUpperCase();
+      this.data.observacion=this.data.observacion.toUpperCase();
+      this.data.propietario=this.data.propietario.toUpperCase();
+      this.data.registro=this.data.registro.toUpperCase();
+      this.data.serie=this.data.serie.toUpperCase();
+      this.data.tipo=this.data.tipo.toUpperCase();
+      this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
+      this.dialogRef.close(this.data);
+    }
+    else {
+      this.toastr.warning('¡DESPIERTA! Algo faltó');
+    }
   }
 
 }

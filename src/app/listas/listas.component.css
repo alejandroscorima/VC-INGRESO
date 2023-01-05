@@ -98,6 +98,27 @@ tr.example-element-row:not(.example-expanded-row):active {
   opacity: 0.5;
 }
 
+.mat-header-row, .mat-row {
+  min-height: 30px;
+}
+
+.mat-column-doc {
+  max-width: 10%;
+}
+.mat-column-name {
+  max-width: 20%;
+}
+.mat-column-motivo {
+  max-width: 30%;
+}
+.mat-column-sala_list {
+  max-width: 20%;
+}
+
+.mat-column-fecha_list {
+  max-width: 20%;
+}
+
 .iconInfo {
   font-size: 30px;
   height: 30px ;

@@ -27,6 +27,21 @@
             <td mat-cell *matCellDef="let a"> {{a.client_name}}</td>
           </ng-container>
 
+          <ng-container matColumnDef="motivo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> MOTIVO </th>
+            <td mat-cell *matCellDef="let a"> {{a.motivo}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="sala_list">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> SALA </th>
+            <td mat-cell *matCellDef="let a"> {{a.sala_list}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fecha_list">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> FECHA </th>
+            <td mat-cell *matCellDef="let a"> {{a.fecha_list}} </td>
+          </ng-container>
+
           <ng-container matColumnDef="edit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> </th>
             <td mat-cell *matCellDef="let a; let i=index">
@@ -68,8 +83,8 @@
           </ng-container>
 
 
-          <tr mat-header-row *matHeaderRowDef="['doc','name','edit'];"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['doc','name','edit'];"></tr>
+          <tr mat-header-row *matHeaderRowDef="['doc','name','motivo','sala_list','fecha_list','edit'];"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['doc','name','motivo','sala_list','fecha_list','edit'];"></tr>
 <!--           <tr mat-row *matRowDef="let row; columns: ['doc','name','edit'];"
           class="example-element-row"
           [class.example-expanded-row]="expandedElement === row"
@@ -119,6 +134,16 @@
             <td mat-cell *matCellDef="let a"> {{a.motivo}} </td>
           </ng-container>
 
+          <ng-container matColumnDef="sala_list">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> SALA </th>
+            <td mat-cell *matCellDef="let a"> {{a.sala_list}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fecha_list">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> FECHA </th>
+            <td mat-cell *matCellDef="let a"> {{a.fecha_list}} </td>
+          </ng-container>
+
           <ng-container matColumnDef="edit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> </th>
             <td mat-cell *matCellDef="let a; let i=index">
@@ -160,8 +185,8 @@
           </ng-container>
 
 
-          <tr mat-header-row *matHeaderRowDef="['doc','name','motivo','edit'];"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['doc','name','motivo','edit'];"></tr>
+          <tr mat-header-row *matHeaderRowDef="['doc','name','motivo','sala_list','fecha_list','edit'];"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['doc','name','motivo','sala_list','fecha_list','edit'];"></tr>
 <!--           <tr mat-row *matRowDef="let row; columns: ['doc','name','motivo','edit'];"
           class="example-element-row"
           [class.example-expanded-row]="expandedElement === row"
