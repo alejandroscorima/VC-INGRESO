@@ -21,8 +21,8 @@ if (!$jsonLudop) {
     exit("No hay datos");
 }
 $bd = include_once "bdEntrance.php";
-$sentencia = $bd->prepare("insert into ludopatas(code, doc_number, name) values (?,?,?)");
-$resultado = $sentencia->execute([$jsonLudop->code, $jsonLudop->doc_number, $jsonLudop->name]);
+$sentencia = $bd->prepare("insert into ludopatas(code, type_doc, doc_number, name) values (?,?,?,?)");
+$resultado = $sentencia->execute([$jsonLudop->code, $jsonLudop->type_doc, $jsonLudop->doc_number, $jsonLudop->name]);
 echo json_encode([
     "resultado" => $resultado,
 ]);
