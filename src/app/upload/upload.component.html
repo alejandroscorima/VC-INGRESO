@@ -1,13 +1,75 @@
 <div class="container" style="margin: 20px;" >
-    <div style="width:100%;display:display-inline;text-align: center;">
-        {{docname}}
-        <p style="align-content: center;text-align: center;">
-            <input (change)="onFileChange($event)" #npt class="form-control" type="file" id="formFile" style="display: none;">
-            <button (click)="npt.click()" mat-raised-button style="background-color: rgb(23, 71, 113); color:white;">
-                <mat-icon>cloud_upload</mat-icon>
-                CLICK AQUÍ
-            </button>
-        </p>
-        RECUERDE nombre del archivo: "Sistema consulta de Ludopatía.pdf"
-    </div>
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" color="accent">
+        <mat-tab label="CARGAR PDF" class="tabWare">
+            <div style="width:100%;display:display-inline;text-align: center;">
+                <br>
+                <br>
+                <br>
+                {{docname}}
+                <p style="align-content: center;text-align: center;">
+                    <input (change)="onFileChange($event)" #npt class="form-control" type="file" id="formFile" style="display: none;">
+                    <button (click)="npt.click()" mat-raised-button style="background-color: rgb(23, 71, 113); color:white;">
+                        <mat-icon>cloud_upload</mat-icon>
+                        CLICK AQUÍ
+                    </button>
+                </p>
+                RECUERDE nombre del archivo: "Sistema consulta de Ludopatía.pdf"
+            </div>
+        </mat-tab>
+        <mat-tab label="LISTA DE LUDOPATAS" class="tabWare">
+            <mat-form-field appearance="standard" style="display:display-inline">
+                <mat-label>Búsqueda</mat-label>
+                <input matInput (keyup)="applyFilterD($event)" placeholder="Escribe algo para buscar" #input1>
+            </mat-form-field>
+            <div class="mat-elevation-z8" style="width:100%;">
+                <table mat-table style="width:100%;" [dataSource]="dataSourceDaily" matSort multiTemplateDataRows>
+                  <ng-container matColumnDef="fecha">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+                    <td mat-cell *matCellDef="let a"> {{a.fecha}}</td>
+                  </ng-container>
+    
+                  <ng-container matColumnDef="h_inicio">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> TIPO DE DOC </th>
+                    <td mat-cell *matCellDef="let a"> {{a.h_inicio}}</td>
+                  </ng-container>
+    
+                  <ng-container matColumnDef="h_fin">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOCUMENTO </th>
+                    <td mat-cell *matCellDef="let a"> {{a.h_fin}}</td>
+                  </ng-container>
+  
+                  <ng-container matColumnDef="actividad">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> PERSONA INSCRITA </th>
+                    <td mat-cell *matCellDef="let a"> {{a.actividad}}</td>
+                  </ng-container>
+    
+                  <ng-container matColumnDef="descripcion">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> NUM REGISTRO </th>
+                    <td mat-cell *matCellDef="let a"> {{a.descripcion}}</td>
+                  </ng-container>
+    
+  
+  
+                  <ng-container matColumnDef="edit">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> EDITAR </th>
+                    <td mat-cell *matCellDef="let a; let i=index">
+                      <button *ngIf="a.estado!='ANULADO'" mat-icon-button color="primary" > <mat-icon> cancel </mat-icon> </button>&nbsp;
+                    </td>
+                  </ng-container>
+                  
+  
+                  <tr mat-header-row *matHeaderRowDef="['fecha','h_inicio','h_fin','actividad','descripcion','edit'];"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['fecha','h_inicio','h_fin','actividad','descripcion','edit'];"></tr>
+    
+    
+    
+                  <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" colspan="6">No se encontró "{{input1.value}}"</td>
+                  </tr>
+                </table>
+    
+                <mat-paginator [pageSizeOptions]="[10, 20, 50, 100]" aria-label="Página"></mat-paginator>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
 </div>

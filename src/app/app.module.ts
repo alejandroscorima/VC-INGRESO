@@ -44,6 +44,7 @@ import { DialogDatos, BirthdayComponent } from './birthday/birthday.component';
 import {MatGridListModule} from '@angular/material/grid-list';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { UploadComponent, DialogStatus } from './upload/upload.component';
+import {MatTabsModule} from '@angular/material/tabs';
 
 
 
@@ -96,6 +97,7 @@ import { UploadComponent, DialogStatus } from './upload/upload.component';
         MatTableExporterModule,
         MatGridListModule,
         GoogleChartsModule,
+        MatTabsModule,
         ToastrModule.forRoot(), // ToastrModule added
     ],
     providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },

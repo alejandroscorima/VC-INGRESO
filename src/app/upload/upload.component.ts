@@ -3,6 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileUploadService } from '../file-upload.service';
 
+
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
@@ -16,7 +17,29 @@ export class UploadComponent implements OnInit {
     public dialog: MatDialog,) { }
 
   ngOnInit(): void {  
+    /* this.logisticaService.getDaily().subscribe((resd:Daily[])=>{
+      if(resd.length!=0){
+        this.regList=[];
+        this.regList=resd;
+
+        console.log(this.regList);
+        this.dataSourceDaily = new MatTableDataSource(this.regList);
+        this.dataSourceDaily.paginator = this.paginator.toArray()[0];
+        this.dataSourceDaily.sort = this.sort.toArray()[0];
+      }
+    }); */
+
   }
+  
+  applyFilterD(event: Event) {
+    /* const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceDaily.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceDaily.paginator) {
+      this.dataSourceDaily.paginator.firstPage();
+    } */
+  }
+
   onFileChange(e){
     var dialogRef;
 
