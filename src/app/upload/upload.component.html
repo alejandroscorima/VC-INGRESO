@@ -8,11 +8,13 @@
                 {{docname}}
                 <p style="align-content: center;text-align: center;">
                     <input (change)="onFileChange($event)" #npt class="form-control" type="file" id="formFile" style="display: none;">
-                    <button (click)="npt.click()" mat-raised-button style="background-color: rgb(23, 71, 113); color:white;">
+                    <button class="button-up" (click)="npt.click()" mat-raised-button style="background-color: rgb(23, 71, 113); color:white;">
                         <mat-icon>cloud_upload</mat-icon>
                         CLICK AQUÍ
                     </button>
                 </p>
+                <br>
+                <br>
                 RECUERDE nombre del archivo: "Sistema consulta de Ludopatía.pdf"
             </div>
         </mat-tab>
@@ -22,44 +24,37 @@
                 <input matInput (keyup)="applyFilterD($event)" placeholder="Escribe algo para buscar" #input1>
             </mat-form-field>
             <div class="mat-elevation-z8" style="width:100%;">
-                <table mat-table style="width:100%;" [dataSource]="dataSourceDaily" matSort multiTemplateDataRows>
-                  <ng-container matColumnDef="fecha">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-                    <td mat-cell *matCellDef="let a"> {{a.fecha}}</td>
+                <table mat-table style="width:100%;" [dataSource]="dataSourceLudop" matSort multiTemplateDataRows>
+                  <ng-container matColumnDef="code">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> N° REGISTRO </th>
+                    <td mat-cell *matCellDef="let a"> {{a.code}}</td>
                   </ng-container>
     
-                  <ng-container matColumnDef="h_inicio">
+                  <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> TIPO DE DOC </th>
-                    <td mat-cell *matCellDef="let a"> {{a.h_inicio}}</td>
+                    <td mat-cell *matCellDef="let a"> {{a.type_doc}}</td>
                   </ng-container>
     
-                  <ng-container matColumnDef="h_fin">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOCUMENTO </th>
-                    <td mat-cell *matCellDef="let a"> {{a.h_fin}}</td>
+                  <ng-container matColumnDef="document">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> N° DOCUMENTO </th>
+                    <td mat-cell *matCellDef="let a"> {{a.doc_number}}</td>
                   </ng-container>
   
-                  <ng-container matColumnDef="actividad">
+                  <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> PERSONA INSCRITA </th>
-                    <td mat-cell *matCellDef="let a"> {{a.actividad}}</td>
-                  </ng-container>
-    
-                  <ng-container matColumnDef="descripcion">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> NUM REGISTRO </th>
-                    <td mat-cell *matCellDef="let a"> {{a.descripcion}}</td>
-                  </ng-container>
-    
-  
+                    <td mat-cell *matCellDef="let a"> {{a.name}}</td>
+                  </ng-container>   
   
                   <ng-container matColumnDef="edit">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> EDITAR </th>
                     <td mat-cell *matCellDef="let a; let i=index">
-                      <button *ngIf="a.estado!='ANULADO'" mat-icon-button color="primary" > <mat-icon> cancel </mat-icon> </button>&nbsp;
+                      <button mat-icon-button color="primary" (click)="editarLudop(a)"> <mat-icon> edit </mat-icon> </button>&nbsp;
                     </td>
                   </ng-container>
                   
   
-                  <tr mat-header-row *matHeaderRowDef="['fecha','h_inicio','h_fin','actividad','descripcion','edit'];"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['fecha','h_inicio','h_fin','actividad','descripcion','edit'];"></tr>
+                  <tr mat-header-row *matHeaderRowDef="['code','type','document','name','edit'];"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['code','type','document','name','edit'];"></tr>
     
     
     

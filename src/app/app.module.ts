@@ -43,7 +43,7 @@ import { DialogDatos, BirthdayComponent } from './birthday/birthday.component';
 
 import {MatGridListModule} from '@angular/material/grid-list';
 import { GoogleChartsModule } from 'angular-google-charts';
-import { UploadComponent, DialogStatus } from './upload/upload.component';
+import { UploadComponent, DialogStatus, DialogEditLudop } from './upload/upload.component';
 import {MatTabsModule} from '@angular/material/tabs';
 
 
@@ -58,6 +58,7 @@ import {MatTabsModule} from '@angular/material/tabs';
         GenerarActaComponent,
         BirthdayComponent,
         UploadComponent,
+        DialogEditLudop,
         //DialogRevisar,
         DialogRevalidar,
         DialogNewD,

@@ -1,0 +1,37 @@
+<div class="formRevalidar" #content>
+
+    <div style="text-align: center;">
+      <h1 mat-dialog-title >Editar Ludópata</h1>
+    </div>
+  
+    <div mat-dialog-content>
+  
+      <mat-form-field style="width:20%;" class="doc_id" appearance="outline">
+        <mat-label>N° REGISTRO:</mat-label>
+        <input matInput [(ngModel)]="data.code">
+      </mat-form-field>
+  
+      <mat-form-field style="width:33%;" class="doc_id" appearance="outline">
+        <mat-label>TIPO DE DOC:</mat-label>
+        <input matInput [(ngModel)]="data.type_doc">
+      </mat-form-field>
+  
+      <mat-form-field style="width:33%;" class="doc_id" appearance="outline">
+        <mat-label>N° DOCUMENTO</mat-label>
+        <input matInput [(ngModel)]="data.doc_number">
+      </mat-form-field>
+  
+      <mat-form-field style="width:29%;" class="doc_id" appearance="outline">
+        <mat-label>PERSONA INSCRITA</mat-label>
+        <input matInput [(ngModel)]="data.name">
+      </mat-form-field>
+  
+    </div>
+  
+    <div mat-dialog-actions>
+  
+      <button mat-raised-button style="background-color:rgb(32, 142, 32); color: white;" (click)="save()" ><mat-icon>save</mat-icon>Guardar</button>
+  
+    </div>
+  
+</div>  

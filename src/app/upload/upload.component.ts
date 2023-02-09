@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileUploadService } from '../file-upload.service';
@@ -8,6 +8,9 @@ import { LudopatiaService } from '../ludopatia.service';
 import { Ludopata } from '../ludopata';
 import { ToastrService } from 'ngx-toastr';
 import { ClientesService } from '../clientes.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-upload',
@@ -17,7 +20,9 @@ import { ClientesService } from '../clientes.service';
 export class UploadComponent implements OnInit {
 
   docname = '';
-
+  dataSourceLudop:MatTableDataSource<Ludopata>;
+  @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
+  @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
   constructor(private fileupload:FileUploadService,
   private clientesService:ClientesService,
@@ -29,6 +34,41 @@ export class UploadComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.ludopatiaService.getLudopatas().subscribe((resl:Ludopata[])=>{
+      if(resl.length!=0){
+        this.dataSourceLudop= new MatTableDataSource(resl);
+        this.dataSourceLudop.paginator = this.paginator.toArray()[0];
+        this.dataSourceLudop.sort = this.sort.toArray()[0];
+      }
+    });
+
+  }
+
+  applyFilterD(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceLudop.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceLudop.paginator) {
+      this.dataSourceLudop.paginator.firstPage();
+    }
+  }
+
+  editarLudop(ludo:Ludopata){
+    var dialogRef;
+
+    dialogRef=this.dialog.open(DialogEditLudop,{
+      data:ludo,
+    })
+
+    dialogRef.afterClosed().subscribe(res=>{
+      this.ludopatiaService.getLudopatas().subscribe((resl:Ludopata[])=>{
+        if(resl.length!=0){
+          this.dataSourceLudop= new MatTableDataSource(resl);
+          this.dataSourceLudop.paginator = this.paginator.toArray()[0];
+          this.dataSourceLudop.sort = this.sort.toArray()[0];
+        }
+      });
+    })
   }
 
   onFileChange(e){
@@ -240,4 +280,42 @@ export class DialogStatus implements OnInit {
     this.dialogRef.close();
   }
 
+}
+
+@Component({
+  selector: 'dialog-editLudop',
+  templateUrl: 'dialog-editLudop.html',
+  styleUrls: ['./upload.component.css']
+})
+export class DialogEditLudop implements OnInit {
+
+  img = new Image();
+
+  urlResult;
+
+  hideCheck=true;
+  hideLoad=true;
+  urlGif = "";
+  respuesta = "";
+
+  ludopatas: Ludopata[]=[];
+  toAdd: Ludopata[]=[];
+  toRemove: Ludopata[]=[];
+
+  constructor(
+    public dialogRef: MatDialogRef<DialogStatus>,
+    @Inject(MAT_DIALOG_DATA) public data:Ludopata,
+    private fb: FormBuilder,
+    private fileupload:FileUploadService,
+    private clientesService:ClientesService,
+    private ludopatiaService:LudopatiaService,
+  ) {}
+
+  ngOnInit(): void {
+    console.log('abre cuadro de dialogo')
+  }
+
+  save(){
+    console.log('guardado succesfully')
+  }
 }
