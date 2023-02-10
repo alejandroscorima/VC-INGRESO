@@ -42,7 +42,11 @@ export class HistoryComponent implements OnInit {
   salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
 
   fecha;
+  fecha_inicial;
+  fecha_final;
   fechaString;
+  fechaString_inicial;
+  fechaString_final;
 
   sala;
 
@@ -82,16 +86,23 @@ export class HistoryComponent implements OnInit {
   }
 
   salaChange(){
-    this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
+    /* this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
       this.visits=vList;
       this.dataSourceHistory = new MatTableDataSource(this.visits);
       this.dataSourceHistory.paginator = this.paginator.toArray()[0];
       this.dataSourceHistory.sort = this.sort.toArray()[0];
-    });
+    }); */
+    this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.sala).subscribe((vrange:Visit[])=>{
+      this.visits=vrange;
+      this.dataSourceHistory = new MatTableDataSource(this.visits);
+      this.dataSourceHistory.paginator = this.paginator.toArray()[0];
+      this.dataSourceHistory.sort = this.sort.toArray()[0];
+    })
   }
 
   change(a){
-    this.year=this.fecha.getFullYear();
+
+/*     this.year=this.fecha.getFullYear();
     this.month=parseInt(this.fecha.getMonth())+1;
     this.day=this.fecha.getDate();
 
@@ -104,18 +115,58 @@ export class HistoryComponent implements OnInit {
     }
 
     this.fechaString=this.year+'-'+this.month+'-'+this.day;
+    if(this.sala!=''){ */
 
-    if(this.sala!=''){
-
-      this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
+/*       this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
         this.visits=vList;
         this.dataSourceHistory = new MatTableDataSource(this.visits);
         this.dataSourceHistory.paginator = this.paginator.toArray()[0];
         this.dataSourceHistory.sort = this.sort.toArray()[0];
-      });
-    }
-    else{
-      this.toastr.warning('Selecciona una sala');
+      }); */
+
+    if(this.fecha_final!=null){
+
+      this.year=this.fecha_inicial.getFullYear();
+      this.month=parseInt(this.fecha_inicial.getMonth())+1;
+      this.day=this.fecha_inicial.getDate();
+    
+      if(parseInt(this.month)<10){
+          this.month='0'+this.month;
+      }
+    
+      if(parseInt(this.day)<10){
+          this.day='0'+this.day;
+      }
+    
+      this.fechaString_inicial=this.year+'-'+this.month+'-'+this.day;
+  
+      this.year=this.fecha_final.getFullYear();
+      this.month=parseInt(this.fecha_final.getMonth())+1;
+      this.day=this.fecha_final.getDate();
+    
+      if(parseInt(this.month)<10){
+          this.month='0'+this.month;
+      }
+    
+      if(parseInt(this.day)<10){
+          this.day='0'+this.day;
+      }
+    
+      this.fechaString_final=this.year+'-'+this.month+'-'+this.day;
+  
+      if(this.sala!=''){
+  
+  
+        this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.sala).subscribe((vrange:Visit[])=>{
+          this.visits=vrange;
+          this.dataSourceHistory = new MatTableDataSource(this.visits);
+          this.dataSourceHistory.paginator = this.paginator.toArray()[0];
+          this.dataSourceHistory.sort = this.sort.toArray()[0];
+        })
+      }
+      else{
+        this.toastr.warning('Selecciona una sala');
+      }
     }
   }
 
@@ -142,7 +193,6 @@ export class HistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.sala='';
 
     this.fecha=new Date();

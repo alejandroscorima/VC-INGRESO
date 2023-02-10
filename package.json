@@ -28,6 +28,7 @@
     "jspdf": "^1.5.3",
     "mat-table-exporter": "^10.2.4",
     "material-icons": "^1.11.1",
+    "ngx-cookie-service": "^15.0.0",
     "ngx-toastr": "^14.2.3",
     "pdfjs-dist": "^2.14.305",
     "prisma": "^3.12.0",
