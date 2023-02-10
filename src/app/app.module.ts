@@ -46,6 +46,9 @@ import { GoogleChartsModule } from 'angular-google-charts';
 import { UploadComponent, DialogStatus, DialogEditLudop } from './upload/upload.component';
 import {MatTabsModule} from '@angular/material/tabs';
 
+import { CookieService } from 'ngx-cookie-service';
+import { LoginComponent } from './login/login.component';
+
 
 
 
@@ -69,6 +72,7 @@ import {MatTabsModule} from '@angular/material/tabs';
         DialogHistoryDetail,
         DialogLudops,
         DialogStatus,
+        LoginComponent,
     ],
     imports: [
         BrowserModule,
@@ -103,7 +107,7 @@ import {MatTabsModule} from '@angular/material/tabs';
         ToastrModule.forRoot(), // ToastrModule added
     ],
     providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
-      { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }],
+      { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,5 @@
 <div class="contenedor-padre">
-  <mat-toolbar class="barra"  id="barra">
+  <mat-toolbar class="barra"  id="barra" *ngIf="user.first_name!=''">
     <mat-toolbar-row >
       <button (click)="cajon.toggle()" mat-icon-button>
         <mat-icon>menu</mat-icon>
@@ -7,66 +7,66 @@
       <span>
         CONTROL DE INGRESO&nbsp;
       </span>
-<!--       <span>
-        <a mat-stroked-button >Vision Games Corporation</a>
-      </span> -->
+      <span class="example-spacer"></span>
+      <button mat-raised-button (click)="logout()">
+        <mat-icon>logout</mat-icon>Cerrar sesión
+      </button>
+
     </mat-toolbar-row>
   </mat-toolbar>
   <mat-sidenav-container class="contenido">
-    <mat-sidenav style="min-width: 150px;" #cajon mode="side">
-      <mat-nav-list>
-        <a mat-list-item (click)="cajon.toggle()" routerLink="/">
+    <mat-sidenav closed style="width: 200px; background-color: #252b2b; color: whitesmoke;" #cajon mode="side">
+      <mat-nav-list style="padding-top:0px;">
+        <p style="margin-top:0px;margin-bottom: 0px; text-align: center;">
+          <img *ngIf="user.gender=='MASCULINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-male.png"  VSPACE="20">
+          <img *ngIf="user.gender=='FEMENINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-female.png"  VSPACE="20">
+          <img *ngIf="user.gender!='MASCULINO'&&user.gender!='FEMENINO'&&user.first_name=='LOSS PREVENTION'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/loss_prevention.png"  VSPACE="20">
+        </p>
+        <a>
+          <h3 style="text-align:center; margin: 10px;">{{user.first_name+' '+user.last_name}}</h3>
+          <p style="text-align:center; margin: 10px;">
+            <br/>
+            <a style="font-weight:bold;">AREA: </a>
+            <a style="font-weight:normal;">{{user_area.name}}</a>
+            <br/>
+          </p>
+          <p style="text-align:center; margin: 10px;">
+            <a style="font-weight:bold;">SEDE: </a>
+            <a style="font-weight:normal;">{{user_campus.name}}</a>
+            <br/>
+          </p>
+        </a>
+
+        <a mat-list-item class="navItem" routerLink="/">
           <mat-icon class="icon1" >dashboard</mat-icon>
           Dashboard
         </a>
-        <a mat-list-item (click)="cajon.toggle()" routerLink="/listas">
+        <a mat-list-item class="navItem" routerLink="/listas">
           <mat-icon class="icon4" >category</mat-icon>
           Listas
         </a>
-        <a mat-list-item (click)="cajon.toggle()" routerLink="/hb">
+        <a mat-list-item class="navItem" routerLink="/hb">
           <mat-icon class="icon2" >cake</mat-icon>
           Cumpleaños
         </a>
-        <a mat-list-item (click)="cajon.toggle()" routerLink="/history">
+        <a mat-list-item class="navItem" routerLink="/history">
           <mat-icon class="icon3" >history</mat-icon>
           Historial
         </a>
-        <a mat-list-item class="listitem" (click)="cajon.toggle()" routerLink="/upload">
+        <a mat-list-item class="navItem" routerLink="/upload">
           <mat-icon class="icon5" >upload_file</mat-icon>
           Subir PDF
         </a>
-        <!-- <a mat-list-item routerLink="/mascotas/agregar">
-          <mat-icon color="accent">add</mat-icon>
-          Agregar mascota
-        </a> -->
-<!--         <a mat-list-item routerLink="/acerca-de">
-          <mat-icon color="accent">info</mat-icon>
-          Acerca de
-        </a> -->
-        <a mat-stroked-button color="primary">Oscorp Technology</a>
-      </mat-nav-list>
-      <!--<mat-accordion>
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Más
-            </mat-panel-title>
-          </mat-expansion-panel-header>
 
-          <mat-nav-list>
-            <a mat-list-item routerLink="/acerca-de">
-              <mat-icon color="accent">info</mat-icon>
-              Acerca de
-            </a>
-            <a mat-list-item href='https://parzibyte.me/blog/contrataciones-ayuda/'>
-              Ayuda
-            </a>
-          </mat-nav-list>
-        </mat-expansion-panel>
-      </mat-accordion> -->
+        <a mat-list-item style="align-content: center;">
+          <a mat-stroked-button color="primary">Oscorp Technology</a>
+        </a>
+
+      </mat-nav-list>
+
     </mat-sidenav>
-    <mat-sidenav-content class="padding-10">
-      <router-outlet></router-outlet>
+    <mat-sidenav-content class="fondo">
+      <router-outlet style="height: 100%;"></router-outlet>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

@@ -1,0 +1,58 @@
+<div class="limiter">
+  <div class="container-login100">
+    <div class="wrap-login100">
+      <div style="z-index: 5;" class="login100-pic js-tilt" data-tilt>
+
+        <img src="assets/main_icon.png" alt="IMG">
+        <h2 style="text-align: center ;">CONTROL DE INGRESO</h2>
+      </div>
+
+      <div class="login100-form validate-form">
+        <span class="login100-form-title">
+          <h3>
+            Iniciar sesión
+          </h3>
+        </span>
+
+        <div style="z-index:7;" data-validate = "Username is required">
+
+          <mat-form-field style="width:100%;" class="doc_id" appearance="outline">
+            <mat-label><mat-icon aria-hidden="true">person</mat-icon>Usuario:</mat-label>
+
+            <input matInput type="username" [(ngModel)]="username" required>
+          </mat-form-field>
+
+          <mat-form-field style="width:100%;" class="doc_id" appearance="outline">
+            <mat-label><mat-icon aria-hidden="true">lock</mat-icon>Contraseña:</mat-label>
+
+            <input matInput type="password" [(ngModel)]="password" [type]="hide ? 'password' : 'text'" required (keyup.enter)="log.click()">
+            <mat-icon matSuffix (click)="hide = !hide"> {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </mat-form-field>
+
+        </div>
+
+        <div class="container-login100-form-btn">
+          <button #log (click)="login()" class="login100-form-btn">
+            INGRESAR
+          </button>
+        </div>
+<!--
+        <div class="text-center p-t-12">
+          <span class="txt1">
+            Forgot
+          </span>
+          <a class="txt2" href="#">
+            Username / Password?
+          </a>
+        </div>
+
+        <div class="text-center p-t-136">
+          <a class="txt2" href="#">
+            Create your Account
+            <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+          </a>
+        </div> -->
+      </div>
+    </div>
+  </div>
+</div>

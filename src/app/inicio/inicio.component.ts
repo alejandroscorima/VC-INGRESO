@@ -16,6 +16,7 @@ import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
 import html2canvas from 'html2canvas';
 import { Product } from '../product';
+import { CookiesService } from '../cookies.service';
 
 
 @Component({
@@ -289,6 +290,7 @@ export class InicioComponent implements OnInit {
     private snackBar: MatSnackBar, private router: Router,
     public dialog: MatDialog,
     private toastr: ToastrService,
+    private cookies: CookiesService,
     ) { }
 
 
@@ -316,189 +318,189 @@ export class InicioComponent implements OnInit {
 
   ngOnInit() {
 
-    this.salaDisabled=false;
-    this.mesDisabled=false;
-    this.diaDisabled=false;
-    this.fechaDisabled=false;
-
-    this.fechaCmbBoxStart= new Date();
-    this.fechaCmbBoxEnd= new Date();
-    this.diaCmbBox='SELECCIONAR';
-    this.mesCmbBox='SELECCIONAR';
-    this.salaCmbBox='PALACIO';
-
-    if(this.salaCmbBox=='PALACIO'){
-      this.logoSrc="assets/logoPALACIO.png";
-    }
-    if(this.salaCmbBox=='VENEZUELA'){
-      this.logoSrc="assets/logoVENEZUELA.png";
-    }
-    if(this.salaCmbBox=='HUANDOY'){
-      this.logoSrc="assets/logoHUANDOY.png";
-    }
-    if(this.salaCmbBox=='KANTA'){
-      this.logoSrc="assets/logoKANTA.png";
-    }
-    if(this.salaCmbBox=='MEGA'){
-      this.logoSrc="assets/logoMEGA.png";
-    }
-    if(this.salaCmbBox=='PRO'){
-      this.logoSrc="assets/logoPRO.png";
-    }    
-    if(this.salaCmbBox=='HUARAL'){
-      this.logoSrc="assets/logoHUARAL.png";
-    }    
-    if(this.salaCmbBox=='SAN JUAN I'){
-      this.logoSrc="assets/logoSJI.png";
-    }
-    if(this.salaCmbBox=='SAN JUAN II'){
-      this.logoSrc="assets/logoSJII.png";
-    }
-    if(this.salaCmbBox=='SAN JUAN III'){
-      this.logoSrc="assets/logoSJIII.png";
-    }
-
-    this.fecha= new Date();
-
-    this.dia = this.fecha.getDate();
-    this.mes = this.fecha.getMonth()+1;
-    this.anio = this.fecha.getFullYear();
-
-    if(this.mes<10){
-      this.mes = '0'+this.mes;
-    }
-
-    if(this.dia<10){
-      this.dia = '0'+this.dia;
-    }
-
-    this.fecha_hoy = this.anio+'-'+this.mes+'-'+this.dia;
-
-    this.fecha1 = '';
-    this.fecha2 = '';
-    this.fecha3 = '';
-    this.fecha4 = '';
-    this.fecha5 = '';
-    this.fechaInicio = this.fecha_hoy;
-    this.fechaFin = this.fecha_hoy;
-    this.fechaMes = this.anio+'-'+this.mes+'-';
-
-    this.mesActual = this.meses[this.fecha.getMonth()];
-    this.diaActual = String(this.fecha.getDate());
-
-    this.clientesService.getAforoStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
-
-        this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
-
-
-        this.clientesService.getAforoNewStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
-
-          this.fechas=[];
-
-          this.columnsFechas=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }];
-
-          this.numberClients=0;
-          this.numberClientsNew=0;
-
-          for(var i=0,l=res.length;i<l;i++){
-            if(res[i]['FECHA']!='S/N' && res[i]['FECHA']!='--'){
-
-              var ele=[];
-              var flag1=false;
-
-              ele.push(String(res[i]['FECHA']));
-              ele.push(parseInt(res[i]['AFORO']));
-              ele.push(String(res[i]['AFORO']));
-
-              this.numberClients+=parseInt(res[i]['AFORO']);
-              this.numberClientsAverage=(this.numberClients/res.length).toFixed(0);
-
-              if(res2.length>0){
-                res2.forEach(rd2=>{
-                  if(rd2['FECHA']==res[i]['FECHA']){
-                    flag1=true;
-                    ele.push(parseInt(rd2['AFORO']));
-                    ele.push(String(rd2['AFORO']));
-
-                    this.numberClientsNew+=parseInt(rd2['AFORO']);
+    if(this.cookies.checkToken('user_id')){
+      this.salaDisabled=false;
+      this.mesDisabled=false;
+      this.diaDisabled=false;
+      this.fechaDisabled=false;
+  
+      this.fechaCmbBoxStart= new Date();
+      this.fechaCmbBoxEnd= new Date();
+      this.diaCmbBox='SELECCIONAR';
+      this.mesCmbBox='SELECCIONAR';
+      this.salaCmbBox='PALACIO';
+  
+      if(this.salaCmbBox=='PALACIO'){
+        this.logoSrc="assets/logoPALACIO.png";
+      }
+      if(this.salaCmbBox=='VENEZUELA'){
+        this.logoSrc="assets/logoVENEZUELA.png";
+      }
+      if(this.salaCmbBox=='HUANDOY'){
+        this.logoSrc="assets/logoHUANDOY.png";
+      }
+      if(this.salaCmbBox=='KANTA'){
+        this.logoSrc="assets/logoKANTA.png";
+      }
+      if(this.salaCmbBox=='MEGA'){
+        this.logoSrc="assets/logoMEGA.png";
+      }
+      if(this.salaCmbBox=='PRO'){
+        this.logoSrc="assets/logoPRO.png";
+      }    
+      if(this.salaCmbBox=='HUARAL'){
+        this.logoSrc="assets/logoHUARAL.png";
+      }    
+      if(this.salaCmbBox=='SAN JUAN I'){
+        this.logoSrc="assets/logoSJI.png";
+      }
+      if(this.salaCmbBox=='SAN JUAN II'){
+        this.logoSrc="assets/logoSJII.png";
+      }
+      if(this.salaCmbBox=='SAN JUAN III'){
+        this.logoSrc="assets/logoSJIII.png";
+      }
+  
+      this.fecha= new Date();
+  
+      this.dia = this.fecha.getDate();
+      this.mes = this.fecha.getMonth()+1;
+      this.anio = this.fecha.getFullYear();
+  
+      if(this.mes<10){
+        this.mes = '0'+this.mes;
+      }
+  
+      if(this.dia<10){
+        this.dia = '0'+this.dia;
+      }
+  
+      this.fecha_hoy = this.anio+'-'+this.mes+'-'+this.dia;
+  
+      this.fecha1 = '';
+      this.fecha2 = '';
+      this.fecha3 = '';
+      this.fecha4 = '';
+      this.fecha5 = '';
+      this.fechaInicio = this.fecha_hoy;
+      this.fechaFin = this.fecha_hoy;
+      this.fechaMes = this.anio+'-'+this.mes+'-';
+  
+      this.mesActual = this.meses[this.fecha.getMonth()];
+      this.diaActual = String(this.fecha.getDate());
+  
+      this.clientesService.getAforoStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
+  
+          this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
+  
+  
+          this.clientesService.getAforoNewStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
+  
+            this.fechas=[];
+  
+            this.columnsFechas=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }];
+  
+            this.numberClients=0;
+            this.numberClientsNew=0;
+  
+            for(var i=0,l=res.length;i<l;i++){
+              if(res[i]['FECHA']!='S/N' && res[i]['FECHA']!='--'){
+  
+                var ele=[];
+                var flag1=false;
+  
+                ele.push(String(res[i]['FECHA']));
+                ele.push(parseInt(res[i]['AFORO']));
+                ele.push(String(res[i]['AFORO']));
+  
+                this.numberClients+=parseInt(res[i]['AFORO']);
+                this.numberClientsAverage=(this.numberClients/res.length).toFixed(0);
+  
+                if(res2.length>0){
+                  res2.forEach(rd2=>{
+                    if(rd2['FECHA']==res[i]['FECHA']){
+                      flag1=true;
+                      ele.push(parseInt(rd2['AFORO']));
+                      ele.push(String(rd2['AFORO']));
+  
+                      this.numberClientsNew+=parseInt(rd2['AFORO']);
+                    }
+                  })
+                  if(!flag1){
+                    ele.push(0);
+                    ele.push('0');
                   }
-                })
-                if(!flag1){
+                }
+                else{
                   ele.push(0);
                   ele.push('0');
                 }
+                this.fechas.push(ele);
               }
-              else{
-                ele.push(0);
-                ele.push('0');
-              }
-              this.fechas.push(ele);
             }
-          }
-
-          this.clientesService.getAddressStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
-
-            a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
-
-            this.distritoTop=a[0]['DISTRITO'];
-
-            var ndist=0;
-
-            a.forEach(ad=>{
-              if(ad['DISTRITO']!='S/N' && ad['DISTRITO']!='--' && ad['DISTRITO']!='SN'&&ndist<12){
-                var el =[];
-
-                this.columnsAddress=['Dir','Cantidad',{ role: 'annotation' }]
-
-                el.push(String(ad['CANTIDAD']));
-                el.push(parseInt(ad['CANTIDAD']));
-                el.push(ad['DISTRITO']);
-                this.address.push(el);
-                ndist+=1;
-              }
-            })
-
-            this.clientesService.getTotalMonth(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
-
-              this.clientesService.getTotalMonthNew(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
-
-                this.mensual=[];
-
-                this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }]
-
-                for(var i=0, l=b.length;i<l;i++){
-                  if(b[i]['FECHA']!='S/N' && b[i]['FECHA']!='--'){
-                    var el =[];
-                    var flag2=false;
-                    el.push(b[i]['FECHA']);
-                    el.push(parseInt(b[i]['AFORO']));
-                    el.push(String(b[i]['AFORO']));
-
-                    if(b2.length>0){
-                      b2.forEach(ad2=>{
-                        if(ad2['FECHA']==b[i]['FECHA']){
-                          flag2=true;
-                          el.push(parseInt(ad2['AFORO']));
-                          el.push(String(ad2['AFORO']));
+  
+            this.clientesService.getAddressStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
+  
+              a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
+  
+              this.distritoTop=a[0]['DISTRITO'];
+  
+              var ndist=0;
+  
+              a.forEach(ad=>{
+                if(ad['DISTRITO']!='S/N' && ad['DISTRITO']!='--' && ad['DISTRITO']!='SN'&&ndist<12){
+                  var el =[];
+  
+                  this.columnsAddress=['Dir','Cantidad',{ role: 'annotation' }]
+  
+                  el.push(String(ad['CANTIDAD']));
+                  el.push(parseInt(ad['CANTIDAD']));
+                  el.push(ad['DISTRITO']);
+                  this.address.push(el);
+                  ndist+=1;
+                }
+              })
+  
+              this.clientesService.getTotalMonth(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
+  
+                this.clientesService.getTotalMonthNew(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
+  
+                  this.mensual=[];
+  
+                  this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }]
+  
+                  for(var i=0, l=b.length;i<l;i++){
+                    if(b[i]['FECHA']!='S/N' && b[i]['FECHA']!='--'){
+                      var el =[];
+                      var flag2=false;
+                      el.push(b[i]['FECHA']);
+                      el.push(parseInt(b[i]['AFORO']));
+                      el.push(String(b[i]['AFORO']));
+  
+                      if(b2.length>0){
+                        b2.forEach(ad2=>{
+                          if(ad2['FECHA']==b[i]['FECHA']){
+                            flag2=true;
+                            el.push(parseInt(ad2['AFORO']));
+                            el.push(String(ad2['AFORO']));
+                          }
+                        })
+                        if(!flag2){
+                          el.push(0);
+                          el.push('0');
                         }
-                      })
-                      if(!flag2){
+                      }
+                      else{
                         el.push(0);
                         el.push('0');
                       }
+                      this.mensual.push(el);
                     }
-                    else{
-                      el.push(0);
-                      el.push('0');
-                    }
-                    this.mensual.push(el);
                   }
-                }
-
-                this.hours=[];
-
-                this.clientesService.getHourStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
-                  //this.clientesService.getHourReal(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAforoReal:any[])=>{
+  
+                  this.hours=[];
+  
+                  this.clientesService.getHourStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
                     var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
                     this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
                     var cantidadXHoras=[24];
@@ -515,33 +517,7 @@ export class InicioComponent implements OnInit {
                         elem.push(horasString[i]+':00');
                         elem.push(contador);
                         elem.push(String(contador));
-                        /* var flaghari=false;
-                        if(resAforoReal.length>0){
-                          resAforoReal.forEach(hari=>{
-                            if(i<22){
-                              if(hari['HORA']==horasString[i+1]+':00'){
-                                elem.push(parseInt(hari['AFORO']));
-                                elem.push(String(hari['AFORO']));
-                                flaghari=true;
-                              }
-                            }
-                            else{
-                              if(hari['HORA']==horasString[0]+':00'){
-                                elem.push(parseInt(hari['AFORO']));
-                                elem.push(String(hari['AFORO']));
-                                flaghari=true;
-                              }
-                            }
-                          })
-                          if(!flaghari){
-                            elem.push(0);
-                            elem.push('0');
-                          }
-                        }
-                        else{
-                          elem.push(0);
-                          elem.push('0');
-                        } */
+
                         cantidadXHoras[i]=contador;
                         if(contador>=cantHourAux){
                           cantHourAux=contador;
@@ -638,68 +614,23 @@ export class InicioComponent implements OnInit {
                         elem.push(String(count60amas));
                         this.age.push(elem);
 
-/*                         this.fecha.setDate(this.fecha.getDate()-1);
 
-                        this.dia = this.fecha.getDate();
-                        this.mes = this.fecha.getMonth()+1;
-                        this.anio = this.fecha.getFullYear();
-
-                        if(this.mes<10){
-                          this.mes = '0'+this.mes;
-                        }
-
-                        if(this.dia<10){
-                          this.dia = '0'+this.dia;
-                        }
-
-                        this.fechaInicio = this.anio+'-'+this.mes+'-'+this.dia; */
-
-/*                         this.clientesService.getHourWargos(this.salaCmbBox,this.fechaInicio,this.fechaFin,'','','','','','','','').subscribe((ans:any[])=>{
-                          if(ans.length>0){
-                            ans.splice(0,48);
-                            console.log(ans);
-                            this.horaWargos=[];
-                            this.columnsHoraWargos=['Hora','Total',{ role: 'annotation' },'Logueados',{ role: 'annotation' }]
-                            for(var t=0; t<24; t++){
-                              var contHW=0;
-                              ans.forEach(ansItem=>{
-                                var elemHW =[];
-                                var fechaHoraArray = String(ansItem['fechaHora']).split(' ');
-                                var horaWargosArray = String(fechaHoraArray[1]).split(':');
-                                var horaWargosNum = parseInt(horaWargosArray[0]);
-                                var minWargosNum = parseInt(horaWargosArray[1]);
-                                if(t==horaWargosNum&&minWargosNum==0){
-                                  var horaHWStr= horaWargosArray[0]+':'+horaWargosArray[1];
-                                  console.log(horaWargosArray[0]+':'+horaWargosArray[1]);
-                                  elemHW.push(horaHWStr);
-                                  elemHW.push(parseInt(ansItem['played']));
-                                  elemHW.push(String(ansItem['played']));
-                                  elemHW.push(parseInt(ansItem['logged']));
-                                  elemHW.push(String(ansItem['logged']));
-                                  this.horaWargos.push(elemHW);
-                                }
-
-                              })
-                            }
-                          }
-                        }) */
                       }
                     })
-                  //})
 
+  
+                  })
+  
                 })
-
               })
             })
           })
-        })
-
-    })
-
-
-
-
-
+  
+      })
+    }
+    else{
+      this.router.navigateByUrl('/login');
+    }
 
   }
 
