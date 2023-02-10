@@ -61,13 +61,15 @@ export class UploadComponent implements OnInit {
     })
 
     dialogRef.afterClosed().subscribe(res=>{
-      this.ludopatiaService.getLudopatas().subscribe((resl:Ludopata[])=>{
-        if(resl.length!=0){
-          this.dataSourceLudop= new MatTableDataSource(resl);
-          this.dataSourceLudop.paginator = this.paginator.toArray()[0];
-          this.dataSourceLudop.sort = this.sort.toArray()[0];
-        }
-      });
+      if(res){
+        this.ludopatiaService.getLudopatas().subscribe((resl:Ludopata[])=>{
+          if(resl.length!=0){
+            this.dataSourceLudop= new MatTableDataSource(resl);
+            this.dataSourceLudop.paginator = this.paginator.toArray()[0];
+            this.dataSourceLudop.sort = this.sort.toArray()[0];
+          }
+        });
+      }
     })
   }
 
@@ -309,13 +311,19 @@ export class DialogEditLudop implements OnInit {
     private fileupload:FileUploadService,
     private clientesService:ClientesService,
     private ludopatiaService:LudopatiaService,
+    private toastr:ToastrService,
   ) {}
 
   ngOnInit(): void {
-    console.log('abre cuadro de dialogo')
+
   }
 
   save(){
-    console.log('guardado succesfully')
+    this.ludopatiaService.updateLudopata(this.data).subscribe(resp=>{
+      if(resp){
+        this.toastr.success('Se han actualizado los datos correctamente!');
+        this.dialogRef.close(true);
+      }
+    });
   }
 }

@@ -29,5 +29,8 @@ export class LudopatiaService {
     return this.http.delete(`${this.baseUrl}/deleteLudopata.php?ludop_id=${ludop.id}`);
   }
 
+  updateLudopata(ludop: Ludopata) {
+    return this.http.put(`${this.baseUrl}/updateLudopata.php`, ludop);
+  }
 
 }
