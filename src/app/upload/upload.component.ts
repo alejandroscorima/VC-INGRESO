@@ -132,7 +132,7 @@ export class DialogStatus implements OnInit {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.worker.js';
 
     //var loadingTask = pdfjsLib.getDocument('http://192.168.4.250/Sistema consulta de Ludopatía.pdf');
-    var loadingTask = pdfjsLib.getDocument('http://34.207.60.246/Sistema consulta de Ludopatía.pdf');
+    var loadingTask = pdfjsLib.getDocument('http://52.5.47.64/Sistema consulta de Ludopatía.pdf');
 
 
     this.ludopatas = await loadingTask.promise.then(async function(pdf) {
