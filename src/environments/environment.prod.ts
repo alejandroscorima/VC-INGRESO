@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: ".",
+  baseUrl: "http://52.5.47.64/Ingreso-v1.0",
 };
