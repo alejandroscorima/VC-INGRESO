@@ -44,6 +44,7 @@ export class ListasComponent implements OnInit {
 
   dataSourceDestacados: MatTableDataSource<Cliente>;
   dataSourceRestringidos: MatTableDataSource<Cliente>;
+  dataSourceObservados: MatTableDataSource<Cliente>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
@@ -353,7 +354,7 @@ export class DialogNewD implements OnInit {
 
     disableBtnOk;
     sala;
-    salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
+    salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
     
 
   constructor(
@@ -412,7 +413,7 @@ export class DialogNewR implements OnInit {
 
   disableBtnOk;
   sala;
-  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
+  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
 
   constructor(
     public dialogRef: MatDialogRef<DialogNewR>,

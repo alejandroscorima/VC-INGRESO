@@ -39,7 +39,7 @@ export class HistoryComponent implements OnInit {
   visit: Visit= new Visit('','','','','','','');
   visits: Visit[] = [];
 
-  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
+  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
 
   fecha;
   fecha_inicial;

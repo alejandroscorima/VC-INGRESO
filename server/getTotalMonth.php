@@ -56,6 +56,10 @@ if($sala=='SAN JUAN III'){
   $sentencia = $bd->prepare("SELECT date_entrance FECHA, count(*) AFORO FROM visits_sjiii WHERE date_entrance like '%".$fecha."%' GROUP BY FECHA");
 }
 
+if($sala=='OLYMPO'){
+  $sentencia = $bd->prepare("SELECT date_entrance FECHA, count(*) AFORO FROM visits_olympo WHERE date_entrance like '%".$fecha."%' GROUP BY FECHA");
+}
+
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
 //where birth_date like '%?%'

@@ -159,6 +159,21 @@ if($sala=='SAN JUAN III'){
   }
 }
 
+
+if($sala=='OLYMPO'){
+  if($mes=='SELECCIONAR'){
+    if($dia=='SELECCIONAR'){
+      $sentencia = $bd->prepare("SELECT age EDAD, count(*) AFORO FROM visits_olympo WHERE date_entrance>='".$fechaInicio."' AND date_entrance<='".$fechaFin."' GROUP BY EDAD");
+    }
+    else{
+      $sentencia = $bd->prepare("SELECT age EDAD, count(*) AFORO FROM visits_olympo WHERE date_entrance='".$fecha1."' OR date_entrance='".$fecha2."' OR date_entrance='".$fecha3."' OR date_entrance='".$fecha4."' OR date_entrance='".$fecha5."' GROUP BY EDAD");
+    }
+  }
+  else{
+    $sentencia = $bd->prepare("SELECT age EDAD, count(*) AFORO FROM visits_olympo WHERE date_entrance like '%".$fechaMes."%' GROUP BY EDAD");
+  }
+}
+
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
 //where birth_date like '%?%'

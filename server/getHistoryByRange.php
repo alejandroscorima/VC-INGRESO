@@ -41,6 +41,9 @@ if($sala=='SAN JUAN II'){
 if($sala=='SAN JUAN III'){
   $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_sjiii WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
 }
+if($sala=='OLYMPO'){
+  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_olympo WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
+}
 //where birth_date like '%?%'
 $sentencia -> execute();
 //[$fecha_cumple]

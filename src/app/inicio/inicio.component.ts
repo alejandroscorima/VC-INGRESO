@@ -55,8 +55,7 @@ export class InicioComponent implements OnInit {
 
   logoSrc;
 
-  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III'];
-
+  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
   typeAforo="ComboChart";
   typeAge="PieChart";
   typeMensual="ComboChart";
@@ -360,7 +359,10 @@ export class InicioComponent implements OnInit {
       if(this.salaCmbBox=='SAN JUAN III'){
         this.logoSrc="assets/logoSJIII.png";
       }
-  
+      if(this.salaCmbBox=='OLYMPO'){
+        this.logoSrc="assets/logoOLYMPO.png";
+      }
+      
       this.fecha= new Date();
   
       this.dia = this.fecha.getDate();
@@ -859,7 +861,10 @@ export class InicioComponent implements OnInit {
     if(this.salaCmbBox=='HUARAL'){
       this.logoSrc="assets/logoHUARAL.png";
     }
-    
+    if(this.salaCmbBox=='OLYMPO'){
+      this.logoSrc="assets/logoOLYMPO.png";
+    }
+
     this.clientesService.getAforoStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
       if(res.length>0){
 
@@ -1287,6 +1292,11 @@ export class DialogSelectSala implements OnInit {
   }
 
   btnHuaral(){
+    this.data = 'huaral';
+    this.dialogRef.close(this.data);
+  }
+
+  btnOlympo(){
     this.data = 'huaral';
     this.dialogRef.close(this.data);
   }
