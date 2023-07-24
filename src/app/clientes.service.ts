@@ -36,12 +36,16 @@ export class ClientesService {
     return this.http.get(`${this.baseUrl}/getHistoryByClient.php?fecha=${fecha}&sala=${sala}&doc=${doc}`);
   }
 
-  getDestacados() {
-    return this.http.get(`${this.baseUrl}/getDestacados.php`);
+  getObservados() {
+    return this.http.get(`${this.baseUrl}/getObservados.php`);
   }
 
   getRestringidos() {
     return this.http.get(`${this.baseUrl}/getRestringidos.php`);
+  }
+
+  getVips() {
+    return this.http.get(`${this.baseUrl}/getVips.php`);
   }
 
   getClient(doc_number: string) {

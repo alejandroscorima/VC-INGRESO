@@ -38,7 +38,7 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { MatTableExporterModule } from 'mat-table-exporter';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { DialogNewD, DialogNewR, DialogConfirm, ListasComponent } from './listas/listas.component';
+import { DialogNewO, DialogNewR, DialogConfirm, ListasComponent, DialogNewV } from './listas/listas.component';
 import { DialogDatos, BirthdayComponent } from './birthday/birthday.component';
 
 import {MatGridListModule} from '@angular/material/grid-list';
@@ -65,8 +65,9 @@ import { LoginComponent } from './login/login.component';
         DialogEditLudop,
         //DialogRevisar,
         DialogRevalidar,
-        DialogNewD,
+        DialogNewO,
         DialogNewR,
+        DialogNewV,
         DialogDatos,
         DialogConfirm,
         DialogHistoryDetail,

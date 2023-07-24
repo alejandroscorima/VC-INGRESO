@@ -36,15 +36,16 @@ export class ListasComponent implements OnInit {
 
   cliente: Cliente;
 
-  destacados: Cliente[]= [];
+  observados: Cliente[]= [];
   restringidos: Cliente[] = [];
+  vips: Cliente[] = [];
 
   fecha;
   fechaString;
 
-  dataSourceDestacados: MatTableDataSource<Cliente>;
-  dataSourceRestringidos: MatTableDataSource<Cliente>;
   dataSourceObservados: MatTableDataSource<Cliente>;
+  dataSourceRestringidos: MatTableDataSource<Cliente>;
+  dataSourceVips: MatTableDataSource<Cliente>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
@@ -68,12 +69,12 @@ export class ListasComponent implements OnInit {
 
   }
 
-  applyFilterD(event: Event) {
+  applyFilterO(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSourceDestacados.filter = filterValue.trim().toLowerCase();
+    this.dataSourceObservados.filter = filterValue.trim().toLowerCase();
 
-    if (this.dataSourceDestacados.paginator) {
-      this.dataSourceDestacados.paginator.firstPage();
+    if (this.dataSourceObservados.paginator) {
+      this.dataSourceObservados.paginator.firstPage();
     }
   }
 
@@ -86,22 +87,37 @@ export class ListasComponent implements OnInit {
     }
   }
 
+  applyFilterV(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceVips.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceVips.paginator) {
+      this.dataSourceVips.paginator.firstPage();
+    }
+  }
+
   ngOnInit() {
 
-    this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-      this.destacados=destacadosList;
+    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+      this.observados=observadosList;
+      this.dataSourceObservados = new MatTableDataSource(this.observados);
+      this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+      this.dataSourceObservados.sort = this.sort.toArray()[0];
+
       this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
         this.restringidos=restringidosList;
-
-        this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-        this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-        this.dataSourceDestacados.sort = this.sort.toArray()[0];
-
         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+
+        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+          this.vips=vipsList;
+          this.dataSourceVips = new MatTableDataSource(this.vips);
+          this.dataSourceVips.paginator = this.paginator.toArray()[2];
+          this.dataSourceVips.sort = this.sort.toArray()[2];
+        });
       });
-    });
+    })
   }
 
   onSubmit() {
@@ -116,25 +132,31 @@ export class ListasComponent implements OnInit {
       if(a){
         this.toastr.success('Eliminado');
 
-        this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-          this.destacados=destacadosList;
+        this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+          this.observados=observadosList;
+          this.dataSourceObservados = new MatTableDataSource(this.observados);
+          this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+          this.dataSourceObservados.sort = this.sort.toArray()[0];
+    
           this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
             this.restringidos=restringidosList;
-
-            this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-            this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-            this.dataSourceDestacados.sort = this.sort.toArray()[0];
-
             this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
             this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
             this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+    
+            this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+              this.vips=vipsList;
+              this.dataSourceVips = new MatTableDataSource(this.vips);
+              this.dataSourceVips.paginator = this.paginator.toArray()[2];
+              this.dataSourceVips.sort = this.sort.toArray()[2];
+            });
           });
-        });
+        })
       }
     })
   }
 
-  newD(){
+  newO(){
     var dialogRef;
    
     this.fecha=new Date();
@@ -155,9 +177,9 @@ export class ListasComponent implements OnInit {
 
     /* console.log(this.fechaString); */
 
-    this.cliente = new Cliente('','','','','','','','','','','DESTACADO','','','')
+    this.cliente = new Cliente('','','','','','','','','','','OBSERVADO','','','')
 
-    dialogRef=this.dialog.open(DialogNewD,{
+    dialogRef=this.dialog.open(DialogNewO,{
       data:this.cliente,
     })
 
@@ -174,22 +196,28 @@ export class ListasComponent implements OnInit {
   
             this.clientesService.updateClient(c).subscribe(r=>{
               if(r){
-                this.toastr.success('Observación añadida');
+                this.toastr.success('Observado añadido correctamente');
   
-                this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                  this.destacados=destacadosList;
+                this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                  this.observados=observadosList;
+                  this.dataSourceObservados = new MatTableDataSource(this.observados);
+                  this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+                  this.dataSourceObservados.sort = this.sort.toArray()[0];
+            
                   this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
                     this.restringidos=restringidosList;
-  
-                    this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                    this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                    this.dataSourceDestacados.sort = this.sort.toArray()[0];
-  
                     this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                     this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                     this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+            
+                    this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                      this.vips=vipsList;
+                      this.dataSourceVips = new MatTableDataSource(this.vips);
+                      this.dataSourceVips.paginator = this.paginator.toArray()[2];
+                      this.dataSourceVips.sort = this.sort.toArray()[2];
+                    });
                   });
-                });
+                })
               }
             })
           }
@@ -212,22 +240,28 @@ export class ListasComponent implements OnInit {
   
                 this.clientesService.addCliente(clienteNew).subscribe(n=>{
                   if(n){
-                    this.toastr.success('Observación añadida');
+                    this.toastr.success('Observado añadido correctamente');
   
-                    this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                      this.destacados=destacadosList;
+                    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                      this.observados=observadosList;
+                      this.dataSourceObservados = new MatTableDataSource(this.observados);
+                      this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+                      this.dataSourceObservados.sort = this.sort.toArray()[0];
+                
                       this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
                         this.restringidos=restringidosList;
-  
-                        this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                        this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                        this.dataSourceDestacados.sort = this.sort.toArray()[0];
-  
                         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+                
+                        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                          this.vips=vipsList;
+                          this.dataSourceVips = new MatTableDataSource(this.vips);
+                          this.dataSourceVips.paginator = this.paginator.toArray()[2];
+                          this.dataSourceVips.sort = this.sort.toArray()[2];
+                        });
                       });
-                    });
+                    })
                   }
                 });
               }
@@ -277,22 +311,28 @@ export class ListasComponent implements OnInit {
   
             this.clientesService.updateClient(c).subscribe(r=>{
               if(r){
-                this.toastr.success('Restricción añadida');
+                this.toastr.success('Restringido añadido correctamente');
   
-                this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                  this.destacados=destacadosList;
+                this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                  this.observados=observadosList;
+                  this.dataSourceObservados = new MatTableDataSource(this.observados);
+                  this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+                  this.dataSourceObservados.sort = this.sort.toArray()[0];
+            
                   this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
                     this.restringidos=restringidosList;
-  
-                    this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                    this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                    this.dataSourceDestacados.sort = this.sort.toArray()[0];
-  
                     this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                     this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                     this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+            
+                    this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                      this.vips=vipsList;
+                      this.dataSourceVips = new MatTableDataSource(this.vips);
+                      this.dataSourceVips.paginator = this.paginator.toArray()[2];
+                      this.dataSourceVips.sort = this.sort.toArray()[2];
+                    });
                   });
-                });
+                })
               }
             })
           }
@@ -315,22 +355,28 @@ export class ListasComponent implements OnInit {
   
                 this.clientesService.addCliente(clienteNew).subscribe(n=>{
                   if(n){
-                    this.toastr.success('Restricción añadida');
+                    this.toastr.success('Restringido añadido correctamente');
   
-                    this.clientesService.getDestacados().subscribe((destacadosList:Cliente[])=>{
-                      this.destacados=destacadosList;
+                    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                      this.observados=observadosList;
+                      this.dataSourceObservados = new MatTableDataSource(this.observados);
+                      this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+                      this.dataSourceObservados.sort = this.sort.toArray()[0];
+                
                       this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
                         this.restringidos=restringidosList;
-  
-                        this.dataSourceDestacados = new MatTableDataSource(this.destacados);
-                        this.dataSourceDestacados.paginator = this.paginator.toArray()[0];
-                        this.dataSourceDestacados.sort = this.sort.toArray()[0];
-  
                         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+                
+                        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                          this.vips=vipsList;
+                          this.dataSourceVips = new MatTableDataSource(this.vips);
+                          this.dataSourceVips.paginator = this.paginator.toArray()[2];
+                          this.dataSourceVips.sort = this.sort.toArray()[2];
+                        });
                       });
-                    });
+                    })
                   }
                 });
               }
@@ -341,16 +387,132 @@ export class ListasComponent implements OnInit {
     })
   }
 
+  newV(){
+    var dialogRef;
+
+    this.fecha=new Date();
+
+    this.year=this.fecha.getFullYear();
+    this.month=(this.fecha.getMonth())+1;
+    this.day=this.fecha.getDate();
+
+    if(parseInt(this.month)<10){
+      this.month='0'+this.month;
+    }
+
+    if(parseInt(this.day)<10){
+      this.day='0'+this.day;
+    }
+
+    this.fechaString=this.year+'-'+this.month+'-'+this.day;
+
+    // console.log(this.fechaString);
+
+    this.cliente = new Cliente('','','','','','','','','','','VIP','CLIENTE VIP','','')
+
+    dialogRef=this.dialog.open(DialogNewR,{
+      data:this.cliente,
+    })
+
+    dialogRef.afterClosed().subscribe((res:Cliente) => {
+      if(res){
+        this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+        
+          if(c){
+            c.condicion=res.condicion;
+            c.motivo=res.motivo;
+            c.fecha_list=this.fechaString;
+            c.sala_list=res.sala_list;
+  
+            this.clientesService.updateClient(c).subscribe(r=>{
+              if(r){
+                this.toastr.success('VIP añadido correctamente');
+  
+                this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                  this.observados=observadosList;
+                  this.dataSourceObservados = new MatTableDataSource(this.observados);
+                  this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+                  this.dataSourceObservados.sort = this.sort.toArray()[0];
+            
+                  this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                    this.restringidos=restringidosList;
+                    this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
+                    this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
+                    this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+            
+                    this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                      this.vips=vipsList;
+                      this.dataSourceVips = new MatTableDataSource(this.vips);
+                      this.dataSourceVips.paginator = this.paginator.toArray()[2];
+                      this.dataSourceVips.sort = this.sort.toArray()[2];
+                    });
+                  });
+                })
+              }
+            })
+          }
+          else{
+            this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
+              if(res['success']){
+                var clienteNew = new Cliente('','','','','','','','','','','','','','');
+                clienteNew.doc_number = res['data']['numero'];
+                clienteNew.client_name = res['data']['nombre_completo'];
+                clienteNew.birth_date = res['data']['fecha_nacimiento'];
+                clienteNew.gender = res['data']['sexo'];
+                clienteNew.departamento = res['data']['departamento'];
+                clienteNew.provincia = res['data']['provincia'];
+                clienteNew.distrito = res['data']['distrito'];
+                clienteNew.address = res['data']['direccion'];
+                clienteNew.condicion = res.condicion;
+                clienteNew.motivo = res.motivo;
+                clienteNew.sala_list = res.sala_list;
+                clienteNew.fecha_list = this.fechaString;
+  
+                this.clientesService.addCliente(clienteNew).subscribe(n=>{
+                  if(n){
+                    this.toastr.success('VIP añadido correctamente');
+  
+                    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                      this.observados=observadosList;
+                      this.dataSourceObservados = new MatTableDataSource(this.observados);
+                      this.dataSourceObservados.paginator = this.paginator.toArray()[0];
+                      this.dataSourceObservados.sort = this.sort.toArray()[0];
+                
+                      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                        this.restringidos=restringidosList;
+                        this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
+                        this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
+                        this.dataSourceRestringidos.sort = this.sort.toArray()[1];
+                
+                        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                          this.vips=vipsList;
+                          this.dataSourceVips = new MatTableDataSource(this.vips);
+                          this.dataSourceVips.paginator = this.paginator.toArray()[2];
+                          this.dataSourceVips.sort = this.sort.toArray()[2];
+                        });
+                      });
+                    })
+                  }
+                });
+              }
+            })
+          }
+        })
+      }
+    })
+  }
+
+
 }
 
 
 
 @Component({
-  selector: 'dialog-newD',
-  templateUrl: 'dialog-newD.html',
+  selector: 'dialog-newO',
+  templateUrl: 'dialog-newO.html',
   styleUrls: ['./listas.component.css']
 })
-export class DialogNewD implements OnInit {
+export class DialogNewO implements OnInit {
 
     disableBtnOk;
     sala;
@@ -358,7 +520,7 @@ export class DialogNewD implements OnInit {
     
 
   constructor(
-    public dialogRef: MatDialogRef<DialogNewD>,
+    public dialogRef: MatDialogRef<DialogNewO>,
     @Inject(MAT_DIALOG_DATA) public data:Cliente,
     private clientsService: ClientesService,
     private fb: FormBuilder,
@@ -462,6 +624,63 @@ export class DialogNewR implements OnInit {
 
 }
 
+@Component({
+  selector: 'dialog-newV',
+  templateUrl: 'dialog-newV.html',
+  styleUrls: ['./listas.component.css']
+})
+export class DialogNewV implements OnInit {
+
+  disableBtnOk;
+  sala;
+  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
+
+  constructor(
+    public dialogRef: MatDialogRef<DialogNewV>,
+    @Inject(MAT_DIALOG_DATA) public data:Cliente,
+    private fb: FormBuilder,
+    private toastr: ToastrService
+  ) {}
+
+  ngOnInit(): void {
+    this.disableBtnOk=true;
+  }
+
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onKeyUpEvent(event:any){
+    if(this.data.client_name!=''){
+      this.disableBtnOk=false;
+    }
+  }
+
+  btnSave(){
+    if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
+      this.data.doc_number=this.data.doc_number.toUpperCase();
+      this.data.condicion=this.data.condicion.toUpperCase();
+      this.data.motivo=this.data.motivo.toUpperCase();
+/*     this.data.fabricante=this.data.fabricante.toUpperCase();
+      this.data.lugar=this.data.lugar.toUpperCase();
+      this.data.marca=this.data.marca.toUpperCase();
+      this.data.modelo=this.data.modelo.toUpperCase();
+      this.data.numero=this.data.numero.toUpperCase();
+      this.data.observacion=this.data.observacion.toUpperCase();
+      this.data.propietario=this.data.propietario.toUpperCase();
+      this.data.registro=this.data.registro.toUpperCase();
+      this.data.serie=this.data.serie.toUpperCase();
+      this.data.tipo=this.data.tipo.toUpperCase();
+      this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
+      this.dialogRef.close(this.data);
+    }
+    else {
+      this.toastr.warning('¡DESPIERTA! Algo faltó');
+    }
+  }
+
+}
 
 @Component({
   selector: 'dialog-confirm',

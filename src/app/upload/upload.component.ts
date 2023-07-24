@@ -129,7 +129,7 @@ export class DialogStatus implements OnInit {
   
     let result = await promise;
   
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.worker.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@3.8.162/build/pdf.worker.js';
 
     //var loadingTask = pdfjsLib.getDocument('http://192.168.4.250/Sistema consulta de Ludopatía.pdf');
     var loadingTask = pdfjsLib.getDocument('http://52.5.47.64/Sistema consulta de Ludopatía.pdf');
@@ -199,7 +199,7 @@ export class DialogStatus implements OnInit {
         })
 
         if(this.toAdd.length==0&&this.toRemove.length==0){
-          this.urlGif='/Ingreso-v1.0/assets/success-boy.gif';
+          this.urlGif='/assets/success-boy.gif';
           this.respuesta = "LISTO ¡A trabajar!";
         }
         else{
@@ -208,7 +208,7 @@ export class DialogStatus implements OnInit {
               if(resRemove){
                 if(indice==this.toRemove.length-1){
                   if(this.toRemove.length>this.toAdd.length){
-                    this.urlGif='/Ingreso-v1.0/assets/success-boy.gif';
+                    this.urlGif='/assets/success-boy.gif';
                     this.respuesta = "LISTO ¡A trabajar!";
                   }
                 }
@@ -228,7 +228,7 @@ export class DialogStatus implements OnInit {
                     if(resAdd){
                       if(indice==this.toAdd.length-1){
                         if(this.toAdd.length>=this.toRemove.length){
-                          this.urlGif='/Ingreso-v1.0/assets/success-boy.gif';
+                          this.urlGif='/assets/success-boy.gif';
                           this.respuesta = "LISTO ¡A trabajar!";
                         }
                       }
@@ -242,7 +242,7 @@ export class DialogStatus implements OnInit {
                 if(resAdd){
                   if(indice==this.toAdd.length-1){
                     if(this.toAdd.length>=this.toRemove.length){
-                      this.urlGif='/Ingreso-v1.0/assets/success-boy.gif';
+                      this.urlGif='/assets/success-boy.gif';
                       this.respuesta = "LISTO ¡A trabajar!";
                     }
                   }
@@ -260,7 +260,7 @@ export class DialogStatus implements OnInit {
 
   ngOnInit(): void {
 
-    this.urlGif='/Ingreso-v1.0/assets/upload-head.gif'
+    this.urlGif='/assets/upload-head.gif'
     this.respuesta= "Tómese un café..."
     
     try {
@@ -272,7 +272,7 @@ export class DialogStatus implements OnInit {
 
       });
     } catch (error) {
-      this.urlGif='/Ingreso-v1.0/assets/failed-cat.gif'
+      this.urlGif='/assets/failed-cat.gif'
       this.respuesta = "Algo salió mal! Comuníquese con Sistemas"
     }
 

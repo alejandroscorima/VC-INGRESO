@@ -29,7 +29,7 @@
             ],
             "scripts": [
               "node_modules/html2canvas/dist/html2canvas.min.js",
-              "node_modules/jspdf/dist/jspdf.min.js"
+              "node_modules/jspdf/dist/jspdf.es.min.js"
             ],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -119,5 +119,8 @@
       }
     }
   },
-  "defaultProject": "crud-angular-php-mysql"
+  "defaultProject": "crud-angular-php-mysql",
+  "cli": {
+    "analytics": "6af6b150-ec51-4fb3-9a2e-fea652b0f9e5"
+  }
 }

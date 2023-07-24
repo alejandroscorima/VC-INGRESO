@@ -1,0 +1,36 @@
+<div class="formRevisar">
+  <h1 mat-dialog-title>NUEVO</h1>
+
+  <div mat-dialog-content>
+    <p>
+      <mat-form-field >
+        <input matInput placeholder="DNI o CE" disabled="false" [(ngModel)]="data.doc_number">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput placeholder="Condicion" disabled="true" [(ngModel)]="data.condicion">
+      </mat-form-field>
+    </p>
+    <p>
+      <mat-form-field style="width:95%" >
+        <input matInput placeholder="Motivo" disabled="false" [(ngModel)]="data.motivo">
+      </mat-form-field>
+    </p>
+    <p>
+      <mat-form-field>
+        <mat-label>Sala:</mat-label>
+        <mat-select [(value)]="data.sala_list">
+          <mat-option *ngFor="let s of salas" [value]="s">{{s}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </p>
+
+  </div>
+
+  <div mat-dialog-actions>
+
+    <button mat-raised-button [disabled]="false" class="btnValidar" (click)="btnSave()" >OK</button>
+    <button mat-button (click)="onNoClick()">Cancelar</button>
+
+  </div>
+
+</div>
