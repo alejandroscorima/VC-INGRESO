@@ -8,6 +8,8 @@ import { EntranceService } from './entrance.service';
 import { User } from './user';
 import { UsersService } from './users.service';
 import { MatSidenav } from '@angular/material/sidenav';
+import { Payment } from './payment';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +31,7 @@ export class AppComponent implements OnInit {
     private cookies: CookiesService,
     private usersService: UsersService,
     private entranceService: EntranceService,
+    private toastr: ToastrService,
   ){}
 
   logout(){
@@ -37,31 +40,71 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    if(this.cookies.checkToken('user_id')){
-      this.user.user_id=parseInt(this.cookies.getToken('user_id'));
-      if(window.innerWidth<500){
-        this.sidenav.close();
-      }
-      this.usersService.getUserById(this.user.user_id).subscribe((u:User)=>{
-        this.user=u;
-        this.entranceService.getAreaById(this.user.area_id).subscribe((a:Area)=>{
-          if(a){
-            this.user_area=a;
-            this.entranceService.getCampusById(this.user.campus_id).subscribe((c:Campus)=>{
-              if(c){
-                this.user_campus=c;
 
+    this.usersService.getPaymentByClientId(1).subscribe((resPay:Payment)=>{
+      console.log(resPay);
+      if(resPay.error){
+        this.cookies.deleteToken("user_id");
+        this.cookies.deleteToken("user_role");
+        this.cookies.deleteToken('sala');
+        this.cookies.deleteToken('onSession');
+        console.error('Error al obtener el pago:', resPay.error);
+        this.toastr.error('Error al obtener la licencia: '+resPay.error);
+        this.router.navigateByUrl('/login');
+        console.log('No cumple licencia en APP MODULE');
+
+      }
+      else{
+        if(this.cookies.checkToken('user_id')){
+          this.user.user_id=parseInt(this.cookies.getToken('user_id'));
+          if(window.innerWidth<500){
+            this.sidenav.close();
+          }
+          this.usersService.getUserById(this.user.user_id).subscribe((u:User)=>{
+            this.user=u;
+            this.entranceService.getAreaById(this.user.area_id).subscribe((a:Area)=>{
+              if(a){
+                this.user_area=a;
+                this.entranceService.getCampusActiveById(this.user.campus_id).subscribe((c:Campus)=>{
+                  if(c){
+                    this.user_campus=c;
+    
+                  }
+                  else{
+                    this.cookies.deleteToken("user_id");
+                    this.cookies.deleteToken("user_role");
+                    this.cookies.deleteToken('sala');
+                    this.cookies.deleteToken('onSession');
+                    this.toastr.error('Sala no encontrada');
+                    this.router.navigateByUrl('/login');
+                    console.log('No cumple licencia en APP MODULE');
+                  }
+                })
+    
               }
             })
+    
+          });
+        }
+        else{
+          this.router.navigateByUrl('/login');
+    
+        }
+      }
+    },
+    (error) => {
+    
+      this.cookies.deleteToken("user_id");
+      this.cookies.deleteToken("user_role");
+      this.cookies.deleteToken('sala');
+      this.cookies.deleteToken('onSession');
+      console.error('Error al obtener el pago:', error);
 
-          }
-        })
-
-      });
-    }
-    else{
+      // Maneja el error aquí según tus necesidades
+      this.toastr.error('Error al obtener la licencia: '+error);
       this.router.navigateByUrl('/login');
+    });
 
-    }
+
   }
 }

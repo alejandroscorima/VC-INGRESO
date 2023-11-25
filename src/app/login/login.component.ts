@@ -19,6 +19,7 @@ import { CookiesService } from '../cookies.service';
 import { Session } from 'protractor';
 import { Area } from '../area';
 import { Campus } from '../campus';
+import { Payment } from '../payment';
 
 
 @Component({
@@ -53,6 +54,7 @@ export class LoginComponent implements OnInit {
   constructor(    private clientesService: ClientesService,
     private usersService: UsersService,
     private cookiesService: CookiesService,
+    private cookies: CookiesService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -76,26 +78,61 @@ export class LoginComponent implements OnInit {
   }
 
   login(){
-    this.username=this.username.trim();
-    this.password=this.password.trim();
-    this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
-      if(res){
-        this.user=res;
 
-        this.cookiesService.setToken('user_id',String(this.user.user_id));
-        location.reload();
+    this.usersService.getPaymentByClientId(1).subscribe((resPay:Payment)=>{
+      console.log(resPay);
+      if(resPay.error){
+        this.cookies.deleteToken("user_id");
+        this.cookies.deleteToken("user_role");
+        this.cookies.deleteToken('sala');
+        this.cookies.deleteToken('onSession');
+        console.error('Error al obtener el pago:', resPay.error);
+        this.toastr.error('Error al obtener la licencia: '+resPay.error);
+        this.router.navigateByUrl('/login');
 
       }
       else{
-        if(this.username==''||this.password==''){
-          this.toastr.warning('Ingresa un usuario y contraseña');
-        }
-        else{
-          this.toastr.error('Usuario y/o contraseña incorrecto(s)');
-        }
 
+        this.username=this.username.trim();
+        this.password=this.password.trim();
+        this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
+          if(res){
+            this.user=res;
+            if(this.user.entrance_role!='NINGUNO'){
+              this.cookiesService.setToken('user_id',String(this.user.user_id));
+              location.reload();
+            }
+            else{
+              this.toastr.warning('El usuario no tiene permisos');
+            }
+  
+    
+          }
+          else{
+            if(this.username==''||this.password==''){
+              this.toastr.warning('Ingresa un usuario y contraseña');
+            }
+            else{
+              this.toastr.error('Usuario y/o contraseña incorrecto(s)');
+            }
+    
+          }
+        })
       }
-    })
+    },
+    (error) => {
+    
+      this.cookies.deleteToken("user_id");
+      this.cookies.deleteToken("user_role");
+      this.cookies.deleteToken('sala');
+      this.cookies.deleteToken('onSession');
+      console.error('Error al obtener el pago:', error);
+
+      // Maneja el error aquí según tus necesidades
+      this.toastr.error('Error al obtener la licencia: '+error);
+      this.router.navigateByUrl('/login');
+    });
+
   }
 
 

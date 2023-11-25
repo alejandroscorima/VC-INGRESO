@@ -43,8 +43,12 @@ export class EntranceService {
     return this.http.get(`${this.baseUrl}/getAreaById.php?area_id=${area_id}`);
   }
 
-  getCampusById(campus_id: number) {
+/*   getCampusById(campus_id: number) {
     return this.http.get(`${this.baseUrl}/getCampusById.php?campus_id=${campus_id}`);
+  } */
+
+  getCampusActiveById(campus_id: number) {
+    return this.http.get(`${this.baseUrl}/getCampusActiveById.php?campus_id=${campus_id}`);
   }
 
   getCampusByZone(zone: string) {

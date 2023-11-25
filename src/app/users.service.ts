@@ -101,4 +101,11 @@ export class UsersService {
   updateClient(cliente: User) {
     return this.http.put(`${this.baseUrl}/updateClient.php`, cliente);
   }
+
+
+  getPaymentByClientId(client_id: number) {
+    return this.http.get(
+      `${this.baseUrl}/getPaymentByClientId.php?client_id=${client_id}`
+    );
+  }
 }
