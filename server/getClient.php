@@ -10,7 +10,7 @@ $doc_number = $_GET["doc_number"];
 
 $bd = include_once "bdEntrance.php";
 
-$sentencia = $bd->prepare("SELECT doc_number, client_name, birth_date, gender, address, distrito, provincia, departamento, fecha_registro, sala_registro, condicion, motivo, sala_list, fecha_list FROM clients WHERE doc_number = '".$doc_number."'");
+$sentencia = $bd->prepare("SELECT doc_number, client_name, birth_date, gender, address, distrito, provincia, departamento, fecha_registro, sala_registro, condicion, motivo, sala_list, fecha_list, origin_list FROM clients WHERE doc_number = '".$doc_number."'");
 
 $sentencia->execute();
 //$cliente = $sentencia->fetchObject();

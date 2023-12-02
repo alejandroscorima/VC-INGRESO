@@ -15,6 +15,7 @@ export class Cliente {
     public motivo: string,
     public sala_list:string,
     public fecha_list: string,
+    public origin_list: string,
   ) { }
 
 }

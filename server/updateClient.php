@@ -12,6 +12,6 @@ if (!$jsonClient) {
     exit("No hay datos");
 }
 $bd = include_once "bdEntrance.php";
-$sentencia = $bd->prepare("UPDATE clients SET condicion = ?, motivo = ?, fecha_list = ?, sala_list=? WHERE doc_number = ?");
-$resultado = $sentencia->execute([$jsonClient->condicion, $jsonClient->motivo, $jsonClient->fecha_list, $jsonClient->sala_list, $jsonClient->doc_number]);
+$sentencia = $bd->prepare("UPDATE clients SET condicion = ?, motivo = ?, fecha_list = ?, sala_list = ?, origin_list = ? WHERE doc_number = ?");
+$resultado = $sentencia->execute([$jsonClient->condicion, $jsonClient->motivo, $jsonClient->fecha_list, $jsonClient->sala_list, $jsonClient->origin_list, $jsonClient->doc_number]);
 echo json_encode($resultado);

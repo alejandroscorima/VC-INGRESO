@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
         console.error('Error al obtener el pago:', resPay.error);
         this.toastr.error('Error al obtener la licencia: '+resPay.error);
         this.router.navigateByUrl('/login');
-        console.log('No cumple licencia en APP MODULE');
+        console.log('No cumple licencia en APP MODULE 1');
 
       }
       else{
