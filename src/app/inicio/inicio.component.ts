@@ -2,6 +2,11 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ClientesService } from "../clientes.service"
 import { Cliente } from "../cliente"
+
+import { User } from '../user';
+import { UsersService } from '../users.service';
+
+
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
@@ -17,6 +22,10 @@ import { ToastrService } from 'ngx-toastr';
 import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { CookiesService } from '../cookies.service';
+import { Collaborator } from '../collaborator';
+import { Campus } from '../campus';
+import { EntranceService } from '../entrance.service';
+import { Console } from 'console';
 
 
 @Component({
@@ -55,7 +64,41 @@ export class InicioComponent implements OnInit {
 
   logoSrc;
 
+
+
+
   salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
+  actualUser:User;
+  col:Collaborator;
+  cam:Campus;
+
+
+  //salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','OLYMPO'];
+  
+  supply_role;
+  salaVar:string[];
+
+  defineSalas(){
+
+    //this.userType= this.actualUser.entrance_role;
+    //console.log(this.userType);
+      if(this.actualUser.entrance_role=="ADMINISTRADOR"){
+        console.log(this.actualUser.entrance_role);
+        this.salaVar= this.salas;
+      }
+      else {
+        
+        this.salaVar.push(this.cam.name);
+      
+    }
+
+
+  }
+
+
+  salaUsuario: "";
+  
+  
   typeAforo="ComboChart";
   typeAge="PieChart";
   typeMensual="ComboChart";
@@ -290,6 +333,9 @@ export class InicioComponent implements OnInit {
     public dialog: MatDialog,
     private toastr: ToastrService,
     private cookies: CookiesService,
+    private userService: UsersService,
+    private entranceService: EntranceService,
+
     ) { }
 
 
@@ -313,7 +359,7 @@ export class InicioComponent implements OnInit {
   }
 
 
-
+  
 
   ngOnInit() {
 
@@ -322,7 +368,41 @@ export class InicioComponent implements OnInit {
       this.mesDisabled=false;
       this.diaDisabled=false;
       this.fechaDisabled=false;
-  
+
+
+
+
+      this.userService.getUserById(this.cookies.getToken('user_id')).subscribe((user:User)=>{
+        
+        this.actualUser=user
+        console.log(this.actualUser)
+        this.userService.getCollaboratorByUserId(this.actualUser.user_id).subscribe((col:Collaborator)=>{
+          console.log(col)
+          if(col){
+          
+            this.col=col;
+            this.entranceService.getCampusActiveById(this.col.campus_id).subscribe((cam:Campus)=>{
+              console.log(cam)
+              if(cam){
+                this.cam=cam;
+                }
+              })
+            }
+          })
+        
+          
+    this.defineSalas()
+
+
+      });
+
+
+
+
+
+
+
+
       this.fechaCmbBoxStart= new Date();
       this.fechaCmbBoxEnd= new Date();
       this.diaCmbBox='SELECCIONAR';

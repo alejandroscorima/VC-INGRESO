@@ -23,17 +23,27 @@ export class UsersService {
     return this.http.get(`${this.baseUrl}/getAllUsers.php`);
   }
 
+
+
+  //Commit change getUserNew
+
   getUser(username, password) {
-    return this.http.get(`${this.baseUrl}/getUser.php?username=${username}&password=${password}`);
+    return this.http.get(`${this.baseUrl}/getUserNew.php?username=${username}&password=${password}`);
   }
 
   getUserById(user_id) {
-    return this.http.get(`${this.baseUrl}/getUserById.php?user_id=${user_id}`);
+    return this.http.get(`${this.baseUrl}/getUserByIdNew.php?user_id=${user_id}`);
+  }
+
+
+  getCollaboratorByUserId(user_id) {
+    return this.http.get(`${this.baseUrl}/getCollaboratorByUserId.php?user_id=${user_id}`);
   }
 
   getPersonal(area_id) {
     return this.http.get(`${this.baseUrl}/getPersonal.php?area_id=${area_id}`);
   }
+
 
   addUser(u: User) {
     return this.http.post(`${this.baseUrl}/postUser.php`, u);

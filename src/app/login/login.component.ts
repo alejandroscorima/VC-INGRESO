@@ -41,7 +41,9 @@ export class LoginComponent implements OnInit {
 
   hide = true;
 
-  user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
+  //user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
+  user: User = new User(null,null,null,null,null,null,null,null,null,
+    null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
 
 
   listaReq: Item[]= [];
@@ -96,6 +98,7 @@ export class LoginComponent implements OnInit {
         this.username=this.username.trim();
         this.password=this.password.trim();
         this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
+        console.log(res);
           if(res){
             this.user=res;
             if(this.user.entrance_role!='NINGUNO'){
