@@ -23,8 +23,12 @@ export class UsersService {
     return this.http.get(`${this.baseUrl}/getAllUsers.php`);
   }
 
+
+
+  //Commit change getUserNew
+
   getUser(username, password) {
-    return this.http.get(`${this.baseUrl}/getUser.php?username=${username}&password=${password}`);
+    return this.http.get(`${this.baseUrl}/getUserNew.php?username=${username}&password=${password}`);
   }
 
   getUserById(user_id) {
@@ -34,6 +38,7 @@ export class UsersService {
   getPersonal(area_id) {
     return this.http.get(`${this.baseUrl}/getPersonal.php?area_id=${area_id}`);
   }
+
 
   addUser(u: User) {
     return this.http.post(`${this.baseUrl}/postUser.php`, u);

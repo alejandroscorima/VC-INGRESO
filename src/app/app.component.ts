@@ -18,7 +18,10 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AppComponent implements OnInit {
 
-  user: User = new User('','','','','','',0,0,'','');
+  //user: User = new User('','','','','','',0,0,'','');
+
+  user: User = new User(0,0,0,0,0,'','','','','','','','','','','','','','','','','','','','','','','','','','',);
+
   user_area: Area = new Area('',null,'');
   user_campus: Campus = new Campus('','','','','','','');
 
