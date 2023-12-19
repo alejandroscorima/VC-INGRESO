@@ -11,16 +11,19 @@
 .barra {
     flex: 0 1 auto;
     color:white;
-    background-color: rgb(34, 146, 161);
+    background-color: rgb(126, 21, 175);
 
 }
 
 .icon1{
-  color: rgba(20, 102, 20, 0.817);
+  color: rgba(249, 230, 230, 0.817);
+}
+.navItem{
+  background-color: aliceblue;
 }
 
 .icon2{
-  color: rgb(95, 10, 95);
+  color: rgb(31, 30, 31);
 }
 
 .icon3{
@@ -38,7 +41,7 @@
 
 .fondo{
   height: 100%;
-  background-color: #6a7e7f;
+  height: 100%;
 }
 
 .navItem{
