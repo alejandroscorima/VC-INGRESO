@@ -77,31 +77,35 @@ export class AppComponent implements OnInit {
 
               if(c){
               
-             this.collaborator=c;
-            }
-            }
-            )
-            this.entranceService.getAreaById(this.user.area_id).subscribe((a:Area)=>{
-              if(a){
-                this.user_area
-                this.entranceService.getCampusActiveById(this.collaborator.campus_id).subscribe((c:Campus)=>{
-                  if(c){
-                    this.user_campus=c;
-    
-                  }
-                  else{
-                    this.cookies.deleteToken("user_id");
-                    this.cookies.deleteToken("user_role");
-                    this.cookies.deleteToken('sala');
-                    this.cookies.deleteToken('onSession');
-                    this.toastr.error('Sala no encontrada');
-                    this.router.navigateByUrl('/login');
-                    console.log('No cumple licencia en APP MODULE');
+                this.collaborator=c;
+                this.entranceService.getAreaById(this.collaborator.area_id).subscribe((a:Area)=>{
+                 
+                  if(a){
+                    this.user_area=a;
+
+                    console.log(this.user_area)
+                    this.entranceService.getCampusActiveById(this.collaborator.campus_id).subscribe((c:Campus)=>{
+                      if(c){
+                        this.user_campus=c;
+        
+                      }
+                      else{
+                        this.cookies.deleteToken("user_id");
+                        this.cookies.deleteToken("user_role");
+                        this.cookies.deleteToken('sala');
+                        this.cookies.deleteToken('onSession');
+                        this.toastr.error('Sala no encontrada');
+                        this.router.navigateByUrl('/login');
+                        console.log('No cumple licencia en APP MODULE');
+                      }
+                    })
+        
                   }
                 })
-    
               }
-            })
+            }
+            )
+
     
           });
         }
