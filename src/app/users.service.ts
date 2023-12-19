@@ -32,7 +32,12 @@ export class UsersService {
   }
 
   getUserById(user_id) {
-    return this.http.get(`${this.baseUrl}/getUserById.php?user_id=${user_id}`);
+    return this.http.get(`${this.baseUrl}/getUserByIdNew.php?user_id=${user_id}`);
+  }
+
+
+  getCollaboratorByUserId(user_id) {
+    return this.http.get(`${this.baseUrl}/getCollaboratorByUserId.php?user_id=${user_id}`);
   }
 
   getPersonal(area_id) {

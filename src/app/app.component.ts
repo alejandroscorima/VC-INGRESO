@@ -10,6 +10,7 @@ import { UsersService } from './users.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Payment } from './payment';
 import { ToastrService } from 'ngx-toastr';
+import { Collaborator } from './collaborator';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,13 @@ export class AppComponent implements OnInit {
 
   user: User = new User(0,0,0,0,0,'','','','','','','','','','','','','','','','','','','','','','','','','','',);
 
+ collaborator: Collaborator = new Collaborator(0,0,0,0,'','','','','','','','')
+
   user_area: Area = new Area('',null,'');
+
+
+
+
   user_campus: Campus = new Campus('','','','','','','');
 
   user_id;
@@ -65,10 +72,19 @@ export class AppComponent implements OnInit {
           }
           this.usersService.getUserById(this.user.user_id).subscribe((u:User)=>{
             this.user=u;
+
+            this.usersService.getCollaboratorByUserId(this.user.user_id).subscribe((c:Collaborator)=>{
+
+              if(c){
+              
+             this.collaborator=c;
+            }
+            }
+            )
             this.entranceService.getAreaById(this.user.area_id).subscribe((a:Area)=>{
               if(a){
-                this.user_area=a;
-                this.entranceService.getCampusActiveById(this.user.campus_id).subscribe((c:Campus)=>{
+                this.user_area
+                this.entranceService.getCampusActiveById(this.collaborator.campus_id).subscribe((c:Campus)=>{
                   if(c){
                     this.user_campus=c;
     
