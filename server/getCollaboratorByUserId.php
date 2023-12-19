@@ -49,7 +49,7 @@ latitud  ,
 longitud ,
 photo_url
 */
-FROM user2 inner join collaborators WHERE user_id=".$user_id);
+FROM collaborators WHERE user_id=".$user_id);
 
 $sentencia->execute();
 //$cliente = $sentencia->fetchObject();
