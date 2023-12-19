@@ -235,6 +235,8 @@ export class DialogStatus implements OnInit {
                     }
                   });
                 }
+              },error=>{
+                this.respuesta = "ERROR, verificar la consola";
               })
             }
             else if(l2a.type_doc=='CE'){
