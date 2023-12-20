@@ -67,37 +67,28 @@ export class InicioComponent implements OnInit {
 
 
 
-  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
+  //salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
   actualUser:User;
   col:Collaborator;
-  cam:Campus;
+  camp:Campus;
 
 
-  //salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','OLYMPO'];
+  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','OLYMPO'];
+  salasVision: string[]=['MEGA','PRO','HUARAL'];
+  salasZoom: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','OLYMPO'];
   
+
+
   supply_role;
   salaVar:string[];
 
-  defineSalas(){
 
-    //this.userType= this.actualUser.entrance_role;
-    //console.log(this.userType);
-      if(this.actualUser.entrance_role=="ADMINISTRADOR"){
-        console.log(this.actualUser.entrance_role);
-        this.salaVar= this.salas;
-      }
-      else {
-        
-        this.salaVar.push(this.cam.name);
-      
-    }
-
-
-  }
-
-
-  salaUsuario: "";
+  salaUsuario:string;
   
+
+  
+
+
   
   typeAforo="ComboChart";
   typeAge="PieChart";
@@ -384,14 +375,16 @@ export class InicioComponent implements OnInit {
             this.entranceService.getCampusActiveById(this.col.campus_id).subscribe((cam:Campus)=>{
               console.log(cam)
               if(cam){
-                this.cam=cam;
+                this.camp=cam;
                 }
+
+                this.defineSalas()
               })
             }
           })
         
           
-    this.defineSalas()
+    
 
 
       });
@@ -715,7 +708,49 @@ export class InicioComponent implements OnInit {
     }
 
   }
+  defineSalas(){
 
+    //this.userType= this.actualUser.entrance_role;
+    console.log(this.actualUser.entrance_role);
+      if(this.actualUser.entrance_role=="ADMINISTRADOR"){
+        console.log(this.actualUser.entrance_role);
+        this.salaVar= this.salas;
+      }
+      else {
+        this.salaUsuario= this.camp.name.toString();
+        console.log(this.camp.name);
+       // console.log(this.salaUsuario)
+          if(this.camp.name=='OFICINA VISION'){
+
+            this.salaVar=this.salasVision;
+            this.salaCmbBox=this.salaVar[0];
+            this.salaChange();
+          
+          }
+          else if(this.camp.name=='OFICINA SUN'){
+
+
+            this.salaVar=this.salasZoom;
+            this.salaCmbBox=this.salaVar[0];
+            this.salaChange();
+
+
+          }
+          else if( this.camp.name!='OFICINA VISION' && this.camp.name!='OFICINA ZOOM'){
+            this.salaVar=[];
+        
+            this.salaVar.push(this.camp.name)
+            this.salaCmbBox=this.camp.name;
+            this.salaChange();
+            console.log(this.salaVar)
+          }
+      //verificar en que oficina o sala está asignado.
+
+      //vision:MEGA, Pro, Huaral.
+      //zoom: PALACIO, VENEZUELA,KANTA,HUANDOY,OLYMPO
+
+    }
+  }
   salaChange(){
     this.getStats();
   }
