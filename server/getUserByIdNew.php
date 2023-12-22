@@ -11,7 +11,7 @@ $user_id=$_GET['user_id'];
 
 $sentencia = $bd->prepare("SELECT 
 user_id ,colab_id ,type_doc ,doc_number, first_name ,
-paternal_surname 
+paternal_surname ,
 maternal_surname ,
 gender ,
 birth_date ,
