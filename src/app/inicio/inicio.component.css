@@ -20,7 +20,7 @@
 }
 
 .btnValidar {
-  background-color: rgb(24, 177, 24);
+  background-color: rgb(38, 157, 36);
   color: white;
 }
 
@@ -51,7 +51,7 @@ p{
 }
 
 tr.mat-row:hover {
-  background-color: rgba(137, 130, 130, 0.328);
+  background-color: rgba(142, 38, 38, 0.328);
 }
 
 mat-grid-tile {
