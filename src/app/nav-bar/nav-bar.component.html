@@ -1,0 +1,138 @@
+<nav class="fixed top-0 z-50 w-full border-b border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
+    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center justify-start rtl:justify-end">
+            
+          <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" 
+          aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 
+          text-sm sm:hidden text-gray-500 rounded-lg  hover:bg-gray-100 focus:outline-none 
+          focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+            <span class="sr-only">Open sidebar</span>
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" fill-rule="evenodd"
+                 d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+            </svg>
+          </button>
+          <a href="https://oscorp.com.pe/web" target="_blank" class="flex ms-2 md:me-24">
+            <img src="http://52.5.47.64/Logistica/assets/logoOscorp.png" class="h-8 me-3" alt="Oscorp Logo" />
+            <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">OSCORP</span>
+          </a>
+        </div>
+        <div class="flex items-center">
+            <div class="flex items-center ms-3">
+              <div>
+                <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" 
+                aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                  <span class="sr-only">Open user menu</span>
+                  <img class="w-8 h-8 rounded-full" [src]="user.photo_url" alt="user photo">
+                </button>
+              </div>
+              <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
+                <div class="px-4 py-3" role="none">
+                  <p class="text-sm text-center text-gray-900 dark:text-white" role="none">
+                    {{user.paternal_surname+' '+user.maternal_surname+', '+user.first_name}}
+                  </p>
+                  <p class="text-sm text-center font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+                    --------
+                  </p>
+                </div>
+                <ul class="py-1" role="none">
+  <!--                 <li>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Dashboard</a>
+                  </li>
+                  <li>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Settings</a>
+                  </li>
+                  <li>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Earnings</a>
+                  </li> -->
+                  <li>
+                    <a class="block px-4 py-2
+                     text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" 
+                     role="menuitem" (click)="logout()">Salir</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </nav>
+  
+
+
+
+
+
+
+
+<!--
+
+
+
+<mat-sidenav-container class="contenido">
+    <mat-sidenav closed style="width: 200px; background-color:  #660498; color: whitesmoke;" #cajon mode="side">
+      <mat-nav-list style="padding-top:0px;">
+        <p style="margin-top:0px;margin-bottom: 0px; text-align: center;">
+          <img *ngIf="user.gender=='MASCULINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-male.png"  VSPACE="20">
+          <img *ngIf="user.gender=='FEMENINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-female.png"  VSPACE="20">
+          <img *ngIf="user.gender!='MASCULINO'&&user.gender!='FEMENINO'&&user.first_name=='LOSS PREVENTION'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/loss_prevention.png"  VSPACE="20">
+        </p>
+        <a>
+          <h3 style="text-align:center; margin: 10px;">{{user.first_name+' '+user.paternal_surname}}</h3>
+          <p style="text-align:center; margin: 10px;">
+            <br/>
+            <a style="font-weight:bold;">AREA: </a>
+            <a style="font-weight:normal;">{{user_area.name}}</a>
+            <br/>
+          </p>
+          <p style="text-align:center; margin: 10px;">
+            <a style="font-weight:bold;">SEDE: </a>
+            <a style="font-weight:normal;">{{user_campus.name}}</a>
+            <br/>
+          </p>
+        </a>
+
+        <a mat-list-item class="navItem" routerLink="/">
+          <mat-icon class="icon1" >dashboard</mat-icon>
+          Dashboard
+        </a>
+        <a mat-list-item class="navItem" routerLink="/listas">
+          <mat-icon class="icon4" >category</mat-icon>
+          Listas
+        </a>
+        <a mat-list-item class="navItem" routerLink="/hb">
+          <mat-icon class="icon2" >cake</mat-icon>
+          Cumpleaños
+        </a>
+        <a mat-list-item class="navItem" routerLink="/history">
+          <mat-icon class="icon3" >history</mat-icon>
+          Historial
+        </a>
+        <a mat-list-item class="navItem" routerLink="/upload">
+          <mat-icon class="icon5" >upload_file</mat-icon>
+          Subir PDF
+        </a>
+
+        <a mat-list-item style="align-content: center;">
+          <a mat-stroked-button color="secundary">Oscorp Technology</a>
+        </a>
+
+      </mat-nav-list>
+
+    </mat-sidenav>
+    <mat-sidenav-content class="fondo">
+      <router-outlet style="height: 100%;"></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+
+
+
+-->
+
+
+
+
+
+

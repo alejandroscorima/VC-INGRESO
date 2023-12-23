@@ -1,0 +1,163 @@
+
+
+
+
+
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 
+transition-transform -translate-x-full border-r border-gray-200 sm:translate-x-0
+ bg-white dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4  dark:bg-gray-800">
+ 
+ 
+ 
+ 
+ 
+     <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+       <div class="flex justify-end px-4 pt-4">
+           <button id="dropdownButton" data-dropdown-toggle="dropdown" 
+           class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100
+            dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200
+            dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button">
+               <span class="sr-only">Open dropdown</span>
+               <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                   <path
+                    d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+               </svg>
+           </button>
+       </div>
+       <div class="flex flex-col items-center pb-10">
+           <img class="w-24 h-24 mb-3 rounded-full shadow-lg" [src]="user.photo_url" alt="Bonnie image"/>
+           <h5 class="mb-1 text-l font-medium text-center text-gray-900 dark:text-white">{{user.paternal_surname+' '+user.maternal_surname+', '+user.first_name}}</h5>
+           <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{collaborator.raz_social}}</span>
+           <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user_area.name}}</span>
+           <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user_campus.name}}</span>
+       </div>
+     </div>
+ 
+
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+
+          <li>
+            
+            <a class="flex items-center p-2 text-gray-900 rounded-lg
+            dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" routerLink="/">
+                <mat-icon class="icon1" >dashboard</mat-icon>
+                Dashboard
+              </a>
+
+              </li>
+              <li>
+              <a class="flex items-center p-2 text-gray-900 rounded-lg
+              dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" routerLink="/listas">
+                <mat-icon class="icon4" >category</mat-icon>
+                Listas
+              </a>
+              </li>
+              <li>
+              <a class="flex items-center p-2 text-gray-900 rounded-lg
+              dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" routerLink="/hb">
+                <mat-icon class="icon2" >cake</mat-icon>
+                Cumpleaños
+              </a>
+              </li>
+              <li>
+              <a class="flex items-center p-2 text-gray-900 rounded-lg
+              dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" routerLink="/history">
+                <mat-icon class="icon3" >history</mat-icon>
+                Historial
+              </a>
+              </li>
+              <li>
+              <a class="flex items-center p-2 text-gray-900 rounded-lg
+              dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" routerLink="/upload">
+                <mat-icon class="icon5" >upload_file</mat-icon>
+                Subir PDF
+              </a>
+            </li>
+            <li>
+              <a style="align-content: center;">
+                <a mat-stroked-button color="secundary">Oscorp Technology</a>
+              </a>
+              </li>
+             
+
+       </ul>
+    </div>
+ </aside>
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+<!--  
+
+
+
+
+<mat-sidenav-container class="contenido">
+    <mat-sidenav closed style="width: 200px; background-color:  #660498; color: whitesmoke;" #cajon mode="side">
+      <mat-nav-list style="padding-top:0px;">
+        <p style="margin-top:0px;margin-bottom: 0px; text-align: center;">
+          <img *ngIf="user.gender=='MASCULINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-male.png"  VSPACE="20">
+          <img *ngIf="user.gender=='FEMENINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-female.png"  VSPACE="20">
+          <img *ngIf="user.gender!='MASCULINO'&&user.gender!='FEMENINO'&&user.first_name=='LOSS PREVENTION'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/loss_prevention.png"  VSPACE="20">
+        </p>
+        <a>
+          <h3 style="text-align:center; margin: 10px;">{{user.first_name+' '+user.paternal_surname}}</h3>
+          <p style="text-align:center; margin: 10px;">
+            <br/>
+            <a style="font-weight:bold;">AREA: </a>
+            <a style="font-weight:normal;">{{user_area.name}}</a>
+            <br/>
+          </p>
+          <p style="text-align:center; margin: 10px;">
+            <a style="font-weight:bold;">SEDE: </a>
+            <a style="font-weight:normal;">{{user_campus.name}}</a>
+            <br/>
+          </p>
+        </a>
+
+        <a mat-list-item class="navItem" routerLink="/">
+          <mat-icon class="icon1" >dashboard</mat-icon>
+          Dashboard
+        </a>
+        <a mat-list-item class="navItem" routerLink="/listas">
+          <mat-icon class="icon4" >category</mat-icon>
+          Listas
+        </a>
+        <a mat-list-item class="navItem" routerLink="/hb">
+          <mat-icon class="icon2" >cake</mat-icon>
+          Cumpleaños
+        </a>
+        <a mat-list-item class="navItem" routerLink="/history">
+          <mat-icon class="icon3" >history</mat-icon>
+          Historial
+        </a>
+        <a mat-list-item class="navItem" routerLink="/upload">
+          <mat-icon class="icon5" >upload_file</mat-icon>
+          Subir PDF
+        </a>
+
+        <a mat-list-item style="align-content: center;">
+          <a mat-stroked-button color="secundary">Oscorp Technology</a>
+        </a>
+
+      </mat-nav-list>
+
+    </mat-sidenav>
+    <mat-sidenav-content class="fondo">
+      <router-outlet style="height: 100%;"></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+
+
+  -->
