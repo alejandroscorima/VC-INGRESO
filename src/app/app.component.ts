@@ -21,6 +21,8 @@ import { initFlowbite } from 'flowbite';
 })
 export class AppComponent implements OnInit {
 
+  title = 'web-app';
+
   //user: User = new User('','','','','','',0,0,'','');
 
   user: User = new User(0,0,0,0,0,'','','','','','','','','','','','','','','','','','','','','','','','','','',);

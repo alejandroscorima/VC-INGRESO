@@ -1,3 +1,120 @@
+<section >
+  <div class=" flex items-center justify-center h-screen bg-repeat-y bg-cover bg-fixed  hover:bg-fixed  bg-local transition-all duration-300 cursor-pointer filter grayscale hover:grayscale-0      "style="background-image: url(assets/megaFOTO.png)">
+   
+  
+  <div class="flex   flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+    
+      <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+         
+       
+        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+
+          <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+            <img class="w-8 h-8 mr-2" src="assets/logoOSCORP.png" alt="logo">
+            CONTROL DE INGRESO    
+        </a>
+
+
+              <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                  Ingresa en tu cuenta
+              </h1>
+              <form class="space-y-4 md:space-y-6" action="#">
+                  <div>
+                      <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Tu nombre de usuario
+                      </label>
+                      <input matInput type="username" name="username" id="username" 
+                       [(ngModel)]="username" required
+                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg 
+                      focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5
+                       dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+                        dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required="">
+                  </div>
+                  <div>
+                      <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Contraseña
+                      </label>
+                    
+                      
+                      <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                           
+                        </div>
+                        <input matInput type="password" name="password" id="password" placeholder="••••••••"
+                        [(ngModel)]="password" [type]="hide ? 'password' : 'text'" required (keyup.enter)="log.click()"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-amber-500 focus:border-amber-600 
+                        block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-amber-500
+                        dark:focus:border-focus" required="">
+                        
+                  
+                          <mat-icon class="text-black absolute end-2.5 bottom-2.5 focus:ring-4 focus:outline-none font-normal rounded-lg text-balance px-0.1 py-1 " matSuffix (click)="hide = !hide"> {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+
+                       </div>
+
+
+                      
+
+
+
+                      </div>
+
+
+
+                   
+                     <!--
+                  <div class="flex items-center justify-between">
+                      <div class="flex items-start">
+                          <div class="flex items-center h-5">
+                            <input id="remember" aria-describedby="remember" type="checkbox" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="">
+                          </div>
+
+                 
+                          <div class="ml-3 text-sm">
+                            <label for="remember" class="text-gray-500 dark:text-gray-300">Remember me</label>
+                          </div>
+                      </div>
+                      <a href="#" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
+                  </div>!
+                -->
+
+                  <button type="submit" #log (click)="login()" 
+                  class="bg-amber-600 w-full text-white  hover:bg-primary-700 focus:ring-4
+                   focus:outline-none focus:ring-bg-amber-500 font-medium rounded-lg text-sm px-5 py-2.5
+                    text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                  Ingresar</button>
+                  <!--<p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                      Don’t have an account yet? <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
+                  </p> 
+                !-->
+              </form>
+          </div>
+      </div>
+  </div>
+
+   
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+
 <div class="limiter">
   <div class="container-login100">
     <div class="wrap-login100">
@@ -38,7 +155,7 @@
             INGRESAR
           </button>
         </div>
-<!--
+
         <div class="text-center p-t-12">
           <span class="txt1">
             Forgot
@@ -53,8 +170,12 @@
             Create your Account
             <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
           </a>
-        </div> -->
+        </div> 
+
       </div>
     </div>
   </div>
 </div>
+
+
+-->
