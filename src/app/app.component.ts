@@ -79,6 +79,7 @@ export class AppComponent implements OnInit {
       else{
         if(this.cookies.checkToken('user_id')){
           this.user.user_id=parseInt(this.cookies.getToken('user_id'));
+          this.logged=true;
           if(window.innerWidth<500){
             this.sidenav.close();
           }

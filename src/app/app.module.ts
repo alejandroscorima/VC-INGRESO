@@ -48,6 +48,8 @@ import {MatTabsModule} from '@angular/material/tabs';
 
 import { CookieService } from 'ngx-cookie-service';
 import { LoginComponent } from './login/login.component';
+import { NavBarComponent } from './nav-bar/nav-bar.component';
+import { SideNavComponent } from './side-nav/side-nav.component';
 
 
 
@@ -75,6 +77,8 @@ import { LoginComponent } from './login/login.component';
         DialogLudops,
         DialogStatus,
         LoginComponent,
+        NavBarComponent,
+        SideNavComponent,
     ],
     imports: [
         BrowserModule,
