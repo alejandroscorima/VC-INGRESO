@@ -11,9 +11,10 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 
 /*@import "~bootstrap/dist/css/bootstrap.min.css";
 */
