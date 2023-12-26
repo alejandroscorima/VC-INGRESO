@@ -109,6 +109,64 @@
 
 
 
+<div class="grid mb-8 border border-gray-200 rounded-lg
+ shadow-sm dark:border-gray-700 md:mb-12 md:grid-cols-3 bg-white dark:bg-gray-800">
+  <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
+      <blockquote class="max-w-2xl mx-auto mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">  RESUMEN DEL PERIODO</h3>
+          <p>
+            <mat-icon>person</mat-icon>&nbsp;Total de clientes: {{numberClients}}
+          </p>
+          <p>
+            <mat-icon>person_add</mat-icon>&nbsp;Clientes nuevos: {{numberClientsNew}}
+          </p>
+          <p>
+            <mat-icon>functions</mat-icon>&nbsp;Media de ingresos por dia: {{numberClientsAverage}}
+          </p>
+      </blockquote>
+     
+      <figcaption class="flex items-center justify-center ">
+          <img class="rounded-full w-9 h-9" src="" alt="">
+          <div class="space-y-0.5 font-medium dark:text-white text-left rtl:text-right ms-3">
+              <div> <mat-icon>group</mat-icon>&nbsp;</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400 "></div>
+          </div>
+      </figcaption>    
+  </figure>
+  <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
+      <blockquote class="max-w-2xl mx-auto mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mayor afluencia: {{horaTop}} horas</h3> 
+          <p>
+            <mat-icon>elderly</mat-icon>&nbsp;Edad con mayor afluencia: {{edadTop}}
+          </p>
+          <p>
+            <mat-icon>home</mat-icon>&nbsp;Distrito con mayor afluencia: {{distritoTop}}
+          </p>
+      </blockquote>
+      <figcaption class="flex items-center justify-center ">
+          <img class="rounded-full w-9 h-9" src="" alt="">
+          <div class="space-y-0.5 font-medium dark:text-white text-left rtl:text-right ms-3">
+              <div>Roberta Casas</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Lead designer at Dropbox</div>
+          </div>
+      </figcaption>    
+  </figure>
+  
+     
+  <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-gray-200 rounded-b-lg md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
+      <blockquote class="max-w-2xl mx-auto mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> <mat-icon>restart_alt</mat-icon>&nbsp;Más que el periodo anterior</h3>
+          <p>
+            <mat-icon>verified</mat-icon>&nbsp;De retención
+          </p>
+          <p>
+            <mat-icon>smart_toy</mat-icon>&nbsp;
+          </p>
+      </blockquote>
+      
+</figure>
+</div>
+
 
 
 
@@ -124,58 +182,9 @@
       </mat-grid-tile>
 
 
-      <mat-grid-tile [colspan]="3" [rowspan]="3">
-        <mat-card style="width: 100%; height:100%; text-align: left; border-radius: 20px;  ">
-          <h4>
-            RESUMEN DEL PERIODO
-          </h4>
-          <p>
-            <mat-icon>person</mat-icon>&nbsp;Total de clientes: {{numberClients}}
-          </p>
-          <p>
-            <mat-icon>person_add</mat-icon>&nbsp;Clientes nuevos: {{numberClientsNew}}
-          </p>
-          <p>
-            <mat-icon>functions</mat-icon>&nbsp;Media de ingresos por dia: {{numberClientsAverage}}
-          </p>
+      
 
-        </mat-card>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="3" [rowspan]="3">
-        <mat-card style="width: 90%; height:90%; text-align: left; border-radius: px;">
-          <h4>
-
-          </h4>
-          <p>
-            <mat-icon>group</mat-icon>&nbsp;Mayor afluencia: {{horaTop}} horas
-          </p>
-          <p>
-            <mat-icon>elderly</mat-icon>&nbsp;Edad con mayor afluencia: {{edadTop}}
-          </p>
-          <p>
-            <mat-icon>home</mat-icon>&nbsp;Distrito con mayor afluencia: {{distritoTop}}
-          </p>
-
-        </mat-card>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="3" [rowspan]="3">
-        <mat-card style="width: 90%; height:80%; text-align: left; border-radius: 10px;">
-          <h4>
-
-          </h4>
-          <p>
-            <mat-icon>restart_alt</mat-icon>&nbsp;Más que el periodo anterior
-          </p>
-          <p>
-            <mat-icon>verified</mat-icon>&nbsp;De retención
-          </p>
-          <p>
-            <mat-icon>smart_toy</mat-icon>&nbsp;
-          </p>
-        </mat-card>
-      </mat-grid-tile>
+     
 
       <mat-grid-tile [colspan]="1" [rowspan]="1">
         <mat-form-field class="sala" id="sala" appearance="fill" style="width:100% ; font-size: 13px;">
