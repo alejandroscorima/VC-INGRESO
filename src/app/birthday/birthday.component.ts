@@ -18,7 +18,6 @@ import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 
-
 @Component({
   selector: 'app-birthday',
   templateUrl: './birthday.component.html',
@@ -91,6 +90,7 @@ export class BirthdayComponent implements OnInit {
     this.fecha_cumple='-'+this.month+'-'+this.day;
     this.fechaString=this.year+'-'+this.month+'-'+this.day;
 
+    console.log(this.fecha)
     this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Cliente[])=>{
       this.clients=cList;
       this.dataSourceHB = new MatTableDataSource(this.clients);
@@ -107,6 +107,7 @@ export class BirthdayComponent implements OnInit {
     this.month=parseInt(this.fecha.getMonth())+1;
     this.day=this.fecha.getDate();
 
+    
     if(parseInt(this.month)<10){
       this.month='0'+this.month;
     }
