@@ -79,6 +79,9 @@ import { SideNavComponent } from './side-nav/side-nav.component';
         LoginComponent,
         NavBarComponent,
         SideNavComponent,
+
+
+
     ],
     imports: [
         BrowserModule,

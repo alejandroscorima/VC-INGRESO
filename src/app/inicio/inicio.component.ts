@@ -26,6 +26,7 @@ import { Collaborator } from '../collaborator';
 import { Campus } from '../campus';
 import { EntranceService } from '../entrance.service';
 import { Console } from 'console';
+import { initFlowbite } from 'flowbite';
 
 
 @Component({
@@ -353,6 +354,8 @@ export class InicioComponent implements OnInit {
   
 
   ngOnInit() {
+
+    initFlowbite();
 
     if(this.cookies.checkToken('user_id')){
       this.salaDisabled=false;
@@ -724,7 +727,7 @@ export class InicioComponent implements OnInit {
 
             this.salaVar=this.salasVision;
             this.salaCmbBox=this.salaVar[0];
-            this.salaChange();
+            this.salaChange(this.salaCmbBox);
           
           }
           else if(this.camp.name=='OFICINA SUN'){
@@ -732,7 +735,7 @@ export class InicioComponent implements OnInit {
 
             this.salaVar=this.salasZoom;
             this.salaCmbBox=this.salaVar[0];
-            this.salaChange();
+            this.salaChange(this.salaCmbBox);
 
 
           }
@@ -741,7 +744,7 @@ export class InicioComponent implements OnInit {
         
             this.salaVar.push(this.camp.name)
             this.salaCmbBox=this.camp.name;
-            this.salaChange();
+            this.salaChange(this.salaCmbBox);
             console.log(this.salaVar)
           }
       //verificar en que oficina o sala está asignado.
@@ -751,13 +754,14 @@ export class InicioComponent implements OnInit {
 
     }
   }
-  salaChange(){
+  salaChange(sala: string){
+    this.salaCmbBox=sala;
     this.getStats();
   }
 
-  mesChange(){
+  mesChange(mes: string){
     this.diaCmbBox='SELECCIONAR';
-
+    this.mesCmbBox=mes;
     if(this.mesCmbBox=='ENERO'){
       this.fechaMes=this.anio+'-01-';
     }
@@ -798,8 +802,9 @@ export class InicioComponent implements OnInit {
     this.getStats();
   }
 
-  diaChange(){
+  diaChange(dia: string){
     this.mesCmbBox='SELECCIONAR';
+    this.diaCmbBox=dia;
     var diaInd;
     if(this.diaCmbBox=='LUNES'){
       diaInd=1;

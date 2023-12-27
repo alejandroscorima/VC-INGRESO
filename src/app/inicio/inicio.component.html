@@ -1,108 +1,169 @@
-<nav class="bg-white border-gray-200 dark:bg-gray-900">
-  <div class="flex flex-wrap items-center justify-between max-w-screen-xl mx-auto p-4">
-      <a href="https://flowbite.com" class="flex items-center space-x-3 rtl:space-x-reverse">
-          <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
-          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
-      </a>
-      <div class="flex items-center md:order-2 space-x-1 md:space-x-2 rtl:space-x-reverse">
-          <a href="#" class="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Login</a>
-          <a href="#" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Sign up</a>
-          <button data-collapse-toggle="mega-menu" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="mega-menu" aria-expanded="false">
-              <span class="sr-only">Open main menu</span>
-              <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-              </svg>
-          </button>
-      </div>
-      <div id="mega-menu" class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-          <ul class="flex flex-col mt-4 font-medium md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse">
-              <li>
-                  <a href="#" class="block py-2 px-3 text-blue-600 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-600 md:p-0 dark:text-blue-500 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-blue-500 md:dark:hover:bg-transparent dark:border-gray-700" aria-current="page">Home</a>
-              </li>
-              <li>
-                  <button id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" class="flex items-center justify-between w-full py-2 px-3 font-medium text-gray-900 border-b border-gray-100 md:w-auto hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-600 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-blue-500 md:dark:hover:bg-transparent dark:border-gray-700">
-                      Company <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-</svg>
-                  </button>
-                  <div id="mega-menu-dropdown" class="absolute z-10 grid hidden w-auto grid-cols-2 text-sm bg-white border border-gray-100 rounded-lg shadow-md dark:border-gray-700 md:grid-cols-3 dark:bg-gray-700">
-                      <div class="p-4 pb-0 text-gray-900 md:pb-4 dark:text-white">
-                          <ul class="space-y-4" aria-labelledby="mega-menu-dropdown-button">
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      About Us
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Library
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Resources
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Pro Version
-                                  </a>
-                              </li>
-                          </ul>
-                      </div>
-                      <div class="p-4 pb-0 text-gray-900 md:pb-4 dark:text-white">
-                          <ul class="space-y-4">
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Blog
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Newsletter
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Playground
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      License
-                                  </a>
-                              </li>
-                          </ul>
-                      </div>
-                      <div class="p-4">
-                          <ul class="space-y-4">
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Contact Us
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Support Center
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
-                                      Terms
-                                  </a>
-                              </li>
-                          </ul>
-                      </div>
-                  </div>
-              </li>
-              <li>
-                  <a href="#" class="block py-2 px-3 text-gray-900 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-600 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-blue-500 md:dark:hover:bg-transparent dark:border-gray-700">Team</a>
-              </li>
-              <li>
-                  <a href="#" class="block py-2 px-3 text-gray-900 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-600 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-blue-500 md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-              </li>
-          </ul>
-      </div>
+<nav class="bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+      <img class="h-16 me-3"  id="box1" [src]="logoSrc" width="100%" alt="logoSala">
+        <span  *ngIf="salaCmbBox!='SELECCIONAR'"  class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">{{salaCmbBox}}</span>
+    </a>
+    <button data-collapse-toggle="navbar-dropdown" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-dropdown" aria-expanded="false">
+        <span class="sr-only">Open main menu</span>
+        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+        </svg>
+    </button>
+    <div class="hidden w-full md:block md:w-auto" id="navbar-dropdown">
+      <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        <li>
+          <a href="#" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 dark:bg-blue-600 md:dark:bg-transparent" aria-current="page">Home</a>
+        </li>
+        <li>
+      <div class="flex-row">    
+        <p class="text-xs text-gray-900 dark:text-white">Sala:</p>
+          <div class="flex">
+           
+            <button id="sala-button" data-dropdown-toggle="dropdown-sala"
+            class="flex items-center justify-between w-full py-2 px-3 
+                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                         dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
+                         <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
+                        </svg>
+                       {{salaCmbBox}} 
+         
+            </button>
+              <div id="dropdown-sala" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+
+            
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="sala-button">
+                    <li *ngFor="let sala of salaVar" >
+                        <button type="button" (click)="salaChange(sala)" class="flex items-center justify-between w-full py-2 px-3 
+                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                        md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                      dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
+                            <div class="inline-flex items-center">
+                                <svg aria-hidden="true" class="h-3.5 w-3.5 rounded-full me-2" xmlns="http://www.w3.org/2000/svg" id="flag-icon-css-us" viewBox="0 0 512 512"><g fill-rule="evenodd"><g stroke-width="1pt"><path fill="#bd3d44" d="M0 0h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0z" transform="scale(3.9385)"/><path fill="#fff" d="M0 10h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0z" transform="scale(3.9385)"/></g><path fill="#192f5d" d="M0 0h98.8v70H0z" transform="scale(3.9385)"/><path fill="#fff" d="M8.2 3l1 2.8H12L9.7 7.5l.9 2.7-2.4-1.7L6 10.2l.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7L74 8.5l-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 7.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 24.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 21.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 38.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 35.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 52.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 49.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 66.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 63.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9z" transform="scale(3.9385)"/></g></svg>              
+                                {{sala}}
+                            </div>
+                        </button>
+                </ul>
+              </div>
+            </div>
+
+
+      </div> 
+
+        </li>
+
+
+
+
+        <li>
+          <div class="flex-row">    
+            <p class="text-xs text-gray-900 dark:text-white">Mes:</p>
+          <div class="flex">
+            <button id="mes-button" data-dropdown-toggle="dropdown-mes"
+            class="flex items-center justify-between w-full py-2 px-3 
+                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                         dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
+                         <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
+                        </svg>
+                       {{mesCmbBox}} 
+         
+            </button>
+              <div id="dropdown-mes" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+
+            
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="mes-button">
+                    <li *ngFor="let m of meses" >
+                        <button type="button" (click)="mesChange(m)" class="flex items-center justify-between w-full py-2 px-3 
+                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                        md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                      dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
+                            <div class="inline-flex items-center">
+                                {{m}}
+                            </div>
+                        </button>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </li>
+        <li>
+          <div class="flex-row">    
+            <p class="text-xs text-gray-900 dark:text-white">Día:</p>
+          <div class="flex">
+            <button id="dia-button" data-dropdown-toggle="dropdown-dia"
+            class="flex items-center justify-between w-full py-2 px-3 
+                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                         dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
+                         <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
+                        </svg>
+                       {{diaCmbBox}} 
+         
+            </button>
+              <div id="dropdown-dia" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+
+            
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dia-button">
+                    <li *ngFor="let d of dias" >
+                        <button type="button" (click)="diaChange(d)" class="flex items-center justify-between w-full py-2 px-3 
+                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                        md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                      dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
+                            <div class="inline-flex items-center">
+                                {{d}}
+                            </div>
+                        </button>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </li>
+
+          <li>
+            <div class="flex-row">    
+              <p class="text-xs text-gray-900 dark:text-white">fecha:</p>
+              <mat-form-field class="" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
+               
+                <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
+                  <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
+                  <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
+      
+              </mat-form-field>
+            </div>
+          </li>
+
+
+
+<!-- 
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+          <mat-form-field class="fecha" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
+            <mat-label>Fecha:</mat-label>
+  
+            <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
+              <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
+              <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
+  
+          </mat-form-field>
+        </mat-grid-tile> 
+      
+      -->
+
+      
+      </ul>
+    </div>
   </div>
 </nav>
 
@@ -125,13 +186,7 @@
           </p>
       </blockquote>
      
-      <figcaption class="flex items-center justify-center ">
-          <img class="rounded-full w-9 h-9" src="" alt="">
-          <div class="space-y-0.5 font-medium dark:text-white text-left rtl:text-right ms-3">
-              <div> <mat-icon>group</mat-icon>&nbsp;</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400 "></div>
-          </div>
-      </figcaption>    
+      
   </figure>
   <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
       <blockquote class="max-w-2xl mx-auto mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
@@ -143,13 +198,7 @@
             <mat-icon>home</mat-icon>&nbsp;Distrito con mayor afluencia: {{distritoTop}}
           </p>
       </blockquote>
-      <figcaption class="flex items-center justify-center ">
-          <img class="rounded-full w-9 h-9" src="" alt="">
-          <div class="space-y-0.5 font-medium dark:text-white text-left rtl:text-right ms-3">
-              <div>Roberta Casas</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">Lead designer at Dropbox</div>
-          </div>
-      </figcaption>    
+    
   </figure>
   
      
@@ -177,33 +226,6 @@
     <!-- <h1>DASHBOARD</h1> -->
 
     <mat-grid-list cols="10" rowHeight="2:1" >
-      <mat-grid-tile [colspan]="1" [rowspan]="2">
-        <img mat-card-image class="box" id="box1" [src]="logoSrc" width="100%">
-      </mat-grid-tile>
-
-
-      
-
-     
-
-      <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-form-field class="sala" id="sala" appearance="fill" style="width:100% ; font-size: 13px;">
-          <mat-label>Sala:</mat-label>
-          <mat-select [(value)]="salaCmbBox" [disabled]="salaDisabled" (selectionChange)="salaChange()">
-              <mat-option *ngFor="let s of salaVar" [value]="s">{{s}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
-
-
-      <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-form-field class="mes" id="mes" appearance="fill" style="width:100% ; font-size: 13px;">
-          <mat-label>Mes:</mat-label>
-          <mat-select [(value)]="mesCmbBox" [disabled]="mesDisabled" (selectionChange)="mesChange()">
-              <mat-option *ngFor="let m of meses" [value]="m">{{m}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
 
       <mat-grid-tile [colspan]="3" [rowspan]="4">
 
@@ -239,10 +261,38 @@
         </google-chart>
       </mat-grid-tile>
 
+  <!--     <mat-grid-tile [colspan]="1" [rowspan]="2">
+        <img mat-card-image class="box" id="box1" [src]="logoSrc" width="100%">
+      </mat-grid-tile>
+
+
+    
+
+      <mat-grid-tile [colspan]="1" [rowspan]="1">
+        <mat-form-field class="sala" id="sala" appearance="fill" style="width:100% ; font-size: 13px;">
+          <mat-label>Sala:</mat-label>
+          <mat-select [(value)]="salaCmbBox" [disabled]="salaDisabled" (selectionChange)="salaChange(salaCmbBox)">
+              <mat-option *ngFor="let s of salaVar" [value]="s">{{s}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-grid-tile>
+
+
+      <mat-grid-tile [colspan]="1" [rowspan]="1">
+        <mat-form-field class="mes" id="mes" appearance="fill" style="width:100% ; font-size: 13px;">
+          <mat-label>Mes:</mat-label>
+          <mat-select [(value)]="mesCmbBox" [disabled]="mesDisabled" (selectionChange)="mesChange(mesCmbBox)">
+              <mat-option *ngFor="let m of meses" [value]="m">{{m}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-grid-tile>
+
+    
+
       <mat-grid-tile [colspan]="1" [rowspan]="1">
         <mat-form-field class="dia" id="dia" appearance="fill" style="width:100% ; font-size: 13px;">
           <mat-label>Dia:</mat-label>
-          <mat-select [(value)]="diaCmbBox" [disabled]="diaDisabled" (selectionChange)="diaChange()">
+          <mat-select [(value)]="diaCmbBox" [disabled]="diaDisabled" (selectionChange)="diaChange(diaCmbBox)">
               <mat-option *ngFor="let d of dias" [value]="d">{{d}}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -262,6 +312,7 @@
         </mat-form-field>
       </mat-grid-tile>
 
+    -->
       <mat-grid-tile [colspan]="1" [rowspan]="8">
 
       </mat-grid-tile>
@@ -294,3 +345,6 @@
   </div>
 
 </body>
+
+
+
