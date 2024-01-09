@@ -272,6 +272,9 @@ export class DialogStatus implements OnInit {
 
         this.loadLudop();
 
+      },error=>{
+        this.urlGif='/ingreso-v1.0/assets/failed-cat.gif'
+        this.respuesta = "Algo salió mal! Comuníquese con Sistemas"
       });
     } catch (error) {
       this.urlGif='/ingreso-v1.0/assets/failed-cat.gif'
