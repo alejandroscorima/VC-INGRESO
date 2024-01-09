@@ -266,7 +266,8 @@ export class DialogStatus implements OnInit {
     this.respuesta= "Tómese un café..."
     
     try {
-      this.fileupload.upload(this.data).subscribe(resp=>{
+      this.loadLudop();
+/*       this.fileupload.upload(this.data).subscribe(resp=>{
         console.log("subida exitosa");
         console.log(resp);
 
@@ -275,7 +276,7 @@ export class DialogStatus implements OnInit {
       },error=>{
         this.urlGif='/ingreso-v1.0/assets/failed-cat.gif'
         this.respuesta = "Algo salió mal! Comuníquese con Sistemas"
-      });
+      }); */
     } catch (error) {
       this.urlGif='/ingreso-v1.0/assets/failed-cat.gif'
       this.respuesta = "Algo salió mal! Comuníquese con Sistemas"
