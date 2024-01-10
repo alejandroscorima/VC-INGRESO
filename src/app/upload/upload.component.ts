@@ -121,7 +121,7 @@ export class DialogStatus implements OnInit {
 
 
 
-  async loadLudop(){
+  async loadLudop(file){
 
     let promise = new Promise((resolve, reject) => {
       setTimeout(() => resolve("done!"), 2000)
@@ -132,7 +132,9 @@ export class DialogStatus implements OnInit {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@3.8.162/build/pdf.worker.js';
 
     //var loadingTask = pdfjsLib.getDocument('http://192.168.4.250/Sistema consulta de Ludopatía.pdf');
-    var loadingTask = pdfjsLib.getDocument('http://52.5.47.64/Sistema consulta de Ludopatía.pdf');
+    //var loadingTask = pdfjsLib.getDocument('http://52.5.47.64/Sistema consulta de Ludopatía.pdf');
+
+    var loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
 
 
     this.ludopatas = await loadingTask.promise.then(async function(pdf) {
@@ -155,14 +157,29 @@ export class DialogStatus implements OnInit {
               per.code = txt.items[ind-2]['str'];
             }
             per.type_doc = 'DNI';
-            per.doc_number = txt.items[ind+1]['str'];
+            if(txt.items[ind+1]['str']!=''){
+              per.doc_number = txt.items[ind+1]['str'];
+            }
+            else{
+              per.doc_number = txt.items[ind+2]['str']; 
+            }
             lista.push(per);
           }
           else if(String(word['str']).includes('Carnet')){
             var ext = new Ludopata('','','','');
             ext.code = txt.items[ind-1]['str'];
             ext.type_doc = 'CE';
-            ext.doc_number = txt.items[ind+2]['str'];
+            if(txt.items[ind+2]['str']!=''&&txt.items[ind+2]['str']!='Extranjeria'){
+              ext.doc_number = txt.items[ind+2]['str'];
+            }
+            else{
+              if(txt.items[ind+3]['str']!=''&&txt.items[ind+3]['str']!='Extranjeria'){
+                ext.doc_number = txt.items[ind+3]['str'];
+              }
+              else{
+                ext.doc_number = txt.items[ind+4]['str'];
+              }
+            }
             ext.name = 'EXTRANJERO';
             lista.push(ext);
           }
@@ -190,6 +207,8 @@ export class DialogStatus implements OnInit {
           }
         })
 
+        console.log('toRemove',this.toRemove);
+
         this.ludopatas.forEach(lar=>{
           if(resLudops.find((l:Ludopata,indLar)=>l.doc_number==lar.doc_number)){
           }
@@ -197,6 +216,8 @@ export class DialogStatus implements OnInit {
             this.toAdd.push(lar);
           }
         })
+
+        console.log('toAdd',this.toAdd);
 
         if(this.toAdd.length==0&&this.toRemove.length==0){
           this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
@@ -266,7 +287,7 @@ export class DialogStatus implements OnInit {
     this.respuesta= "Tómese un café..."
     
     try {
-      this.loadLudop();
+      this.loadLudop(this.data);
 /*       this.fileupload.upload(this.data).subscribe(resp=>{
         console.log("subida exitosa");
         console.log(resp);
