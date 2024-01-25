@@ -25,9 +25,9 @@ export class AppComponent implements OnInit {
 
   //user: User = new User('','','','','','',0,0,'','');
 
-  user: User = new User(0,0,0,0,0,'','','','','','','','','','','','','','','','','','','','','','','','','','',);
+  user: User = new User(0,0,0,0,0,'','','','','','','','','','','','','','','','','','','','','','','','','','');
 
- collaborator: Collaborator = new Collaborator(0,0,0,0,'','','','','','','','')
+  collaborator: Collaborator = new Collaborator(0,0,0,0,'','','','','','','','')
 
   user_area: Area = new Area('',null,'');
 
@@ -86,7 +86,7 @@ export class AppComponent implements OnInit {
               
                 this.collaborator=c;
                 this.entranceService.getAreaById(this.collaborator.area_id).subscribe((a:Area)=>{
-                 
+                
                   if(a){
                     this.user_area=a;
 

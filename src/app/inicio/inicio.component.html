@@ -42,8 +42,9 @@
                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
                       dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
                             <div class="inline-flex items-center">
-                              <img class="h-16 me-3"  id="box1" [src]="logoSrc" width="100%" alt="logoSala">
-                              {{sala}}
+                              <img class="h-16 me-3"  id="box1" [src]="'http://52.5.47.64/logistica/assets/logo'+sala+'.png'" width="100%" alt="logoSala">
+                              <!-- <img class="h-16 me-3"  id="box1" [src]="logoSrc" width="100%" alt="logoSala"> -->
+                              {{sala}}                        
                             </div>
                         </button>
                 </ul>
@@ -323,20 +324,27 @@
      
       </blockquote>
     </figure>
-
+    <figure class="flex flex-col items-center justify-center p-8 text-center
+    bg-white border-b border-gray-200 col-span-full rounded-t-lg md:rounded-t-none
+    md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700  w-full">
+    
+      <h3 class=""> Clientes mensuales</h3>
+      <google-chart class="text-lg font-semibold w-screen "
+      [type]="typeMensual"
+      [data]="mensual"
+      [options]="optionsMensual"
+      [title]="titleMensual"
+      [columns]="columnsMensual"
+      width="1080"
+        >
+      </google-chart>
+    
+  </figure>
+   
   </div>   
-    
+  
 
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> Clientes mensuales</h3>
-        <google-chart
-        [type]="typeMensual"
-        [data]="mensual"
-        [options]="optionsMensual"
-        [title]="titleMensual"
-        [columns]="columnsMensual"
-       >
-        </google-chart>
-    
+
 
 
     

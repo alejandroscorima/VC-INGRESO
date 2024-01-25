@@ -125,6 +125,7 @@ export class InicioComponent implements OnInit {
   optionsMensual = {
     hAxis: {
       title: 'Fecha',
+    
       textStyle : {
         fontSize: 10 // or the number you want
       },
@@ -133,6 +134,7 @@ export class InicioComponent implements OnInit {
        title: 'Clientes'
     },
     colors:['#E67E22','#27AE60'],
+    
     seriesType: 'bar',
     series: {2: {type: 'line'}}
   };
