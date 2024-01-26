@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
 
         this.username=this.username.trim();
         this.password=this.password.trim();
-        this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
+        this.usersService.getUserLogin(this.username,this.username,this.password).subscribe((res:User)=>{
         console.log(res);
           if(res){
             this.user=res;

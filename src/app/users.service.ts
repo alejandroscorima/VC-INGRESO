@@ -31,6 +31,12 @@ export class UsersService {
     return this.http.get(`${this.baseUrl}/getUserNew.php?username=${username}&password=${password}`);
   }
 
+   loginUrl:string ='http://52.5.47.64/logistica';
+
+  getUserLogin(doc_number:string,username:string, password:string) {
+    return this.http.get(`${this.loginUrl}/getUserLogin.php?doc_number=${doc_number}&username=${username}&password=${password}`);
+  }
+
   getUserById(user_id) {
     return this.http.get(`${this.baseUrl}/getUserByIdNew.php?user_id=${user_id}`);
   }
