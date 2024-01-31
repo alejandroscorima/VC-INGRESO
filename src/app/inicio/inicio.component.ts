@@ -2,6 +2,7 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ClientesService } from "../clientes.service"
 import { Cliente } from "../cliente"
+import * as XLSX from 'xlsx';
 
 import { User } from '../user';
 import { UsersService } from '../users.service';
@@ -9,7 +10,7 @@ import { UsersService } from '../users.service';
 
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ThemePalette } from '@angular/material/core';
+import { ThemePalette, } from '@angular/material/core';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Item } from '../item';
@@ -19,7 +20,6 @@ import { MatSort, MAT_SORT_HEADER_INTL_PROVIDER_FACTORY } from '@angular/materia
 import { Sale } from '../sale';
 import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
-import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { CookiesService } from '../cookies.service';
 import { Collaborator } from '../collaborator';
@@ -38,8 +38,8 @@ export class InicioComponent implements OnInit {
   clientes: Cliente[] = [
     new Cliente("none", "Jugador Prueba", '', "none",'','','','','','','','','','','')
   ];
+  
 
-  @ViewChild("content",{static:true}) content:ElementRef;
 
   dias=['SELECCIONAR','LUNES','MARTES','MIERCOLES','JUEVES','VIERNES','SABADO','DOMINGO'];
 
@@ -320,6 +320,7 @@ export class InicioComponent implements OnInit {
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
+  @ViewChild('tuTabla', { static: true }) table: ElementRef;
 
 
   constructor(private clientesService: ClientesService, private dialogo: MatDialog,
@@ -365,7 +366,7 @@ export class InicioComponent implements OnInit {
       this.diaDisabled=false;
       this.fechaDisabled=false;
 
-
+      
 
 
       this.userService.getUserById(this.cookies.getToken('user_id')).subscribe((user:User)=>{
@@ -397,7 +398,7 @@ export class InicioComponent implements OnInit {
 
 
 
-
+     
 
 
 
@@ -713,6 +714,65 @@ export class InicioComponent implements OnInit {
     }
 
   }
+  
+ exportExel() {
+  console.log('Exporting data...');
+  const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+  const separator = ',';
+
+ // Agregar hojas de cálculo con datos
+  
+ // Dividir las cadenas en las columnas 'Age'
+    const ageData = this.age.map(row => row.map(cell => (typeof cell === 'string' ? cell.split(separator) : cell)));
+    this.addSheet(workbook, 'Age', ageData, this.columnsAge);   
+
+// Dividir las cadenas en las columnas 'Fechas'
+    const fechasData = this.fechas.map(row => row.map(cell => (typeof cell === 'string' ? cell.split(separator) : cell)));
+    this.addSheet(workbook, 'Fechas', fechasData, this.columnsFechas);
+
+// Invertir la dirección de las columnas 'Address'
+    this.columnsAddress.reverse();
+
+// Dividir las cadenas en las columnas 'Address'
+    const addressData = this.address.map(row => row.map(cell => (typeof cell === 'string' ? cell.split(separator) : cell)));
+    this.addSheet(workbook, 'Address', addressData, this.columnsAddress);
+
+// Dividir las cadenas en las columnas 'Hours'
+   const hoursData = this.hours.map(row => row.map(cell => (typeof cell === 'string' ? cell.split(separator) : cell)));
+   this.addSheet(workbook, 'Hours', hoursData, this.columnsHours);
+
+// Dividir las cadenas en las columnas 'Mensual'
+   const mensualData = this.mensual.map(row => row.map(cell => (typeof cell === 'string' ? cell.split(separator) : cell)));
+   this.addSheet(workbook, 'Mensual', mensualData, this.columnsMensual);
+
+ // Imprimir los resultados después de la división
+      console.log('Age', ageData, this.columnsAge);
+      console.log('Fechas', fechasData, this.columnsFechas);
+      console.log('Address', addressData, this.columnsAddress);
+      console.log('Hours', hoursData, this.columnsHours);
+      console.log('Mensual', mensualData, this.columnsMensual);
+
+ // Descargar el archivo Excel
+    XLSX.writeFile(workbook, 'exported-data.xlsx');
+
+ }
+// Crear una hoja de cálculo con datos
+addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): void {
+  const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([columns, ...data]);
+  XLSX.utils.book_append_sheet(workbook, ws, sheetName);
+}
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
   defineSalas(){
 
     //this.userType= this.actualUser.entrance_role;

@@ -146,7 +146,7 @@
 
 
 
-<!-- 
+
         <mat-grid-tile [colspan]="1" [rowspan]="1">
           <mat-form-field class="fecha" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
             <mat-label>Fecha:</mat-label>
@@ -161,11 +161,16 @@
           </mat-form-field>
         </mat-grid-tile> 
       
-      -->
+      
 
       
       </ul>
     </div>
+    <button class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
+    hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300
+     dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5
+      text-center me-2 mb-2"(click)="exportExel()">Exportar Excel</button>
+
   </div>
 </nav>
 
@@ -239,7 +244,7 @@
 
 
 
-<body  >
+<div>
 
   <div class="overflow-x-scroll" >
   <div class="grid   mb-96 border border-blue-500 rounded-lg
@@ -340,141 +345,20 @@
       </google-chart>
     
   </figure>
-   
-  </div>   
-  
+ 
 
 
 
-
-    
-
-<!-- 
-
-    
-
-    <mat-grid-list cols="10" rowHeight="2:1" >
-
-      <mat-grid-tile [colspan]="3" [rowspan]="4">
-    
-        <google-chart
-        [type]="typeAge"
-        [data]="age"
-        [options]="optionsAge"
-        [title]="titleAge"
-        [columns]="columnsAge"
-        style="width: 100%; height:100%;">
-        </google-chart>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="2" [rowspan]="8">
-        <google-chart
-        [type]="typeHours"
-        [data]="hours"
-        [options]="optionsHours"
-        [title]="titleHours"
-        [columns]="columnsHours"
-        style="width: 98%; height:98%;">
-        </google-chart>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="4" [rowspan]="8">
-        <google-chart
-        [type]="typeAddress"
-        [data]="address"
-        [options]="optionsAddress"
-        [title]="titleAddress"
-        [columns]="columnsAddress"
-        style="width: 98%; height:98%;">
-        </google-chart>
-      </mat-grid-tile>
-
-  <!--     <mat-grid-tile [colspan]="1" [rowspan]="2">
-        <img mat-card-image class="box" id="box1" [src]="logoSrc" width="100%">
-      </mat-grid-tile>
 
 
     
 
-      <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-form-field class="sala" id="sala" appearance="fill" style="width:100% ; font-size: 13px;">
-          <mat-label>Sala:</mat-label>
-          <mat-select [(value)]="salaCmbBox" [disabled]="salaDisabled" (selectionChange)="salaChange(salaCmbBox)">
-              <mat-option *ngFor="let s of salaVar" [value]="s">{{s}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
-
-
-      <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-form-field class="mes" id="mes" appearance="fill" style="width:100% ; font-size: 13px;">
-          <mat-label>Mes:</mat-label>
-          <mat-select [(value)]="mesCmbBox" [disabled]="mesDisabled" (selectionChange)="mesChange(mesCmbBox)">
-              <mat-option *ngFor="let m of meses" [value]="m">{{m}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
-
-    
-
-      <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-form-field class="dia" id="dia" appearance="fill" style="width:100% ; font-size: 13px;">
-          <mat-label>Dia:</mat-label>
-          <mat-select [(value)]="diaCmbBox" [disabled]="diaDisabled" (selectionChange)="diaChange(diaCmbBox)">
-              <mat-option *ngFor="let d of dias" [value]="d">{{d}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-form-field class="fecha" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
-          <mat-label>Fecha:</mat-label>
-
-          <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
-            <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
-            <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
-
-        </mat-form-field>
-      </mat-grid-tile>
-
-  
-      <mat-grid-tile [colspan]="1" [rowspan]="8">
-
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="3" [rowspan]="4">
-        <google-chart
-        [type]="typeFechas"
-        [data]="fechas"
-        [options]="optionsFechas"
-        [title]="titleFechas"
-        [columns]="columnsFechas"
-        style="width: 98%; height:98%;">
-        </google-chart>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="9" [rowspan]="4">
-        <google-chart
-        [type]="typeMensual"
-        [data]="mensual"
-        [options]="optionsMensual"
-        [title]="titleMensual"
-        [columns]="columnsMensual"
-        style="width: 100%; height:100%;">
-        </google-chart>
-      </mat-grid-tile>
-
-    </mat-grid-list>
--->
 
 
   </div>
  
 
-</body>
-
+  </div>
+</div>
 
 

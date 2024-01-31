@@ -1,5 +1,5 @@
 
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Area } from './area';
 import { Campus } from './campus';
@@ -40,6 +40,8 @@ export class AppComponent implements OnInit {
   logged;
 
   @ViewChild(MatSidenav) sidenav!: MatSidenav;
+  @ViewChild("table1") table: ElementRef;
+
 
   constructor(private router: Router,
     private cookies: CookiesService,
