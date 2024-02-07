@@ -195,56 +195,83 @@ export class DialogStatus implements OnInit {
     });
 
 
+    if(this.ludopatas.length>0){
 
-    this.ludopatiaService.getLudopatas().subscribe((resLudops:Ludopata[])=>{
-      console.log('listaLudopsBD',resLudops)
-      if(true){
-        resLudops.forEach(l=>{
-          if(this.ludopatas.find((lar,indLar)=>l.doc_number==lar.doc_number)){
-          }
-          else{
-            this.toRemove.push(l);
-          }
-        })
-
-        console.log('toRemove',this.toRemove);
-
-        this.ludopatas.forEach(lar=>{
-          if(resLudops.find((l:Ludopata,indLar)=>l.doc_number==lar.doc_number)){
-          }
-          else{
-            this.toAdd.push(lar);
-          }
-        })
-
-        console.log('toAdd',this.toAdd);
-
-        if(this.toAdd.length==0&&this.toRemove.length==0){
-          this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
-          this.respuesta = "LISTO ¡A trabajar!";
-        }
-        else{
-          this.toRemove.forEach((l2r,indice)=>{
-            this.ludopatiaService.deleteLudopata(l2r).subscribe(resRemove=>{
-              if(resRemove){
-                if(indice==this.toRemove.length-1){
-                  if(this.toRemove.length>this.toAdd.length){
-                    this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
-                    this.respuesta = "LISTO ¡A trabajar!";
-                  }
-                }
-              }
-            });
+      this.ludopatiaService.getLudopatas().subscribe((resLudops:Ludopata[])=>{
+        console.log('listaLudopsBD',resLudops)
+        if(true){
+          resLudops.forEach(l=>{
+            if(this.ludopatas.find((lar,indLar)=>l.doc_number==lar.doc_number)){
+            }
+            else{
+              this.toRemove.push(l);
+            }
           })
   
+          console.log('toRemove',this.toRemove);
   
+          this.ludopatas.forEach(lar=>{
+            if(resLudops.find((l:Ludopata,indLar)=>l.doc_number==lar.doc_number)){
+            }
+            else{
+              this.toAdd.push(lar);
+            }
+          })
   
-          this.toAdd.forEach((l2a,indice)=>{
-            console.log(l2a);
-            if(l2a.type_doc=='DNI'){
-              this.clientesService.getClientFromReniec(l2a.doc_number).subscribe(personReniec=>{
-                if(personReniec['success']){
-                  l2a.name=personReniec['data']['nombre_completo'];
+          console.log('toAdd',this.toAdd);
+  
+          if(this.toAdd.length==0&&this.toRemove.length==0){
+            this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
+            this.respuesta = "LISTO ¡A trabajar!";
+          }
+          else{
+            this.toRemove.forEach((l2r,indice)=>{
+              this.ludopatiaService.deleteLudopata(l2r).subscribe(resRemove=>{
+                if(resRemove){
+                  if(indice==this.toRemove.length-1){
+                    if(this.toRemove.length>this.toAdd.length){
+                      this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
+                      this.respuesta = "LISTO ¡A trabajar!";
+                    }
+                  }
+                }
+              });
+            })
+    
+    
+    
+            this.toAdd.forEach((l2a,indice)=>{
+              console.log(l2a);
+              if(l2a.type_doc=='DNI'){
+                this.clientesService.getClientFromReniec(l2a.doc_number).subscribe(personReniec=>{
+                  if(personReniec&&personReniec['success']){
+                    l2a.name=personReniec['data']['nombre_completo'];
+                    this.ludopatiaService.addLudopata(l2a).subscribe(resAdd=>{
+                      if(resAdd){
+                        if(indice==this.toAdd.length-1){
+                          if(this.toAdd.length>=this.toRemove.length){
+                            this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
+                            this.respuesta = "LISTO ¡A trabajar!";
+                          }
+                        }
+                      }
+                    });
+                  }
+                  else{
+                    l2a.name='ludopata';
+                    this.ludopatiaService.addLudopata(l2a).subscribe(resAdd=>{
+                      if(resAdd){
+                        if(indice==this.toAdd.length-1){
+                          if(this.toAdd.length>=this.toRemove.length){
+                            this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
+                            this.respuesta = "LISTO ¡A trabajar!";
+                          }
+                        }
+                      }
+                    });
+                  }
+                },error=>{
+                  l2a.name='ludopata';
                   this.ludopatiaService.addLudopata(l2a).subscribe(resAdd=>{
                     if(resAdd){
                       if(indice==this.toAdd.length-1){
@@ -255,29 +282,34 @@ export class DialogStatus implements OnInit {
                       }
                     }
                   });
-                }
-              },error=>{
-                this.respuesta = "ERROR, verificar la consola";
-              })
-            }
-            else if(l2a.type_doc=='CE'){
-              this.ludopatiaService.addLudopata(l2a).subscribe(resAdd=>{
-                if(resAdd){
-                  if(indice==this.toAdd.length-1){
-                    if(this.toAdd.length>=this.toRemove.length){
-                      this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
-                      this.respuesta = "LISTO ¡A trabajar!";
+                })
+              }
+              else if(l2a.type_doc=='CE'){
+                this.ludopatiaService.addLudopata(l2a).subscribe(resAdd=>{
+                  if(resAdd){
+                    if(indice==this.toAdd.length-1){
+                      if(this.toAdd.length>=this.toRemove.length){
+                        this.urlGif='/ingreso-v1.0/assets/success-boy.gif';
+                        this.respuesta = "LISTO ¡A trabajar!";
+                      }
                     }
                   }
-                }
-              });
-            }
+                });
+              }
+    
+            })
+          }
   
-          })
         }
+      })
+    }
 
-      }
-    })
+    else{
+      this.respuesta = "ERROR, no se encontraron ludopatas en el archivo";
+    }
+
+
+
 
   }
 
