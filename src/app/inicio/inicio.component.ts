@@ -1,7 +1,7 @@
 
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ClientesService } from "../clientes.service"
-import { Cliente } from "../cliente"
+import { Person } from "../person"
 import * as XLSX from 'xlsx';
 
 import { User } from '../user';
@@ -23,7 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Product } from '../product';
 import { CookiesService } from '../cookies.service';
 import { Collaborator } from '../collaborator';
-import { Campus } from '../campus';
+import { AccessPoint } from '../accessPoint';
 import { EntranceService } from '../entrance.service';
 import { Console } from 'console';
 import { initFlowbite } from 'flowbite';
@@ -35,8 +35,8 @@ import { initFlowbite } from 'flowbite';
   styleUrls: ['./inicio.component.css']
 })
 export class InicioComponent implements OnInit {
-  clientes: Cliente[] = [
-    new Cliente("none", "Jugador Prueba", '', "none",'','','','','','','','','','','')
+  clientes: Person[] = [
+    new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','')
   ];
   
 
@@ -70,13 +70,13 @@ export class InicioComponent implements OnInit {
 
   //salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
   actualUser:User;
-  col:Collaborator;
-  camp:Campus;
+  //col:Collaborator;
+  //camp:Campus;
 
 
-  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','OLYMPO'];
-  salasVision: string[]=['MEGA','PRO','HUARAL'];
-  salasZoom: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','OLYMPO'];
+  accessPoints: AccessPoint[]=[];
+  //salasVision: string[]=['MEGA','PRO','HUARAL'];
+  //salasZoom: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','OLYMPO'];
   
 
 
@@ -298,7 +298,7 @@ export class InicioComponent implements OnInit {
 
   fechaCmbBoxStart;
   fechaCmbBoxEnd;
-  salaCmbBox;
+  salaCmbBox: AccessPoint = new AccessPoint('','','','');
   diaCmbBox;
   mesCmbBox;
 
@@ -373,341 +373,294 @@ export class InicioComponent implements OnInit {
         
         this.actualUser=user
         console.log(this.actualUser)
-        this.userService.getCollaboratorByUserId(this.actualUser.user_id).subscribe((col:Collaborator)=>{
-          console.log(col)
-          if(col){
-          
-            this.col=col;
-            this.entranceService.getCampusActiveById(this.col.campus_id).subscribe((cam:Campus)=>{
-              console.log(cam)
-              if(cam){
-                this.camp=cam;
-                }
 
-                this.defineSalas()
-              })
-            }
-          })
+        this.entranceService.getAllAccessPoints().subscribe((campList:AccessPoint[])=>{
+          console.log(campList)
+          if(campList){
+            this.accessPoints=campList;
+            //this.defineSalas();
+            this.fechaCmbBoxStart= new Date();
+            this.fechaCmbBoxEnd= new Date();
+            this.diaCmbBox='SELECCIONAR';
+            this.mesCmbBox='SELECCIONAR';
+            this.salaCmbBox=this.accessPoints[0];
         
-          
-    
+            this.logoSrc=this.salaCmbBox.image_url;
+            
+            this.fecha= new Date();
+        
+            this.dia = this.fecha.getDate();
+            this.mes = this.fecha.getMonth()+1;
+            this.anio = this.fecha.getFullYear();
+        
+            if(this.mes<10){
+              this.mes = '0'+this.mes;
+            }
+        
+            if(this.dia<10){
+              this.dia = '0'+this.dia;
+            }
+        
+            this.fecha_hoy = this.anio+'-'+this.mes+'-'+this.dia;
+        
+            this.fecha1 = '';
+            this.fecha2 = '';
+            this.fecha3 = '';
+            this.fecha4 = '';
+            this.fecha5 = '';
+            this.fechaInicio = this.fecha_hoy;
+            this.fechaFin = this.fecha_hoy;
+            this.fechaMes = this.anio+'-'+this.mes+'-';
+        
+            this.mesActual = this.meses[this.fecha.getMonth()];
+            this.diaActual = String(this.fecha.getDate());
+        
+            this.clientesService.getAforoStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
+        
+              this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
+      
+      
+              this.clientesService.getAforoStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
+      
+                this.fechas=[];
+      
+                this.columnsFechas=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }];
+      
+                this.numberClients=0;
+                this.numberClientsNew=0;
+      
+                for(var i=0,l=res.length;i<l;i++){
+                  if(res[i]['FECHA']!='S/N' && res[i]['FECHA']!='--'){
+      
+                    var ele=[];
+                    var flag1=false;
+      
+                    ele.push(String(res[i]['FECHA']));
+                    ele.push(parseInt(res[i]['AFORO']));
+                    ele.push(String(res[i]['AFORO']));
+      
+                    this.numberClients+=parseInt(res[i]['AFORO']);
+                    this.numberClientsAverage=(this.numberClients/res.length).toFixed(0);
+      
+                    if(res2.length>0){
+                      res2.forEach(rd2=>{
+                        if(rd2['FECHA']==res[i]['FECHA']){
+                          flag1=true;
+                          ele.push(parseInt(rd2['AFORO']));
+                          ele.push(String(rd2['AFORO']));
+      
+                          this.numberClientsNew+=parseInt(rd2['AFORO']);
+                        }
+                      })
+                      if(!flag1){
+                        ele.push(0);
+                        ele.push('0');
+                      }
+                    }
+                    else{
+                      ele.push(0);
+                      ele.push('0');
+                    }
+                    this.fechas.push(ele);
+                  }
+                }
+      
+                this.clientesService.getAddressStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
+      
+                  a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
+      
+                  this.distritoTop=a[0]['DISTRITO'];
+      
+                  var ndist=0;
+      
+                  a.forEach(ad=>{
+                    if(ad['DISTRITO']!='S/N' && ad['DISTRITO']!='--' && ad['DISTRITO']!='SN'&&ndist<12){
+                      var el =[];
+      
+                      this.columnsAddress=['Dir','Cantidad',{ role: 'annotation' }]
+      
+                      el.push(String(ad['CANTIDAD']));
+                      el.push(parseInt(ad['CANTIDAD']));
+                      el.push(ad['DISTRITO']);
+                      this.address.push(el);
+                      ndist+=1;
+                    }
+                  })
+      
+                  this.clientesService.getTotalMonth(this.salaCmbBox.name,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
+      
+                    this.clientesService.getTotalMonthNew(this.salaCmbBox.name,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
+      
+                      this.mensual=[];
+      
+                      this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }]
+      
+                      for(var i=0, l=b.length;i<l;i++){
+                        if(b[i]['FECHA']!='S/N' && b[i]['FECHA']!='--'){
+                          var el =[];
+                          var flag2=false;
+                          el.push(b[i]['FECHA']);
+                          el.push(parseInt(b[i]['AFORO']));
+                          el.push(String(b[i]['AFORO']));
+      
+                          if(b2.length>0){
+                            b2.forEach(ad2=>{
+                              if(ad2['FECHA']==b[i]['FECHA']){
+                                flag2=true;
+                                el.push(parseInt(ad2['AFORO']));
+                                el.push(String(ad2['AFORO']));
+                              }
+                            })
+                            if(!flag2){
+                              el.push(0);
+                              el.push('0');
+                            }
+                          }
+                          else{
+                            el.push(0);
+                            el.push('0');
+                          }
+                          this.mensual.push(el);
+                        }
+                      }
+      
+                      this.hours=[];
+      
+                      this.clientesService.getHourStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
+                        var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
+                        this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
+                        var cantidadXHoras=[24];
+                        if(resHours.length>0){
+                          var cantHourAux=0;
+                          for(var i=0;i<24;i++){
+                            var elem=[];
+                            var contador=0;
+                            resHours.forEach(hItem=>{
+                              if(String(hItem['HORA']).substring(0,2)==horasString[i]){
+                                contador+=parseInt(hItem['AFORO']);
+                              }
+                            })
+                            elem.push(horasString[i]+':00');
+                            elem.push(contador);
+                            elem.push(String(contador));
+      
+                            cantidadXHoras[i]=contador;
+                            if(contador>=cantHourAux){
+                              cantHourAux=contador;
+                              if(i<23){
+                                this.horaTop=horasString[i]+':00 a '+horasString[i+1]+':00';
+                              }
+                              else{
+                                this.horaTop=horasString[i]+':00 a 24:00';
+                              }
+                            }
+                            this.hours.push(elem);
+                          }
+                        }
+      
+                        this.clientesService.getAgeStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
+                          if(resAge.length>0){
+                            this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
+                            var count18a30 = 0;
+                            var count30a40 = 0;
+                            var count40a50 = 0;
+                            var count50a60 = 0;
+                            var count60amas = 0;
+      
+                            var cantEdad=0;
+      
+                            resAge.forEach(clientAge=>{
+      
+                              if(parseInt(clientAge['EDAD'])<=30){
+                                count18a30+=parseInt(clientAge['AFORO']);
+                                if(count18a30>cantEdad){
+                                  cantEdad=count18a30;
+                                  this.edadTop='18 a 30';
+                                }
+                              }
+                              else if(parseInt(clientAge['EDAD'])<=40){
+                                count30a40+=parseInt(clientAge['AFORO']);
+                                if(count30a40>cantEdad){
+                                  cantEdad=count30a40;
+                                  this.edadTop='31 a 40';
+                                }
+                              }
+                              else if(parseInt(clientAge['EDAD'])<=50){
+                                count40a50+=parseInt(clientAge['AFORO']);
+                                if(count40a50>cantEdad){
+                                  cantEdad=count40a50;
+                                  this.edadTop='41 a 50';
+                                }
+                              }
+                              else if(parseInt(clientAge['EDAD'])<=60){
+                                count50a60+=parseInt(clientAge['AFORO']);
+                                if(count50a60>cantEdad){
+                                  cantEdad=count50a60;
+                                  this.edadTop='51 a 60';
+                                }
+                              }
+                              else{
+                                count60amas+=parseInt(clientAge['AFORO']);
+                                if(count60amas>cantEdad){
+                                  cantEdad=count60amas;
+                                  this.edadTop='60+';
+                                }
+                              }
+      
+                            })
+      
+                            var elem=[];
+      
+                            elem.push('18 a 30');
+                            elem.push(count18a30);
+                            elem.push(String(count18a30));
+                            this.age.push(elem);
+      
+                            elem=[];
+                            elem.push('31 a 40');
+                            elem.push(count30a40);
+                            elem.push(String(count30a40));
+                            this.age.push(elem);
+      
+                            elem=[];
+                            elem.push('41 a 50');
+                            elem.push(count40a50);
+                            elem.push(String(count40a50));
+                            this.age.push(elem);
+      
+                            elem=[];
+                            elem.push('51 a 60');
+                            elem.push(count50a60);
+                            elem.push(String(count50a60));
+                            this.age.push(elem);
+      
+                            elem=[];
+                            elem.push('61 a más');
+                            elem.push(count60amas);
+                            elem.push(String(count60amas));
+                            this.age.push(elem);
+      
+      
+                          }
+                        })
+      
+      
+                      })
+      
+                    })
+                  })
+                })
+              })
+        
+            })
+          }
+
+
+        })
 
 
       });
 
-
-
-
-     
-
-
-
-      this.fechaCmbBoxStart= new Date();
-      this.fechaCmbBoxEnd= new Date();
-      this.diaCmbBox='SELECCIONAR';
-      this.mesCmbBox='SELECCIONAR';
-      this.salaCmbBox='PALACIO';
-  
-      if(this.salaCmbBox=='PALACIO'){
-        this.logoSrc="assets/logoPALACIO.png";
-      }
-      if(this.salaCmbBox=='VENEZUELA'){
-        this.logoSrc="assets/logoVENEZUELA.png";
-      }
-      if(this.salaCmbBox=='HUANDOY'){
-        this.logoSrc="assets/logoHUANDOY.png";
-      }
-      if(this.salaCmbBox=='KANTA'){
-        this.logoSrc="assets/logoKANTA.png";
-      }
-      if(this.salaCmbBox=='MEGA'){
-        this.logoSrc="assets/logoMEGA.png";
-      }
-      if(this.salaCmbBox=='PRO'){
-        this.logoSrc="assets/logoPRO.png";
-      }    
-      if(this.salaCmbBox=='HUARAL'){
-        this.logoSrc="assets/logoHUARAL.png";
-      }    
-      if(this.salaCmbBox=='SAN JUAN I'){
-        this.logoSrc="assets/logoSJI.png";
-      }
-      if(this.salaCmbBox=='SAN JUAN II'){
-        this.logoSrc="assets/logoSJII.png";
-      }
-      if(this.salaCmbBox=='SAN JUAN III'){
-        this.logoSrc="assets/logoSJIII.png";
-      }
-      if(this.salaCmbBox=='OLYMPO'){
-        this.logoSrc="assets/logoOLYMPO.png";
-      }
-      
-      this.fecha= new Date();
-  
-      this.dia = this.fecha.getDate();
-      this.mes = this.fecha.getMonth()+1;
-      this.anio = this.fecha.getFullYear();
-  
-      if(this.mes<10){
-        this.mes = '0'+this.mes;
-      }
-  
-      if(this.dia<10){
-        this.dia = '0'+this.dia;
-      }
-  
-      this.fecha_hoy = this.anio+'-'+this.mes+'-'+this.dia;
-  
-      this.fecha1 = '';
-      this.fecha2 = '';
-      this.fecha3 = '';
-      this.fecha4 = '';
-      this.fecha5 = '';
-      this.fechaInicio = this.fecha_hoy;
-      this.fechaFin = this.fecha_hoy;
-      this.fechaMes = this.anio+'-'+this.mes+'-';
-  
-      this.mesActual = this.meses[this.fecha.getMonth()];
-      this.diaActual = String(this.fecha.getDate());
-  
-      this.clientesService.getAforoStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
-  
-          this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
-  
-  
-          this.clientesService.getAforoNewStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
-  
-            this.fechas=[];
-  
-            this.columnsFechas=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }];
-  
-            this.numberClients=0;
-            this.numberClientsNew=0;
-  
-            for(var i=0,l=res.length;i<l;i++){
-              if(res[i]['FECHA']!='S/N' && res[i]['FECHA']!='--'){
-  
-                var ele=[];
-                var flag1=false;
-  
-                ele.push(String(res[i]['FECHA']));
-                ele.push(parseInt(res[i]['AFORO']));
-                ele.push(String(res[i]['AFORO']));
-  
-                this.numberClients+=parseInt(res[i]['AFORO']);
-                this.numberClientsAverage=(this.numberClients/res.length).toFixed(0);
-  
-                if(res2.length>0){
-                  res2.forEach(rd2=>{
-                    if(rd2['FECHA']==res[i]['FECHA']){
-                      flag1=true;
-                      ele.push(parseInt(rd2['AFORO']));
-                      ele.push(String(rd2['AFORO']));
-  
-                      this.numberClientsNew+=parseInt(rd2['AFORO']);
-                    }
-                  })
-                  if(!flag1){
-                    ele.push(0);
-                    ele.push('0');
-                  }
-                }
-                else{
-                  ele.push(0);
-                  ele.push('0');
-                }
-                this.fechas.push(ele);
-              }
-            }
-  
-            this.clientesService.getAddressStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
-  
-              a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
-  
-              this.distritoTop=a[0]['DISTRITO'];
-  
-              var ndist=0;
-  
-              a.forEach(ad=>{
-                if(ad['DISTRITO']!='S/N' && ad['DISTRITO']!='--' && ad['DISTRITO']!='SN'&&ndist<12){
-                  var el =[];
-  
-                  this.columnsAddress=['Dir','Cantidad',{ role: 'annotation' }]
-  
-                  el.push(String(ad['CANTIDAD']));
-                  el.push(parseInt(ad['CANTIDAD']));
-                  el.push(ad['DISTRITO']);
-                  this.address.push(el);
-                  ndist+=1;
-                }
-              })
-  
-              this.clientesService.getTotalMonth(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
-  
-                this.clientesService.getTotalMonthNew(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
-  
-                  this.mensual=[];
-  
-                  this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }]
-  
-                  for(var i=0, l=b.length;i<l;i++){
-                    if(b[i]['FECHA']!='S/N' && b[i]['FECHA']!='--'){
-                      var el =[];
-                      var flag2=false;
-                      el.push(b[i]['FECHA']);
-                      el.push(parseInt(b[i]['AFORO']));
-                      el.push(String(b[i]['AFORO']));
-  
-                      if(b2.length>0){
-                        b2.forEach(ad2=>{
-                          if(ad2['FECHA']==b[i]['FECHA']){
-                            flag2=true;
-                            el.push(parseInt(ad2['AFORO']));
-                            el.push(String(ad2['AFORO']));
-                          }
-                        })
-                        if(!flag2){
-                          el.push(0);
-                          el.push('0');
-                        }
-                      }
-                      else{
-                        el.push(0);
-                        el.push('0');
-                      }
-                      this.mensual.push(el);
-                    }
-                  }
-  
-                  this.hours=[];
-  
-                  this.clientesService.getHourStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
-                    var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
-                    this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
-                    var cantidadXHoras=[24];
-                    if(resHours.length>0){
-                      var cantHourAux=0;
-                      for(var i=0;i<24;i++){
-                        var elem=[];
-                        var contador=0;
-                        resHours.forEach(hItem=>{
-                          if(String(hItem['HORA']).substring(0,2)==horasString[i]){
-                            contador+=parseInt(hItem['AFORO']);
-                          }
-                        })
-                        elem.push(horasString[i]+':00');
-                        elem.push(contador);
-                        elem.push(String(contador));
-
-                        cantidadXHoras[i]=contador;
-                        if(contador>=cantHourAux){
-                          cantHourAux=contador;
-                          if(i<23){
-                            this.horaTop=horasString[i]+':00 a '+horasString[i+1]+':00';
-                          }
-                          else{
-                            this.horaTop=horasString[i]+':00 a 24:00';
-                          }
-                        }
-                        this.hours.push(elem);
-                      }
-                    }
-
-                    this.clientesService.getAgeStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
-                      if(resAge.length>0){
-                        this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
-                        var count18a30 = 0;
-                        var count30a40 = 0;
-                        var count40a50 = 0;
-                        var count50a60 = 0;
-                        var count60amas = 0;
-
-                        var cantEdad=0;
-
-                        resAge.forEach(clientAge=>{
-
-                          if(parseInt(clientAge['EDAD'])<=30){
-                            count18a30+=parseInt(clientAge['AFORO']);
-                            if(count18a30>cantEdad){
-                              cantEdad=count18a30;
-                              this.edadTop='18 a 30';
-                            }
-                          }
-                          else if(parseInt(clientAge['EDAD'])<=40){
-                            count30a40+=parseInt(clientAge['AFORO']);
-                            if(count30a40>cantEdad){
-                              cantEdad=count30a40;
-                              this.edadTop='31 a 40';
-                            }
-                          }
-                          else if(parseInt(clientAge['EDAD'])<=50){
-                            count40a50+=parseInt(clientAge['AFORO']);
-                            if(count40a50>cantEdad){
-                              cantEdad=count40a50;
-                              this.edadTop='41 a 50';
-                            }
-                          }
-                          else if(parseInt(clientAge['EDAD'])<=60){
-                            count50a60+=parseInt(clientAge['AFORO']);
-                            if(count50a60>cantEdad){
-                              cantEdad=count50a60;
-                              this.edadTop='51 a 60';
-                            }
-                          }
-                          else{
-                            count60amas+=parseInt(clientAge['AFORO']);
-                            if(count60amas>cantEdad){
-                              cantEdad=count60amas;
-                              this.edadTop='60+';
-                            }
-                          }
-
-                        })
-
-                        var elem=[];
-
-                        elem.push('18 a 30');
-                        elem.push(count18a30);
-                        elem.push(String(count18a30));
-                        this.age.push(elem);
-
-                        elem=[];
-                        elem.push('31 a 40');
-                        elem.push(count30a40);
-                        elem.push(String(count30a40));
-                        this.age.push(elem);
-
-                        elem=[];
-                        elem.push('41 a 50');
-                        elem.push(count40a50);
-                        elem.push(String(count40a50));
-                        this.age.push(elem);
-
-                        elem=[];
-                        elem.push('51 a 60');
-                        elem.push(count50a60);
-                        elem.push(String(count50a60));
-                        this.age.push(elem);
-
-                        elem=[];
-                        elem.push('61 a más');
-                        elem.push(count60amas);
-                        elem.push(String(count60amas));
-                        this.age.push(elem);
-
-
-                      }
-                    })
-
-  
-                  })
-  
-                })
-              })
-            })
-          })
-  
-      })
     }
     else{
       this.router.navigateByUrl('/login');
@@ -776,7 +729,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
   defineSalas(){
 
     //this.userType= this.actualUser.entrance_role;
-    console.log(this.actualUser.entrance_role);
+/*     console.log(this.actualUser.entrance_role);
       if(this.actualUser.entrance_role=="ADMINISTRADOR"){
         console.log(this.actualUser.entrance_role);
         this.salaVar= this.salas;
@@ -814,9 +767,9 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
       //vision:MEGA, Pro, Huaral.
       //zoom: PALACIO, VENEZUELA,KANTA,HUANDOY,OLYMPO
 
-    }
+    } */
   }
-  salaChange(sala: string){
+  salaChange(sala: AccessPoint){
     this.salaCmbBox=sala;
     this.getStats();
   }
@@ -1013,48 +966,17 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
     this.fechas=[];
     this.address=[];
     this.mensual=[];
-    if(this.salaCmbBox=='SAN JUAN I'){
-      this.logoSrc="assets/logoSJI.png";
-    }
-    if(this.salaCmbBox=='SAN JUAN II'){
-      this.logoSrc="assets/logoSJII.png";
-    }
-    if(this.salaCmbBox=='SAN JUAN III'){
-      this.logoSrc="assets/logoSJIII.png";
-    }
-    if(this.salaCmbBox=='PALACIO'){
-      this.logoSrc="assets/logoPALACIO.png";
-    }
-    if(this.salaCmbBox=='VENEZUELA'){
-      this.logoSrc="assets/logoVENEZUELA.png";
-    }
-    if(this.salaCmbBox=='HUANDOY'){
-      this.logoSrc="assets/logoHUANDOY.png";
-    }
-    if(this.salaCmbBox=='KANTA'){
-      this.logoSrc="assets/logoKANTA.png";
-    }
-    if(this.salaCmbBox=='MEGA'){
-      this.logoSrc="assets/logoMEGA.png";
-    }
-    if(this.salaCmbBox=='PRO'){
-      this.logoSrc="assets/logoPRO.png";
-    }    
-    if(this.salaCmbBox=='HUARAL'){
-      this.logoSrc="assets/logoHUARAL.png";
-    }
-    if(this.salaCmbBox=='OLYMPO'){
-      this.logoSrc="assets/logoOLYMPO.png";
-    }
 
-    this.clientesService.getAforoStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
+    this.logoSrc="assets/logo"+this.salaCmbBox+".png"
+
+    this.clientesService.getAforoStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
       if(res.length>0){
 
         this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]];
 
         this.fechas=[];
 
-        this.clientesService.getAforoNewStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
+        this.clientesService.getAforoStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
 
           this.columnsFechas=['Fecha','Total',{role:'annotation'},'Nuevos',{role:'annotation'}]
 
@@ -1102,7 +1024,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
         this.fechas=[['No hay datos',0]]
       ]
 
-      this.clientesService.getAddressStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
+      this.clientesService.getAddressStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
         if(a.length>0){
           this.address=[];
           a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
@@ -1132,11 +1054,11 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
         }
 
 
-        this.clientesService.getTotalMonth(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
+        this.clientesService.getTotalMonth(this.salaCmbBox.name,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
           if(b.length>0){
             this.mensual=[];
 
-            this.clientesService.getTotalMonthNew(this.salaCmbBox,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
+            this.clientesService.getTotalMonthNew(this.salaCmbBox.name,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
 
               this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{role:'annotation'}];
 
@@ -1175,7 +1097,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
           this.hours=[];
 
-          this.clientesService.getHourStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
+          this.clientesService.getHourStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
             var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
             this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
             var cantidadXHoras=[24];
@@ -1212,7 +1134,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
             this.age=[];
 
-            this.clientesService.getAgeStat(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
+            this.clientesService.getAgeStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
               if(resAge.length>0){
                 this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
                 var count18a30 = 0;

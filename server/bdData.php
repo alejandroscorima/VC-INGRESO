@@ -4,7 +4,7 @@
 $contraseña = "Oscorpsvr";
 $usuario = "root";
 
-$nombre_base_de_datos = "oscorp_data";
+$nombre_base_de_datos = "vc_data";
 try {
     return new PDO('mysql:host=localhost;dbname=' . $nombre_base_de_datos, $usuario, $contraseña);
     //return new PDO('mysql:host=localhost:8889;dbname=' . $nombre_base_de_datos, $usuario, $contraseña);

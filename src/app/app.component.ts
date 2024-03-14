@@ -2,7 +2,7 @@
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Area } from './area';
-import { Campus } from './campus';
+import { AccessPoint } from './accessPoint';
 import { CookiesService } from './cookies.service';
 import { EntranceService } from './entrance.service';
 import { User } from './user';
@@ -34,7 +34,7 @@ export class AppComponent implements OnInit {
 
 
 
-  user_campus: Campus = new Campus('','','','','','','');
+  user_campus: AccessPoint = new AccessPoint('','','','');
 
   user_id;
   logged;
@@ -81,39 +81,6 @@ export class AppComponent implements OnInit {
           }
           this.usersService.getUserById(this.user.user_id).subscribe((u:User)=>{
             this.user=u;
-
-            this.usersService.getCollaboratorByUserId(this.user.user_id).subscribe((c:Collaborator)=>{
-
-              if(c){
-              
-                this.collaborator=c;
-                this.entranceService.getAreaById(this.collaborator.area_id).subscribe((a:Area)=>{
-                
-                  if(a){
-                    this.user_area=a;
-
-                    console.log(this.user_area)
-                    this.entranceService.getCampusActiveById(this.collaborator.campus_id).subscribe((c:Campus)=>{
-                      if(c){
-                        this.user_campus=c;
-        
-                      }
-                      else{
-                        this.cookies.deleteToken("user_id");
-                        this.cookies.deleteToken("user_role");
-                        this.cookies.deleteToken('sala');
-                        this.cookies.deleteToken('onSession');
-                        this.toastr.error('Sala no encontrada');
-                        this.router.navigateByUrl('/login');
-                        console.log('No cumple licencia en APP MODULE');
-                      }
-                    })
-        
-                  }
-                })
-              }
-            }
-            )
 
     
           });

@@ -20,7 +20,6 @@ import { MatTableModule } from '@angular/material/table';
 import { HttpClientModule } from '@angular/common/http';
 import { DialogHistoryDetail, DialogLudops, HistoryComponent } from './history/history.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { GenerarActaComponent } from './generar-acta/generar-acta.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -61,7 +60,6 @@ import { SideNavComponent } from './side-nav/side-nav.component';
         ListasComponent,
         InicioComponent,
         HistoryComponent,
-        GenerarActaComponent,
         BirthdayComponent,
         UploadComponent,
         DialogEditLudop,

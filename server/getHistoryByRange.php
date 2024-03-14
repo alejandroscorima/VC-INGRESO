@@ -11,6 +11,11 @@ $sala=$_GET['sala'];
 $bd = include_once "bdEntrance.php";
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
+
+if(true){
+  $sentencia = $bd->prepare("SELECT b.doc_number, b.first_name, a.age, b.gender, a.date_entrance, a.date_entrance, a.hour_entrance, a.obs, a.visits FROM visits_vc5 a JOIN vc_data.users b ON a.person_id=b.user_id WHERE a.date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY a.id desc");
+}
+
 if($sala=='PALACIO'){
   $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_palacio WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
 }

@@ -12,33 +12,7 @@ $password=$_GET['password'];
 
 //$sentencia = $bd->prepare("SELECT user_id, doc_number, first_name, last_name, gender, username, area_id, position, campus_id, dem_role FROM users WHERE username='".$username."' AND password='".$password."'");
 
-$sentencia = $bd->prepare("SELECT
-user_id ,colab_id ,type_doc ,doc_number, first_name ,
-paternal_surname , 
-maternal_surname ,
-gender ,
-birth_date ,
-civil_status,
-profession ,
-cel_number ,
-email,
-address,
-district,
-province,
-region  ,
-username ,
-password ,
-supply_role ,
-entrance_role ,
-lotteryact_role ,
-dem_role  ,
-dem_role_id  ,
-hr_role ,
-secretsanta_role  ,
-latitud  ,
-longitud ,
-photo_url
- FROM user2 WHERE username='".$username."' AND password='".$password."'");
+$sentencia = $bd->prepare("SELECT user_id, colab_id, type_doc, doc_number, first_name, paternal_surname, maternal_surname, gender, birth_date, civil_status, profession, cel_number, email, address, district, province, region, username, entrance_role, latitud, longitud, photo_url, house_id FROM users WHERE username='".$username."' AND password='".$password."'");
 
 /*
 (user_id ,

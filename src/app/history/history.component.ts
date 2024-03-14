@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ClientesService } from "../clientes.service"
-import { Cliente } from "../cliente"
+import { Person } from "../person"
 import { Visit } from "../visit"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,11 +13,13 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Sale } from '../sale';
 import { PersonalService } from '../personal.service';
+import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
 
 import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { AccessPoint } from '../accessPoint';
 
 
 @Component({
@@ -39,7 +41,7 @@ export class HistoryComponent implements OnInit {
   visit: Visit= new Visit('','','','','','','');
   visits: Visit[] = [];
 
-  salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
+  salas: string[]=[];
 
   fecha;
   fecha_inicial;
@@ -56,11 +58,14 @@ export class HistoryComponent implements OnInit {
 
   dataSourceHistory: MatTableDataSource<Visit>;
 
+  accessPoints: AccessPoint[] = [];
+
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
   constructor(
     private clientesService: ClientesService,
+    private entranceService: EntranceService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -177,7 +182,7 @@ export class HistoryComponent implements OnInit {
       data:{data:vis,dataSala:this.sala}
     })
 
-    dialogRef.afterClosed().subscribe((res:Cliente) => {
+    dialogRef.afterClosed().subscribe((res:Person) => {
     })
   }
 
@@ -188,12 +193,19 @@ export class HistoryComponent implements OnInit {
       data:""
     })
 
-    dialogRef.afterClosed().subscribe((res:Cliente) => {
+    dialogRef.afterClosed().subscribe((res:Person) => {
     })
   }
 
   ngOnInit() {
     this.sala='';
+
+    this.entranceService.getAllAccessPoints().subscribe((campList:AccessPoint[])=>{
+      console.log(campList)
+      if(campList){
+        this.accessPoints=campList;
+      }
+    });
 
     this.fecha=new Date();
 

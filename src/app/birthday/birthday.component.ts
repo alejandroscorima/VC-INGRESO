@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ClientesService } from "../clientes.service"
-import { Cliente } from "../cliente"
+import { Person } from "../person"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
@@ -34,8 +34,8 @@ export class BirthdayComponent implements OnInit {
 
   expandedElement: Item ;
 
-  client: Cliente= new Cliente('','','','','','','','','','','','','','','');
-  clients: Cliente[] = [];
+  client: Person= new Person('','','','','','','','','','','','','','','');
+  clients: Person[] = [];
 
   fecha;
   fecha_cumple;
@@ -44,7 +44,7 @@ export class BirthdayComponent implements OnInit {
   month;
   year;
 
-  dataSourceHB: MatTableDataSource<Cliente>;
+  dataSourceHB: MatTableDataSource<Person>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
@@ -91,7 +91,7 @@ export class BirthdayComponent implements OnInit {
     this.fechaString=this.year+'-'+this.month+'-'+this.day;
 
     console.log(this.fecha)
-    this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Cliente[])=>{
+    this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Person[])=>{
       this.clients=cList;
       this.dataSourceHB = new MatTableDataSource(this.clients);
       this.dataSourceHB.paginator = this.paginator.toArray()[0];
@@ -119,7 +119,7 @@ export class BirthdayComponent implements OnInit {
     this.fecha_cumple='-'+this.month+'-'+this.day;
     this.fechaString=this.year+'-'+this.month+'-'+this.day;
 
-    this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Cliente[])=>{
+    this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Person[])=>{
       this.clients=cList;
       this.dataSourceHB = new MatTableDataSource(this.clients);
       this.dataSourceHB.paginator = this.paginator.toArray()[0];

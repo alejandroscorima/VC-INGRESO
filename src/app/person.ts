@@ -1,5 +1,5 @@
 
-export class Cliente {
+export class Person {
   constructor(
     public doc_number: string,
     public client_name: string,

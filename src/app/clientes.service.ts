@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Cliente } from "./cliente";
+import { Person } from "./person";
 import { environment } from "../environments/environment";
 import { Observable } from 'rxjs';
 
@@ -12,7 +12,7 @@ export class ClientesService {
   baseUrl = environment.baseUrl
   respuesta;
   urlconsulta;
-  cliente = new Cliente('','','','','','','','','','','','','','','');
+  cliente = new Person('','','','','','','','','','','','','','','');
 
   constructor(private http: HttpClient) { }
 
@@ -116,15 +116,21 @@ export class ClientesService {
     return this.http.get(`${this.baseUrl}/getTotalMonthNew.php?sala=${sala}&fecha=${fecha}&mes=${mes}&dia=${dia}&fecha1=${fecha1}&fecha2=${fecha2}&fecha3=${fecha3}&fecha4=${fecha4}`);
   }
 
-  addCliente(cliente: Cliente) {
+  addCliente(cliente: Person) {
     return this.http.post(`${this.baseUrl}/postClient.php`, cliente);
   }
 
-  deleteCliente(cliente: Cliente) {
+  deleteCliente(cliente: Person) {
     return this.http.put(`${this.baseUrl}/deleteClient.php`, cliente);
   }
 
-  updateClient(cliente: Cliente) {
+  updateClient(cliente: Person) {
     return this.http.put(`${this.baseUrl}/updateClient.php`, cliente);
+  }
+
+
+  getSystemClientById(client_id: number) {
+
+    return this.http.get(`${this.baseUrl}/getSystemClientById.php?client_id=${client_id}`);
   }
 }

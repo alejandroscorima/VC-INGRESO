@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ClientesService } from "../clientes.service"
-import { Cliente } from "../cliente"
+import { Person } from "../person"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
@@ -36,18 +36,18 @@ export class ListasComponent implements OnInit {
 
   expandedElement: Item ;
 
-  cliente: Cliente;
+  cliente: Person;
 
-  observados: Cliente[]= [];
-  restringidos: Cliente[] = [];
-  vips: Cliente[] = [];
+  observados: Person[]= [];
+  restringidos: Person[] = [];
+  vips: Person[] = [];
 
   fecha;
   fechaString;
 
-  dataSourceObservados: MatTableDataSource<Cliente>;
-  dataSourceRestringidos: MatTableDataSource<Cliente>;
-  dataSourceVips: MatTableDataSource<Cliente>;
+  dataSourceObservados: MatTableDataSource<Person>;
+  dataSourceRestringidos: MatTableDataSource<Person>;
+  dataSourceVips: MatTableDataSource<Person>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
@@ -100,19 +100,19 @@ export class ListasComponent implements OnInit {
 
   ngOnInit() {
 
-    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+    this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
       this.observados=observadosList;
       this.dataSourceObservados = new MatTableDataSource(this.observados);
       this.dataSourceObservados.paginator = this.paginator.toArray()[0];
       this.dataSourceObservados.sort = this.sort.toArray()[0];
 
-      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+      this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
         this.restringidos=restringidosList;
         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
 
-        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+        this.clientesService.getVips().subscribe((vipsList:Person[])=>{
           this.vips=vipsList;
           this.dataSourceVips = new MatTableDataSource(this.vips);
           this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -125,7 +125,7 @@ export class ListasComponent implements OnInit {
   onSubmit() {
   }
 
-  delete(c:Cliente){
+  delete(c:Person){
     c.condicion='PERMITIDO';
     c.motivo='';
     c.sala_list='';
@@ -135,19 +135,19 @@ export class ListasComponent implements OnInit {
       if(a){
         this.toastr.success('Eliminado');
 
-        this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+        this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
           this.observados=observadosList;
           this.dataSourceObservados = new MatTableDataSource(this.observados);
           this.dataSourceObservados.paginator = this.paginator.toArray()[0];
           this.dataSourceObservados.sort = this.sort.toArray()[0];
     
-          this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+          this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
             this.restringidos=restringidosList;
             this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
             this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
             this.dataSourceRestringidos.sort = this.sort.toArray()[1];
     
-            this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+            this.clientesService.getVips().subscribe((vipsList:Person[])=>{
               this.vips=vipsList;
               this.dataSourceVips = new MatTableDataSource(this.vips);
               this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -180,16 +180,16 @@ export class ListasComponent implements OnInit {
 
     /* console.log(this.fechaString); */
 
-    this.cliente = new Cliente('','','','','','','','','','','OBSERVADO','','','','INDIVIDUAL')
+    this.cliente = new Person('','','','','','','','','','','OBSERVADO','','','','INDIVIDUAL')
 
     dialogRef=this.dialog.open(DialogNewO,{
       data:this.cliente,
     })
 
-    dialogRef.afterClosed().subscribe((res:Cliente) => {
+    dialogRef.afterClosed().subscribe((res:Person) => {
       /*console.log(res);*/
       if(res){
-        this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+        this.clientesService.getClient(res.doc_number).subscribe((c:Person)=>{
           // console.log(this.fechaString);       
           if(c){
             c.condicion=res.condicion;
@@ -202,19 +202,19 @@ export class ListasComponent implements OnInit {
               if(r){
                 this.toastr.success('Observado añadido correctamente');
   
-                this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
                   this.observados=observadosList;
                   this.dataSourceObservados = new MatTableDataSource(this.observados);
                   this.dataSourceObservados.paginator = this.paginator.toArray()[0];
                   this.dataSourceObservados.sort = this.sort.toArray()[0];
             
-                  this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                  this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
                     this.restringidos=restringidosList;
                     this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                     this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                     this.dataSourceRestringidos.sort = this.sort.toArray()[1];
             
-                    this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                    this.clientesService.getVips().subscribe((vipsList:Person[])=>{
                       this.vips=vipsList;
                       this.dataSourceVips = new MatTableDataSource(this.vips);
                       this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -228,7 +228,7 @@ export class ListasComponent implements OnInit {
           else{
             this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
               if(res['success']){
-                var clienteNew = new Cliente('','','','','','','','','','','','','','','');
+                var clienteNew = new Person('','','','','','','','','','','','','','','');
                 clienteNew.doc_number = res['data']['numero'];
                 clienteNew.client_name = res['data']['nombre_completo'];
                 clienteNew.birth_date = res['data']['fecha_nacimiento'];
@@ -247,19 +247,19 @@ export class ListasComponent implements OnInit {
                   if(n){
                     this.toastr.success('Observado añadido correctamente');
   
-                    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                    this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
                       this.observados=observadosList;
                       this.dataSourceObservados = new MatTableDataSource(this.observados);
                       this.dataSourceObservados.paginator = this.paginator.toArray()[0];
                       this.dataSourceObservados.sort = this.sort.toArray()[0];
                 
-                      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                      this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
                         this.restringidos=restringidosList;
                         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
                 
-                        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                        this.clientesService.getVips().subscribe((vipsList:Person[])=>{
                           this.vips=vipsList;
                           this.dataSourceVips = new MatTableDataSource(this.vips);
                           this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -298,15 +298,15 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    this.cliente = new Cliente('','','','','','','','','','','RESTRINGIDO','','','','INDIVIDUAL')
+    this.cliente = new Person('','','','','','','','','','','RESTRINGIDO','','','','INDIVIDUAL')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,
     })
 
-    dialogRef.afterClosed().subscribe((res:Cliente) => {
+    dialogRef.afterClosed().subscribe((res:Person) => {
       if(res){
-        this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+        this.clientesService.getClient(res.doc_number).subscribe((c:Person)=>{
         
           if(c){
             c.condicion=res.condicion;
@@ -319,19 +319,19 @@ export class ListasComponent implements OnInit {
               if(r){
                 this.toastr.success('Restringido añadido correctamente');
   
-                this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
                   this.observados=observadosList;
                   this.dataSourceObservados = new MatTableDataSource(this.observados);
                   this.dataSourceObservados.paginator = this.paginator.toArray()[0];
                   this.dataSourceObservados.sort = this.sort.toArray()[0];
             
-                  this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                  this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
                     this.restringidos=restringidosList;
                     this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                     this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                     this.dataSourceRestringidos.sort = this.sort.toArray()[1];
             
-                    this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                    this.clientesService.getVips().subscribe((vipsList:Person[])=>{
                       this.vips=vipsList;
                       this.dataSourceVips = new MatTableDataSource(this.vips);
                       this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -345,7 +345,7 @@ export class ListasComponent implements OnInit {
           else{
             this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
               if(res['success']){
-                var clienteNew = new Cliente('','','','','','','','','','','','','','','');
+                var clienteNew = new Person('','','','','','','','','','','','','','','');
                 clienteNew.doc_number = response['data']['numero'];
                 clienteNew.client_name = response['data']['nombre_completo'];
                 clienteNew.birth_date = response['data']['fecha_nacimiento'];
@@ -364,19 +364,19 @@ export class ListasComponent implements OnInit {
                   if(n){
                     this.toastr.success('Restringido añadido correctamente');
   
-                    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                    this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
                       this.observados=observadosList;
                       this.dataSourceObservados = new MatTableDataSource(this.observados);
                       this.dataSourceObservados.paginator = this.paginator.toArray()[0];
                       this.dataSourceObservados.sort = this.sort.toArray()[0];
                 
-                      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                      this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
                         this.restringidos=restringidosList;
                         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
                 
-                        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                        this.clientesService.getVips().subscribe((vipsList:Person[])=>{
                           this.vips=vipsList;
                           this.dataSourceVips = new MatTableDataSource(this.vips);
                           this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -415,15 +415,15 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    this.cliente = new Cliente('','','','','','','','','','','VIP','CLIENTE VIP','','','INDIVIDUAL')
+    this.cliente = new Person('','','','','','','','','','','VIP','CLIENTE VIP','','','INDIVIDUAL')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,
     })
 
-    dialogRef.afterClosed().subscribe((res:Cliente) => {
+    dialogRef.afterClosed().subscribe((res:Person) => {
       if(res){
-        this.clientesService.getClient(res.doc_number).subscribe((c:Cliente)=>{
+        this.clientesService.getClient(res.doc_number).subscribe((c:Person)=>{
         
           if(c){
             c.condicion=res.condicion;
@@ -436,19 +436,19 @@ export class ListasComponent implements OnInit {
               if(r){
                 this.toastr.success('VIP añadido correctamente');
   
-                this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
                   this.observados=observadosList;
                   this.dataSourceObservados = new MatTableDataSource(this.observados);
                   this.dataSourceObservados.paginator = this.paginator.toArray()[0];
                   this.dataSourceObservados.sort = this.sort.toArray()[0];
             
-                  this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                  this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
                     this.restringidos=restringidosList;
                     this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                     this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                     this.dataSourceRestringidos.sort = this.sort.toArray()[1];
             
-                    this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                    this.clientesService.getVips().subscribe((vipsList:Person[])=>{
                       this.vips=vipsList;
                       this.dataSourceVips = new MatTableDataSource(this.vips);
                       this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -462,7 +462,7 @@ export class ListasComponent implements OnInit {
           else{
             this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
               if(response['success']){
-                var clienteNew = new Cliente('','','','','','','','','','','','','','','');
+                var clienteNew = new Person('','','','','','','','','','','','','','','');
                 clienteNew.doc_number = response['data']['numero'];
                 clienteNew.client_name = response['data']['nombre_completo'];
                 clienteNew.birth_date = response['data']['fecha_nacimiento'];
@@ -481,19 +481,19 @@ export class ListasComponent implements OnInit {
                   if(n){
                     this.toastr.success('VIP añadido correctamente');
   
-                    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+                    this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
                       this.observados=observadosList;
                       this.dataSourceObservados = new MatTableDataSource(this.observados);
                       this.dataSourceObservados.paginator = this.paginator.toArray()[0];
                       this.dataSourceObservados.sort = this.sort.toArray()[0];
                 
-                      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+                      this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
                         this.restringidos=restringidosList;
                         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
                         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
                         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
                 
-                        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+                        this.clientesService.getVips().subscribe((vipsList:Person[])=>{
                           this.vips=vipsList;
                           this.dataSourceVips = new MatTableDataSource(this.vips);
                           this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -512,19 +512,19 @@ export class ListasComponent implements OnInit {
   }
 
   async actualizarListasClientes() {
-    this.clientesService.getObservados().subscribe((observadosList:Cliente[])=>{
+    this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
       this.observados=observadosList;
       this.dataSourceObservados = new MatTableDataSource(this.observados);
       this.dataSourceObservados.paginator = this.paginator.toArray()[0];
       this.dataSourceObservados.sort = this.sort.toArray()[0];
 
-      this.clientesService.getRestringidos().subscribe((restringidosList:Cliente[])=>{
+      this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
         this.restringidos=restringidosList;
         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
 
-        this.clientesService.getVips().subscribe((vipsList:Cliente[])=>{
+        this.clientesService.getVips().subscribe((vipsList:Person[])=>{
           this.vips=vipsList;
           this.dataSourceVips = new MatTableDataSource(this.vips);
           this.dataSourceVips.paginator = this.paginator.toArray()[2];
@@ -536,11 +536,11 @@ export class ListasComponent implements OnInit {
 
 
 
-  async procesarCliente(cliente: Cliente) {
+  async procesarCliente(cliente: Person) {
     try {
 
       if(cliente.sala_list.trim().toUpperCase()!=''&&cliente.sala_list.trim().toUpperCase()!='UNDEFINED'){
-        const existente:Cliente|any = await this.clientesService.getClient(cliente.doc_number).toPromise();
+        const existente:Person|any = await this.clientesService.getClient(cliente.doc_number).toPromise();
   
         if (existente) {
           // Cliente existe, actualiza
@@ -627,13 +627,13 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    var clientes: Cliente[] = [];
+    var clientes: Person[] = [];
 
     dialogRef=this.dialog.open(DialogMasiveV,{
       data:clientes,
     })
 
-    dialogRef.afterClosed().subscribe(async (res:Cliente[]) => {
+    dialogRef.afterClosed().subscribe(async (res:Person[]) => {
       console.log(res);
       if(res.length>0){
 
@@ -682,7 +682,7 @@ export class DialogNewO implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogNewO>,
-    @Inject(MAT_DIALOG_DATA) public data:Cliente,
+    @Inject(MAT_DIALOG_DATA) public data:Person,
     private clientsService: ClientesService,
     private fb: FormBuilder,
     private toastr: ToastrService
@@ -740,7 +740,7 @@ export class DialogNewR implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogNewR>,
-    @Inject(MAT_DIALOG_DATA) public data:Cliente,
+    @Inject(MAT_DIALOG_DATA) public data:Person,
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}
@@ -798,7 +798,7 @@ export class DialogNewV implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogNewV>,
-    @Inject(MAT_DIALOG_DATA) public data:Cliente,
+    @Inject(MAT_DIALOG_DATA) public data:Person,
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}
@@ -860,7 +860,7 @@ export class DialogMasiveV implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogMasiveV>,
-    @Inject(MAT_DIALOG_DATA) public data:Cliente[],
+    @Inject(MAT_DIALOG_DATA) public data:Person[],
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}
@@ -919,7 +919,7 @@ export class DialogMasiveV implements OnInit {
   btnSave(){
 
     this.data=this.datos.map(elemento=>{
-      return new Cliente(String(elemento[1]).trim(),String(elemento[0]).trim().toUpperCase(),'','','','','','','',String(elemento[2]).trim().toUpperCase(),'VIP','CLIENTE SIGMA',String(elemento[2]).trim().toUpperCase(),'','MASIVO');
+      return new Person(String(elemento[1]).trim(),String(elemento[0]).trim().toUpperCase(),'','','','','','','',String(elemento[2]).trim().toUpperCase(),'VIP','CLIENTE SIGMA',String(elemento[2]).trim().toUpperCase(),'','MASIVO');
     })
 
     console.log(this.data);
@@ -939,7 +939,7 @@ export class DialogConfirm implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogConfirm>,
-    @Inject(MAT_DIALOG_DATA) public data:Cliente,
+    @Inject(MAT_DIALOG_DATA) public data:Person,
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}

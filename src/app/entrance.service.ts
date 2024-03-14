@@ -51,6 +51,10 @@ export class EntranceService {
     return this.http.get(`${this.baseUrl}/getCampusActiveById.php?campus_id=${campus_id}`);
   }
 
+  getAllAccessPoints() {
+    return this.http.get(`${this.baseUrl}/getAllAccessPoints.php`);
+  }
+
   getCampusByZone(zone: string) {
     return this.http.get(`${this.baseUrl}/getCampusByZone.php?zone=${zone}`);
   }

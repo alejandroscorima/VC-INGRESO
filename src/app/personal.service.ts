@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Cliente } from "./cliente";
+import { Person } from "./person";
 import { environment } from "../environments/environment";
 
 @Injectable({
@@ -19,15 +19,15 @@ export class PersonalService {
     return this.http.get(`${this.baseUrl}/get.php?doc_number=${doc_number}&date_entrance=${date_entrance}&selectedSala=${selectedSala}`);
   }
 
-  addCliente(cliente: Cliente) {
+  addCliente(cliente: Person) {
     return this.http.post(`${this.baseUrl}/post.php`, cliente);
   }
 
-  deleteCliente(cliente: Cliente) {
+  deleteCliente(cliente: Person) {
     //return this.http.delete(`${this.baseUrl}/delete.php?idCliente=${cliente.id}`);
   }
 
-  updateCliente(cliente: Cliente) {
+  updateCliente(cliente: Person) {
     return this.http.put(`${this.baseUrl}/update.php`, cliente);
   }
 }

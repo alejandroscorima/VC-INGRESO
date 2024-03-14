@@ -18,8 +18,9 @@ import { UsersService } from '../users.service';
 import { CookiesService } from '../cookies.service';
 import { Session } from 'protractor';
 import { Area } from '../area';
-import { Campus } from '../campus';
+import { AccessPoint } from '../accessPoint';
 import { Payment } from '../payment';
+import { SystemClient } from '../systemClient';
 
 
 @Component({
@@ -50,6 +51,8 @@ export class LoginComponent implements OnInit {
 
 
   listaReq: Item[]= [];
+
+  systemClient: SystemClient = new SystemClient('','','','','');
 
   dataSourceReq: MatTableDataSource<Item>;
 
@@ -100,7 +103,7 @@ export class LoginComponent implements OnInit {
 
         this.username=this.username.trim();
         this.password=this.password.trim();
-        this.usersService.getUserLogin(this.username,this.username,this.password).subscribe((res:User)=>{
+        this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
         console.log(res);
           if(res){
             this.user=res;
@@ -143,6 +146,12 @@ export class LoginComponent implements OnInit {
 
 
   ngOnInit() {
+
+    this.clientesService.getSystemClientById(1).subscribe((sc:SystemClient)=>{
+      if(sc){
+        this.systemClient=sc;
+      }
+    })
 
     if(this.cookiesService.checkToken('user_id')){
 

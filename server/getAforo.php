@@ -19,6 +19,21 @@ $fecha5=$_GET['fecha5'];
 
 $bd = include_once "bdEntrance.php";
 
+if(true){
+  if($mes=='SELECCIONAR'){
+    if($dia=='SELECCIONAR'){
+      $sentencia = $bd->prepare("SELECT date_entrance FECHA, count(*) AFORO FROM visits_vc5 WHERE date_entrance>='".$fechaInicio."' AND date_entrance<='".$fechaFin."' GROUP BY FECHA HAVING AFORO>0");
+    }
+    else{
+      $sentencia = $bd->prepare("SELECT date_entrance FECHA, count(date_entrance) AFORO FROM visits_vc5 WHERE date_entrance='".$fecha1."' OR date_entrance='".$fecha2."' OR date_entrance='".$fecha3."' OR date_entrance='".$fecha4."' OR date_entrance='".$fecha5."' GROUP BY FECHA HAVING AFORO>0");
+    }
+  }
+  else{
+    $sentencia = $bd->prepare("SELECT date_entrance FECHA, count(*) AFORO FROM visits_vc5 WHERE date_entrance like '%".$fechaMes."%' GROUP BY FECHA HAVING AFORO>0");
+  }
+
+}
+
 if($sala=='PALACIO'){
   if($mes=='SELECCIONAR'){
     if($dia=='SELECCIONAR'){

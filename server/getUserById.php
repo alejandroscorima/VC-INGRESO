@@ -9,7 +9,7 @@ $bd = include_once "bdData.php";
 
 $user_id=$_GET['user_id'];
 
-$sentencia = $bd->prepare("SELECT user_id, doc_number, first_name, last_name, gender, username, area_id, position, campus_id, dem_role FROM users WHERE user_id='".$user_id."'");
+$sentencia = $bd->prepare("SELECT user_id, colab_id, type_doc, doc_number, first_name, paternal_surname, maternal_surname, gender, birth_date, civil_status, profession, cel_number, email, address, district, province, region, username, entrance_role, latitud, longitud, photo_url, house_id FROM users WHERE user_id='".$user_id."'");
 
 
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");

@@ -34,7 +34,7 @@ export class UsersService {
    loginUrl:string ='http://52.5.47.64/logistica';
 
   getUserLogin(doc_number:string,username:string, password:string) {
-    return this.http.get(`${this.loginUrl}/getUserLogin.php?doc_number=${doc_number}&username=${username}&password=${password}`);
+    return this.http.get(`${this.loginUrl}/getUser.php?doc_number=${doc_number}&username=${username}&password=${password}`);
   }
 
   getUserById(user_id) {

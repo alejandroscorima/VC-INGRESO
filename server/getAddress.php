@@ -19,6 +19,20 @@ $fecha5=$_GET['fecha5'];
 
 $bd = include_once "bdEntrance.php";
 
+if(true){
+  if($mes=='SELECCIONAR'){
+    if($dia=='SELECCIONAR'){
+      $sentencia = $bd->prepare("SELECT b.district DISTRITO, count(*) CANTIDAD FROM visits_vc5 a JOIN vc_data.users b ON a.person_id=b.user_id WHERE a.date_entrance>='".$fechaInicio."' AND a.date_entrance<='".$fechaFin."' GROUP BY DISTRITO ");
+    }
+    else{
+      $sentencia = $bd->prepare("SELECT address DISTRITO, count(*) CANTIDAD FROM visits_palacio WHERE date_entrance='".$fecha1."' OR date_entrance='".$fecha2."' OR date_entrance='".$fecha3."' OR date_entrance='".$fecha4."' OR date_entrance='".$fecha5."' GROUP BY DISTRITO");
+    }
+  }
+  else{
+    $sentencia = $bd->prepare("SELECT address DISTRITO, count(*) CANTIDAD FROM visits_palacio WHERE date_entrance like '%".$fechaMes."%' GROUP BY DISTRITO");
+  }
+}
+
 if($sala=='PALACIO'){
   if($mes=='SELECCIONAR'){
     if($dia=='SELECCIONAR'){

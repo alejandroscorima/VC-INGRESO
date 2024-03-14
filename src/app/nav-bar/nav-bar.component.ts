@@ -11,6 +11,4 @@ import { User } from '../user';
 export class NavBarComponent extends AppComponent{
 
 
-
-
 }
