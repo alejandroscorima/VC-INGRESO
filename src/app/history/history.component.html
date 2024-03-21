@@ -3,12 +3,12 @@
   <div style="width:100%; display:display-inline;">
     <div style="width:95%; float:center; min-width: 550px; margin:10px">
       <h2>Historial : </h2>
-
-      <p style="margin:-10px">
-        <mat-form-field class="sala" id="sala" appearance="outline" >
+      
+      <p >
+        <mat-form-field appearance="outline" >
           <mat-label>Sala:</mat-label>
           <mat-select [(value)]="sala" (selectionChange)="salaChange()">
-              <mat-option *ngFor="let s of salas" [value]="s">{{s}}</mat-option>
+              <mat-option *ngFor="let s of accessPoints" [value]="s.name">{{s.name}}</mat-option>
           </mat-select>
         </mat-form-field>
 

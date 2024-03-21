@@ -13,7 +13,12 @@ $bd = include_once "bdEntrance.php";
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
 
 if(true){
-  $sentencia = $bd->prepare("SELECT b.doc_number, b.first_name, a.age, b.gender, a.date_entrance, a.date_entrance, a.hour_entrance, a.obs, a.visits FROM visits_vc5 a JOIN vc_data.users b ON a.person_id=b.user_id WHERE a.date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY a.id desc");
+  $sentencia = $bd->prepare("SELECT a.id, a.visitant_id, a.age, a.date_entrance, a.hour_entrance, a.obs, a.visits, a.status, 
+  CASE WHEN a.type = 'PERSONA' THEN b.doc_number WHEN a.type = 'VEHICULO' THEN c.plate ELSE 'DESCONOCIDO' END AS doc_number, 
+  CASE WHEN a.type = 'PERSONA' THEN b.first_name WHEN a.type = 'VEHICULO' THEN c.type ELSE 'DESCONOCIDO' END AS name, 
+  CASE WHEN a.type = 'PERSONA' THEN b.gender WHEN a.type = 'VEHICULO' THEN 'SN' ELSE 'DESCONOCIDO' END AS gender, 
+  a.age,
+  a.type FROM visits_vc5 a LEFT JOIN vc_data.users b ON a.visitant_id=b.user_id AND a.type='PERSONA' LEFT JOIN vc_data.vehicles c ON a.visitant_id=c.vehicle_id AND a.type='VEHICULO' WHERE a.date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY a.id DESC");
 }
 
 if($sala=='PALACIO'){

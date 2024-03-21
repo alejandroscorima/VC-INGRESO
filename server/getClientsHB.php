@@ -6,10 +6,10 @@ header("Access-Control-Allow-Origin: *");
 
 $fecha_cumple=$_GET['fecha_cumple'];
 
-$bd = include_once "bdEntrance.php";
+$bd = include_once "bdData.php";
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
-$sentencia = $bd->prepare("SELECT doc_number, client_name, birth_date, gender, condicion FROM clients WHERE birth_date LIKE '%".$fecha_cumple."%' AND (condicion = 'PERMITIDO' OR condicion = 'DESTACADO')");
+$sentencia = $bd->prepare("SELECT doc_number, CONCAT(paternal_surname, ' ', maternal_surname, ' ', first_name) AS client_name, birth_date, gender, status FROM users WHERE birth_date LIKE '%".$fecha_cumple."%' AND (status = 'PERMITIDO' OR status = 'DESTACADO')");
 //where birth_date like '%?%'
 $sentencia -> execute();
 //[$fecha_cumple]
