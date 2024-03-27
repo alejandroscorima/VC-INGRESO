@@ -1,138 +1,158 @@
-<nav class="bg-white border-blue-500 dark:bg-blue-500 dark:border-blue-500">
-  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-    <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-      <img class="h-16 me-3"  id="box1" [src]="salaCmbBox.image_url" width="100%" alt="logoSala">
-        <span  *ngIf="salaCmbBox.name!='SELECCIONAR'"  class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">{{salaCmbBox.name}}</span>
-    </a>
-    <button data-collapse-toggle="navbar-dropdown" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-dropdown" aria-expanded="false">
-        <span class="sr-only">Open main menu</span>
-        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-        </svg>
-    </button>
-    <div class="hidden w-full md:block md:w-auto" id="navbar-dropdown">
-      <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-rounded-lg blu-50 md:space-x-8 rtl:space-x-reverse 
-      md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-     
-        <li>
-      <div class="flex-row">    
-        <p class="text-xs text-gray-900 dark:text-white">Punto:</p>
-          <div class="flex">
-           
-            <button id="sala-button" data-dropdown-toggle="dropdown-sala"
-            class="flex items-center justify-between w-full py-2 px-3 
-                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
-                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
-                         dark:focus:text-white dark:border-blue-500 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
-                         <svg class="w-4 h-4 text-gray-800 dark:text-white" Arial Narrow="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
-                        </svg>
-                       {{salaCmbBox.name}} 
+<div *ngIf=true class="p-4 sm:ml-64 dark:bg-gray-900">
+  <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
+    <nav class="bg-white border-blue-500 dark:bg-blue-500 dark:border-blue-500">
+      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+          <img class="h-16 me-3"  id="box1" [src]="salaCmbBox.image_url" width="100%" alt="logoSala">
+            <span  *ngIf="salaCmbBox.name!='SELECCIONAR'"  class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">{{salaCmbBox.name}}</span>
+        </a>
+        <button data-collapse-toggle="navbar-dropdown" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-dropdown" aria-expanded="false">
+            <span class="sr-only">Open main menu</span>
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+            </svg>
+        </button>
+        <div class="hidden w-full md:block md:w-auto" id="navbar-dropdown">
+          <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-rounded-lg blu-50 md:space-x-8 rtl:space-x-reverse 
+          md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
          
-            </button>
-              <div id="dropdown-sala" class="z-10 hidden
-               bg-white divide-y divide-gray-100 rounded-lg shadow w-44
-                dark:bg-gray-700">
-
-            
-                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="sala-button">
-                    <li *ngFor="let ap of accessPoints" >
-                        <button type="button" (click)="salaChange(ap)" class="flex items-center justify-between w-full py-2 px-3 
-                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
-                        md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
-                      dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
-                            <div class="inline-flex items-center">
-                              <img class="h-16 me-3"  id="box1" [src]="ap.image_url" width="100%" alt="logoSala">
-                              <!-- <img class="h-16 me-3"  id="box1" [src]="logoSrc" width="100%" alt="logoSala"> -->
-                              {{ap.name}}                        
-                            </div>
-                        </button>
-                </ul>
-              </div>
-            </div>
-
-
-      </div> 
-
-        </li>
-
-
-
-
-        <li>
+            <li>
           <div class="flex-row">    
-            <p class="text-xs text-gray-900 dark:text-white">Mes:</p>
-          <div class="flex">
-            <button id="mes-button" data-dropdown-toggle="dropdown-mes"
-            class="flex items-center justify-between w-full py-2 px-3 
-                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
-                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
-                         dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
-                         <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
-                        </svg>
-                       {{mesCmbBox}} 
-         
-            </button>
-              <div id="dropdown-mes" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-
-            
-                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="mes-button">
-                    <li *ngFor="let m of meses" >
-                        <button type="button" (click)="mesChange(m)" class="flex items-center justify-between w-full py-2 px-3 
-                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
-                        md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
-                      dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
-                            <div class="inline-flex items-center">
-                                {{m}}
-                            </div>
-                        </button>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-        </li>
-        <li>
-          <div class="flex-row">    
-            <p class="text-xs text-gray-900 dark:text-white">Día:</p>
-          <div class="flex">
-            <button id="dia-button" data-dropdown-toggle="dropdown-dia"
-            class="flex items-center justify-between w-full py-2 px-3 
-                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
-                         md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
-                         dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
-                         <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
-                        </svg>
-                       {{diaCmbBox}} 
-         
-            </button>
-              <div id="dropdown-dia" class="z-10 hidden bg-purple-500 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-purple-500">
-
-            
-                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dia-button">
-                    <li *ngFor="let d of dias" >
-                        <button type="button" (click)="diaChange(d)" class="flex items-center justify-between w-full py-2 px-3 
-                        text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
-                        md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
-                      dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
-                            <div class="inline-flex items-center">
-                                {{d}}
-                            </div>
-                        </button>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-        </li>
-
-          <li>
-            <div class="flex-row">    
-              <p class="text-xs text-gray-900 dark:text-white">fecha:</p>
-              <mat-form-field class="" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
+            <p class="text-xs text-gray-900 dark:text-white">Punto:</p>
+              <div class="flex">
                
+                <button id="sala-button" data-dropdown-toggle="dropdown-sala"
+                class="flex items-center justify-between w-full py-2 px-3 
+                            text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                             md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                             dark:focus:text-white dark:border-blue-500 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
+                             <svg class="w-4 h-4 text-gray-800 dark:text-white" Arial Narrow="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
+                            </svg>
+                           {{salaCmbBox.name}} 
+             
+                </button>
+                  <div id="dropdown-sala" class="z-10 hidden
+                   bg-white divide-y divide-gray-100 rounded-lg shadow w-44
+                    dark:bg-gray-700">
+    
+                
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="sala-button">
+                        <li *ngFor="let ap of accessPoints" >
+                            <button type="button" (click)="salaChange(ap)" class="flex items-center justify-between w-full py-2 px-3 
+                            text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                            md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                          dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
+                                <div class="inline-flex items-center">
+                                  <img class="h-16 me-3"  id="box1" [src]="ap.image_url" width="100%" alt="logoSala">
+                                  <!-- <img class="h-16 me-3"  id="box1" [src]="logoSrc" width="100%" alt="logoSala"> -->
+                                  {{ap.name}}                        
+                                </div>
+                            </button>
+                    </ul>
+                  </div>
+                </div>
+    
+    
+          </div> 
+    
+            </li>
+    
+    
+    
+    
+            <li>
+              <div class="flex-row">    
+                <p class="text-xs text-gray-900 dark:text-white">Mes:</p>
+              <div class="flex">
+                <button id="mes-button" data-dropdown-toggle="dropdown-mes"
+                class="flex items-center justify-between w-full py-2 px-3 
+                            text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                             md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                             dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
+                             <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
+                            </svg>
+                           {{mesCmbBox}} 
+             
+                </button>
+                  <div id="dropdown-mes" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+    
+                
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="mes-button">
+                        <li *ngFor="let m of meses" >
+                            <button type="button" (click)="mesChange(m)" class="flex items-center justify-between w-full py-2 px-3 
+                            text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                            md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                          dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
+                                <div class="inline-flex items-center">
+                                    {{m}}
+                                </div>
+                            </button>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    
+            </li>
+            <li>
+              <div class="flex-row">    
+                <p class="text-xs text-gray-900 dark:text-white">Día:</p>
+              <div class="flex">
+                <button id="dia-button" data-dropdown-toggle="dropdown-dia"
+                class="flex items-center justify-between w-full py-2 px-3 
+                            text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                             md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                             dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"type="button">
+                             <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 8">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/>
+                            </svg>
+                           {{diaCmbBox}} 
+             
+                </button>
+                  <div id="dropdown-dia" class="z-10 hidden bg-purple-500 divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-purple-500">
+    
+                
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dia-button">
+                        <li *ngFor="let d of dias" >
+                            <button type="button" (click)="diaChange(d)" class="flex items-center justify-between w-full py-2 px-3 
+                            text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent
+                            md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 
+                          dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">
+                                <div class="inline-flex items-center">
+                                    {{d}}
+                                </div>
+                            </button>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+    
+            </li>
+    
+              <li>
+                <div class="flex-row">    
+                  <p class="text-xs text-gray-900 dark:text-white">fecha:</p>
+                  <mat-form-field class="" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
+                   
+                    <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
+                      <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
+                      <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
+          
+                  </mat-form-field>
+                </div>
+              </li>
+    
+    
+    
+    
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <mat-form-field class="fecha" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
+                <mat-label>Fecha:</mat-label>
+      
                 <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
                   <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
                   <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
@@ -141,221 +161,208 @@
                 <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
       
               </mat-form-field>
-            </div>
-          </li>
-
-
-
-
-        <mat-grid-tile [colspan]="1" [rowspan]="1">
-          <mat-form-field class="fecha" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
-            <mat-label>Fecha:</mat-label>
-  
-            <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
-              <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
-              <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
-            </mat-date-range-input>
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
-  
-          </mat-form-field>
-        </mat-grid-tile> 
+            </mat-grid-tile> 
+          
+          
+    
+          
+          </ul>
+        </div>
+        <button class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
+        hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300
+         dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5
+          text-center me-2 mb-2"(click)="exportExel()">Exportar Excel</button>
+    
+      </div>
+    </nav>
+    
+    
+    
+    
+    <div class="grid mb-8 border border-blue-500 rounded-lg
+     shadow-sm dark:border-gray-700 md:mb-12 md:grid-cols-3 bg-white dark:bg-gray-800">
+      <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
+          <blockquote class="max-w-2xl mx-auto mb-4 text-black lg:mb-8 dark:text-black">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">  RESUMEN DEL PERIODO</h3>
+              <p>
+                <mat-icon>person</mat-icon><mat-icon>directions_car</mat-icon>&nbsp;Total de ingresos: {{numberClients}}
+              </p>
+              <p>
+                <mat-icon>functions</mat-icon>&nbsp;Media de ingresos por dia: {{numberClientsAverage}}
+              </p>
+          </blockquote>
+         
+          
+      </figure>
+    <!--   <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
+          <blockquote class="max-w-2xl mx-auto mb-4 text-lg:mb-8 dark:text-black">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mayor afluencia: {{horaTop}} horas</h3> 
+              <p>
+                <mat-icon>elderly</mat-icon>&nbsp;Edad con mayor afluencia: {{edadTop}}
+              </p>
+              <p>
+                <mat-icon>home</mat-icon>&nbsp;Distrito con mayor afluencia: {{distritoTop}}
+              </p>
+          </blockquote>
+        
+      </figure>
       
-      
-
-      
-      </ul>
+         
+      <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-gray-200 rounded-b-lg md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
+          <blockquote class="max-w-2xl mx-auto mb-4 text-bl lg:mb-8 dark:text-black">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> <mat-icon>restart_alt</mat-icon>&nbsp;Más que el periodo anterior</h3>
+              <p>
+                <mat-icon>verified</mat-icon>&nbsp;De retención
+              </p>
+              <p>
+                <mat-icon>smart_toy</mat-icon>&nbsp;
+              </p>
+          </blockquote>
+          
+    </figure> -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     </div>
-    <button class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
-    hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300
-     dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5
-      text-center me-2 mb-2"(click)="exportExel()">Exportar Excel</button>
-
-  </div>
-</nav>
-
-
-
-
-<div class="grid mb-8 border border-blue-500 rounded-lg
- shadow-sm dark:border-gray-700 md:mb-12 md:grid-cols-3 bg-white dark:bg-gray-800">
-  <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
-      <blockquote class="max-w-2xl mx-auto mb-4 text-black lg:mb-8 dark:text-black">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">  RESUMEN DEL PERIODO</h3>
-          <p>
-            <mat-icon>person</mat-icon><mat-icon>directions_car</mat-icon>&nbsp;Total de ingresos: {{numberClients}}
-          </p>
-          <p>
-            <mat-icon>functions</mat-icon>&nbsp;Media de ingresos por dia: {{numberClientsAverage}}
-          </p>
-      </blockquote>
-     
-      
-  </figure>
-<!--   <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
-      <blockquote class="max-w-2xl mx-auto mb-4 text-lg:mb-8 dark:text-black">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mayor afluencia: {{horaTop}} horas</h3> 
-          <p>
-            <mat-icon>elderly</mat-icon>&nbsp;Edad con mayor afluencia: {{edadTop}}
-          </p>
-          <p>
-            <mat-icon>home</mat-icon>&nbsp;Distrito con mayor afluencia: {{distritoTop}}
-          </p>
-      </blockquote>
     
-  </figure>
-  
-     
-  <figure class="flex flex-col items-center justify-center p-8 text-center bg-white border-gray-200 rounded-b-lg md:rounded-se-lg dark:bg-gray-800 dark:border-gray-700">
-      <blockquote class="max-w-2xl mx-auto mb-4 text-bl lg:mb-8 dark:text-black">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> <mat-icon>restart_alt</mat-icon>&nbsp;Más que el periodo anterior</h3>
-          <p>
-            <mat-icon>verified</mat-icon>&nbsp;De retención
-          </p>
-          <p>
-            <mat-icon>smart_toy</mat-icon>&nbsp;
-          </p>
-      </blockquote>
+    
+    
+    
+    
+    <div>
+    
+      <div class="overflow-x-scroll" >
+      <div class="grid   mb-96 border border-blue-500 rounded-lg
+      shadow-sm dark:border-gray-700 md:mb-12 md:grid-cols-2 bg-white dark:bg-gray-800">
       
-</figure> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-
-
-
-
-
-<div>
-
-  <div class="overflow-x-scroll" >
-  <div class="grid   mb-96 border border-blue-500 rounded-lg
-  shadow-sm dark:border-gray-700 md:mb-12 md:grid-cols-2 bg-white dark:bg-gray-800">
-  
-   <figure class="  flex flex-row items-center justify-center p-8 text-center
-    bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
-     md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
-       <blockquote class="mx-auto xlmb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> EDAD</h3>
-
-     
-        <google-chart
-        [type]="typeAge"
-        [data]="age"
-        [options]="optionsAge"
-        [title]="titleAge"
-        [columns]="columnsAge"
-        >
-        </google-chart>
-     
-      </blockquote>
-    </figure>
-
-
-    <figure class="flex h-72 flex-col items-center justify-center p-8 text-center
-    bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
-     md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
-       <blockquote class="mx-auto  h-72  mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> FECHAS</h3>
-
-     
-        <google-chart
-        [type]="typeFechas"
-        [data]="fechas"
-        [options]="optionsFechas"
-        [title]="titleFechas"
-        [columns]="columnsFechas"
-     ></google-chart>
+       <figure class="  flex flex-row items-center justify-center p-8 text-center
+        bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
+         md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
+           <blockquote class="mx-auto xlmb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> EDAD</h3>
+    
+         
+            <google-chart
+            [type]="typeAge"
+            [data]="age"
+            [options]="optionsAge"
+            [title]="titleAge"
+            [columns]="columnsAge"
+            >
+            </google-chart>
+         
+          </blockquote>
+        </figure>
+    
+    
+        <figure class="flex h-72 flex-col items-center justify-center p-8 text-center
+        bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
+         md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
+           <blockquote class="mx-auto  h-72  mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> FECHAS</h3>
+    
+         
+            <google-chart
+            [type]="typeFechas"
+            [data]="fechas"
+            [options]="optionsFechas"
+            [title]="titleFechas"
+            [columns]="columnsFechas"
+         ></google-chart>
+           
+          </blockquote>
+        </figure>
+    
+    
        
-      </blockquote>
-    </figure>
-
-
-   
-
-    <figure class="flex  flex-col items-center justify-center p-8 text-center
-    bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
-     md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
-       <blockquote class="mx-auto mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> UBICACIÓN</h3>
-
-     
-        <google-chart
-        [type]="typeAddress"
-        [data]="address"
-        [options]="optionsAddress"
-        [title]="titleAddress"
-        [columns]="columnsAddress"
-       >
-        </google-chart>
-     
-      </blockquote>
-    </figure>
-
-
-    <figure class="flex flex-col items-center justify-center p-8 text-center
-    bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
-     md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
-       <blockquote class="mx-auto  mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> HORA</h3>
-
-     
-        <google-chart
-        [type]="typeHours"
-        [data]="hours"
-        [options]="optionsHours"
-        [title]="titleHours"
-        [columns]="columnsHours"
-      >
-        </google-chart>
-     
-      </blockquote>
-    </figure>
-    <figure class="flex flex-col items-center justify-center p-8 text-center
-    bg-white border-b border-gray-200 col-span-full rounded-t-lg md:rounded-t-none
-    md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700  w-full">
     
-      <h3 class=""> Clientes mensuales</h3>
-      <google-chart class="text-lg font-semibold w-screen "
-      [type]="typeMensual"
-      [data]="mensual"
-      [options]="optionsMensual"
-      [title]="titleMensual"
-      [columns]="columnsMensual"
-      width="1080"
-        >
-      </google-chart>
+        <figure class="flex  flex-col items-center justify-center p-8 text-center
+        bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
+         md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
+           <blockquote class="mx-auto mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> UBICACIÓN</h3>
     
-  </figure>
- 
-
-
-
-
-
+         
+            <google-chart
+            [type]="typeAddress"
+            [data]="address"
+            [options]="optionsAddress"
+            [title]="titleAddress"
+            [columns]="columnsAddress"
+           >
+            </google-chart>
+         
+          </blockquote>
+        </figure>
     
-
-
-
-  </div>
- 
-
+    
+        <figure class="flex flex-col items-center justify-center p-8 text-center
+        bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none
+         md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700">
+           <blockquote class="mx-auto  mb-4 text-gray-500 lg:mb-8 dark:text-gray-400">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white"> HORA</h3>
+    
+         
+            <google-chart
+            [type]="typeHours"
+            [data]="hours"
+            [options]="optionsHours"
+            [title]="titleHours"
+            [columns]="columnsHours"
+          >
+            </google-chart>
+         
+          </blockquote>
+        </figure>
+        <figure class="flex flex-col items-center justify-center p-8 text-center
+        bg-white border-b border-gray-200 col-span-full rounded-t-lg md:rounded-t-none
+        md:rounded-ss-lg md:border-e dark:bg-gray-800 dark:border-gray-700  w-full">
+        
+          <h3 class=""> Clientes mensuales</h3>
+          <google-chart class="text-lg font-semibold w-screen "
+          [type]="typeMensual"
+          [data]="mensual"
+          [options]="optionsMensual"
+          [title]="titleMensual"
+          [columns]="columnsMensual"
+          width="1080"
+            >
+          </google-chart>
+        
+      </figure>
+     
+    
+    
+    
+    
+    
+        
+    
+    
+    
+      </div>
+     
+    
+      </div>
+    </div>
   </div>
 </div>
+
+
+
 
 

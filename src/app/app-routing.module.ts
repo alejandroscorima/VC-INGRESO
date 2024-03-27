@@ -7,6 +7,7 @@ import { ListasComponent } from './listas/listas.component';
 import { BirthdayComponent } from './birthday/birthday.component';
 import { UploadComponent } from './upload/upload.component';
 import { LoginComponent } from './login/login.component';
+import { SettingsComponent } from './settings/settings.component';
 
 const routes: Routes = [
   { path: "", component: InicioComponent },
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: "hb", component: BirthdayComponent },
   { path: "upload", component: UploadComponent },
   { path: "login", component: LoginComponent },
+  { path: "settings", component: SettingsComponent },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz
   //{ path: "**", redirectTo: "/clientes" }
 ];
