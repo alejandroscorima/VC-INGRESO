@@ -50,6 +50,7 @@ import { LoginComponent } from './login/login.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
 import { SettingsComponent } from './settings/settings.component';
+import { UsersComponent } from './users/users.component';
 
 
 
@@ -79,6 +80,7 @@ import { SettingsComponent } from './settings/settings.component';
         NavBarComponent,
         SideNavComponent,
         SettingsComponent,
+        UsersComponent,
 
 
 
