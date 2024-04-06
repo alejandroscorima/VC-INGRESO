@@ -34,7 +34,7 @@ export class BirthdayComponent implements OnInit {
 
   expandedElement: Item ;
 
-  client: Person= new Person('','','','','','','','','','','','','','','');
+  client: Person= new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
   clients: Person[] = [];
 
   fecha;

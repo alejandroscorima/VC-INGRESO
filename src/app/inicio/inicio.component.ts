@@ -36,7 +36,7 @@ import { initFlowbite } from 'flowbite';
 })
 export class InicioComponent implements OnInit {
   clientes: Person[] = [
-    new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','')
+    new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','','','','','','','',0,0,'','')
   ];
   
 

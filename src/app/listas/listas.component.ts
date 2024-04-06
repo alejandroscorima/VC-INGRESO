@@ -126,37 +126,7 @@ export class ListasComponent implements OnInit {
   }
 
   delete(c:Person){
-    c.condicion='PERMITIDO';
-    c.motivo='';
-    c.sala_list='';
-    c.fecha_list='';
-    c.origin_list='';
-    this.clientesService.deleteCliente(c).subscribe(a=>{
-      if(a){
-        this.toastr.success('Eliminado');
 
-        this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
-          this.observados=observadosList;
-          this.dataSourceObservados = new MatTableDataSource(this.observados);
-          this.dataSourceObservados.paginator = this.paginator.toArray()[0];
-          this.dataSourceObservados.sort = this.sort.toArray()[0];
-    
-          this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
-            this.restringidos=restringidosList;
-            this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
-            this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
-            this.dataSourceRestringidos.sort = this.sort.toArray()[1];
-    
-            this.clientesService.getVips().subscribe((vipsList:Person[])=>{
-              this.vips=vipsList;
-              this.dataSourceVips = new MatTableDataSource(this.vips);
-              this.dataSourceVips.paginator = this.paginator.toArray()[2];
-              this.dataSourceVips.sort = this.sort.toArray()[2];
-            });
-          });
-        })
-      }
-    })
   }
 
   newO(){
@@ -180,7 +150,7 @@ export class ListasComponent implements OnInit {
 
     /* console.log(this.fechaString); */
 
-    this.cliente = new Person('','','','','','','','','','','OBSERVADO','','','','INDIVIDUAL')
+    this.cliente = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','')
 
     dialogRef=this.dialog.open(DialogNewO,{
       data:this.cliente,
@@ -192,11 +162,11 @@ export class ListasComponent implements OnInit {
         this.clientesService.getClient(res.doc_number).subscribe((c:Person)=>{
           // console.log(this.fechaString);       
           if(c){
-            c.condicion=res.condicion;
-            c.motivo=res.motivo;
-            c.fecha_list=this.fechaString;
-            c.sala_list=res.sala_list;
-            c.origin_list=res.origin_list;
+            // c.condicion=res.condicion;
+            // c.motivo=res.motivo;
+            // c.fecha_list=this.fechaString;
+            // c.sala_list=res.sala_list;
+            // c.origin_list=res.origin_list;
   
             this.clientesService.updateClient(c).subscribe(r=>{
               if(r){
@@ -228,20 +198,20 @@ export class ListasComponent implements OnInit {
           else{
             this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
               if(res['success']){
-                var clienteNew = new Person('','','','','','','','','','','','','','','');
-                clienteNew.doc_number = res['data']['numero'];
-                clienteNew.client_name = res['data']['nombre_completo'];
-                clienteNew.birth_date = res['data']['fecha_nacimiento'];
-                clienteNew.gender = res['data']['sexo'];
-                clienteNew.departamento = res['data']['departamento'];
-                clienteNew.provincia = res['data']['provincia'];
-                clienteNew.distrito = res['data']['distrito'];
-                clienteNew.address = res['data']['direccion'];
-                clienteNew.condicion = res.condicion;
-                clienteNew.motivo = res.motivo;
-                clienteNew.sala_list = res.sala_list;
-                clienteNew.fecha_list = this.fechaString;
-                clienteNew.origin_list = "INDIVIDUAL";
+                var clienteNew = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
+                // clienteNew.doc_number = res['data']['numero'];
+                // clienteNew.client_name = res['data']['nombre_completo'];
+                // clienteNew.birth_date = res['data']['fecha_nacimiento'];
+                // clienteNew.gender = res['data']['sexo'];
+                // clienteNew.departamento = res['data']['departamento'];
+                // clienteNew.provincia = res['data']['provincia'];
+                // clienteNew.distrito = res['data']['distrito'];
+                // clienteNew.address = res['data']['direccion'];
+                // clienteNew.condicion = res.condicion;
+                // clienteNew.motivo = res.motivo;
+                // clienteNew.sala_list = res.sala_list;
+                // clienteNew.fecha_list = this.fechaString;
+                // clienteNew.origin_list = "INDIVIDUAL";
   
                 this.clientesService.addCliente(clienteNew).subscribe(n=>{
                   if(n){
@@ -298,7 +268,7 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    this.cliente = new Person('','','','','','','','','','','RESTRINGIDO','','','','INDIVIDUAL')
+    this.cliente = new Person('','','','','','','','','','','RESTRINGIDO','','','','INDIVIDUAL','','','','','','',0,0,'','')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,
@@ -309,11 +279,11 @@ export class ListasComponent implements OnInit {
         this.clientesService.getClient(res.doc_number).subscribe((c:Person)=>{
         
           if(c){
-            c.condicion=res.condicion;
-            c.motivo=res.motivo;
-            c.fecha_list=this.fechaString;
-            c.sala_list=res.sala_list;
-            c.origin_list=res.origin_list;
+            // c.condicion=res.condicion;
+            // c.motivo=res.motivo;
+            // c.fecha_list=this.fechaString;
+            // c.sala_list=res.sala_list;
+            // c.origin_list=res.origin_list;
   
             this.clientesService.updateClient(c).subscribe(r=>{
               if(r){
@@ -345,20 +315,20 @@ export class ListasComponent implements OnInit {
           else{
             this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
               if(res['success']){
-                var clienteNew = new Person('','','','','','','','','','','','','','','');
-                clienteNew.doc_number = response['data']['numero'];
-                clienteNew.client_name = response['data']['nombre_completo'];
-                clienteNew.birth_date = response['data']['fecha_nacimiento'];
-                clienteNew.gender = response['data']['sexo'];
-                clienteNew.departamento = response['data']['departamento'];
-                clienteNew.provincia = response['data']['provincia'];
-                clienteNew.distrito = response['data']['distrito'];
-                clienteNew.address = response['data']['direccion'];
-                clienteNew.condicion = res.condicion;
-                clienteNew.motivo = res.motivo;
-                clienteNew.sala_list = res.sala_list;
-                clienteNew.fecha_list = this.fechaString;
-                clienteNew.origin_list = 'INDIVIDUAL';
+                var clienteNew = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
+                // clienteNew.doc_number = response['data']['numero'];
+                // clienteNew.client_name = response['data']['nombre_completo'];
+                // clienteNew.birth_date = response['data']['fecha_nacimiento'];
+                // clienteNew.gender = response['data']['sexo'];
+                // clienteNew.departamento = response['data']['departamento'];
+                // clienteNew.provincia = response['data']['provincia'];
+                // clienteNew.distrito = response['data']['distrito'];
+                // clienteNew.address = response['data']['direccion'];
+                // clienteNew.condicion = res.condicion;
+                // clienteNew.motivo = res.motivo;
+                // clienteNew.sala_list = res.sala_list;
+                // clienteNew.fecha_list = this.fechaString;
+                // clienteNew.origin_list = 'INDIVIDUAL';
   
                 this.clientesService.addCliente(clienteNew).subscribe(n=>{
                   if(n){
@@ -415,7 +385,7 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    this.cliente = new Person('','','','','','','','','','','VIP','CLIENTE VIP','','','INDIVIDUAL')
+    this.cliente = new Person('','','','','','','','','','','VIP','CLIENTE VIP','','','INDIVIDUAL','','','','','','',0,0,'','')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,
@@ -426,11 +396,11 @@ export class ListasComponent implements OnInit {
         this.clientesService.getClient(res.doc_number).subscribe((c:Person)=>{
         
           if(c){
-            c.condicion=res.condicion;
-            c.motivo=res.motivo;
-            c.fecha_list=this.fechaString;
-            c.sala_list=res.sala_list;
-            c.origin_list='INDIVIDUAL';
+            // c.condicion=res.condicion;
+            // c.motivo=res.motivo;
+            // c.fecha_list=this.fechaString;
+            // c.sala_list=res.sala_list;
+            // c.origin_list='INDIVIDUAL';
   
             this.clientesService.updateClient(c).subscribe(r=>{
               if(r){
@@ -462,20 +432,20 @@ export class ListasComponent implements OnInit {
           else{
             this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
               if(response['success']){
-                var clienteNew = new Person('','','','','','','','','','','','','','','');
-                clienteNew.doc_number = response['data']['numero'];
-                clienteNew.client_name = response['data']['nombre_completo'];
-                clienteNew.birth_date = response['data']['fecha_nacimiento'];
-                clienteNew.gender = response['data']['sexo'];
-                clienteNew.departamento = response['data']['departamento'];
-                clienteNew.provincia = response['data']['provincia'];
-                clienteNew.distrito = response['data']['distrito'];
-                clienteNew.address = response['data']['direccion'];
-                clienteNew.condicion = res.condicion;
-                clienteNew.motivo = res.motivo;
-                clienteNew.sala_list = res.sala_list;
-                clienteNew.fecha_list = this.fechaString;
-                clienteNew.origin_list = 'INDIVIDUAL'
+                var clienteNew = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
+                // clienteNew.doc_number = response['data']['numero'];
+                // clienteNew.client_name = response['data']['nombre_completo'];
+                // clienteNew.birth_date = response['data']['fecha_nacimiento'];
+                // clienteNew.gender = response['data']['sexo'];
+                // clienteNew.departamento = response['data']['departamento'];
+                // clienteNew.provincia = response['data']['provincia'];
+                // clienteNew.distrito = response['data']['distrito'];
+                // clienteNew.address = response['data']['direccion'];
+                // clienteNew.condicion = res.condicion;
+                // clienteNew.motivo = res.motivo;
+                // clienteNew.sala_list = res.sala_list;
+                // clienteNew.fecha_list = this.fechaString;
+                // clienteNew.origin_list = 'INDIVIDUAL'
   
                 this.clientesService.addCliente(clienteNew).subscribe(n=>{
                   if(n){
@@ -537,73 +507,7 @@ export class ListasComponent implements OnInit {
 
 
   async procesarCliente(cliente: Person) {
-    try {
 
-      if(cliente.sala_list.trim().toUpperCase()!=''&&cliente.sala_list.trim().toUpperCase()!='UNDEFINED'){
-        const existente:Person|any = await this.clientesService.getClient(cliente.doc_number).toPromise();
-  
-        if (existente) {
-          // Cliente existe, actualiza
-          existente.fecha_list = this.fechaString;
-          existente.origin_list = cliente.origin_list;
-          existente.sala_list = cliente.sala_list;
-          existente.motivo = cliente.motivo;
-          existente.condicion = cliente.condicion;
-    
-          var resUpdExist = await this.clientesService.updateClient(existente).toPromise();
-          if(resUpdExist){
-            //this.toastr.success('Agregado');
-          }
-          else{
-            this.toastr.warning('Algo salió mal: '+cliente.doc_number);
-          }
-        } else {
-          // Cliente no existe, agrega
-          const reniecResponse = await this.clientesService.getClientFromReniec(cliente.doc_number).toPromise();
-    
-          if (reniecResponse['success']) {
-            // Construye el nuevo cliente con datos de Reniec y otros
-            cliente.doc_number = reniecResponse['data']['numero'];
-            cliente.client_name = reniecResponse['data']['nombre_completo'];
-            cliente.birth_date = reniecResponse['data']['fecha_nacimiento'];
-            cliente.gender = reniecResponse['data']['sexo'];
-            cliente.departamento = reniecResponse['data']['departamento'];
-            cliente.provincia = reniecResponse['data']['provincia'];
-            cliente.distrito = reniecResponse['data']['distrito'];
-            cliente.address = reniecResponse['data']['direccion'];
-            cliente.fecha_list = this.fechaString;
-            cliente.fecha_registro = this.fechaString;
-    
-            var resAddRec = await this.clientesService.addCliente(cliente).toPromise();
-            if(resAddRec){
-              //this.toastr.success('Agregado');
-            }
-            else{
-              this.toastr.warning('Algo salió mal: '+cliente.doc_number);
-            }
-          } else {
-            // Handle error de Reniec
-            cliente.fecha_list = this.fechaString;
-            cliente.fecha_registro = this.fechaString;
-            var resAddNoExistRec = await this.clientesService.addCliente(cliente).toPromise();
-            if(resAddNoExistRec){
-              //this.toastr.success('Agregado');
-            }
-            else{
-              this.toastr.warning('Algo salió mal: '+cliente.doc_number);
-            }
-          }
-        }
-      }
-      else{
-        this.toastr.warning('No se guardó: '+cliente.doc_number+'. No tiene sala asignada');
-      }
-
-  
-    } catch (error) {
-      console.error(`Error al procesar el cliente ${cliente.doc_number}:`, error);
-      // Puedes manejar errores aquí según tus necesidades
-    }
   }
 
   async masiveV(){
@@ -702,26 +606,16 @@ export class DialogNewO implements OnInit {
   }
 
   btnSave(){
-    if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
+/*     if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
       this.data.doc_number=this.data.doc_number.toUpperCase();
       this.data.condicion=this.data.condicion.toUpperCase();
       this.data.motivo=this.data.motivo.toUpperCase();
-  /*    this.data.fabricante=this.data.fabricante.toUpperCase();
-      this.data.lugar=this.data.lugar.toUpperCase();
-      this.data.marca=this.data.marca.toUpperCase();
-      this.data.modelo=this.data.modelo.toUpperCase();
-      this.data.numero=this.data.numero.toUpperCase();
-      this.data.observacion=this.data.observacion.toUpperCase();
-      this.data.propietario=this.data.propietario.toUpperCase();
-      this.data.registro=this.data.registro.toUpperCase();
-      this.data.serie=this.data.serie.toUpperCase();
-      this.data.tipo=this.data.tipo.toUpperCase();
-      this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
+
       this.dialogRef.close(this.data);
     }
     else {
       this.toastr.warning('¡DESPIERTA! Algo faltó');
-    }
+    } */
   }
 }
 
@@ -755,32 +649,22 @@ export class DialogNewR implements OnInit {
   }
 
   onKeyUpEvent(event:any){
-    if(this.data.client_name!=''){
+/*     if(this.data.client_name!=''){
       this.disableBtnOk=false;
-    }
+    } */
   }
 
   btnSave(){
-    if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
+/*     if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
       this.data.doc_number=this.data.doc_number.toUpperCase();
       this.data.condicion=this.data.condicion.toUpperCase();
       this.data.motivo=this.data.motivo.toUpperCase();
-/*     this.data.fabricante=this.data.fabricante.toUpperCase();
-      this.data.lugar=this.data.lugar.toUpperCase();
-      this.data.marca=this.data.marca.toUpperCase();
-      this.data.modelo=this.data.modelo.toUpperCase();
-      this.data.numero=this.data.numero.toUpperCase();
-      this.data.observacion=this.data.observacion.toUpperCase();
-      this.data.propietario=this.data.propietario.toUpperCase();
-      this.data.registro=this.data.registro.toUpperCase();
-      this.data.serie=this.data.serie.toUpperCase();
-      this.data.tipo=this.data.tipo.toUpperCase();
-      this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
+
       this.dialogRef.close(this.data);
     }
     else {
       this.toastr.warning('¡DESPIERTA! Algo faltó');
-    }
+    } */
   }
 
 }
@@ -813,32 +697,22 @@ export class DialogNewV implements OnInit {
   }
 
   onKeyUpEvent(event:any){
-    if(this.data.client_name!=''){
+/*     if(this.data.client_name!=''){
       this.disableBtnOk=false;
-    }
+    } */
   }
 
   btnSave(){
-    if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
+/*     if(this.data.doc_number!='' && this.data.sala_list!='' && this.data.motivo!=''){
       this.data.doc_number=this.data.doc_number.toUpperCase();
       this.data.condicion=this.data.condicion.toUpperCase();
       this.data.motivo=this.data.motivo.toUpperCase();
-/*     this.data.fabricante=this.data.fabricante.toUpperCase();
-      this.data.lugar=this.data.lugar.toUpperCase();
-      this.data.marca=this.data.marca.toUpperCase();
-      this.data.modelo=this.data.modelo.toUpperCase();
-      this.data.numero=this.data.numero.toUpperCase();
-      this.data.observacion=this.data.observacion.toUpperCase();
-      this.data.propietario=this.data.propietario.toUpperCase();
-      this.data.registro=this.data.registro.toUpperCase();
-      this.data.serie=this.data.serie.toUpperCase();
-      this.data.tipo=this.data.tipo.toUpperCase();
-      this.data.ubicacion=this.data.ubicacion.toUpperCase(); */
+
       this.dialogRef.close(this.data);
     }
     else {
       this.toastr.warning('¡DESPIERTA! Algo faltó');
-    }
+    } */
   }
 
 }
@@ -918,9 +792,9 @@ export class DialogMasiveV implements OnInit {
 
   btnSave(){
 
-    this.data=this.datos.map(elemento=>{
+/*     this.data=this.datos.map(elemento=>{
       return new Person(String(elemento[1]).trim(),String(elemento[0]).trim().toUpperCase(),'','','','','','','',String(elemento[2]).trim().toUpperCase(),'VIP','CLIENTE SIGMA',String(elemento[2]).trim().toUpperCase(),'','MASIVO');
-    })
+    }) */
 
     console.log(this.data);
 

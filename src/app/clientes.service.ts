@@ -12,7 +12,7 @@ export class ClientesService {
   baseUrl = environment.baseUrl
   respuesta;
   urlconsulta;
-  cliente = new Person('','','','','','','','','','','','','','','');
+  cliente = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
 
   constructor(private http: HttpClient) { }
 

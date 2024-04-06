@@ -8,7 +8,7 @@ import { User } from '../user';
 })
 export class UsersComponent implements OnInit{
 
-  users: User[] = [new User(0,0,0,0,0,'','','asd','fgh','jkl','','','','','','','','','','','','','','','','','','','','','')];
+  users: User[] = [];
 
   constructor(
 

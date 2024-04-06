@@ -47,7 +47,7 @@ export class LoginComponent implements OnInit {
 
   //user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
   user: User = new User(null,null,null,null,null,null,null,null,null,
-    null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+    null,null,null,null,null,null,null,null,null,null,null,null,null,null);
 
 
   listaReq: Item[]= [];
