@@ -9,6 +9,7 @@ import { UploadComponent } from './upload/upload.component';
 import { LoginComponent } from './login/login.component';
 import { SettingsComponent } from './settings/settings.component';
 import { UsersComponent } from './users/users.component';
+import { HousesComponent } from './houses/houses.component';
 
 const routes: Routes = [
   { path: "", component: InicioComponent },
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: "login", component: LoginComponent },
   { path: "settings", component: SettingsComponent },
   { path: "users", component: UsersComponent },
+  { path: "houses", component: HousesComponent },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz
   //{ path: "**", redirectTo: "/clientes" }
 ];

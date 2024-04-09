@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { House } from './house';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,14 @@ export class EntranceService {
 
   getAreasByZone(zone: string) {
     return this.http.get(`${this.baseUrl}/getAreasByZone.php?zone=${zone}`);
+  }
+
+  getAllHouses() {
+    return this.http.get(`${this.baseUrl}/getAllHouses.php`);
+  }
+
+  addHouse(house: House) {
+    return this.http.post(`${this.baseUrl}/postHouse.php`, house);
   }
 
   getAllAreas() {

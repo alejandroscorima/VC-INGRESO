@@ -44,6 +44,9 @@ constructor(
   public photo_url: string,
   public house_id: number,
   public colab_id: number,
+  public block?: string,
+  public lot?: string,
+  public apartment?: string,
   public user_id?: number,
 ){}
 
