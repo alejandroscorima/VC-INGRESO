@@ -13,6 +13,7 @@ export class HousesComponent implements OnInit, AfterViewInit{
   houses: House[] = [];
 
   houseToAdd: House = new House('','','',0);
+  houseToEdit: House = new House('','','',0);
 
   constructor(
     private entranceService: EntranceService,
@@ -22,7 +23,9 @@ export class HousesComponent implements OnInit, AfterViewInit{
   ngOnInit(){
 
     this.entranceService.getAllHouses().subscribe((res:any[])=>{
-      this.houses=res;
+      if(res){
+        this.houses=res;
+      }
     })
 
   }
@@ -35,14 +38,30 @@ export class HousesComponent implements OnInit, AfterViewInit{
     document.getElementById('new-house-button')?.click();
   }
 
-  saveHouse(){
+  editHouse(house:House){
+    this.houseToEdit=house;
+    document.getElementById('edit-house-button')?.click();
+  }
 
+  saveNewHouse(){
     this.entranceService.addHouse(this.houseToAdd).subscribe(resAddHouse=>{
       if(resAddHouse){
         console.log('muy bien');
+        this.entranceService.getAllHouses().subscribe((res:any[])=>{
+          if(res){
+            this.houses=res;
+          }
+        })
       }
     })
+  }
 
+  saveEditHouse(){
+    this.entranceService.updateHouse(this.houseToEdit).subscribe(resUpdateHouse=>{
+      if(resUpdateHouse){
+        console.log('actualizado');
+      }
+    })
   }
 
 }

@@ -44,6 +44,10 @@ export class EntranceService {
     return this.http.post(`${this.baseUrl}/postHouse.php`, house);
   }
 
+  updateHouse(house: House) {
+    return this.http.put(`${this.baseUrl}/updateHouse.php`, house);
+  }
+
   getAllAreas() {
     return this.http.get(`${this.baseUrl}/getAllAreas.php`);
   }
