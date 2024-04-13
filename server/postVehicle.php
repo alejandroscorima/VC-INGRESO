@@ -16,13 +16,13 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
 
 
 
-$jsonUser = json_decode(file_get_contents("php://input"));
-if (!$jsonUser) {
+$jsonVehicle = json_decode(file_get_contents("php://input"));
+if (!$jsonVehicle) {
     exit("No hay datos");
 }
 $bd = include_once "bdData.php";
-$sentencia = $bd->prepare("insert into users(type_doc, doc_number, first_name, paternal_surname, maternal_surname, gender, birth_date, cel_number, username, password, entrance_role, house_id) values (?,?,?,?,?,?,?,?,?,?,?,?)");
-$resultado = $sentencia->execute([$jsonUser->type_doc, $jsonUser->doc_number, $jsonUser->first_name, $jsonUser->paternal_surname, $jsonUser->maternal_surname, $jsonUser->gender, $jsonUser->birth_date, $jsonUser->cel_number, $jsonUser->username, $jsonUser->password, $jsonUser->entrance_role, $jsonUser->house_id]);
+$sentencia = $bd->prepare("insert into vehicles(plate, house_id, type, status, reason) values (?,?,?,?,?)");
+$resultado = $sentencia->execute([$jsonVehicle->plate, $jsonVehicle->house_id, $jsonVehicle->type, $jsonVehicle->status, $jsonVehicle->reason]);
 echo json_encode([
     "resultado" => $resultado,
 ]);

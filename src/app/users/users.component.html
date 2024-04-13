@@ -73,57 +73,57 @@
                 </button>
             </div>
             <!-- Modal body -->
-            <div class="p-4 md:p-5 space-y-4">
-                <div>
+            <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
                     <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
                     <select [(ngModel)]="userToAdd.type_doc" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de documento..." required>
                         <option *ngFor="let td of typeDocs">{{td}}</option>
                     </select>
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="docNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
                     <input [(ngModel)]="userToAdd.doc_number" type="text" name="docNumberNew" id="docNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de documento..." required />
                 </div>
-                <div>
-                    <label for="firstNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
-                    <input [(ngModel)]="userToAdd.first_name" type="text" name="firstNameNew" id="firstNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
-                </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="paternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
                     <input [(ngModel)]="userToAdd.paternal_surname" type="text" name="paternalSurnameNew" id="paternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="maternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
                     <input [(ngModel)]="userToAdd.maternal_surname" type="text" name="maternalSurnameNew" id="maternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
                 </div>
-                <div>
+                <div class="col-span-full mb-2 mx-1">
+                    <label for="firstNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+                    <input [(ngModel)]="userToAdd.first_name" type="text" name="firstNameNew" id="firstNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="genderNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
                     <!-- <input [(ngModel)]="userToAdd.gender" type="text" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Genero..." required /> -->
                     <select [(ngModel)]="userToAdd.gender" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
                         <option *ngFor="let g of genders">{{g}}</option>
                     </select>
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="birthdateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
                     <input [(ngModel)]="userToAdd.birth_date" type="date" name="birthdateNew" id="birthdateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="celNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
                     <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="usernameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
                     <input [(ngModel)]="userToAdd.username" type="text" name="usernameNew" id="usernameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="entranceRoleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
                     <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
                     <select [(ngModel)]="userToAdd.entrance_role" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
                         <option *ngFor="let r of roles">{{r}}</option>
                     </select>
                 </div>
-                <div>
+                <div class="col-span-1 mb-2 mx-1">
                     <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
                     <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
                     <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
@@ -135,6 +135,97 @@
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                 <button (click)="saveNewUser()" data-modal-hide="new-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
                 <button data-modal-hide="new-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal toggle edit user -->
+<button hidden id="edit-user-button" data-modal-target="edit-user-modal" data-modal-toggle="edit-user-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+    Toggle edit user modal
+</button>
+
+<!-- Main modal edit user -->
+<div id="edit-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Editar usuario
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-user-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
+                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
+                    <select disabled [(ngModel)]="userToEdit.type_doc" name="typeDocEdit" id="typeDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 disabled:bg-gray-300" placeholder="Tipo de documento..." required>
+                        <option *ngFor="let td of typeDocs">{{td}}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="docNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
+                    <input disabled [(ngModel)]="userToEdit.doc_number" type="text" name="docNumberEdit" id="docNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de documento..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="paternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
+                    <input [(ngModel)]="userToEdit.paternal_surname" type="text" name="paternalSurnameEdit" id="paternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="maternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
+                    <input [(ngModel)]="userToEdit.maternal_surname" type="text" name="maternalSurnameEdit" id="maternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
+                </div>
+                <div class="col-span-full mb-2 mx-1">
+                    <label for="firstNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+                    <input [(ngModel)]="userToEdit.first_name" type="text" name="firstNameEdit" id="firstNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="genderEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
+                    <!-- <input [(ngModel)]="userToAdd.gender" type="text" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Genero..." required /> -->
+                    <select [(ngModel)]="userToEdit.gender" name="genderEdit" id="genderEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
+                        <option *ngFor="let g of genders">{{g}}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
+                    <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                    <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="usernameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToEdit.username" type="text" name="usernameEdit" id="usernameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="entranceRoleEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                    <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
+                    <select [(ngModel)]="userToEdit.entrance_role" name="entranceRoleEdit" id="entranceRoleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
+                        <option *ngFor="let r of roles">{{r}}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                        <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                <button (click)="saveEditUser()" data-modal-hide="edit-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button data-modal-hide="edit-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>

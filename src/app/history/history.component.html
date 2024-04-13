@@ -8,7 +8,7 @@
           
           <p >
             <mat-form-field appearance="outline" >
-              <mat-label>Sala:</mat-label>
+              <mat-label>Punto de acceso:</mat-label>
               <mat-select [(value)]="sala" (selectionChange)="salaChange()">
                   <mat-option *ngFor="let s of accessPoints" [value]="s.name">{{s.name}}</mat-option>
               </mat-select>

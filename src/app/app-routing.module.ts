@@ -10,6 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { SettingsComponent } from './settings/settings.component';
 import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
+import { VehiclesComponent } from './vehicles/vehicles.component';
 
 const routes: Routes = [
   { path: "", component: InicioComponent },
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: "settings", component: SettingsComponent },
   { path: "users", component: UsersComponent },
   { path: "houses", component: HousesComponent },
+  { path: "vehicles", component: VehiclesComponent },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz
   //{ path: "**", redirectTo: "/clientes" }
 ];

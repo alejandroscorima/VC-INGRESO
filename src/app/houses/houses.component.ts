@@ -12,8 +12,8 @@ export class HousesComponent implements OnInit, AfterViewInit{
 
   houses: House[] = [];
 
-  houseToAdd: House = new House('','','',0);
-  houseToEdit: House = new House('','','',0);
+  houseToAdd: House = new House('',null,'',0);
+  houseToEdit: House = new House('',null,'',0);
 
   constructor(
     private entranceService: EntranceService,

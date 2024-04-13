@@ -3,6 +3,7 @@ import { User } from '../user';
 import { UsersService } from '../users.service';
 import { initFlowbite } from 'flowbite';
 import { House } from '../house';
+import { EntranceService } from '../entrance.service';
 
 @Component({
   selector: 'app-users',
@@ -18,16 +19,21 @@ export class UsersComponent implements OnInit, AfterViewInit{
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];
   roles: string[] = ['USUARIO','ADMINISTRADOR'];
-  houses: House[] = [new House('ZZZ','123','111',999)];
+  houses: House[] = [];
 
   constructor(
     private usersService: UsersService,
-
+    private entranceService: EntranceService,
   ){}
 
   ngOnInit(){
     this.usersService.getAllUsers().subscribe((res:any[])=>{
       this.users=res;
+    })
+    this.entranceService.getAllHouses().subscribe((resHouses:any[])=>{
+      if(resHouses){
+        this.houses=resHouses;
+      }
     })
   }
 
@@ -40,15 +46,24 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   editUser(user:User){
+    this.userToEdit = user;
     document.getElementById('edit-user-button')?.click();
   }
 
   saveNewUser(){
     console.log(this.userToAdd);
+    this.usersService.addUser(this.userToAdd).subscribe(resAddUser=>{
+      if(resAddUser){
+        this.usersService.getAllUsers().subscribe((res:any[])=>{
+          this.users=res;
+        })
+      }
+    });
   }
 
   saveEditUser(){
+    this.usersService.updateUser(this.userToEdit).subscribe(resUpdateUser=>{
 
+    })
   }
-
 }

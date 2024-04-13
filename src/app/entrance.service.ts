@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { House } from './house';
+import { Vehicle } from './vehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +47,18 @@ export class EntranceService {
 
   updateHouse(house: House) {
     return this.http.put(`${this.baseUrl}/updateHouse.php`, house);
+  }
+
+  getAllVehicles() {
+    return this.http.get(`${this.baseUrl}/getAllVehicles.php`);
+  }
+
+  addVehicle(vehicle: Vehicle) {
+    return this.http.post(`${this.baseUrl}/postVehicle.php`, vehicle);
+  }
+
+  updateVehicle(vehicle: Vehicle) {
+    return this.http.put(`${this.baseUrl}/updateVehicle.php`, vehicle);
   }
 
   getAllAreas() {

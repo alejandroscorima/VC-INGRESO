@@ -52,6 +52,7 @@ import { SideNavComponent } from './side-nav/side-nav.component';
 import { SettingsComponent } from './settings/settings.component';
 import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
+import { VehiclesComponent } from './vehicles/vehicles.component';
 
 
 
@@ -83,6 +84,7 @@ import { HousesComponent } from './houses/houses.component';
         SettingsComponent,
         UsersComponent,
         HousesComponent,
+        VehiclesComponent,
 
 
 
