@@ -21,8 +21,8 @@ if (!$jsonVehicle) {
     exit("No hay datos");
 }
 $bd = include_once "bdData.php";
-$sentencia = $bd->prepare("insert into vehicles(plate, house_id, type, status, reason) values (?,?,?,?,?)");
-$resultado = $sentencia->execute([$jsonVehicle->plate, $jsonVehicle->house_id, $jsonVehicle->type, $jsonVehicle->status, $jsonVehicle->reason]);
+$sentencia = $bd->prepare("insert into vehicles(plate, house_id, type, status, reason, category) values (?,?,?,?,?,?)");
+$resultado = $sentencia->execute([$jsonVehicle->plate, $jsonVehicle->house_id, $jsonVehicle->type, $jsonVehicle->status, $jsonVehicle->reason, $jsonVehicle->category]);
 echo json_encode([
     "resultado" => $resultado,
 ]);

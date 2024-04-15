@@ -12,12 +12,13 @@ import { EntranceService } from '../entrance.service';
 export class VehiclesComponent implements OnInit, AfterViewInit{
 
   vehicles: Vehicle[] = [];
-  vehicleToAdd: Vehicle = new Vehicle('',null,'','','');
-  vehicleToEdit: Vehicle = new Vehicle('',null,'','','');
+  vehicleToAdd: Vehicle = new Vehicle('',null,'','','','');
+  vehicleToEdit: Vehicle = new Vehicle('',null,'','','','');
 
   types: string[] = ['MOTOCICLETA','MOTO','AUTOMOVIL','CAMIONETA','MINIVAN'];
   status: string[] = ['PERMITIDO','DENEGADO'];
   houses: House[] = [];
+  category: string[] = ['PROPIETARIO','INVITADO','COLECTIVO','TAXI'];
 
   constructor(
     private entranceService: EntranceService

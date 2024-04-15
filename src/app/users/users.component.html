@@ -130,6 +130,24 @@
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.category" name="categoryNew" id="categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                        <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="statusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.status" name="statusNew" id="statusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                        <option *ngFor="let s of status" [ngValue]="s">{{s}}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="userToAdd.reason" type="text" name="reasonNew" id="reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">

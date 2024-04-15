@@ -53,6 +53,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
+import { MyHouseComponent } from './my-house/my-house.component';
 
 
 
@@ -85,6 +86,7 @@ import { VehiclesComponent } from './vehicles/vehicles.component';
         UsersComponent,
         HousesComponent,
         VehiclesComponent,
+        MyHouseComponent,
 
 
 

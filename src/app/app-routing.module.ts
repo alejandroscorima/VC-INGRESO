@@ -11,6 +11,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
+import { MyHouseComponent } from './my-house/my-house.component';
 
 const routes: Routes = [
   { path: "", component: InicioComponent },
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: "users", component: UsersComponent },
   { path: "houses", component: HousesComponent },
   { path: "vehicles", component: VehiclesComponent },
+  { path: "my-house", component: MyHouseComponent },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz
   //{ path: "**", redirectTo: "/clientes" }
 ];

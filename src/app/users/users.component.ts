@@ -13,13 +13,15 @@ import { EntranceService } from '../entrance.service';
 export class UsersComponent implements OnInit, AfterViewInit{
 
   users: User[] = [];
-  userToAdd: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0);
-  userToEdit: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0);
+  userToAdd: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
+  userToEdit: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
 
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];
   roles: string[] = ['USUARIO','ADMINISTRADOR'];
   houses: House[] = [];
+  status: string[] = ['PERMITIDO','DENEGADO'];
+  categories: string[] = ['PROPIETARIO','INVITADO'];
 
   constructor(
     private usersService: UsersService,
