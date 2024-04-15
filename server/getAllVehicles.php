@@ -5,7 +5,7 @@ header("Access-Control-Allow-Origin: *");
 
 $bd = include_once "bdData.php";
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-$sentencia = $bd->prepare("SELECT a.vehicle_id, a.plate, a.house_id, a.status, a.type, a.reason, COALESCE(b.block,'SN') AS block, COALESCE(b.lot,'SN') AS lot, COALESCE(b.apartment,'SN') AS apartment FROM vehicles a LEFT JOIN houses b ON a.house_id = b.house_id ORDER BY a.type, a.plate");
+$sentencia = $bd->prepare("SELECT a.vehicle_id, a.plate, a.house_id, a.status, a.type, a.reason, a.category, COALESCE(b.block,'SN') AS block, COALESCE(b.lot,'SN') AS lot, COALESCE(b.apartment,'SN') AS apartment FROM vehicles a LEFT JOIN houses b ON a.house_id = b.house_id ORDER BY a.type, a.plate");
 //where birth_date like '%?%'
 $sentencia -> execute();
 //[$fecha_cumple]

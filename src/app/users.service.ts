@@ -41,6 +41,11 @@ export class UsersService {
     return this.http.get(`${this.baseUrl}/getUserByIdNew.php?user_id=${user_id}`);
   }
 
+  getUserByDocNumber(doc_number: string) {
+    return this.http.get(`${this.baseUrl}/getUserByDocNumber.php?doc_number=${doc_number}`);
+  }
+
+
 
   getCollaboratorByUserId(user_id) {
     return this.http.get(`${this.baseUrl}/getCollaboratorByUserId.php?user_id=${user_id}`);
@@ -116,6 +121,13 @@ export class UsersService {
 
   updateClient(cliente: User) {
     return this.http.put(`${this.baseUrl}/updateClient.php`, cliente);
+  }
+
+  getUserFromReniec(doc_number: string) {
+
+    this.urlconsulta = 'https://my.apidev.pro/api/dni/'+doc_number+'?api_token=e9cc47e67d492cdee675bfb2b365c09393611b5141144aa0da34cab5429bb5e8';
+    return this.http.get(this.urlconsulta);
+
   }
 
 
