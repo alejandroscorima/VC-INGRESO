@@ -41,6 +41,10 @@ export class EntranceService {
     return this.http.get(`${this.baseUrl}/getPersonsByHouseId.php?house_id=${house_id}`);
   }
 
+  getVehiclesByHouseId(house_id: number) {
+    return this.http.get(`${this.baseUrl}/getVehiclesByHouseId.php?house_id=${house_id}`);
+  }
+
   getAllHouses() {
     return this.http.get(`${this.baseUrl}/getAllHouses.php`);
   }

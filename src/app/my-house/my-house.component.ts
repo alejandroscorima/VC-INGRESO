@@ -5,6 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { EntranceService } from '../entrance.service';
 import { CookiesService } from '../cookies.service';
 import { UsersService } from '../users.service';
+import { Vehicle } from '../vehicle';
 
 @Component({
   selector: 'app-my-house',
@@ -22,6 +23,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   houseToEdit: House = new House('',0,'');
 
   myFamily: User[] = [];
+  myVehicles: Vehicle[] = [];
 
   user_id;
   userOnSes: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
@@ -46,6 +48,9 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         this.userOnSes=resUser;
         this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe((resMyFamily:User[])=>{
           this.myFamily=resMyFamily;
+        })
+        this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe((resMyVehicles:Vehicle[])=>{
+          this.myVehicles=resMyVehicles;
         })
       }
     })
