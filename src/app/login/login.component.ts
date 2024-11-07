@@ -27,9 +27,6 @@ import { SystemClient } from '../systemClient';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-
-
-
   animations: [
     trigger('detailExpand', [
       state('collapsed', style({height: '0px', minHeight: '0', display:'none'})),
@@ -39,7 +36,7 @@ import { SystemClient } from '../systemClient';
   ],
 })
 export class LoginComponent implements OnInit {
-
+ 
   username='';
   password='';
 
@@ -59,7 +56,7 @@ export class LoginComponent implements OnInit {
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
-  constructor(    private clientesService: ClientesService,
+  constructor(private clientesService: ClientesService,
     private usersService: UsersService,
     private cookiesService: CookiesService,
     private cookies: CookiesService,
@@ -68,6 +65,7 @@ export class LoginComponent implements OnInit {
     private snackBar: MatSnackBar,
     private router: Router,
     private toastr: ToastrService,
+    
   ) { }
 
   searchItem(){
@@ -141,6 +139,8 @@ export class LoginComponent implements OnInit {
       this.toastr.error('Error al obtener la licencia: '+error);
       this.router.navigateByUrl('/login');
     });
+
+    
 
   }
 

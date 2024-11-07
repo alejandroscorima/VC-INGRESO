@@ -1,92 +1,24 @@
 
-
-
-<!-- <app-login  *ngIf=!logged></app-login> -->
 <app-nav-bar *ngIf=logged></app-nav-bar>
 
 <app-side-nav *ngIf=logged></app-side-nav>
 
 <router-outlet *ngIf=true>  </router-outlet>
 
-
-
-
-
-
-
-
-
-<!--
-<div class="contenedor-padre">
-  <mat-toolbar class="barra"  id="barra" *ngIf="user.first_name!=''">
-    <mat-toolbar-row >
-      <button (click)="cajon.toggle()" mat-icon-button>
-        <mat-icon>menu</mat-icon>
-      </button>
-      <span>
-        CONTROL DE INGRESO&nbsp;
-      </span>
-      <span class="example-spacer"></span>
-      <button mat-raised-button (click)="logout()">
-        <mat-icon>logout</mat-icon>Cerrar sesión
-      </button>
-
-    </mat-toolbar-row>
-  </mat-toolbar>
-  <mat-sidenav-container class="contenido">
-    <mat-sidenav closed style="width: 200px; background-color:  #660498; color: rgb(255, 255, 255);" #cajon mode="side">
-      <mat-nav-list style="padding-top:0px;">
-        <p style="margin-top:0px;margin-bottom: 0px; text-align: center;">
-          <img *ngIf="user.gender=='MASCULINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-male.png"  VSPACE="20">
-          <img *ngIf="user.gender=='FEMENINO'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/user-female.png"  VSPACE="20">
-          <img *ngIf="user.gender!='MASCULINO'&&user.gender!='FEMENINO'&&user.first_name=='LOSS PREVENTION'" style="width: 180px; height: 180px; border-radius: 50%; margin-top: 20px; margin-bottom: 5px;" class="mat-elevation-z8" mat-image src="assets/loss_prevention.png"  VSPACE="20">
-        </p>
-        <a>
-          <h3 style="text-align:center; margin: 10px;">{{user.first_name+' '+user.paternal_surname}}</h3>
-          <p style="text-align:center; margin: 10px;">
-            <br/>
-            <a style="font-weight:bold;">AREA: </a>
-            <a style="font-weight:normal;">{{user_area.name}}</a>
-            <br/>
-          </p>
-          <p style="text-align:center; margin: 10px;">
-            <a style="font-weight:bold;">SEDE: </a>
-            <a style="font-weight:normal;">{{user_campus.name}}</a>
-            <br/>
-          </p>
-        </a>
-
-        <a mat-list-item class="navItem" routerLink="/">
-          <mat-icon class="icon1" >dashboard</mat-icon>
-          Dashboard
-        </a>
-        <a mat-list-item class="navItem" routerLink="/listas">
-          <mat-icon class="icon4" >category</mat-icon>
-          Listas
-        </a>
-        <a mat-list-item class="navItem" routerLink="/hb">
-          <mat-icon class="icon2" >cake</mat-icon>
-          Cumpleaños
-        </a>
-        <a mat-list-item class="navItem" routerLink="/history">
-          <mat-icon class="icon3" >history</mat-icon>
-          Historial
-        </a>
-        <a mat-list-item class="navItem" routerLink="/upload">
-          <mat-icon class="icon5" >upload_file</mat-icon>
-          Subir PDF
-        </a>
-
-        <a mat-list-item style="align-content: center;">
-          <a mat-stroked-button color="liceblue">Oscorp Technology</a>
-        </a>
-
-      </mat-nav-list>
-
-    </mat-sidenav>
-    <mat-sidenav-content class="fondo">
-      <router-outlet style="height: 100%;"></router-outlet>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+<!--CONTENIDO DEL DROPDOWN DE FLOWBITE-->
+<button id="dropdownToggle" data-dropdown-toggle="dropdown" aria-expanded="false">
+  Toggle Dropdown
+</button>
+<div id="dropdown" class="hidden bg-white text-base z-50 list-none divide-y divide-gray-100 rounded shadow my-4">
+    <ul class="py-1" aria-labelledby="dropdownToggle">
+        <li>
+            <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2">Action 1</a>
+        </li>
+        <li>
+            <a href="#" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2">Action 2</a>
+        </li>
+    </ul>
 </div>
--->
+
+<!--CORRECCIÓN DE ERROR MODULE DEL SCRIPT.JS-->
+<script type="module" src="scripts.js"></script>

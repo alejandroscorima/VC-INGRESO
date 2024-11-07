@@ -1,4 +1,4 @@
-
+import { someFunction } from '@babel/runtime/helpers/typeof';
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Area } from './area';
