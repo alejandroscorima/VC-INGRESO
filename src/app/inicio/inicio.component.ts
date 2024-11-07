@@ -416,7 +416,8 @@ export class InicioComponent implements OnInit {
             this.diaActual = String(this.fecha.getDate());
         
             this.clientesService.getAforoStat(this.salaCmbBox.name,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
-        
+              //corregir lo que supone el dashboard, puedes hacerlo con powerbi
+              console.log('Response from API:', res);
               this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
       
       

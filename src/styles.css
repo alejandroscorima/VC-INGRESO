@@ -1,5 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
-
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 @import "material-icons/iconfont/material-icons.css";
 
 html,
@@ -11,10 +13,4 @@ body {
   font-family:  "Trebuchet MS", sans-serif;
 }
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
 
-
-/*@import "~bootstrap/dist/css/bootstrap.min.css";
-*/

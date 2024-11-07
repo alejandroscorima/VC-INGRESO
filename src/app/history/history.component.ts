@@ -91,12 +91,6 @@ export class HistoryComponent implements OnInit {
   }
 
   salaChange(){
-    /* this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
-      this.visits=vList;
-      this.dataSourceHistory = new MatTableDataSource(this.visits);
-      this.dataSourceHistory.paginator = this.paginator.toArray()[0];
-      this.dataSourceHistory.sort = this.sort.toArray()[0];
-    }); */
     this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.sala).subscribe((vrange:Visit[])=>{
       this.visits=vrange;
       this.dataSourceHistory = new MatTableDataSource(this.visits);
@@ -106,29 +100,6 @@ export class HistoryComponent implements OnInit {
   }
 
   change(a){
-
-/*     this.year=this.fecha.getFullYear();
-    this.month=parseInt(this.fecha.getMonth())+1;
-    this.day=this.fecha.getDate();
-
-    if(parseInt(this.month)<10){
-      this.month='0'+this.month;
-    }
-
-    if(parseInt(this.day)<10){
-      this.day='0'+this.day;
-    }
-
-    this.fechaString=this.year+'-'+this.month+'-'+this.day;
-    if(this.sala!=''){ */
-
-/*       this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
-        this.visits=vList;
-        this.dataSourceHistory = new MatTableDataSource(this.visits);
-        this.dataSourceHistory.paginator = this.paginator.toArray()[0];
-        this.dataSourceHistory.sort = this.sort.toArray()[0];
-      }); */
-
     if(this.fecha_final!=null){
 
       this.year=this.fecha_inicial.getFullYear();
@@ -198,38 +169,35 @@ export class HistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.sala='';
-
+    // Punto de acceso predefinido
+    this.sala='GARITA';
+    // Configurar la fecha inicial y final como la fecha actual
+    const today = new Date();
+    this.fecha_inicial = today;
+    this.fecha_final = today;
+    // Formato de fecha en cadena para el rango
+    this.year = today.getFullYear();
+    this.month = (today.getMonth() + 1).toString().padStart(2, '0');
+    this.day = today.getDate().toString().padStart(2, '0');
+    this.fechaString_inicial = `${this.year}-${this.month}-${this.day}`;
+    this.fechaString_final = this.fechaString_inicial;
+    // obtener todos los putnos de acceso del sql-+- en la lista desplegable
     this.entranceService.getAllAccessPoints().subscribe((campList:AccessPoint[])=>{
       console.log(campList)
       if(campList){
         this.accessPoints=campList;
       }
     });
+    this.toastr.success('Mostrando historial del día de hoy: '+this.day+'/'+this.month+'/'+this.year);
 
-    this.fecha=new Date();
-
-    this.year=this.fecha.getFullYear();
-    this.month=parseInt(this.fecha.getMonth())+1;
-    this.day=this.fecha.getDate();
-
-    if(parseInt(this.month)<10){
-      this.month='0'+this.month;
-    }
-
-    if(parseInt(this.day)<10){
-      this.day='0'+this.day;
-    }
-
-    this.fechaString=this.year+'-'+this.month+'-'+this.day;
-
-    this.toastr.info('Selecciona una sala y fecha para mostrar el historial');
-/*     this.clientesService.getHistoryByDate(this.fechaString,this.sala).subscribe((vList:Visit[])=>{
-      this.visits=vList;
+  //Cargar historial al inicio basado en valores predefinidos
+    this.clientesService.getHistoryByRange(this.fechaString_inicial, this.fechaString_final, this.sala).subscribe((vrange: Visit[]) => {
+      this.visits = vrange;
+      console.log(this.visits);
       this.dataSourceHistory = new MatTableDataSource(this.visits);
       this.dataSourceHistory.paginator = this.paginator.toArray()[0];
       this.dataSourceHistory.sort = this.sort.toArray()[0];
-    }); */
+    });
   }
 
   onSubmit() {

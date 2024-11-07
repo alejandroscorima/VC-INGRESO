@@ -41,6 +41,7 @@ export class LoginComponent implements OnInit {
   password='';
 
   hide = true;
+  isloading=false;
 
   //user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
   user: User = new User(null,null,null,null,null,null,null,null,null,
@@ -84,6 +85,7 @@ export class LoginComponent implements OnInit {
   }
 
   login(){
+    this.isloading=true;// Habilitar el estado de carga
 
     this.usersService.getPaymentByClientId(1).subscribe((resPay:Payment)=>{
       console.log(resPay);
@@ -103,6 +105,7 @@ export class LoginComponent implements OnInit {
         this.password=this.password.trim();
         this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
         console.log(res);
+          this.isloading = false; // Deshabilitar el estado de carga
           if(res){
             this.user=res;
             if(this.user.entrance_role!='NINGUNO'){
@@ -128,7 +131,7 @@ export class LoginComponent implements OnInit {
       }
     },
     (error) => {
-    
+      this.isloading = false; // Deshabilitar el estado de carga
       this.cookies.deleteToken("user_id");
       this.cookies.deleteToken("user_role");
       this.cookies.deleteToken('sala');
