@@ -17,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { InicioComponent } from './inicio/inicio.component';
 import { MatTableModule } from '@angular/material/table';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { DialogHistoryDetail, DialogLudops, HistoryComponent } from './history/history.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
@@ -59,8 +59,7 @@ import { MyHouseComponent } from './my-house/my-house.component';
 
 
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
         ListasComponent,
         InicioComponent,
@@ -87,12 +86,8 @@ import { MyHouseComponent } from './my-house/my-house.component';
         HousesComponent,
         VehiclesComponent,
         MyHouseComponent,
-
-
-
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
         FormsModule,
         BrowserAnimationsModule,
@@ -104,7 +99,6 @@ import { MyHouseComponent } from './my-house/my-house.component';
         MatExpansionModule,
         MatFormFieldModule,
         MatInputModule,
-        HttpClientModule,
         MatTableModule,
         MatDialogModule,
         MatSnackBarModule,
@@ -121,10 +115,6 @@ import { MyHouseComponent } from './my-house/my-house.component';
         MatGridListModule,
         GoogleChartsModule,
         MatTabsModule,
-        ToastrModule.forRoot(), // ToastrModule added
-    ],
-    providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
-      { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService],
-    bootstrap: [AppComponent]
-})
+        ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }
