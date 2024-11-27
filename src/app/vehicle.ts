@@ -1,12 +1,14 @@
 
 export class Vehicle {
   constructor(
-    public plate: string,
+    public license_plate: string,
     public house_id: number,
-    public status: string,
-    public type: string,
-    public reason: string,
-    public category: string,
+    public owner_id:number,
+    public type_vehicle: string,
+    public status_validated: string,
+    public status_reason: string,
+    public status_system: string,
+    public category_entry: string,
     public house_address?: string,
     public block?: string,
     public lot?: string,

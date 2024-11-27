@@ -5,6 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { House } from '../house';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
+import { error } from 'console';
 
 @Component({
   selector: 'app-users',
@@ -14,14 +15,15 @@ import { ToastrService } from 'ngx-toastr';
 export class UsersComponent implements OnInit, AfterViewInit{
 
   users: User[] = [];
-  userToAdd: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
-  userToEdit: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
+  userToAdd: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userToEdit: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
 
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];
-  roles: string[] = ['USUARIO','ADMINISTRADOR'];
+  roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO'];
+  status: string[] = ['ACTIVO', 'INACTIVO']
   houses: House[] = [];
-  status: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
+  status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','INVITADO'];
 
   constructor(
@@ -48,21 +50,16 @@ export class UsersComponent implements OnInit, AfterViewInit{
   searchUser(doc_number: string){
     console.log('Buscando documento:'+doc_number);
     this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
-      if(resExistentUser){
+      console.log(resExistentUser);
+      if(resExistentUser.user_id){
         console.log('Encontrado en BD');
-        if(resExistentUser.entrance_role!='SN'&&resExistentUser.entrance_role!='NINGUNO'&&resExistentUser.entrance_role!=''){
+        if(resExistentUser.role_system!='SN'&&resExistentUser.role_system!='NINGUNO'&&resExistentUser.role_system!=''){
           this.clean();
           this.toastr.warning('El usuario ya existe');
         }
         else{
           this.toastr.success('Datos obtenidos correctamente');
-          this.userToAdd.user_id=resExistentUser.user_id;
-          this.userToAdd.type_doc=resExistentUser.type_doc;
-          this.userToAdd.first_name=resExistentUser.first_name;
-          this.userToAdd.paternal_surname=resExistentUser.paternal_surname;
-          this.userToAdd.maternal_surname=resExistentUser.maternal_surname;
-          this.userToAdd.gender=resExistentUser.gender;
-          this.userToAdd.birth_date=resExistentUser.birth_date;
+          this.userToAdd=resExistentUser;
         }
       }
       else if(doc_number.trim().length==8){
@@ -76,6 +73,11 @@ export class UsersComponent implements OnInit, AfterViewInit{
             this.userToAdd.maternal_surname=resReniecUser['data']['apellido_materno'];
             this.userToAdd.gender=resReniecUser['data']['sexo'];
             this.userToAdd.birth_date=resReniecUser['data']['fecha_nacimiento'];
+            this.userToAdd.civil_status=resReniecUser['data']['estado_civil'];
+            this.userToAdd.address_reniec=resReniecUser['data']['direccion_completa'];
+            this.userToAdd.district=resReniecUser['data']['distrito'];
+            this.userToAdd.province=resReniecUser['data']['provincia'];
+            this.userToAdd.region=resReniecUser['data']['departamento'];
           }
           else{
             this.noData();
@@ -97,8 +99,8 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   clean(){
-    this.userToAdd = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
-    this.userToEdit = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
+    this.userToAdd = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+    this.userToEdit = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
   }
 
   newUser(){
@@ -110,48 +112,69 @@ export class UsersComponent implements OnInit, AfterViewInit{
     document.getElementById('edit-user-button')?.click();
   }
 
-  saveNewUser(){
-    this.userToAdd.password=this.userToAdd.doc_number;
-    this.userToAdd.photo_url='http://52.5.47.64/VC/Media/noimage.png';
-    this.usersService.getUserByDocNumber(this.userToAdd.doc_number).subscribe((resExistentUser:User)=>{
-      if(resExistentUser){
-        this.userToAdd.user_id=resExistentUser.user_id;
-      }
-      if(resExistentUser&&resExistentUser.entrance_role!='NINGUNO'&&resExistentUser.entrance_role!='SN'&&resExistentUser.entrance_role!=''){
-        this.clean();
-        this.toastr.warning('El usuario ya existe');
-      }
-      else{
-        if(this.userToAdd.user_id&&this.userToAdd.user_id!=0){
-          console.log('User new para update',this.userToAdd);
-          this.usersService.updateUser(this.userToAdd).subscribe(resUpdateUser=>{
-            if(resUpdateUser){
-              this.clean();
-              this.usersService.getAllUsers().subscribe((res:any[])=>{
-                this.users=res;
-              })
-            }
-          })
+  saveNewUser() {
+    // Configurar valores predeterminados
+    this.userToAdd.password_system = this.userToAdd.doc_number;
+    if(this.userToAdd.gender=='MASCULINO'){
+      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-male.png';
+    }
+    else{
+      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-female.png';
+    }
+    this.userToAdd.status_system = 'ACTIVO';
+  
+    // Verificar existencia del usuario en la base de datos
+    this.usersService.getUserByDocNumber(this.userToAdd.doc_number).subscribe((resExistentUser: User) => {
+      if (resExistentUser) {
+        // Asignar el ID del usuario existente
+        this.userToAdd.user_id = resExistentUser.user_id;
+  
+        // Verificar si el usuario ya tiene un rol asignado
+        if (
+          resExistentUser.role_system &&
+          resExistentUser.role_system !== 'NINGUNO' &&
+          resExistentUser.role_system !== 'SN'
+        ) {
+          this.clean();
+          this.toastr.warning('El usuario ya existe');
+          return; // Salir si el usuario ya existe
         }
-        else{
-          this.usersService.addUser(this.userToAdd).subscribe(resAddUser=>{
-            if(resAddUser){
-              this.clean();
-              this.usersService.getAllUsers().subscribe((res:any[])=>{
-                this.users=res;
-              })
-            }
-          });
-        }
+      }
+  
+      // Decidir si es una actualización o un nuevo registro
+      if (this.userToAdd.user_id && this.userToAdd.user_id !== 0) {
+        // Actualizar usuario existente
+        console.log('User new para update:', this.userToAdd);
+        this.usersService.updateUser(this.userToAdd).subscribe((resUpdateUser) => {
+          if (resUpdateUser) {
+            this.handleSuccess();
+          }
+        });
+      } else {
+        // Agregar nuevo usuario
+        this.usersService.addUser(this.userToAdd).subscribe((resAddUser) => {
+          if (resAddUser) {
+            this.handleSuccess();
+          }
+        });
       }
     });
-
   }
+  
+  // Manejar éxito en la creación o actualización
+  private handleSuccess() {
+    this.clean();
+    this.usersService.getAllUsers().subscribe((res: any[]) => {
+      this.users = res;
+      this.toastr.success('Usuario guardado correctamente');
+    });
+  }
+  
 
   saveEditUser(){
     this.usersService.updateUser(this.userToEdit).subscribe(resUpdateUser=>{
       if(resUpdateUser){
-        this.clean();
+        this.handleSuccess();
       }
     })
   }

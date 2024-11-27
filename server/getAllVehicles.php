@@ -1,16 +1,45 @@
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
+// Permitir solicitudes desde cualquier origen
 header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Origin: http://192.168.4.250");
+header("Content-Type: application/json");
+$bd = include_once "vc_db.php";
 
-$bd = include_once "bdData.php";
-//$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-$sentencia = $bd->prepare("SELECT a.vehicle_id, a.plate, a.house_id, a.status, a.type, a.reason, a.category, COALESCE(b.block,'SN') AS block, COALESCE(b.lot,'SN') AS lot, COALESCE(b.apartment,'SN') AS apartment FROM vehicles a LEFT JOIN houses b ON a.house_id = b.house_id ORDER BY a.type, a.plate");
-//where birth_date like '%?%'
-$sentencia -> execute();
-//[$fecha_cumple]
-//$mascotas = $sentencia->fetchAll(PDO::FETCH_OBJ);
-$vehicles = $sentencia->fetchAll(PDO::FETCH_OBJ);
-//echo json_encode($mascotas);
-echo json_encode($vehicles);
+try {
+    // Incluir archivo de conexión a la base de datos
+    
+    // Preparar la consulta SQL
+    $sentencia = $bd->prepare("SELECT 
+        v.vehicle_id,
+        v.license_plate,
+        v.type_vehicle,
+        v.house_id,
+        v.owner_id,
+        v.status_validated,
+        v.status_reason,
+        v.status_system,
+        v.category_entry,
+        h.block_house,
+        h.lot,
+        h.apartment
+    FROM 
+        vehicles v
+    JOIN 
+        houses h ON v.house_id = h.house_id
+    ORDER BY 
+        h.block_house ASC;
+    ");
+    
+    // Ejecutar la consulta
+    $sentencia->execute();
+
+    // Obtener los resultados
+    $vehicles = $sentencia->fetchAll(PDO::FETCH_OBJ);
+
+    // Enviar los resultados como JSON
+    echo json_encode($vehicles);
+
+} catch (PDOException $e) {
+    // Manejar errores de base de datos
+    echo json_encode(["error" => "Error de base de datos: " . $e->getMessage()]);
+}
 ?>

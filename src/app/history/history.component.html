@@ -9,8 +9,8 @@
           <p >
             <mat-form-field appearance="fill" >
               <mat-label>Punto de acceso:</mat-label>
-              <mat-select [(value)]="sala" (selectionChange)="salaChange()">
-                  <mat-option *ngFor="let s of accessPoints" [value]="s.name">{{s.name}}</mat-option>
+              <mat-select [(value)]="access_point" (selectionChange)="salaChange()">
+                  <mat-option *ngFor="let s of accessPoints" [value]="s.ap_location">{{s.ap_location | uppercase }}</mat-option>
               </mat-select>
             </mat-form-field>
     
@@ -42,52 +42,52 @@
                   <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> TIPO </th>
                     <td mat-cell *matCellDef="let a">
-                      <mat-icon *ngIf="a.type=='VEHICULO'">directions_car</mat-icon>
+                      <mat-icon *ngIf="a.type=='VEHÍCULO'">directions_car</mat-icon>
                       <mat-icon *ngIf="a.type=='PERSONA'">person</mat-icon>
                     </td>
                   </ng-container>
       
                   <ng-container matColumnDef="doc">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> CODIGO </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOCUMENTO </th>
                     <td mat-cell *matCellDef="let a"> {{a.doc_number}}</td>
                   </ng-container>
       
                   <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> NOMBRE </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DATOS </th>
                     <td mat-cell *matCellDef="let a"> {{a.name}}</td>
                   </ng-container>
       
                   <ng-container matColumnDef="age">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOMICILIO </th> <!--CORRECCIÓN MERAMENTE VISUAL-->
-                    <td mat-cell *matCellDef="let a"> {{a.age}}</td>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOMICILIO </th> 
+                    <td mat-cell *matCellDef="let a"> {{a.house_address}}</td>
                   </ng-container>
       
                   <ng-container matColumnDef="fecha">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> CHECK-IN </th>
-                    <td mat-cell *matCellDef="let a"> {{a.date_entrance}}</td>
+                    <td mat-cell *matCellDef="let a"> {{a.date_entry}}</td>
                   </ng-container>
       
                   <ng-container matColumnDef="hora">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> CHECK-OUT </th>
-                    <td mat-cell *matCellDef="let a"> {{a.hour_entrance}}</td>
+                    <td mat-cell *matCellDef="let a"> {{a.date_exit}}</td>
                   </ng-container>
       
                   <ng-container matColumnDef="obs">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> RESULTADO </th>
-                    <td mat-cell *matCellDef="let a" > {{a.obs}}</td>
+                    <td mat-cell *matCellDef="let a" > {{a.obs|uppercase}}</td>
                   </ng-container>
 
                   <ng-container matColumnDef="gender">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> OPERARIO </th> <!--CORRECCIÓN MERAMENTE VISUAL - FALTA CORREGIR -->
-                    <td mat-cell *matCellDef="let a"> {{a.gender}}</td>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> OPERARIO </th> 
+                    <td mat-cell *matCellDef="let a"> {{a.operator}}</td>
                   </ng-container>
           
                   <ng-container matColumnDef="indicador">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>  </th>
                     <td mat-cell *matCellDef="let a" >
-                      <mat-icon *ngIf="a.obs=='PERMITIDO'||a.obs=='permitido'" style="color:rgb(14, 132, 14)">check</mat-icon>
-                      <mat-icon *ngIf="a.obs=='DENEGADO'||a.obs=='denegado'" style="color:rgb(147, 14, 14)">block</mat-icon>
-                      <mat-icon *ngIf="a.obs=='RESTRINGIDO'" style="color:orange">warning</mat-icon>
+                      <mat-icon *ngIf="a.obs=='PERMITIDO' || a.obs=='permitido'" style="color:rgb(14, 132, 14)">check</mat-icon>
+                      <mat-icon *ngIf="a.obs=='DENEGADO' || a.obs=='denegado'" style="color:rgb(147, 14, 14)">block</mat-icon>
+                      <mat-icon *ngIf="a.obs=='RESTRINGIDO' || a.obs=='restringido'" style="color:orange">warning</mat-icon>
                     </td>
                   </ng-container>
       

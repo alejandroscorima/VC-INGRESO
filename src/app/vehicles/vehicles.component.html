@@ -42,16 +42,16 @@
                         <tbody>
                             <tr *ngFor="let v of vehicles" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{v.type}}
+                                    {{v.type_vehicle.toUpperCase()}}
                                 </th>
                                 <td class="px-6 py-4">
-                                    {{v.plate}}
+                                    {{v.license_plate}}
                                 </td>
                                 <td class="px-6 py-4">
-                                    Mz:{{v.block}} Lt:{{v.lot}} Dpto:{{v.apartment}}
+                                    Mz:{{v.block_house}} Lt:{{v.lot}} Dpto:{{v.apartment}}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{v.status}}
+                                    {{v.status_validated.toUpperCase()}}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <a (click)="editVehicle(v)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
@@ -88,13 +88,13 @@
                         <tbody>
                             <tr *ngFor="let vh of vehicles" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{vh.type}}
+                                    {{vh.type_vehicle}}
                                 </th>
                                 <td class="px-6 py-4">
-                                    {{vh.plate}}
+                                    {{vh.license_plate}}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{vh.category}}
+                                    {{vh.category_entry}}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <a (click)="editVehicle(vh)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
@@ -111,9 +111,10 @@
 
 
 <!-- Modal toggle new vehicle -->
+
 <button hidden id="new-vehicle-button" data-modal-target="new-vehicle-modal" data-modal-toggle="new-vehicle-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-    Toggle new vehicle modal
-</button>
+    NUEVO VEHÍCULO
+</button> 
 
 <!-- Main modal new vehicle -->
 <div id="new-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -135,15 +136,14 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="typeNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
-                    <!-- <input [(ngModel)]="vehcileToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
-                    <select [(ngModel)]="vehicleToAdd.type" name="typeNew" id="typeNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <label for="type_vehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
+                    <select [(ngModel)]="vehicleToAdd.type_vehicle" name="type_vehicleNew" id="type_vehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
                         <option *ngFor="let t of types">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
-                    <input [(ngModel)]="vehicleToAdd.plate" type="text" name="plateNew" id="plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                    <label for="license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
+                    <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
@@ -153,22 +153,22 @@
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <label for="category_entryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
                     <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="vehicleToAdd.category" name="categoryNew" id="categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <select [(ngModel)]="vehicleToAdd.category_entry" name="category_entryNew" id="category_entryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="statusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <label for="status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
                     <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="vehicleToAdd.status" name="statusNew" id="statusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <select [(ngModel)]="vehicleToAdd.status_validated" name="status_validatedNew" id="status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="vehicleToAdd.reason" type="text" name="reasonNew" id="reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="vehicleToAdd.status_reason" type="text" name="status_reasonNew" id="status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
@@ -183,7 +183,7 @@
 
 <!-- Modal toggle edit vehicle -->
 <button hidden id="edit-vehicle-button" data-modal-target="edit-vehicle-modal" data-modal-toggle="edit-vehicle-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-    Toggle edit vehicle modal
+    EDITAR VEHÍCULO
 </button>
 
 <!-- Main modal edit vehicle -->
@@ -208,13 +208,13 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="typeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
                     <!-- <input [(ngModel)]="vehcileToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
-                    <select [(ngModel)]="vehicleToEdit.type" name="typeEdit" id="typeEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <select [(ngModel)]="vehicleToEdit.type_vehicle" name="typeEdit" id="typeEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
                         <option *ngFor="let t of types">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
-                    <input disabled [(ngModel)]="vehicleToEdit.plate" type="text" name="plateEdit" id="plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
+                    <label for="license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
+                    <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
@@ -224,22 +224,22 @@
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <label for="category_entryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
                     <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="vehicleToEdit.category" name="categoryEdit" id="categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <select [(ngModel)]="vehicleToEdit.category_entry" name="category_entryEdit" id="category_entryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="statusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <label for="status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
                     <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="vehicleToEdit.status" name="statusEdit" id="statusEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <select [(ngModel)]="vehicleToEdit.status_validated" name="status_validatedEdit" id="status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="vehicleToEdit.reason" type="text" name="reasonEdit" id="reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Motivo..." required />
+                    <label for="status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="vehicleToEdit.status_reason" type="text" name="status_reasonEdit" id="status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->

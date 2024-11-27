@@ -3,14 +3,30 @@
 header("Access-Control-Allow-Origin: *");
 //header("Access-Control-Allow-Origin: http://192.168.4.250");
 
-$bd = include_once "bdData.php";
-//$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-$sentencia = $bd->prepare("SELECT house_id, block, lot, apartment FROM houses ORDER BY block, lot, apartment");
-//where birth_date like '%?%'
-$sentencia -> execute();
-//[$fecha_cumple]
-//$mascotas = $sentencia->fetchAll(PDO::FETCH_OBJ);
-$houses = $sentencia->fetchAll(PDO::FETCH_OBJ);
-//echo json_encode($mascotas);
-echo json_encode($houses);
+$bd = include_once "vc_db.php";
+
+try {
+    $sentencia = $bd->prepare("SELECT 
+        h.house_id,
+        h.block_house,
+        h.lot,
+        h.apartment,
+        h.status_system
+    FROM houses AS h 
+    ORDER BY h.block_house, h.lot, h.apartment");
+    
+    $sentencia->execute();
+    $houses = $sentencia->fetchAll(PDO::FETCH_OBJ);
+    
+    // Enviar los datos como JSON
+    echo json_encode($houses);
+} catch (PDOException $e) {
+    // Manejo de errores: devolver un mensaje de error en formato JSON
+    http_response_code(500); // Código de error interno del servidor
+    echo json_encode([
+        "error" => true,
+        "message" => "Error al obtener los datos de la tabla houses.",
+        "details" => $e->getMessage()
+    ]);
+}
 ?>

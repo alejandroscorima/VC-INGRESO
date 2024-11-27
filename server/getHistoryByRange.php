@@ -1,65 +1,121 @@
-
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Origin: http://192.168.4.250");
+header("Content-Type: application/json; charset=UTF-8");
 
-$fecha_inicial=$_GET['fecha_inicial'];
-$fecha_final=$_GET['fecha_final'];
-$sala=$_GET['sala'];
+// Recibir los parámetros enviados a través de GET
+$fecha_inicial = $_GET['fecha_inicial'];
+$fecha_final = $_GET['fecha_final'];
+$access_point = $_GET['access_point'];
 
-$bd = include_once "bdEntrance.php";
-//$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-//$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
+// Conectar a la base de datos
+$bd = include_once "vc_db.php";
 
-if(true){
-  $sentencia = $bd->prepare("SELECT a.id, a.visitant_id, a.age, a.date_entrance, a.hour_entrance, a.obs, a.visits, a.status, 
-  CASE WHEN a.type = 'PERSONA' THEN b.doc_number WHEN a.type = 'VEHICULO' THEN c.plate ELSE 'DESCONOCIDO' END AS doc_number, 
-  CASE WHEN a.type = 'PERSONA' THEN b.first_name WHEN a.type = 'VEHICULO' THEN c.type ELSE 'DESCONOCIDO' END AS name, 
-  CASE WHEN a.type = 'PERSONA' THEN b.gender WHEN a.type = 'VEHICULO' THEN 'SN' ELSE 'DESCONOCIDO' END AS gender, 
-  a.age,
-  a.type FROM visits_vc5 a LEFT JOIN vc_data.users b ON a.visitant_id=b.user_id AND a.type='PERSONA' LEFT JOIN vc_data.vehicles c ON a.visitant_id=c.vehicle_id AND a.type='VEHICULO' WHERE a.date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY a.id DESC");
+// Validar los parámetros
+if (empty($fecha_inicial) || empty($fecha_final) || empty($access_point)) {
+    echo json_encode(['error' => 'Faltan parámetros requeridos.']);
+    exit();
 }
 
-if($sala=='PALACIO'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_palacio WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='VENEZUELA'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_venezuela WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='HUANDOY'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_huandoy WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='KANTA'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_kanta WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='MEGA'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_mega WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='PRO'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_pro WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='HUARAL'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_huaral WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='SAN JUAN I'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_sji WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='SAN JUAN II'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_sjii WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='SAN JUAN III'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_sjiii WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-if($sala=='OLYMPO'){
-  $sentencia = $bd->prepare("SELECT doc_number, name, age, gender, date_entrance, date_entrance, hour_entrance, obs, visits FROM visits_olympo WHERE date_entrance BETWEEN '".$fecha_inicial."' AND '".$fecha_final."' ORDER BY id desc");
-}
-//where birth_date like '%?%'
-$sentencia -> execute();
-//[$fecha_cumple]
-//$mascotas = $sentencia->fetchAll(PDO::FETCH_OBJ);
-$clients = $sentencia->fetchAll(PDO::FETCH_OBJ);
-//echo json_encode($mascotas);
-echo json_encode($clients);
+// Preparar la consulta SQL
+$sql = "
+SELECT 
+    a.access_log_id AS log_id,
+    a.user_id,
+    a.vehicle_id,
+    a.entry_time AS date_entry,
+    NULL AS date_exit,
+    ap.ap_location AS ap_name,
+    a.status_validated AS obs,
+    CONCAT(o.first_name, ' ', o.paternal_surname) AS operator,
+    CONCAT(h.block_house, '-', h.lot, IFNULL(CONCAT('-', h.apartment), '')) AS house_address,
+    (
+        SELECT COUNT(*)
+        FROM access_logs al_count
+        WHERE 
+            (al_count.user_id = a.user_id OR al_count.vehicle_id = a.vehicle_id)
+            AND al_count.entry_time BETWEEN :fecha_inicial AND :fecha_final
+    ) AS visits,
+    COALESCE(u.doc_number, v.license_plate) AS doc_number,
+    COALESCE(CONCAT(u.first_name, ' ', u.paternal_surname), NULL) AS name,
+    'access_logs' AS log_type,
+    CASE 
+        WHEN a.vehicle_id IS NULL THEN 'PERSONA'
+        ELSE 'VEHÍCULO'
+    END AS type
+FROM 
+    access_logs a
+LEFT JOIN 
+    users u ON a.user_id = u.user_id
+LEFT JOIN 
+    vehicles v ON a.vehicle_id = v.vehicle_id
+LEFT JOIN 
+    access_points ap ON a.ap_id = ap.ap_id
+LEFT JOIN 
+    users o ON a.operario_id = o.user_id
+LEFT JOIN 
+    houses h ON u.house_id = h.house_id OR v.house_id = h.house_id
+WHERE 
+    a.entry_time BETWEEN :fecha_inicial AND :fecha_final
+    AND ap.ap_location = :access_point
 
+UNION ALL
+
+SELECT 
+    t.temp_access_log_id AS log_id,
+    t.temp_visit_id AS user_id,
+    NULL AS vehicle_id,
+    t.temp_entry_time AS date_entry,
+    t.temp_exit_time AS date_exit,
+    ap.ap_location AS ap_name,
+    t.status_validated AS obs,
+    CONCAT(o.first_name, ' ', o.paternal_surname) AS operator,
+    CONCAT(h.block_house, '-', h.lot, IFNULL(CONCAT('-', h.apartment), '')) AS house_address,
+    (
+        SELECT COUNT(*)
+        FROM temporary_access_logs tal_count
+        WHERE 
+            tal_count.temp_visit_id = t.temp_visit_id
+            AND tal_count.temp_entry_time BETWEEN :fecha_inicial AND :fecha_final
+    ) AS visits,
+    COALESCE(tv.temp_visit_doc, tv.temp_visit_plate) AS doc_number,
+    tv.temp_visit_name AS name,
+    'temporary_access_logs' AS log_type,
+    'PERSONA' AS type
+FROM 
+    temporary_access_logs t
+LEFT JOIN 
+    temporary_visits tv ON t.temp_visit_id = tv.temp_visit_id
+LEFT JOIN 
+    access_points ap ON t.ap_id = ap.ap_id
+LEFT JOIN 
+    users o ON t.operario_id = o.user_id
+LEFT JOIN 
+    houses h ON t.house_id = h.house_id
+WHERE 
+    t.temp_entry_time BETWEEN :fecha_inicial AND :fecha_final
+    AND ap.ap_location = :access_point
+
+ORDER BY 
+    date_entry DESC;
+";
+
+try {
+    // Preparar y ejecutar la consulta
+    $sentencia = $bd->prepare($sql);
+
+    // Asignar valores a los parámetros
+    $sentencia->bindParam(':fecha_inicial', $fecha_inicial);
+    $sentencia->bindParam(':fecha_final', $fecha_final);
+    $sentencia->bindParam(':access_point', $access_point);
+
+    // Ejecutar la consulta
+    $sentencia->execute();
+    $results = $sentencia->fetchAll(PDO::FETCH_OBJ);
+
+    // Devolver los resultados como JSON
+    echo json_encode($results);
+} catch (PDOException $e) {
+    // Manejo de errores
+    echo json_encode(['error' => $e->getMessage()]);
+}
 ?>

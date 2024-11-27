@@ -28,8 +28,8 @@ export class ClientesService {
     return this.http.get(`${this.baseUrl}/getHistoryByDate.php?fecha=${fecha}&sala=${sala}`);
   }
 
-  getHistoryByRange(fecha_inicial: string, fecha_final:string, sala: string) {
-    return this.http.get(`${this.baseUrl}/getHistoryByRange.php?fecha_inicial=${fecha_inicial}&fecha_final=${fecha_final}&sala=${sala}`);
+  getHistoryByRange(fecha_inicial: string, fecha_final:string, access_point: string) {
+    return this.http.get(`${this.baseUrl}/getHistoryByRange.php?fecha_inicial=${fecha_inicial}&fecha_final=${fecha_final}&access_point=${access_point}`);
   }
 
   getHistoryByClient(fecha: string, sala: string, doc:string) {

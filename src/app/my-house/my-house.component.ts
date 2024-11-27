@@ -15,18 +15,18 @@ import { Vehicle } from '../vehicle';
 export class MyHouseComponent implements OnInit, AfterViewInit {
 
   users: User[] = [];
-  userToAdd: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
-  userToEdit: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
+  userToAdd: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userToEdit: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
 
   houses: House[] = [];
-  houseToAdd: House = new House('',0,'');
-  houseToEdit: House = new House('',0,'');
+  houseToAdd: House = new House('',0,null,'',0);
+  houseToEdit: House = new House('',0,null,'',0);
 
   myFamily: User[] = [];
   myVehicles: Vehicle[] = [];
 
   user_id;
-  userOnSes: User = new User('','','','','','','','','','','','','','','','','','','','','',0,0,'','','');
+  userOnSes: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
 
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];

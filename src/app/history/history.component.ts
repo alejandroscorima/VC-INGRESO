@@ -15,7 +15,6 @@ import { Sale } from '../sale';
 import { PersonalService } from '../personal.service';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
-
 import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -50,7 +49,7 @@ export class HistoryComponent implements OnInit {
   fechaString_inicial;
   fechaString_final;
 
-  sala;
+  access_point;
 
   day;
   month;
@@ -91,7 +90,7 @@ export class HistoryComponent implements OnInit {
   }
 
   salaChange(){
-    this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.sala).subscribe((vrange:Visit[])=>{
+    this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
       this.visits=vrange;
       this.dataSourceHistory = new MatTableDataSource(this.visits);
       this.dataSourceHistory.paginator = this.paginator.toArray()[0];
@@ -114,7 +113,7 @@ export class HistoryComponent implements OnInit {
           this.day='0'+this.day;
       }
     
-      this.fechaString_inicial=this.year+'-'+this.month+'-'+this.day;
+      this.fechaString_inicial=this.year+'-'+this.month+'-'+this.day+' 00:00:00';
   
       this.year=this.fecha_final.getFullYear();
       this.month=parseInt(this.fecha_final.getMonth())+1;
@@ -128,12 +127,12 @@ export class HistoryComponent implements OnInit {
           this.day='0'+this.day;
       }
     
-      this.fechaString_final=this.year+'-'+this.month+'-'+this.day;
+      this.fechaString_final=this.year+'-'+this.month+'-'+this.day+' 23:59:59';
   
-      if(this.sala!=''){
+      if(this.access_point!=''){
   
   
-        this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.sala).subscribe((vrange:Visit[])=>{
+        this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
           this.visits=vrange;
           this.dataSourceHistory = new MatTableDataSource(this.visits);
           this.dataSourceHistory.paginator = this.paginator.toArray()[0];
@@ -141,7 +140,7 @@ export class HistoryComponent implements OnInit {
         })
       }
       else{
-        this.toastr.warning('Selecciona una sala');
+        this.toastr.warning('Selecciona un Punto de Acceso');
       }
     }
   }
@@ -150,7 +149,7 @@ export class HistoryComponent implements OnInit {
     var dialogRef;
 
     dialogRef=this.dialog.open(DialogHistoryDetail,{
-      data:{data:vis,dataSala:this.sala}
+      data:{data:vis,dataSala:this.access_point}
     })
 
     dialogRef.afterClosed().subscribe((res:Person) => {
@@ -170,7 +169,7 @@ export class HistoryComponent implements OnInit {
 
   ngOnInit() {
     // Punto de acceso predefinido
-    this.sala='GARITA';
+    this.access_point='Garita';
     // Configurar la fecha inicial y final como la fecha actual
     const today = new Date();
     this.fecha_inicial = today;
@@ -179,9 +178,9 @@ export class HistoryComponent implements OnInit {
     this.year = today.getFullYear();
     this.month = (today.getMonth() + 1).toString().padStart(2, '0');
     this.day = today.getDate().toString().padStart(2, '0');
-    this.fechaString_inicial = `${this.year}-${this.month}-${this.day}`;
-    this.fechaString_final = this.fechaString_inicial;
-    // obtener todos los putnos de acceso del sql-+- en la lista desplegable
+    this.fechaString_inicial = `${this.year}-${this.month}-${this.day}`+' 00:00:00';
+    this.fechaString_final = `${this.year}-${this.month}-${this.day}`+' 23:59:59';
+    // obtener todos los putnos de acceso del sql en la lista desplegable
     this.entranceService.getAllAccessPoints().subscribe((campList:AccessPoint[])=>{
       console.log(campList)
       if(campList){
@@ -191,26 +190,24 @@ export class HistoryComponent implements OnInit {
     this.toastr.success('Mostrando historial del día de hoy: '+this.day+'/'+this.month+'/'+this.year);
 
   //Cargar historial al inicio basado en valores predefinidos
-    this.clientesService.getHistoryByRange(this.fechaString_inicial, this.fechaString_final, this.sala).subscribe((vrange: Visit[]) => {
+    this.clientesService.getHistoryByRange(this.fechaString_inicial, this.fechaString_final, this.access_point).subscribe((vrange: Visit[]) => {
       this.visits = vrange;
       console.log(this.visits);
       this.dataSourceHistory = new MatTableDataSource(this.visits);
       this.dataSourceHistory.paginator = this.paginator.toArray()[0];
       this.dataSourceHistory.sort = this.sort.toArray()[0];
-    });
+    },
+    (error) => {
+      console.error('Error al obtener el historial:', error);
+      this.toastr.error('Error al cargar el historial.'); // Muestra un mensaje de error
+    }
+  );
   }
 
   onSubmit() {
   }
 
-
-
 }
-
-
-
-
-
 
 
 @Component({
@@ -254,10 +251,6 @@ export class DialogHistoryDetail implements OnInit {
 
 
 }
-
-
-
-
 
 
 

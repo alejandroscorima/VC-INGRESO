@@ -133,7 +133,7 @@
                         <tbody>
                             <tr *ngFor="let h of houses" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{h.block}}
+                                    {{h.block_house}}
                                 </th>
                                 <td class="px-6 py-4">
                                     {{h.lot}}
@@ -230,7 +230,7 @@
             <div class="p-4 md:p-5 space-y-4">
                 <div>
                     <label for="blockNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Manzana</label>
-                    <input [(ngModel)]="houseToAdd.block" type="text" name="blockNew" id="blockNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Ingresa la manzana..." required />
+                    <input [(ngModel)]="houseToAdd.block_house" type="text" name="blockNew" id="blockNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Ingresa la manzana..." required />
                 </div>
                 <div>
                     <label for="lotNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lote</label>
@@ -276,7 +276,7 @@
             <div class="p-4 md:p-5 space-y-4">
                 <div>
                     <label for="blockEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Manzana</label>
-                    <input [(ngModel)]="houseToEdit.block" type="text" name="blockEdit" id="blockEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Ingresa la manzana..." required />
+                    <input [(ngModel)]="houseToEdit.block_house" type="text" name="blockEdit" id="blockEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Ingresa la manzana..." required />
                 </div>
                 <div>
                     <label for="lotEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lote</label>

@@ -1,26 +1,68 @@
-
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Origin: http://192.168.4.250");
+header('Content-Type: application/json');
 
-
-$bd = include_once "bdData.php";
+$bd = include_once "vc_db.php";
 
 $doc_number=$_GET['doc_number'];
 
-$sentencia = $bd->prepare("SELECT a.user_id, a.colab_id, a.type_doc, a.doc_number, a.first_name, a.paternal_surname, a.maternal_surname, a.gender, a.birth_date, a.civil_status, a.profession, a.cel_number, a.email, a.address, a.district, a.province, a.region, a.username, a.entrance_role, a.latitud, a.longitud, a.photo_url, a.house_id, a.status, a.reason, a.category, COALESCE(b.block,'SN') AS block, COALESCE(b.lot,'SN') AS lot, COALESCE(b.apartment,'SN') AS apartment FROM users a LEFT JOIN houses b ON a.house_id=b.house_id WHERE a.doc_number='".$doc_number."'");
+// Validar los parámetros
+if (empty($doc_number)) {
+    echo json_encode(['error' => 'Faltan parámetros requeridos.']);
+    exit();
+}
 
+$sql = "
+SELECT 
+        u.user_id,
+        u.type_doc,
+        u.doc_number,
+        u.first_name,
+        u.paternal_surname,
+        u.maternal_surname,
+        u.gender,
+        u.birth_date,
+        u.cel_number,
+        u.email,
+        u.role_system,
+        u.username_system,
+        u.password_system,
+        u.property_category,
+        u.house_id,
+        u.photo_url,
+        u.status_validated,
+        u.status_reason,
+        u.status_system,
+        u.civil_status,
+        u.profession,
+        u.address_reniec,
+        u.district,
+        u.province,
+        u.region,
+        h.block_house,
+        h.lot,
+        h.apartment
+    FROM users AS u
+    LEFT JOIN houses AS h ON u.house_id = h.house_id
+    WHERE u.doc_number = :doc_number;
+";
 
-//$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-//$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
-//where birth_date like '%?%'
-$sentencia -> execute();
-//[$fecha_cumple]
-//$mascotas = $sentencia->fetchAll(PDO::FETCH_OBJ);
-//$user = $sentencia->fetchAll(PDO::FETCH_OBJ);
-$user = $sentencia->fetchObject();
-//echo json_encode($mascotas);
-echo json_encode($user);
+try {
+    // Preparar y ejecutar la consulta
+    $sentencia = $bd->prepare($sql);
+    $sentencia->bindParam(':doc_number', $doc_number);
+    $sentencia->execute();
 
+    $user = $sentencia->fetchObject();
+    
+    // Verificar si se encontró el usuario
+    if ($user) {
+        unset($user->password_system); // Remover datos sensibles
+        echo json_encode($user);
+    } else {
+        echo json_encode(['error' => 'Usuario no encontrado.']);
+    }
+} catch (PDOException $e) {
+    echo json_encode(['error' => 'Error al consultar la base de datos.', 'details' => $e->getMessage()]);
+}
 ?>

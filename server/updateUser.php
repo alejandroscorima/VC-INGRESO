@@ -1,17 +1,89 @@
-
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: PUT");
-header("Access-Control-Allow-Headers: *");
+// Configuración para errores y CORS
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+
 if ($_SERVER["REQUEST_METHOD"] != "PUT") {
     exit("Solo acepto peticiones PUT");
 }
-$jsonUser = json_decode(file_get_contents("php://input"));
-if (!$jsonUser) {
+
+$jsonUser  = json_decode(file_get_contents("php://input"));
+if (!$jsonUser ) {
     exit("No hay datos");
 }
-$bd = include_once "bdData.php";
-$sentencia = $bd->prepare("UPDATE users SET first_name = ?, paternal_surname = ?, maternal_surname = ?, gender = ?, birth_date = ?, cel_number = ?, username = ?, entrance_role = ?, house_id = ?, category = ?, status = ?, reason = ?, password = ?, photo_url = ? WHERE user_id = ?");
-$resultado = $sentencia->execute([$jsonUser->first_name, $jsonUser->paternal_surname, $jsonUser->maternal_surname, $jsonUser->gender, $jsonUser->birth_date, $jsonUser->cel_number, $jsonUser->username, $jsonUser->entrance_role, $jsonUser->house_id, $jsonUser->category, $jsonUser->status, $jsonUser->reason, $jsonUser->password, $jsonUser->photo_url, $jsonUser->user_id]);
-echo json_encode($resultado);
+
+// Hashear la contraseña antes de guardarla
+$hashedPassword = password_hash($jsonUser->password_system, PASSWORD_DEFAULT);
+
+// Conexión a la base de datos
+$bd = include_once "vc_db.php";
+
+// Preparar la consulta SQL para actualizar el usuario
+$sql = "UPDATE users SET 
+            type_doc = ?, 
+            doc_number = ?, 
+            first_name = ?, 
+            paternal_surname = ?, 
+            maternal_surname = ?, 
+            gender = ?, 
+            birth_date = ?, 
+            cel_number = ?, 
+            email = ?, 
+            role_system = ?, 
+            username_system = ?, 
+            password_system = ?, 
+            property_category = ?, 
+            house_id = ?, 
+            photo_url = ?, 
+            status_validated = ?, 
+            status_reason = ?, 
+            status_system = ?, 
+            civil_status = ?, 
+            profession = ?, 
+            address_reniec = ?, 
+            district = ?, 
+            province = ?, 
+            region = ? 
+        WHERE user_id = ?";
+
+$sentencia = $bd->prepare($sql);
+
+// Ejecutar la consulta con los valores del JSON recibido
+$resultado = $sentencia->execute([
+    $jsonUser->type_doc,
+    $jsonUser->doc_number,
+    $jsonUser->first_name,
+    $jsonUser->paternal_surname,
+    $jsonUser->maternal_surname,
+    $jsonUser->gender,
+    $jsonUser->birth_date,
+    $jsonUser->cel_number,
+    $jsonUser->email,
+    $jsonUser->role_system,
+    $jsonUser->username_system,
+    $hashedPassword,
+    $jsonUser->property_category,
+    $jsonUser->house_id,
+    $jsonUser->photo_url,
+    $jsonUser->status_validated,
+    $jsonUser->status_reason,
+    $jsonUser->status_system,
+    $jsonUser->civil_status,
+    $jsonUser->profession,
+    $jsonUser->address_reniec,
+    $jsonUser->district,
+    $jsonUser->province,
+    $jsonUser->region,
+    $jsonUser->user_id
+]);
+
+// Retornar respuesta en JSON
+if ($resultado) {
+    echo json_encode(["success" => true, "message" => "Usuario actualizado correctamente."]);
+} else {
+    http_response_code(500); // Error interno
+    echo json_encode(["error" => "Error al actualizar el usuario."]);
+}

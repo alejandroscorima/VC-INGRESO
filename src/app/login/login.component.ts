@@ -44,8 +44,7 @@ export class LoginComponent implements OnInit {
   isloading=false;
 
   //user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
-  user: User = new User(null,null,null,null,null,null,null,null,null,
-    null,null,null,null,null,null,null,null,null,null,null,null,null,null,'','','');
+  user: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
 
 
   listaReq: Item[]= [];
@@ -108,7 +107,7 @@ export class LoginComponent implements OnInit {
           this.isloading = false; // Deshabilitar el estado de carga
           if(res){
             this.user=res;
-            if(this.user.entrance_role!='NINGUNO'){
+            if(this.user.role_system!='NINGUNO'){
               this.cookiesService.setToken('user_id',String(this.user.user_id));
               location.reload();
             }
