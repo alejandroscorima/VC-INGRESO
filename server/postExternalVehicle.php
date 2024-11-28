@@ -1,11 +1,6 @@
 
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
-// header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Methods: PUT");
-// header("Access-Control-Allow-Methods: POST");
-// header("Access-Control-Allow-Headers: *");
-
+// Configuración de CORS y métodos permitidos
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
@@ -14,15 +9,36 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
     exit("Solo acepto peticiones POST");
 }
 
-
-
-$jsonVehicle = json_decode(file_get_contents("php://input"));
-if (!$jsonVehicle) {
-    exit("No hay datos");
+// Decodificar el JSON recibido
+$jsonExternalVehicle = json_decode(file_get_contents("php://input"));
+if (!$jsonExternalVehicle) {
+    http_response_code(400); // Solicitud incorrecta
+    exit(json_encode(["success" => false, "error" => "No se encontraron datos en la solicitud"]));
 }
+
 $bd = include_once "vc_db.php";
-$sentencia = $bd->prepare("INSERT INTO vehicles (license_plate, type_vehicle, house_id,owner_id, status_validated, status_reason, status_system, category_entry) VALUES (?,?,?,?,?,?,?)");
-$resultado = $sentencia->execute([$jsonVehicle->license_plate, $jsonVehicle->type_vehicle, $jsonVehicle->house_id, $jsonVehicle->owner_id, $jsonVehicle->status_validated, $jsonVehicle->status_reason, $jsonVehicle->status_system, $jsonVehicle->category_entry]);
-echo json_encode([
-    "resultado" => $resultado,
-]);
+
+try {
+    // Preparar la consulta SQL
+    $sentencia = $bd->prepare("INSERT INTO temporary_visits (temp_visit_name, temp_visit_doc, temp_visit_plate, temp_visit_cel, temp_visit_type, status_validated, status_reason, status_system) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+    // Ejecutar la consulta
+    $resultado = $sentencia->execute([
+        $jsonExternalVehicle->temp_visit_name,
+        $jsonExternalVehicle->temp_visit_doc,
+        $jsonExternalVehicle->temp_visit_plate,
+        $jsonExternalVehicle->temp_visit_cel,
+        $jsonExternalVehicle->temp_visit_type,
+        $jsonExternalVehicle->status_validated,
+        $jsonExternalVehicle->status_reason,
+        $jsonExternalVehicle->status_system,
+        
+    ]);
+    if ($resultado) {
+        echo json_encode(["success" => true, "message" => "Vehículo externo creado correctamente"]);
+    } else {
+    echo json_encode(["success" => false, "message" => "Error al guardar vehículo externo"]);
+}
+} catch (PDOException $e) {
+    echo json_encode(["success" => false, "error" => "Error de base de datos: " . $e->getMessage()]);
+}

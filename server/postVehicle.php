@@ -13,14 +13,14 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
 $jsonVehicle = json_decode(file_get_contents("php://input"));
 if (!$jsonVehicle) {
     http_response_code(400); // Solicitud incorrecta
-    exit(json_encode(["success" => false, "message" => "No se encontraron datos en la solicitud"]));
+    exit(json_encode(["success" => false, "error" => "No se encontraron datos en la solicitud"]));
 }
 
 $bd = include_once "vc_db.php";
 
 try {
     // Preparar la consulta SQL
-    $sentencia = $bd->prepare("INSERT INTO vehicles (license_plate, type_vehicle, house_id, status_validated, status_reason, status_system, category_entry) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $sentencia = $bd->prepare("INSERT INTO vehicles (license_plate, type_vehicle, house_id, status_validated, status_reason, status_system, category_entry) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
     // Ejecutar la consulta
     $resultado = $sentencia->execute([
@@ -38,5 +38,5 @@ try {
     echo json_encode(["success" => false, "message" => "Error al guardar vehículo"]);
 }
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "message" => "Error de base de datos: " . $e->getMessage()]);
+    echo json_encode(["success" => false, "error" => "Error de base de datos: " . $e->getMessage()]);
 }

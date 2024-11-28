@@ -14,17 +14,17 @@ import { ToastrService } from 'ngx-toastr';
 export class VehiclesComponent implements OnInit, AfterViewInit{
 
   vehicles: Vehicle[] = [];
-  vehicleToAdd: Vehicle = new Vehicle('',0,'','','','','');
-  vehicleToEdit: Vehicle = new Vehicle('',0,'','','','','');
+  vehicleToAdd: Vehicle = new Vehicle('','',0,'','','','');
+  vehicleToEdit: Vehicle = new Vehicle('','',0,'','','','');
 
-  types: string[] = ['MOTOCICLETA','MOTO','AUTOMOVIL','CAMIONETA','MINIVAN'];
+  types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
   categories: string[] = ['PROPIETARIO','INVITADO',];
   status: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   houses: House[] = [];
 
   externalVehicles: ExternalVehicle[] = [];
-  externalVehicleToAdd: ExternalVehicle = new ExternalVehicle('','','','','','','','',);
-  externalVehicleToEdit: ExternalVehicle = new ExternalVehicle('','','','','','','','',);
+  externalVehicleToAdd: ExternalVehicle = new ExternalVehicle('','','','','','','','');
+  externalVehicleToEdit: ExternalVehicle = new ExternalVehicle('','','','','','','','');
   temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
 
   constructor(
@@ -67,11 +67,58 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }
 
   saveEditVehicle(){
-    this.entranceService.updateVehicle(this.vehicleToEdit).subscribe(resUpdateVehicle=>{
-      if (resUpdateVehicle) this.refreshData();
+    if(!this.vehicleToEdit.license_plate || !this.vehicleToEdit.house_id||!this.vehicleToEdit.type_vehicle){
+      this.toastr.error('Los campos obligatorios no pueden estar vacíos');
+      this.clean();
+      return;
+    }
+    this.entranceService.updateVehicle(this.vehicleToEdit).subscribe({
+      next:(resUpdate:any)=>{
+        if(resUpdate.success){
+          this.toastr.success(resUpdate.message);
+          this.handleSuccess();
+        }
+        else{
+          console.log(resUpdate.message);
+          this.toastr.error('Error al actualizar el vehículo');
+        }
+      },
+      error:(err)=>{
+        console.log(err);
+        this.toastr.error('Error al actualizar el vehículo')
+      },
     })
   }
 
+  saveNewVehicle(): void {
+    //CAMPOS OBLIGATORIOS
+    if(!this.vehicleToAdd.license_plate || !this.vehicleToAdd.house_id||!this.vehicleToAdd.type_vehicle){
+      this.toastr.error('Los campos obligatorios no pueden estar vacíos');
+      this.clean();
+      return;
+    }
+    //HASTA AQUÍ
+    this.vehicleToAdd.status_system='ACTIVO'
+    if (!this.vehicleToAdd.status_validated){
+      this.vehicleToAdd.status_validated='PERMITIDO'
+    }
+    this.entranceService.addVehicle(this.vehicleToAdd).subscribe({
+      next:(res:any)=>{
+        if(res.success){
+          this.toastr.success(res.message);
+          this.handleSuccess();
+        } else {
+          console.log(res.message);
+          this.toastr.error('Error al guardar el vehículo');
+        }
+      },
+      error:(err)=>{
+        console.error(err);
+        this.toastr.error('Error al guardar el vehículo')
+      }
+    });
+  }
+  
   //VEHÍCULOS EXTERNOS
   newExternalVehicle(){
     document.getElementById('new-external-vehicle-button')?.click();
@@ -83,12 +130,65 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }
 
   saveEditExternalVehicle(){
-    this.entranceService.updateExternalVehicle(this.externalVehicleToEdit).subscribe(resUpdateExternalVehicle=>{
-      if (resUpdateExternalVehicle) this.refreshData();
-    })
+    // Validar campos obligatorios
+    if (!this.externalVehicleToEdit.temp_visit_plate || !this.externalVehicleToEdit.temp_visit_doc||!this.externalVehicleToEdit.temp_visit_cel) {
+      this.toastr.error('Los campos obligatorios no pueden estar vacíos');
+      this.clean();
+      return;
+    }
+  
+    this.entranceService.updateExternalVehicle(this.externalVehicleToEdit).subscribe({
+      next: (resUpdateExternalVehicle: any) => {
+        if (resUpdateExternalVehicle.success) {
+          this.toastr.success(resUpdateExternalVehicle.message);
+          this.handleSuccess();
+        } else {
+          console.log(resUpdateExternalVehicle.message);
+          this.toastr.error('Error al actualizar el vehículo externo');
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastr.error('Error al actualizar el vehículo externo');
+      },
+    });
   }
+  
+  saveNewExternalVehicle(): void {
+    // Validar campos obligatorios
+    if (!this.externalVehicleToAdd.temp_visit_plate || !this.externalVehicleToAdd.temp_visit_doc||!this.externalVehicleToAdd.temp_visit_cel) {
+      this.toastr.error('Los campos obligatorios no pueden estar vacíos');
+      this.clean();
+      return;
+    }
+  
+    this.externalVehicleToAdd.status_system = 'ACTIVO';
+  
+    // Asignar un valor predeterminado si no existe
+    if (!this.externalVehicleToAdd.status_validated) {
+      this.externalVehicleToAdd.status_validated = 'PERMITIDO';
+    }
+  
+    this.entranceService.addExternalVehicle(this.externalVehicleToAdd).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.toastr.success(res.message);
+          this.handleSuccess();
+        } else {
+          console.log(res.message);
+          this.toastr.error('Error al guardar el vehículo externo');
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastr.error('Error al guardar el vehículo externo');
+      },
+    });
+  }
+  
 
-  private refreshData(): void {
+  private handleSuccess() {
+    this.clean();
     this.entranceService.getAllVehicles().subscribe((res: any[]) => {
       this.vehicles = res;
     });
@@ -97,23 +197,32 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     });
   }
   
-  saveNewVehicle(): void {
-    this.vehicleToAdd.status_system='ACTIVO'
-    this.entranceService.addVehicle(this.vehicleToAdd).subscribe(res => {
-      this.toastr.success('Usuario guardado correctamente');
-      console.log(this.vehicleToAdd);
-      console.log(res);
-      if (res) this.refreshData();
-    });
+  public clean(){
+    this.vehicleToAdd = new Vehicle('','',0,'','','','');
+    this.vehicleToEdit = new Vehicle('','',0,'','','','');
+    this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
+    this.externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
   }
+ 
+  /* SIWTCH ON/OFF
+  toggleStatus(vehicle: any): void {
+    // Alternar el estado entre 'ACTIVO' e 'INACTIVO'
+    vehicle.status_system = vehicle.status_system === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
   
-  saveNewExternalVehicle(): void {
-    this.externalVehicleToAdd.status_system='ACTIVO'
-    this.entranceService.addExternalVehicle(this.externalVehicleToAdd).subscribe(res => {
-      this.toastr.success('Usuario guardado correctamente');
-      console.log(this.vehicleToAdd);
-      console.log(res);
-      if (res) this.refreshData();
+    // Realizar una actualización en el servidor
+    this.entranceService.updateVehicle(vehicle).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.toastr.success(`Estado actualizado a ${vehicle.status_system}`);
+        } else {
+          this.toastr.error('Error al actualizar el estado');
+        }
+      },
+      error: (err) => {
+        console.error('Error al actualizar el estado:', err);
+        this.toastr.error('Error al actualizar el estado');
+      }
     });
-  }
+  }*/
+
 }

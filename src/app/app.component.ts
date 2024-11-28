@@ -75,9 +75,7 @@ export class AppComponent implements OnInit {
         if(this.cookies.checkToken('user_id')){
           this.user.user_id=parseInt(this.cookies.getToken('user_id'));
           this.logged=true;
-          if(window.innerWidth<500){
-            this.sidenav.close();
-          }
+          this.onMenuItemClick();
           this.usersService.getUserById(this.user.user_id).subscribe((u:User)=>{
             this.user=u;
 
@@ -102,7 +100,12 @@ export class AppComponent implements OnInit {
       this.toastr.error('Error al obtener la licencia: '+error);
       this.router.navigateByUrl('/login');
     });
+  }
 
-
+  onMenuItemClick() {
+    // Solo cerramos el sidenav si el ancho de la ventana es menor a 500px
+    if (window.innerWidth < 500) {
+      this.sidenav.close();
+    }
   }
 }

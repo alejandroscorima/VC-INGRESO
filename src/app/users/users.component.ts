@@ -115,6 +115,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
   saveNewUser() {
     if (!this.validateUser(this.userToAdd)) {
       this.toastr.error("Por favor, completa todos los campos requeridos correctamente.");
+      this.clean();
       return;
     }
     // Configurar valores predeterminados

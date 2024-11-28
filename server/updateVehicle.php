@@ -9,9 +9,34 @@ if ($_SERVER["REQUEST_METHOD"] != "PUT") {
 }
 $jsonVehicle = json_decode(file_get_contents("php://input"));
 if (!$jsonVehicle) {
-    exit("No hay datos");
+    exit(json_encode(["error"=>"No hay datos"]));
 }
+if (
+    empty($jsonVehicle->vehicle_id) || 
+    empty($jsonVehicle->house_id) || 
+    empty($jsonVehicle->status_system)
+) {
+    exit(json_encode(["error" => "Datos incompletos"]));
+}
+
 $bd = include_once "vc_db.php";
-$sentencia = $bd->prepare("UPDATE vehicles SET type = ?, house_id = ?, status = ?, reason = ?, category = ? WHERE vehicle_id = ?");
-$resultado = $sentencia->execute([$jsonVehicle->type, $jsonVehicle->house_id, $jsonVehicle->status, $jsonVehicle->reason, $jsonVehicle->category, $jsonVehicle->vehicle_id]);
-echo json_encode($resultado);
+try {
+    $sentencia = $bd->prepare("UPDATE vehicles SET type_vehicle = ?, house_id = ?, status_validated = ?, status_reason = ?, status_system = ?, category_entry = ? WHERE vehicle_id = ?");
+    $resultado = $sentencia->execute([
+        $jsonVehicle->type_vehicle, 
+        $jsonVehicle->house_id, 
+        $jsonVehicle->status_validated, 
+        $jsonVehicle->status_reason, 
+        $jsonVehicle->status_system,
+        $jsonVehicle->category_entry, 
+        $jsonVehicle->vehicle_id
+    ]);
+    if ($resultado) {
+        echo json_encode(["success" => true, "message" => "Vehículo actualizado correctamente"]);
+    } else {
+        echo json_encode(["success" => false, "message" => "No se pudo actualizar vehículo"]);
+    }
+
+} catch (PDOException $e) {
+    echo json_encode(["success" => false, "error" => "Error de base de datos: " . $e->getMessage()]);
+}
