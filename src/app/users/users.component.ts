@@ -5,7 +5,6 @@ import { initFlowbite } from 'flowbite';
 import { House } from '../house';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
-import { error } from 'console';
 
 @Component({
   selector: 'app-users',
@@ -33,9 +32,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
   ){}
 
   ngOnInit(){
-    this.usersService.getAllUsers().subscribe((res:any[])=>{
-      this.users=res;
-    })
+    this.usersService.getAllUsers().subscribe(
+      (res:any[])=>{
+        this.users=res;
+    },)
     this.entranceService.getAllHouses().subscribe((resHouses:any[])=>{
       if(resHouses){
         this.houses=resHouses;
@@ -113,6 +113,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   saveNewUser() {
+    if (!this.validateUser(this.userToAdd)) {
+      this.toastr.error("Por favor, completa todos los campos requeridos correctamente.");
+      return;
+    }
     // Configurar valores predeterminados
     this.userToAdd.password_system = this.userToAdd.doc_number;
     if(this.userToAdd.gender=='MASCULINO'){
@@ -145,22 +149,49 @@ export class UsersComponent implements OnInit, AfterViewInit{
       if (this.userToAdd.user_id && this.userToAdd.user_id !== 0) {
         // Actualizar usuario existente
         console.log('User new para update:', this.userToAdd);
-        this.usersService.updateUser(this.userToAdd).subscribe((resUpdateUser) => {
-          if (resUpdateUser) {
-            this.handleSuccess();
+        this.usersService.updateUser(this.userToAdd).subscribe({
+          next: (resUpdateUser) =>{
+            if (resUpdateUser) {
+              this.handleSuccess();
+            }
+          },
+          error: (error) =>{
+            this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
+            console.error(error);
+          },
+          complete: () => {
+            console.info('Proceso de actualización de usuario completado.');
           }
-        });
-      } else {
+        })
+      }
+      else {
         // Agregar nuevo usuario
-        this.usersService.addUser(this.userToAdd).subscribe((resAddUser) => {
-          if (resAddUser) {
-            this.handleSuccess();
+        this.usersService.addUser(this.userToAdd).subscribe({
+          next: (resAddUser) => {
+            if (resAddUser) {
+              this.handleSuccess();
+            }
+          },
+          error: (error) => {
+            this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
+            console.error(error);
+          },
+          complete: () => {
+            console.info('Proceso de adición de usuario completado.');
           }
         });
       }
     });
   }
   
+  private validateUser(user: User): boolean {
+    if (!user.doc_number || user.doc_number.trim().length < 8) return false;
+    if (!user.first_name) return false;
+    // Agrega más validaciones según sea necesario.
+    return true;
+  }
+
+
   // Manejar éxito en la creación o actualización
   private handleSuccess() {
     this.clean();

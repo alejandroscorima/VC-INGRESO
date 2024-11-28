@@ -1,10 +1,5 @@
 
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
-// header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Methods: PUT");
-// header("Access-Control-Allow-Methods: POST");
-// header("Access-Control-Allow-Headers: *");
 
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
@@ -14,15 +9,32 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
     exit("Solo acepto peticiones POST");
 }
 
-
-
 $jsonHouse = json_decode(file_get_contents("php://input"));
 if (!$jsonHouse) {
-    exit("No hay datos");
+    exit(json_encode(["error" => "No hay datos"]));
 }
-$bd = include_once "bdData.php";
-$sentencia = $bd->prepare("insert into houses(block, lot, apartment) values (?,?,?)");
-$resultado = $sentencia->execute([$jsonHouse->block, $jsonHouse->lot, $jsonHouse->apartment]);
-echo json_encode([
-    "resultado" => $resultado,
-]);
+
+if (
+    empty($jsonHouse->block_house) || 
+    !isset($jsonHouse->lot) ||  
+    empty($jsonHouse->status_system)
+) {
+    exit(json_encode(["error" => "Datos incompletos"]));
+}
+
+$bd = include_once "vc_db.php";
+try {
+    $sentencia = $bd->prepare("insert into houses(block_house, lot, apartment, status_system) values (?,?,?,?)");
+    $resultado = $sentencia->execute([
+    $jsonHouse->block_house, 
+    $jsonHouse->lot, 
+    $jsonHouse->apartment ?: null, 
+    $jsonHouse->status_system]);
+    if ($resultado) {
+        echo json_encode(["success" => true, "message" => "Casa creada correctamente"]);
+    } else {
+    echo json_encode(["success" => false, "message" => "Error al guardar la casa"]);
+}
+} catch (PDOException $e) {
+    echo json_encode(["success" => false, "message" => "Error de base de datos: " . $e->getMessage()]);
+}

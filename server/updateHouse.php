@@ -9,9 +9,32 @@ if ($_SERVER["REQUEST_METHOD"] != "PUT") {
 }
 $jsonHouse = json_decode(file_get_contents("php://input"));
 if (!$jsonHouse) {
-    exit("No hay datos");
+    exit(json_encode(["error"=>"No hay datos"]));
 }
-$bd = include_once "bdData.php";
-$sentencia = $bd->prepare("UPDATE houses SET block = ?, lot = ?, apartment = ? WHERE house_id = ?");
-$resultado = $sentencia->execute([$jsonHouse->block, $jsonHouse->lot, $jsonHouse->apartment, $jsonHouse->house_id]);
-echo json_encode($resultado);
+if (
+    empty($jsonHouse->block_house) || 
+    !isset($jsonHouse->lot) || 
+    empty($jsonHouse->status_system)
+) {
+    exit(json_encode(["error" => "Datos incompletos"]));
+}
+
+$bd = include_once "vc_db.php";
+try {
+    $sentencia = $bd->prepare("UPDATE houses SET block_house = ?, lot = ?, apartment = ?, status_system = ? WHERE house_id = ?");
+    $resultado = $sentencia->execute([
+        $jsonHouse->block_house, 
+        $jsonHouse->lot, 
+        $jsonHouse->apartment ?: null, 
+        $jsonHouse->status_system, 
+        $jsonHouse->house_id
+    ]);
+    
+    if ($resultado) {
+        echo json_encode(["success" => true, "message" => "Casa actualizada correctamente"]);
+    } else {
+        echo json_encode(["success" => false, "message" => "No se pudo actualizar la casa"]);
+    }
+} catch (PDOException $e) {
+    echo json_encode(["success" => false, "message" => "Error de base de datos: " . $e->getMessage()]);
+}
