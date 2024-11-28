@@ -67,16 +67,11 @@ export class InicioComponent implements OnInit {
 
 
 
-
-  //salas: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','MEGA','PRO','HUARAL','SAN JUAN I','SAN JUAN II','SAN JUAN III','OLYMPO'];
   actualUser:User;
-  //col:Collaborator;
-  //camp:Campus;
 
 
   accessPoints: AccessPoint[]=[];
-  //salasVision: string[]=['MEGA','PRO','HUARAL'];
-  //salasZoom: string[]=['PALACIO','VENEZUELA','HUANDOY','KANTA','OLYMPO'];
+
   
 
 

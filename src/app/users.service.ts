@@ -27,20 +27,17 @@ export class UsersService {
 
   //Commit change getUserNew
 
+  //login
   getUser(username, password) {
-    return this.http.get(`${this.baseUrl}/getUserNew.php?username=${username}&password=${password}`);
+    return this.http.get(`${this.baseUrl}/getUser.php?username=${username}&password=${password}`);
   }
 
-   loginUrl:string ='http://52.5.47.64/logistica';
-
-  getUserLogin(doc_number:string,username:string, password:string) {
-    return this.http.get(`${this.loginUrl}/getUser.php?doc_number=${doc_number}&username=${username}&password=${password}`);
-  }
-
+  //myhouse
   getUserById(user_id) {
-    return this.http.get(`${this.baseUrl}/getUserByIdNew.php?user_id=${user_id}`);
+    return this.http.get(`${this.baseUrl}/getUserById.php?user_id=${user_id}`);
   }
 
+  //users
   getUserByDocNumber(doc_number: string) {
     return this.http.get(`${this.baseUrl}/getUserByDocNumber.php?doc_number=${doc_number}`);
   }

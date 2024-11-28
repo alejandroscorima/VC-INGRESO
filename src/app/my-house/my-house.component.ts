@@ -30,8 +30,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];
-  roles: string[] = ['USUARIO','ADMINISTRADOR'];
-  status: string[] = ['PERMITIDO','DENEGADO'];
+  roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO'];
+  status: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','INVITADO'];
 
   constructor(
@@ -44,6 +44,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
     this.user_id=this.cookiesService.getToken('user_id');
     this.usersService.getUserById(this.user_id).subscribe((resUser:User)=>{
+      console.log(resUser);
       if(resUser){
         this.userOnSes=resUser;
         this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe((resMyFamily:User[])=>{
