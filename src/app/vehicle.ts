@@ -3,7 +3,6 @@ export class Vehicle {
   constructor(
     public license_plate: string,
     public house_id: number,
-    public owner_id:number,
     public type_vehicle: string,
     public status_validated: string,
     public status_reason: string,

@@ -9,23 +9,19 @@ try {
     
     // Preparar la consulta SQL
     $sentencia = $bd->prepare("SELECT 
-        v.vehicle_id,
-        v.license_plate,
-        v.type_vehicle,
-        v.house_id,
-        v.status_validated,
-        v.status_reason,
-        v.status_system,
-        v.category_entry,
-        h.block_house,
-        h.lot,
-        h.apartment
+        tv.temp_visit_id,
+        tv.temp_visit_name,
+        tv.temp_visit_doc,
+        tv.temp_visit_plate,
+        tv.temp_visit_cel,
+        tv.temp_visit_type,
+        tv.status_validated,
+        tv.status_reason,
+        tv.status_system
     FROM 
-        vehicles v
-    JOIN 
-        houses h ON v.house_id = h.house_id
+        temporary_visits tv
     ORDER BY 
-        h.block_house ASC;
+        tv.temp_visit_id DESC;
     ");
     
     // Ejecutar la consulta

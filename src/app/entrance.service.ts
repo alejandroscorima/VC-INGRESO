@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { House } from './house';
 import { Vehicle } from './vehicle';
+import { ExternalVehicle } from './externalVehicle';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +68,17 @@ export class EntranceService {
 
   updateVehicle(vehicle: Vehicle) {
     return this.http.put(`${this.baseUrl}/updateVehicle.php`, vehicle);
+  }
+
+  getAllExternalVehicles() {
+    return this.http.get(`${this.baseUrl}/getAllExternalVehicles.php`);
+  }
+  addExternalVehicle(externalVehicle: ExternalVehicle) {
+    return this.http.post(`${this.baseUrl}/postExternalVehicle.php`, externalVehicle);
+  }
+
+  updateExternalVehicle(externalVehicle: ExternalVehicle) {
+    return this.http.put(`${this.baseUrl}/updateExternalVehicle.php`, externalVehicle);
   }
 
   getAllAreas() {
