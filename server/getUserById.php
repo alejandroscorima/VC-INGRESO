@@ -7,7 +7,7 @@ header("Content-Type: application/json");
 $bd = include_once "vc_db.php";
 
 // Validación y sanitización del parámetro 'user_id'
-if (!isset($_GET['user_id']) || !is_numeric($_GET['user_id'])) {
+if (!isset($_GET['user_id'])) {
     echo json_encode([
         "error" => true,
         "message" => "Invalid or missing user_id"
@@ -57,7 +57,7 @@ try {
     $sentencia->execute();
     
     // Obtener los resultados como un arreglo de objetos
-    $users = $sentencia->fetchAll(PDO::FETCH_OBJ);
+    $users = $sentencia->fetchObject();
     
     // Devolver los resultados en formato JSON
     echo json_encode($users);

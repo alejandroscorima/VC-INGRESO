@@ -41,21 +41,21 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   ){}
 
   ngOnInit(): void {
-
-    this.user_id=this.cookiesService.getToken('user_id');
-    this.usersService.getUserById(this.user_id).subscribe((resUser:User)=>{
-      console.log(resUser);
-      if(resUser){
-        this.userOnSes=resUser;
-        this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe((resMyFamily:User[])=>{
-          this.myFamily=resMyFamily;
-        })
-        this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe((resMyVehicles:Vehicle[])=>{
-          this.myVehicles=resMyVehicles;
-        })
+    this.usersService.user$.subscribe((resUser) => {
+      if (resUser) {
+        this.userOnSes = resUser;
+        console.log(this.userOnSes);
+  
+        // Usa los datos del usuario para cargar otros recursos
+        this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe((resMyFamily: User[]) => {
+          this.myFamily = resMyFamily;
+        });
+  
+        this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe((resMyVehicles: Vehicle[]) => {
+          this.myVehicles = resMyVehicles;
+        });
       }
-    })
-    
+    });
   }
 
   ngAfterViewInit(): void {

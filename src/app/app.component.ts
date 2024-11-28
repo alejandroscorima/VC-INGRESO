@@ -55,51 +55,37 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-
     initFlowbite();
-
-    this.usersService.getPaymentByClientId(1).subscribe((resPay:Payment)=>{
-      console.log(resPay);
-      if(resPay.error){
-        this.cookies.deleteToken("user_id");
-        this.cookies.deleteToken("user_role");
-        this.cookies.deleteToken('sala');
-        this.cookies.deleteToken('onSession');
-        console.error('Error al obtener el pago:', resPay.error);
-        this.toastr.error('Error al obtener la licencia: '+resPay.error);
-        this.router.navigateByUrl('/login');
-        console.log('No cumple licencia en APP MODULE 1');
-
-      }
-      else{
-        if(this.cookies.checkToken('user_id')){
-          this.user.user_id=parseInt(this.cookies.getToken('user_id'));
-          this.logged=true;
-          this.onMenuItemClick();
-          this.usersService.getUserById(this.user.user_id).subscribe((u:User)=>{
-            this.user=u;
-
-    
+    this.usersService.getPaymentByClientId(1).subscribe((resPay: Payment) => {
+      if (resPay.error) {
+        this.handleLicenseError(resPay.error);
+      } else {
+        if (this.cookies.checkToken('user_id')) {
+          this.user.user_id = parseInt(this.cookies.getToken('user_id'));
+          this.logged = true;
+  
+          // Obtén el usuario y actualiza el estado global
+          this.usersService.getUserById(this.user.user_id).subscribe((u: User) => {
+            this.user = u;
+            this.usersService.setUsr(u); // Actualiza el estado en el servicio
           });
-        }
-        else{
+        } else {
           this.router.navigateByUrl('/login');
-    
         }
       }
-    },
-    (error) => {
-    
-      this.cookies.deleteToken("user_id");
-      this.cookies.deleteToken("user_role");
-      this.cookies.deleteToken('sala');
-      this.cookies.deleteToken('onSession');
-      console.error('Error al obtener el pago:', error);
-
-      // Maneja el error aquí según tus necesidades
-      this.toastr.error('Error al obtener la licencia: '+error);
-      this.router.navigateByUrl('/login');
+    }, (error) => {
+      this.handleLicenseError(error);
     });
+  }
+
+  private handleLicenseError(error: any): void {
+    this.cookies.deleteToken("user_id");
+    this.cookies.deleteToken("role_system");
+    this.cookies.deleteToken('sala');
+    this.cookies.deleteToken('onSession');
+    console.error('Error al obtener la licencia:', error);
+    this.toastr.error('Error al obtener la licencia: ' + error);
+    this.router.navigateByUrl('/login');
   }
 
   onMenuItemClick() {

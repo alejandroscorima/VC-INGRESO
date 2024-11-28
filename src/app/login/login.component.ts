@@ -37,8 +37,8 @@ import { SystemClient } from '../systemClient';
 })
 export class LoginComponent implements OnInit {
  
-  username='';
-  password='';
+  username_system='';
+  password_system='';
 
   hide = true;
   isloading=false;
@@ -100,16 +100,18 @@ export class LoginComponent implements OnInit {
       }
       else{
 
-        this.username=this.username.trim();
-        this.password=this.password.trim();
-        this.usersService.getUser(this.username,this.password).subscribe((res:User)=>{
+        this.username_system=this.username_system.trim();
+        this.password_system=this.password_system.trim();
+        this.usersService.getUser(this.username_system,this.password_system).subscribe((res:User)=>{
         console.log(res);
+        console.log('este');
           this.isloading = false; // Deshabilitar el estado de carga
           if(res){
             this.user=res;
             if(this.user.role_system!='NINGUNO'){
               this.cookiesService.setToken('user_id',String(this.user.user_id));
               location.reload();
+              this.toastr.success('Inicio de sesión exitoso')
             }
             else{
               this.toastr.warning('El usuario no tiene permisos');
@@ -118,7 +120,7 @@ export class LoginComponent implements OnInit {
     
           }
           else{
-            if(this.username==''||this.password==''){
+            if(this.username_system==''||this.password_system==''){
               this.toastr.warning('Ingresa un usuario y contraseña');
             }
             else{

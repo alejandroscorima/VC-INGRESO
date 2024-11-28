@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from "./user";
 import { environment } from "../environments/environment";
-import { Observable } from 'rxjs';
+import {  BehaviorSubject, Observable } from 'rxjs';
 import { Item } from './item';
 
 import { CookieService } from 'ngx-cookie-service';
@@ -12,7 +12,12 @@ import { CookieService } from 'ngx-cookie-service';
   providedIn: 'root'
 })
 export class UsersService {
-  baseUrl = environment.baseUrl
+  baseUrl = environment.baseUrl;
+
+  // BehaviorSubject para centralizar el estado del usuario
+  private userSubject = new BehaviorSubject<User | null>(null);
+  user$: Observable<User | null> = this.userSubject.asObservable();
+
   respuesta;
   urlconsulta;
 
@@ -28,13 +33,22 @@ export class UsersService {
   //Commit change getUserNew
 
   //login
-  getUser(username, password) {
-    return this.http.get(`${this.baseUrl}/getUser.php?username=${username}&password=${password}`);
+  getUser(username_system, password_system) {
+    return this.http.get(`${this.baseUrl}/getUser.php?username_system=${username_system}&password_system=${password_system}`);
   }
 
   //myhouse
   getUserById(user_id) {
     return this.http.get(`${this.baseUrl}/getUserById.php?user_id=${user_id}`);
+  }
+  // Establecer el usuario en el estado global
+  setUsr(user: User): void {
+    this.userSubject.next(user);
+  }
+
+  // Obtener el usuario actual del estado global
+  getUsr(): User | null {
+    return this.userSubject.getValue();
   }
 
   //users
