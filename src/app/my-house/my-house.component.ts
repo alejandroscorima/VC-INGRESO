@@ -166,7 +166,6 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   private handleSuccess() {
     this.clean();
-    this.toastr.success('Usuario guardado correctamente');
     this.ngOnInit();
   }
 
@@ -185,7 +184,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-female.png';
     }
     this.userToAdd.status_system = 'ACTIVO';
-  
+    this.userToAdd.house_id = this.userOnSes.house_id;
     // Verificar existencia del usuario en la base de datos
     this.usersService.getUserByDocNumber(this.userToAdd.doc_number).subscribe((resExistentUser: User) => {
       if (resExistentUser) {
@@ -211,6 +210,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         this.usersService.updateUser(this.userToAdd).subscribe({
           next: (resUpdateUser) =>{
             if (resUpdateUser) {
+              this.toastr.success('Usuario guardado correctamente');
               this.handleSuccess();
             }
           },
@@ -251,8 +251,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   saveEditUser(){
+    this.userToEdit.house_id = this.userOnSes.house_id;
     this.usersService.updateUser(this.userToEdit).subscribe(resUpdateUser=>{
       if(resUpdateUser){
+        this.toastr.success('Usuario actualizado correctamente');
         this.handleSuccess();
       }
     })
@@ -278,6 +280,7 @@ saveEditVehicle(){
     next:(resUpdate:any)=>{
       if(resUpdate.success){
         this.toastr.success(resUpdate.message);
+        this.toastr.success('Vehículo actualizado correctamente');
         this.handleSuccess();
       }
       else{
@@ -308,6 +311,7 @@ saveNewVehicle(): void {
     next:(res:any)=>{
       if(res.success){
         this.toastr.success(res.message);
+        this.toastr.success('Vehículo guardado correctamente');
         this.handleSuccess();
       } else {
         console.log(res.message);
@@ -344,6 +348,7 @@ saveNewVehicle(): void {
       next: (resUpdateExternalVehicle: any) => {
         if (resUpdateExternalVehicle.success) {
           this.toastr.success(resUpdateExternalVehicle.message);
+          this.toastr.success('Vehículo externo actualizado correctamente');
           this.handleSuccess();
         } else {
           console.log(resUpdateExternalVehicle.message);
