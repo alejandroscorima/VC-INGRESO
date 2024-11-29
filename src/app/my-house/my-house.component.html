@@ -37,13 +37,13 @@
                                     Nombre
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Estado
-                                </th>
-                                <th scope="col" class="px-6 py-3">
                                     Categoria
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     Número
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Estado
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     Acciones
@@ -60,13 +60,13 @@
                                     {{fm.first_name+' '+fm.paternal_surname+' '+fm.maternal_surname}}
                                 </td>
                                 <td class="px-6 py-4 uppercase">
-                                    {{fm.status_system}}
-                                </td>
-                                <td class="px-6 py-4 uppercase">
                                     {{fm.property_category}}
                                 </td>
                                 <td class="px-6 py-4 uppercase">
                                     {{fm.cel_number}}
+                                </td>
+                                <td class="px-6 py-4 uppercase">
+                                    {{fm.status_system}}
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
                                     <a (click)="editUser(fm)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
@@ -165,6 +165,9 @@
                                     CATEGORIA
                                 </th>
                                 <th scope="col" class="px-6 py-3">
+                                    Estado
+                                </th>
+                                <th scope="col" class="px-6 py-3">
                                     <span class="sr-only">Edit</span>
                                 </th>
                             </tr>
@@ -179,6 +182,9 @@
                                 </td>
                                 <td class="px-6 py-4 uppercase">
                                     {{mf?.property_category}}
+                                </td>
+                                <td class="px-6 py-4 uppercase">
+                                    {{mf?.status_system}}
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
                                     <a (click)="editVisit(mf)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
