@@ -5,7 +5,6 @@ import { User } from "./user";
 import { environment } from "../environments/environment";
 import {  BehaviorSubject, Observable } from 'rxjs';
 import { Item } from './item';
-
 import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
@@ -147,4 +146,9 @@ export class UsersService {
       `${this.baseUrl}/getPaymentByClientId.php?client_id=${client_id}`
     );
   }
+
+
+  //services para reutilizar
+
+  
 }

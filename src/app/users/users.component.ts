@@ -23,7 +23,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
   status: string[] = ['ACTIVO', 'INACTIVO']
   houses: House[] = [];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
-  categories: string[] = ['PROPIETARIO','INVITADO'];
+  categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
 
   constructor(
     private usersService: UsersService,

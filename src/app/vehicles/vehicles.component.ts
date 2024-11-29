@@ -18,7 +18,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   vehicleToEdit: Vehicle = new Vehicle('','',0,'','','','');
 
   types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
-  categories: string[] = ['PROPIETARIO','INVITADO',];
+  categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
   status: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   houses: House[] = [];
 
