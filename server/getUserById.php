@@ -51,16 +51,28 @@ try {
     WHERE u.user_id = :user_id");
 
     // Vincula el parámetro
-    $sentencia->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $sentencia->bindParam(':user_id', $user_id);
 
     // Ejecutar la consulta
     $sentencia->execute();
     
     // Obtener los resultados como un arreglo de objetos
-    $users = $sentencia->fetchObject();
+    $user = $sentencia->fetchObject();
     
-    // Devolver los resultados en formato JSON
-    echo json_encode($users);
+    // Comprobar si se encontraron resultados
+    if ($user) {
+        // Eliminar el campo 'password_system' del objeto antes de devolverlo
+        unset($user->password_system);
+
+        // Devolver los resultados en formato JSON
+        echo json_encode($user);
+    } else {
+        // Si no se encuentran resultados, se devuelve un mensaje de error
+        echo json_encode([
+            "error" => true,
+            "message" => "User not found"
+        ]);
+    }
 
     // Cerrar la sentencia
     $sentencia = null;

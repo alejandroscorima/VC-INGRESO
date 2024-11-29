@@ -1,4 +1,4 @@
-<div *ngIf=true class="p-4 sm:ml-64 dark:bg-gray-900">
+<div class="p-4 sm:ml-64 dark:bg-gray-900">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
         <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
@@ -12,7 +12,7 @@
                     <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="visits-tab" data-tabs-target="#visits" type="button" role="tab" aria-controls="visits" aria-selected="false">Visitas</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="temp-vehicles-tab" data-tabs-target="#temp-vehicles" type="button" role="tab" aria-controls="temp-vehicles" aria-selected="false">Vehiculos temporales</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="external-vehicles-tab" data-tabs-target="#external-vehicles" type="button" role="tab" aria-controls="external-vehicles" aria-selected="false">Vehiculos Externos</button>
                 </li>
 <!--                 <li role="presentation">
                     <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="contacts-tab" data-tabs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="false">Contacts</button>
@@ -47,13 +47,13 @@
                         <tbody>
                             <tr *ngFor="let fm of myFamily" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{fm.doc_number}}
+                                    {{fm?.doc_number}}
                                 </th>
                                 <td class="px-6 py-4">
-                                    {{fm.first_name}}
+                                    {{fm?.first_name}}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{fm.category}}
+                                    {{fm.property_category}}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <a (click)="editHouse(fm)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
@@ -90,13 +90,13 @@
                         <tbody>
                             <tr *ngFor="let vh of myVehicles" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{vh.type}}
+                                    {{vh?.type_vehicle}}
                                 </th>
                                 <td class="px-6 py-4">
-                                    {{vh.plate}}
+                                    {{vh?.license_plate}}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{vh.category}}
+                                    {{vh?.category_entry}}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <a (click)="editHouse(vh)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
@@ -117,10 +117,10 @@
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" class="px-6 py-3">
-                                    TIPO
+                                    DNI
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    DOCUMENTO
+                                    NOMBRE
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     CATEGORIA
@@ -131,42 +131,48 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let h of houses" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <tr *ngFor="let mf of myFamily" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{h.block_house}}
+                                    {{mf?.doc_number}}
                                 </th>
                                 <td class="px-6 py-4">
-                                    {{h.lot}}
+                                    {{mf?.first_name}}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{h.apartment}}
+                                    {{mf?.property_category}}
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <a (click)="editHouse(h)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
+                                    <a (click)="editHouse(mf)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-<!--TEMP-VEHICLES-TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="temp-vehicles" role="tabpanel" aria-labelledby="temp-vehicles-tab">
-                <button type="button" (click)="newHouse()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
+<!--EXTERNAL-VEHICLES-TAB-->
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="external-vehicles" role="tabpanel" aria-labelledby="external-vehicles-tab">
+                <button type="button" (click)="newExternalVehicle()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
-        
+
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" class="px-6 py-3">
-                                    TIPO
+                                    Categoría
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    PLACA
+                                    Placa
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    CATEGORIA
+                                    Responsable
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Celular
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Estado
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     <span class="sr-only">Edit</span>
@@ -174,31 +180,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let vh of myVehicles" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{vh.type}}
+                            <tr *ngFor="let ev of externalVehicles" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 uppercase whitespace-nowrap dark:text-white">
+                                    {{ev.temp_visit_type}}
                                 </th>
-                                <td class="px-6 py-4">
-                                    {{vh.plate}}
+                                <td class="px-6 py-4 uppercase">
+                                    {{ev.temp_visit_plate}}
                                 </td>
-                                <td class="px-6 py-4">
-                                    {{vh.category}}
+                                <td class="px-6 py-4 uppercase">
+                                    {{ev.temp_visit_name}}
                                 </td>
-                                <td class="px-6 py-4 text-right">
-                                    <a (click)="editHouse(vh)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
+                                <td class="px-6 py-4 uppercase">
+                                    {{ev.temp_visit_cel}}
+                                </td>
+                                <td class="px-6 py-4 uppercase">
+                                    {{ev.status_system}}
+                                </td>
+                                <td class="px-6 py-4 text-right uppercase" >
+                                    <!--cambiar editVehicle(ev) por editExternalVehicle(ev)-->
+                                    <a (click)="editExternalVehicle(ev)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-
-
-<!--             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">
-                <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong class="font-medium text-gray-800 dark:text-white">Contacts tab's associated content</strong>. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling.</p>
-            </div> -->
         </div>
-    
     </div>
 </div>
 
@@ -295,3 +302,5 @@
         </div>
     </div>
 </div>
+
+

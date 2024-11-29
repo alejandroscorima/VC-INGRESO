@@ -1,22 +1,73 @@
-
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
+// Permitir solicitudes de cualquier origen (modificar en producción para mayor seguridad)
 header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Origin: http://192.168.4.250");
+header("Content-Type: application/json");
 
-$house_id=$_GET['house_id'];
+// Incluir conexión a la base de datos
+$bd = include_once "vc_db.php";
 
-$bd = include_once "bdData.php";
-//$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-//$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
+// Validación y sanitización del parámetro 'house_id'
+if (!isset($_GET['house_id'])) {
+    echo json_encode([
+        "error" => true,
+        "message" => "Invalid or missing house_id"
+    ]);
+    exit;
+}
 
-  $sentencia = $bd->prepare("SELECT a.vehicle_id, a.plate, a.house_id, a.status, a.type, a.reason, a.category, COALESCE(b.block,'SN') AS block, COALESCE(b.lot,'SN') AS lot, COALESCE(b.apartment,'SN') AS apartment FROM vehicles a LEFT JOIN houses b ON a.house_id = b.house_id WHERE a.house_id=".$house_id." ORDER BY a.type, a.plate");
+$house_id = (int) $_GET['house_id'];
 
-//where birth_date like '%?%'
-$sentencia -> execute();
-//[$fecha_cumple]
-//$mascotas = $sentencia->fetchAll(PDO::FETCH_OBJ);
-$vehicles = $sentencia->fetchAll(PDO::FETCH_OBJ);
-//echo json_encode($mascotas);
-echo json_encode($vehicles);
+try {
+    $sentencia = $bd->prepare("SELECT 
+        v.vehicle_id,
+        v.license_plate,
+        v.type_vehicle,
+        v.house_id,
+        v.status_validated,
+        v.status_reason,
+        v.status_system,
+        v.category_entry,
+        h.block_house,
+        h.lot,
+        h.apartment
+    FROM vehicles AS v
+    LEFT JOIN houses AS h ON v.house_id = h.house_id
+    WHERE v.house_id = :house_id");
+
+    // Vincula el parámetro
+    $sentencia->bindParam(':house_id', $house_id);
+
+    // Ejecutar la consulta
+    $sentencia->execute();
+    
+    // Obtener los resultados como un arreglo de objetos
+    $vehicles = $sentencia->fetchAll(PDO::FETCH_OBJ);
+    
+    // Comprobar si se encontraron resultados
+    if ($vehicles) {
+        // Devolver los resultados en formato JSON
+        echo json_encode($vehicles);
+    } else {
+        // Si no se encuentran resultados, se devuelve un mensaje de error
+        echo json_encode([
+            "error" => true,
+            "message" => "vehicles not found"
+        ]);
+    }
+
+    // Cerrar la sentencia
+    $sentencia = null;
+
+} catch (Exception $e) {
+    // Registrar el error en un archivo de log
+    error_log($e->getMessage(), 3, '/var/log/php_errors.log');
+
+    // Devolver un mensaje genérico
+    echo json_encode([
+        "error" => true,
+        "message" => "An error occurred. Please try again later.",
+        "server_error" => $e->getMessage()
+    ]);
+}
+
 ?>
