@@ -191,7 +191,7 @@
     
         
     
-    <div>
+    <!-- <div>
     
       <div class="overflow-x-scroll" >
       <div class="grid   mb-96 border border-blue-500 rounded-lg
@@ -296,7 +296,76 @@
       </div>   
     
       </div>
+    </div> -->
+  
+    <div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="barChartData"
+                [options]="barChartOptions"
+                [type]="'bar'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="lineChartData"
+                [options]="lineChartOptions"
+                [type]="'line'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="doughnutChartData"
+                [options]="doughnutChartOptions"
+                [type]="'doughnut'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="barChartData2"
+                [options]="barChartOptions2"
+                [type]="'bar'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="radarChartData"
+                [options]="radarChartOptions"
+                [type]="'radar'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="polarAreaChartData"
+                [options]="polarAreaChartOptions"
+                [type]="'polarArea'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="bubbleChartData"
+                [options]="bubbleChartOptions"
+                [type]="'bubble'">
+        </canvas>
+      </div>
+
+      <div style="display: block;">
+        <canvas baseChart
+                [data]="scatterChartData"
+                [options]="scatterChartOptions"
+                [type]="'scatter'">
+        </canvas>
+      </div>
+
     </div>
+
   </div>
 </div>
 

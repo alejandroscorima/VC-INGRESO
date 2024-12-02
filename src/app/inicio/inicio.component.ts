@@ -35,6 +35,178 @@ import { initFlowbite } from 'flowbite';
   styleUrls: ['./inicio.component.css']
 })
 export class InicioComponent implements OnInit {
+
+  barChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May'],
+    datasets: [
+      {
+        data: [65, 59, 80, 81, 56],
+        label: 'Monthly Sales',
+        backgroundColor: '#42A5F5'
+      }
+    ]
+  };
+
+  barChartOptions = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  lineChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'],
+    datasets: [
+      {
+        label: "My First dataset",
+        data: [4, 20, 5, 20, 5, 25, 9, 18],
+        backgroundColor: 'transparent',
+        borderColor: '#0d6efd',
+        lineTension: .4,
+        borderWidth: 1.5,
+      }, {
+        label: "Month",
+        data: [11, 25, 10, 25, 10, 30, 14, 23],
+        backgroundColor: 'transparent',
+        borderColor: '#dc3545',
+        lineTension: .4,
+        borderWidth: 1.5,
+      }, {
+        label: "Month",
+        data: [16, 30, 16, 30, 16, 36, 21, 35],
+        backgroundColor: 'transparent',
+        borderColor: '#f0ad4e',
+        lineTension: .4,
+        borderWidth: 1.5,
+      }
+    ]
+  };
+  
+  lineChartOptions = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  doughnutChartData = {
+    labels: ['Red', 'Blue', 'Yellow'],
+    datasets: [
+      {
+        data: [300, 50, 100],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+      }
+    ]
+  };
+  
+  doughnutChartOptions = {
+    responsive: true,
+    cutoutPercentage: 70, // Controla el tamaño del agujero central
+  };
+
+  barChartData2 = {
+    labels: ['January', 'February', 'March', 'April', 'May'],
+    datasets: [
+      {
+        data: [65, 59, 80, 81, 56],
+        label: 'Monthly Sales',
+        backgroundColor: '#42A5F5'
+      }
+    ]
+  };
+  
+  barChartOptions2 = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  radarChartData = {
+    labels: ['Eating', 'Drinking', 'Sleeping', 'Designing', 'Coding', 'Cycling', 'Running'],
+    datasets: [
+      {
+        label: 'Week 1',
+        data: [65, 59, 90, 81, 56, 55, 40],
+        backgroundColor: 'rgba(66, 165, 245, 0.2)',
+        borderColor: '#42A5F5',
+        pointBackgroundColor: '#42A5F5'
+      }
+    ]
+  };
+  
+  radarChartOptions = {
+    responsive: true,
+    scales: {
+      r: {
+        angleLines: {
+          display: true
+        },
+        suggestedMin: 0
+      }
+    }
+  };
+
+  polarAreaChartData = {
+    labels: ['Red', 'Green', 'Yellow', 'Blue', 'Purple', 'Orange'],
+    datasets: [
+      {
+        data: [11, 16, 7, 3, 14, 10],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+      }
+    ]
+  };
+  
+  polarAreaChartOptions = {
+    responsive: true,
+    scales: {
+      r: {
+        angleLines: {
+          display: true
+        }
+      }
+    }
+  };
+
+  bubbleChartData = {
+    datasets: [
+      {
+        label: 'First dataset',
+        data: [{ x: 10, y: 20, r: 15 }, { x: 15, y: 30, r: 10 }, { x: 25, y: 25, r: 5 }],
+        backgroundColor: 'rgba(66, 165, 245, 0.5)'
+      }
+    ]
+  };
+  
+  bubbleChartOptions = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  scatterChartData = {
+    datasets: [
+      {
+        label: 'Scatter Dataset',
+        data: [{ x: 10, y: 20 }, { x: 15, y: 30 }, { x: 25, y: 25 }],
+        backgroundColor: 'rgba(66, 165, 245, 0.5)'
+      }
+    ]
+  };
+  
+  scatterChartOptions = {
+    responsive: true,
+    scales: {
+      x: { type: 'linear', position: 'bottom' },
+      y: { type: 'linear', position: 'left' }
+    }
+  };
+
   clientes: Person[] = [
     new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','','','','','','','',0,0,'','')
   ];
