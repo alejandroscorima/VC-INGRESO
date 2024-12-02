@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { ClientesService } from "../clientes.service"
-import { Person } from "../person"
+import { UsersService } from '../users.service';
+import { User } from "../user"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
@@ -34,8 +34,8 @@ export class BirthdayComponent implements OnInit {
 
   expandedElement: Item ;
 
-  client: Person= new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
-  clients: Person[] = [];
+  neighbor: User= new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  neighbors: User[] = [];
 
   fecha;
   fecha_cumple;
@@ -44,13 +44,13 @@ export class BirthdayComponent implements OnInit {
   month;
   year;
 
-  dataSourceHB: MatTableDataSource<Person>;
+  dataSourceHB: MatTableDataSource<User>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
   constructor(
-    private clientesService: ClientesService,
+    private usersServices: UsersService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -74,69 +74,45 @@ export class BirthdayComponent implements OnInit {
     }
   }
 
-  change(a){
-    this.year=this.fecha.getFullYear();
-    this.month=parseInt(this.fecha.getMonth())+1;
-    this.day=this.fecha.getDate();
 
-    if(parseInt(this.month)<10){
-      this.month='0'+this.month;
-    }
-
-    if(parseInt(this.day)<10){
-      this.day='0'+this.day;
-    }
-
-    this.fecha_cumple='-'+this.month+'-'+this.day;
-    this.fechaString=this.year+'-'+this.month+'-'+this.day;
-
-    console.log(this.fecha)
-    this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Person[])=>{
-      this.clients=cList;
-      this.dataSourceHB = new MatTableDataSource(this.clients);
-      this.dataSourceHB.paginator = this.paginator.toArray()[0];
-      this.dataSourceHB.sort = this.sort.toArray()[0];
-    });
+  change(a:any){
+    this.initializeDateFields();
+    this.loadBirthdays(this.fecha_cumple);
   }
 
   ngOnInit() {
 
-    this.fecha=new Date();
-
-    this.year=this.fecha.getFullYear();
-    this.month=parseInt(this.fecha.getMonth())+1;
-    this.day=this.fecha.getDate();
-
-    
-    if(parseInt(this.month)<10){
-      this.month='0'+this.month;
-    }
-
-    if(parseInt(this.day)<10){
-      this.day='0'+this.day;
-    }
-
-    this.fecha_cumple='-'+this.month+'-'+this.day;
-    this.fechaString=this.year+'-'+this.month+'-'+this.day;
-
-    this.clientesService.getClientsHB(this.fecha_cumple).subscribe((cList:Person[])=>{
-      this.clients=cList;
-      this.dataSourceHB = new MatTableDataSource(this.clients);
-      this.dataSourceHB.paginator = this.paginator.toArray()[0];
-      this.dataSourceHB.sort = this.sort.toArray()[0];
-    });
+    this.fecha = new Date();
+    console.log(this.fecha)
+    this.initializeDateFields();
+    this.loadBirthdays(this.fecha_cumple);
   }
+
 
   onSubmit() {
   }
 
+  private initializeDateFields() {
+    this.year = this.fecha.getFullYear();
+    this.month = (this.fecha.getMonth() + 1).toString().padStart(2, '0'); // Agrega ceros si es necesario
+    this.day = this.fecha.getDate().toString().padStart(2, '0'); // Agrega ceros si es necesario
 
-/*   delete(code){
+    this.fecha_cumple = `${this.month}-${this.day}`;
+    this.fechaString = `${this.year}-${this.month}-${this.day}`;
+    console.log(this.fecha_cumple);
+    const opciones = { day: '2-digit', month: 'long'};
+    this.fechaString = this.fecha.toLocaleDateString('es-ES', opciones);
+    console.log(this.fechaString);
+  }
 
-        var index = this.items.findIndex(m=>m.codigo==code);
-
-        this.items[index].cantidad=1;
-      } */
+  private loadBirthdays(fecha_cumple: string) {
+    this.usersServices.getUsersByBirthday(fecha_cumple).subscribe((nList: User[]) => {
+      this.neighbors = nList;
+      this.dataSourceHB = new MatTableDataSource(this.neighbors);
+      this.dataSourceHB.paginator = this.paginator.toArray()[0];
+      this.dataSourceHB.sort = this.sort.toArray()[0];
+    });
+  }
 
 }
 

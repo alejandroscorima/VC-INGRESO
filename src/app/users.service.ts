@@ -55,6 +55,10 @@ export class UsersService {
     return this.http.get(`${this.baseUrl}/getUserByDocNumber.php?doc_number=${doc_number}`);
   }
 
+  //usersByBirthday
+  getUsersByBirthday(fecha_cumple: string) {
+    return this.http.get(`${this.baseUrl}/getUsersByBirthday.php?fecha_cumple=${fecha_cumple}`);
+  }
 
 
   getCollaboratorByUserId(user_id) {
