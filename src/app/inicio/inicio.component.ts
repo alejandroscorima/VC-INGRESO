@@ -1,5 +1,5 @@
 
-import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
 import { ClientesService } from "../clientes.service"
 import { Person } from "../person"
 import * as XLSX from 'xlsx';
@@ -27,6 +27,7 @@ import { AccessPoint } from '../accessPoint';
 import { EntranceService } from '../entrance.service';
 import { Console } from 'console';
 import { initFlowbite } from 'flowbite';
+import { AccessLogService } from '../access-log.service';
 
 
 @Component({
@@ -56,28 +57,14 @@ export class InicioComponent implements OnInit {
   };
 
   lineChartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'],
+    labels: [],
     datasets: [
       {
-        label: "My First dataset",
-        data: [4, 20, 5, 20, 5, 25, 9, 18],
+        label: "Registros de ingreso",
+        data: [],
         backgroundColor: 'transparent',
         borderColor: '#0d6efd',
-        lineTension: .4,
-        borderWidth: 1.5,
-      }, {
-        label: "Month",
-        data: [11, 25, 10, 25, 10, 30, 14, 23],
-        backgroundColor: 'transparent',
-        borderColor: '#dc3545',
-        lineTension: .4,
-        borderWidth: 1.5,
-      }, {
-        label: "Month",
-        data: [16, 30, 16, 30, 16, 36, 21, 35],
-        backgroundColor: 'transparent',
-        borderColor: '#f0ad4e',
-        lineTension: .4,
+        lineTension: 0.4,
         borderWidth: 1.5,
       }
     ]
@@ -497,7 +484,7 @@ export class InicioComponent implements OnInit {
     private cookies: CookiesService,
     private userService: UsersService,
     private entranceService: EntranceService,
-
+    private accessLogService: AccessLogService,
     ) { }
 
 
@@ -520,12 +507,26 @@ export class InicioComponent implements OnInit {
     }
   }
 
+  getEntrances(){
+    this.accessLogService.getAccessLogs('','').subscribe(resLogs => {
+      console.log(resLogs);
+      resLogs.forEach(an=>{
+        this.lineChartData.labels.push(an.date);
+        this.lineChartData.datasets[0].data.push(an.count);
+      })
+      console.log(this.lineChartData);
+    });
+  }
+
+
 
   
 
   ngOnInit() {
 
     initFlowbite();
+
+    this.getEntrances();
 
     if(this.cookies.checkToken('user_id')){
       this.salaDisabled=false;
