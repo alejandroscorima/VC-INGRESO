@@ -3,7 +3,8 @@ export class AccessPoint {
     public ap_location: string,
     public ap_description: string,
     public image_url: string,
-    public status: string,
+    public status_system: string,
+    public client_id?:string,
     public ap_id?: number,
   ) { }
 
