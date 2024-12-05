@@ -39,8 +39,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   categories: string[] = ['PROPIETARIO','RESIDENTE','INQUILINO'];
   categories_visits: string[] = ['INVITADO'];
   types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
-  temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
-  
+    temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
+    
   vehicleToAdd = new Vehicle('','',0,'','','','');
   vehicleToEdit = new Vehicle('','',0,'','','','');
   vehicles: Vehicle[] = [];
