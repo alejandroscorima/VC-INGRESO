@@ -20,6 +20,7 @@ try {
         tv.status_system
     FROM 
         temporary_visits tv
+    WHERE tv.status_system = 'ACTIVO'
     ORDER BY 
         tv.temp_visit_id DESC;
     ");

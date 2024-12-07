@@ -13,6 +13,7 @@ try {
         h.apartment,
         h.status_system
     FROM houses AS h 
+    WHERE h.status_system = 'ACTIVO'
     ORDER BY h.block_house, h.lot, h.apartment");
     
     $sentencia->execute();
