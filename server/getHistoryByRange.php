@@ -36,11 +36,11 @@ SELECT
             AND al_count.entry_time BETWEEN :fecha_inicial AND :fecha_final
     ) AS visits,
     COALESCE(u.doc_number, v.license_plate) AS doc_number,
-    COALESCE(CONCAT(u.first_name, ' ', u.paternal_surname), NULL) AS name,
+    COALESCE(CONCAT(u.first_name, ' ', u.paternal_surname), v.type_vehicle) AS name,
     'access_logs' AS log_type,
     CASE 
-        WHEN a.vehicle_id IS NULL THEN 'PERSONA'
-        ELSE 'VEHÍCULO'
+        WHEN u.user_id IS NULL THEN 'VEHÍCULO'
+        ELSE 'PERSONA'
     END AS type
 FROM 
     access_logs a
@@ -55,7 +55,13 @@ LEFT JOIN
 LEFT JOIN 
     houses h ON u.house_id = h.house_id OR v.house_id = h.house_id
 WHERE 
-    a.entry_time BETWEEN :fecha_inicial AND :fecha_final
+    a.entry_time = (
+        SELECT MAX(entry_time)
+        FROM access_logs al_sub
+        WHERE 
+            al_sub.user_id = a.user_id OR al_sub.vehicle_id = a.vehicle_id
+    )
+    AND a.entry_time BETWEEN :fecha_inicial AND :fecha_final
     AND ap.ap_location = :access_point
 
 UNION ALL
@@ -92,7 +98,13 @@ LEFT JOIN
 LEFT JOIN 
     houses h ON t.house_id = h.house_id
 WHERE 
-    t.temp_entry_time BETWEEN :fecha_inicial AND :fecha_final
+    t.temp_entry_time = (
+        SELECT MAX(temp_entry_time)
+        FROM temporary_access_logs t_sub
+        WHERE 
+            t_sub.temp_visit_id = t.temp_visit_id
+    )
+    AND t.temp_entry_time BETWEEN :fecha_inicial AND :fecha_final
     AND ap.ap_location = :access_point
 
 ORDER BY 

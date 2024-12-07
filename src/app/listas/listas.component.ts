@@ -196,7 +196,7 @@ export class ListasComponent implements OnInit {
             })
           }
           else{
-            this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
+            this.clientesService.getUserFromReniec(res.doc_number).subscribe(response=>{
               if(res['success']){
                 var clienteNew = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
                 // clienteNew.doc_number = res['data']['numero'];
@@ -313,7 +313,7 @@ export class ListasComponent implements OnInit {
             })
           }
           else{
-            this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
+            this.clientesService.getUserFromReniec(res.doc_number).subscribe(response=>{
               if(res['success']){
                 var clienteNew = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
                 // clienteNew.doc_number = response['data']['numero'];
@@ -430,7 +430,7 @@ export class ListasComponent implements OnInit {
             })
           }
           else{
-            this.clientesService.getClientFromReniec(res.doc_number).subscribe(response=>{
+            this.clientesService.getUserFromReniec(res.doc_number).subscribe(response=>{
               if(response['success']){
                 var clienteNew = new Person('','','','','','','','','','','','','','','','','','','','','',0,0,'','');
                 // clienteNew.doc_number = response['data']['numero'];

@@ -169,7 +169,7 @@ export class HistoryComponent implements OnInit {
 
   ngOnInit() {
     // Punto de acceso predefinido
-    this.access_point='Garita';
+    this.access_point='GARITA';
     // Configurar la fecha inicial y final como la fecha actual
     const today = new Date();
     this.fecha_inicial = today;
