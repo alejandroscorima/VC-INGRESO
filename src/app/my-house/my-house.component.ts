@@ -56,30 +56,49 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   ){}
 
   ngOnInit(): void {
-    this.usersService.user$.subscribe((resUser) => {
-      if (resUser) {
-        this.userOnSes = resUser;
-        console.log(this.userOnSes);
-        // Usa los datos del usuario para cargar otros recursos
-        this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe((resMyFamily: User[]) => {
-          // Filtrar para obtener solo los usuarios con las categorías 'PROPIETARIO', 'RESIDENTE', 'INQUILINO'
-          this.myFamily = resMyFamily.filter(user => 
-            ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(user.property_category)
-          );
-          // Filtrar para obtener solo los usuarios con la categoría 'INVITADO'
-          this.myVisits = resMyFamily.filter(user => 
-            user.property_category === 'INVITADO'
-          );
+    this.cookiesService.getToken('user_id');
+    console.log(this.cookiesService.getToken('user_id'));
+    this.usersService.getUserById(this.cookiesService.getToken('user_id')).subscribe({
+      next:(os:User)=>{
+        this.userOnSes.house_id=os.house_id;
+        this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe({
+          next: (resMyFamily: User[]) => {
+            console.log('Datos devueltos por el servicio (sin filtrar):', resMyFamily);
+            this.myFamily = resMyFamily.filter(user =>
+              ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(user.property_category)
+            );
+            console.log('Datos de myFamily (filtrados):', this.myFamily);
+        
+            this.myVisits = resMyFamily.filter(user => ['INVITADO'].includes(user.property_category)
+          )||[];
+            console.log('Datos de myVisits (filtrados):', this.myVisits);
+          },
+          error(err) {
+            this.myVisits=[];
+          },
         });
-        this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe((resMyVehicles: Vehicle[]) => {
-          this.myVehicles = resMyVehicles;
+        this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe({
+          next:( mv:Vehicle[])=>{
+            this.myVehicles=mv;
+            console.log('Datos de myVisits (filtrados):', this.myVehicles);
+          },
+          error(err) {
+            this.myVehicles=[];
+            console.log('Datos de myVisits (filtrados):', this.myVehicles);
+          },
         });
         this.entranceService.getAllExternalVehicles().subscribe({
-          next: (res: any[]) => { this.externalVehicles = res; },
-          error: (err) => { console.error('Error obteniendo vehículos externos:', err); }
+          next:( ev:ExternalVehicle[])=>{
+            console.log('Datos de myVisits (filtrados):', this.externalVehicles);
+            this.externalVehicles=ev;
+          }
         });
+      },
+      error:(err)=>{
+        console.log('No se pudo obtener al usuario en sesión:', err);
       }
-    });
+    })
+    
   }
 
   ngAfterViewInit(): void {

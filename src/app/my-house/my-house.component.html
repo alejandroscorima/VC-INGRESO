@@ -173,21 +173,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let mf of myVisits" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <tr *ngFor="let mv of myVisits" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="uppercase px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{mf?.doc_number}}
+                                    {{mv?.doc_number}}
                                 </th>
                                 <td class="px-6 py-4 uppercase">
-                                    {{mf?.first_name}}
+                                    {{mv?.first_name}}
                                 </td>
                                 <td class="px-6 py-4 uppercase">
-                                    {{mf?.property_category}}
+                                    {{mv?.property_category}}
                                 </td>
                                 <td class="px-6 py-4 uppercase">
-                                    {{mf?.status_system}}
+                                    {{mv?.status_system}}
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
-                                    <a (click)="editVisit(mf)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
+                                    <a (click)="editVisit(mv)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
                                 </td>
                             </tr>
                         </tbody>
