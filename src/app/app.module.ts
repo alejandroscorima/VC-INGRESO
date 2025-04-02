@@ -55,8 +55,10 @@ import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
 
+import { BaseChartDirective } from 'ng2-charts';
+import { Chart, registerables } from 'chart.js';
 
-
+Chart.register(...registerables);
 
 
 @NgModule({ declarations: [
@@ -115,6 +117,7 @@ import { MyHouseComponent } from './my-house/my-house.component';
         MatGridListModule,
         GoogleChartsModule,
         MatTabsModule,
+        BaseChartDirective,
         ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }

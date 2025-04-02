@@ -1,5 +1,5 @@
 
-import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
 import { ClientesService } from "../clientes.service"
 import { Person } from "../person"
 import * as XLSX from 'xlsx';
@@ -27,6 +27,7 @@ import { AccessPoint } from '../accessPoint';
 import { EntranceService } from '../entrance.service';
 import { Console } from 'console';
 import { initFlowbite } from 'flowbite';
+import { AccessLogService } from '../access-log.service';
 
 
 @Component({
@@ -35,6 +36,164 @@ import { initFlowbite } from 'flowbite';
   styleUrls: ['./inicio.component.css']
 })
 export class InicioComponent implements OnInit {
+
+  barChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May'],
+    datasets: [
+      {
+        data: [65, 59, 80, 81, 56],
+        label: 'Monthly Sales',
+        backgroundColor: '#42A5F5'
+      }
+    ]
+  };
+
+  barChartOptions = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  lineChartData = {
+    labels: [],
+    datasets: [
+      {
+        label: "Registros de ingreso",
+        data: [],
+        backgroundColor: 'transparent',
+        borderColor: '#0d6efd',
+        lineTension: 0.4,
+        borderWidth: 1.5,
+      }
+    ]
+  };
+  
+  lineChartOptions = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  doughnutChartData = {
+    labels: ['Red', 'Blue', 'Yellow'],
+    datasets: [
+      {
+        data: [300, 50, 100],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+      }
+    ]
+  };
+  
+  doughnutChartOptions = {
+    responsive: true,
+    cutoutPercentage: 70, // Controla el tamaño del agujero central
+  };
+
+  barChartData2 = {
+    labels: ['January', 'February', 'March', 'April', 'May'],
+    datasets: [
+      {
+        data: [65, 59, 80, 81, 56],
+        label: 'Monthly Sales',
+        backgroundColor: '#42A5F5'
+      }
+    ]
+  };
+  
+  barChartOptions2 = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  radarChartData = {
+    labels: ['Eating', 'Drinking', 'Sleeping', 'Designing', 'Coding', 'Cycling', 'Running'],
+    datasets: [
+      {
+        label: 'Week 1',
+        data: [65, 59, 90, 81, 56, 55, 40],
+        backgroundColor: 'rgba(66, 165, 245, 0.2)',
+        borderColor: '#42A5F5',
+        pointBackgroundColor: '#42A5F5'
+      }
+    ]
+  };
+  
+  radarChartOptions = {
+    responsive: true,
+    scales: {
+      r: {
+        angleLines: {
+          display: true
+        },
+        suggestedMin: 0
+      }
+    }
+  };
+
+  polarAreaChartData = {
+    labels: ['Red', 'Green', 'Yellow', 'Blue', 'Purple', 'Orange'],
+    datasets: [
+      {
+        data: [11, 16, 7, 3, 14, 10],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+      }
+    ]
+  };
+  
+  polarAreaChartOptions = {
+    responsive: true,
+    scales: {
+      r: {
+        angleLines: {
+          display: true
+        }
+      }
+    }
+  };
+
+  bubbleChartData = {
+    datasets: [
+      {
+        label: 'First dataset',
+        data: [{ x: 10, y: 20, r: 15 }, { x: 15, y: 30, r: 10 }, { x: 25, y: 25, r: 5 }],
+        backgroundColor: 'rgba(66, 165, 245, 0.5)'
+      }
+    ]
+  };
+  
+  bubbleChartOptions = {
+    responsive: true,
+    scales: {
+      x: { beginAtZero: true },
+      y: { beginAtZero: true }
+    }
+  };
+
+  scatterChartData = {
+    datasets: [
+      {
+        label: 'Scatter Dataset',
+        data: [{ x: 10, y: 20 }, { x: 15, y: 30 }, { x: 25, y: 25 }],
+        backgroundColor: 'rgba(66, 165, 245, 0.5)'
+      }
+    ]
+  };
+  
+  scatterChartOptions = {
+    responsive: true,
+    scales: {
+      x: { type: 'linear', position: 'bottom' },
+      y: { type: 'linear', position: 'left' }
+    }
+  };
+
   clientes: Person[] = [
     new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','','','','','','','',0,0,'','')
   ];
@@ -325,7 +484,7 @@ export class InicioComponent implements OnInit {
     private cookies: CookiesService,
     private userService: UsersService,
     private entranceService: EntranceService,
-
+    private accessLogService: AccessLogService,
     ) { }
 
 
@@ -348,12 +507,26 @@ export class InicioComponent implements OnInit {
     }
   }
 
+  getEntrances(){
+    this.accessLogService.getAccessLogs('','').subscribe(resLogs => {
+      console.log(resLogs);
+      resLogs.forEach(an=>{
+        this.lineChartData.labels.push(an.date);
+        this.lineChartData.datasets[0].data.push(an.count);
+      })
+      console.log(this.lineChartData);
+    });
+  }
+
+
 
   
 
   ngOnInit() {
 
     initFlowbite();
+
+    this.getEntrances();
 
     if(this.cookies.checkToken('user_id')){
       this.salaDisabled=false;

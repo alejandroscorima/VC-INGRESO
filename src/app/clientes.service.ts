@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Person } from "./person";
@@ -53,7 +52,7 @@ export class ClientesService {
     return this.http.get(`${this.baseUrl}/getClient.php?doc_number=${doc_number}`);
   }
 
-  getClientFromReniec(doc_number: string) {
+  getUserFromReniec(doc_number: string) {
 
     this.urlconsulta = 'https://my.apidev.pro/api/dni/'+doc_number+'?api_token=e9cc47e67d492cdee675bfb2b365c09393611b5141144aa0da34cab5429bb5e8';
     return this.http.get(this.urlconsulta);
