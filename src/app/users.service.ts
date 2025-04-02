@@ -139,7 +139,7 @@ export class UsersService {
 
   getUserFromReniec(doc_number: string) {
 
-    this.urlconsulta = 'https://my.apidev.pro/api/dni/'+doc_number+'?api_token=e9cc47e67d492cdee675bfb2b365c09393611b5141144aa0da34cab5429bb5e8';
+    this.urlconsulta = 'https://my.apidev.pro/api/dni/'+doc_number+'?api_token=e9cc47e67d492cdee675bfb2b365cvcs93611b5141144aa0da34cab5429bb5e8';
     return this.http.get(this.urlconsulta);
 
   }
