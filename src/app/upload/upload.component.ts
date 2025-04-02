@@ -243,7 +243,7 @@ export class DialogStatus implements OnInit {
             this.toAdd.forEach((l2a,indice)=>{
               console.log(l2a);
               if(l2a.type_doc=='DNI'){
-                this.clientesService.getClientFromReniec(l2a.doc_number).subscribe(personReniec=>{
+                this.clientesService.getUserFromReniec(l2a.doc_number).subscribe(personReniec=>{
                   if(personReniec&&personReniec['success']){
                     l2a.name=personReniec['data']['nombre_completo'];
                     this.ludopatiaService.addLudopata(l2a).subscribe(resAdd=>{

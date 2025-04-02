@@ -24,6 +24,7 @@ try {
         vehicles v
     JOIN 
         houses h ON v.house_id = h.house_id
+    WHERE v.status_system = 'ACTIVO'
     ORDER BY 
         h.block_house ASC;
     ");

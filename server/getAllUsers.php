@@ -39,6 +39,7 @@ try {
         h.apartment
     FROM users AS u
     LEFT JOIN houses AS h ON u.house_id = h.house_id
+    WHERE u.status_system = 'ACTIVO'
     ORDER BY h.block_house ASC;
     ");
     

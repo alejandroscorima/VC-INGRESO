@@ -94,4 +94,10 @@ export class AppComponent implements OnInit {
       this.sidenav.close();
     }
   }
+
+  dropdownOpen = false;
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
 }

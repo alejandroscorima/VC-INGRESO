@@ -110,6 +110,7 @@ export class LoginComponent implements OnInit {
             this.user=res;
             if(this.user.role_system!='NINGUNO'){
               this.cookiesService.setToken('user_id',String(this.user.user_id));
+              this.cookiesService.setToken('userOnSes',String(this.user));
               location.reload();
               this.toastr.success('Inicio de sesión exitoso')
             }
