@@ -36,13 +36,7 @@
                       <mat-icon class="text-black absolute end-2.5 bottom-2.5 focus:ring-4 focus:outline-none font-normal rounded-lg text-balance px-0.1 py-1 " matSuffix (click)="hide = !hide"> {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </div>
                   </div>
-<!--
-              <button type="submit" #log (click)="login()" 
-              class="bg-amber-600 w-full text-white  hover:bg-primary-700 focus:ring-4
-                focus:outline-none focus:ring-bg-amber-500 font-medium rounded-lg text-sm px-5 py-2.5
-                text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-              Ingresar</button>
--->
+
               <button type="submit" [disabled]="isloading" #log (click)="login()" 
               class="!bg-amber-600 w-full text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-bg-amber-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
               {{ isloading ? 'Cargando...' : 'Ingresar' }}
