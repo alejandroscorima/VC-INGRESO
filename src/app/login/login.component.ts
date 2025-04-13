@@ -106,7 +106,7 @@ export class LoginComponent implements OnInit {
         console.log(res);
         console.log('este');
           this.isloading = false; // Deshabilitar el estado de carga
-          if(res){
+          if(res && res['error'] !== 'Contraseña incorrecta' && res['error'] !== 'Usuario no encontrado'){
             this.user=res;
             if(this.user.role_system!='NINGUNO'){
               this.cookiesService.setToken('user_id',String(this.user.user_id));
