@@ -1249,3 +1249,49 @@ Cambios que se pueden hacer en 1-2 días con alto impacto:
 **Documento creado:** Enero 2026  
 **Última revisión:** Enero 2026  
 **Próxima revisión:** Post-implementación Fase 1
+
+Esto es lo que actualmente tiene:
+Funcionalidades:
+• Iniciar Sesión
+• Registrar Ingresos
+o Registro de Residentes
+o Registro de Visitantes
+o Registro de Vehículos
+• Historial de ingresos registrados
+• Gestión de permisos y roles
+o Gestión de usuarios
+o Gestión de domicilios
+o Gestión de vehículos
+Actores:
+• Personal de Seguridad: Encargado de registrar y autorizar ingresos.
+• Residente: Persona que vive en el condominio o edificio.
+• Visitante: Persona que ingresa de manera temporal.
+• Vehículo: Clase similar a Residente.
+• Administrador: Accede a reportes y configuraciones del sistema.
+
+2.6. Modelo de Datos
+2.6.1. Modelo Conceptual
+Entidades principales:
+• Usuarios (Users): Representa a los residentes o usuarios del sistema.
+• Visitas Temporales (Temporary Visits): Registra las visitas temporales al condominio.
+• Puntos de Acceso (Access Points): Define los puntos por donde las personas pueden ingresar al condominio.
+• Casas (Houses): Representa las viviendas dentro del condominio.
+• Vehículos (Vehicles): Representa los vehículos de los usuarios o visitantes.
+• Registros de Acceso (Access Logs): Almacena los registros de acceso de los usuarios y vehículos.
+• Registros de Acceso Temporales (Temporary Access Logs): Almacena los registros de acceso temporales de las visitas.
+Relaciones principales:
+• Usuarios tienen Vehículos.
+• Usuarios residen en Casas.
+• Visitas Temporales están relacionadas con Usuarios y Casas.
+• Registros de Acceso y Registros de Acceso Temporales están vinculados a Usuarios, Visitas Temporales, y Puntos de Acceso.
+• Puntos de Acceso controlan el acceso a Casas y registran entradas y salidas.
+
+
+QUIEREN:
+- Añadir Registro y Gestión de Mascotas
+- Quitar residuos de "Ludópatas" y "VIP" porque este sistema se trabajó sobre un sistema de ingreso de jugadores de casinos. 
+- Para el registro de Vehículos y Mascotas, que permita subir una foto o fotografiar desde el dispositivo.
+- Quiero un nuevo módulo (formato calendario) para que se pueda solicitar la reserva del centro de convenciones comunitario.
+- Quiero añadir un nuevo access point para controlar el aforo de la piscina.
+- Quiero que por usuario se genere un QR o barcode para que sea más sencillo leer en las puertas.
+- Tiene que ser desplegable en Docker 

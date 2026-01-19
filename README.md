@@ -562,7 +562,7 @@ Este proyecto es privado y pertenece a los propietarios del repositorio alejandr
 
 ## 👥 Autores
 
-- **Desarrollador Principal**: Alejandro Scorima & Luis Gustavo
+- **Desarrollador Principal**: Alejandro Oscorima & Luis Gustavo
 - **Repositorio**: [alejandroscorima/VC-INGRESO](https://github.com/alejandroscorima/VC-INGRESO)
 
 ---
