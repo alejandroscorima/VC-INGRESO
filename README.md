@@ -246,11 +246,15 @@ ng serve
    - Crear base de datos MySQL llamada `vc_db`
    - Importar el esquema de base de datos (si está disponible)
 
-2. **Configurar Conexión** en `server/vc_db.php`:
-```php
-$contraseña = "tu_contraseña";
-$usuario = "root";
-$nombre_base_de_datos = "vc_db";
+2. **Variables de entorno**: copiar `.env.example` a `.env` y ajustar valores:
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=vc_entrance
+DB_USER=root
+DB_PASS=change_me
+DB_CHARSET=utf8mb4
+CORS_ALLOW_ORIGIN=*
 ```
 
 3. **Configurar Servidor**:
@@ -270,6 +274,23 @@ export const environment = {
   baseUrl: 'http://localhost/VC-INGRESO/server'
 };
 ```
+
+### Docker (desarrollo rápido)
+
+```bash
+# Copiar variables
+cp .env.example .env
+
+# Levantar backend PHP (porta 8080) y frontend Angular (porta 4200)
+docker compose up --build
+
+# Backend disponible en http://localhost:8080
+# Frontend en http://localhost:4200
+```
+
+- El servicio `api` usa Apache + PHP 8.2 con las variables del `.env`.
+- El servicio `frontend` ejecuta `npm install` y `ng serve`. La primera vez puede tardar.
+- En producción, usa variables de entorno inyectadas por el orquestador y no montes `.env` en la imagen.
 
 ---
 

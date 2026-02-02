@@ -1,13 +1,25 @@
 
 <?php
-//";
-$contraseña = "Oscorpsvr";
-$usuario = "root";
+// Centralized PDO connection using environment variables. Defaults preserve current local setup.
 
-$nombre_base_de_datos = "vc_db";
+$dbHost    = getenv('DB_HOST') ?: 'localhost';
+$dbPort    = getenv('DB_PORT') ?: '3306';
+$dbName    = getenv('DB_NAME') ?: 'vc_db';
+$dbUser    = getenv('DB_USER') ?: 'root';
+$dbPass    = getenv('DB_PASS') ?: 'Oscorpsvr';
+$dbCharset = getenv('DB_CHARSET') ?: 'utf8mb4';
+
+$dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $dbHost, $dbPort, $dbName, $dbCharset);
+
 try {
-    return new PDO('mysql:host=localhost;dbname=' . $nombre_base_de_datos, $usuario, $contraseña);
-
+    $pdo = new PDO($dsn, $dbUser, $dbPass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+    ]);
+    return $pdo;
 } catch (Exception $e) {
-    echo "Ocurrió algo con la base de datos: " . $e->getMessage();
+    // Do not leak sensitive details in production
+    http_response_code(500);
+    echo json_encode(['error' => 'Database connection failed']);
+    exit;
 }

@@ -3,11 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: true,
-  //baseUrl: "http://localhost:8888/Ingreso/server",
-  //baseUrl: "http://localhost:8888/InventarioPatrimonio/server",
-  baseUrl: "http://52.5.47.64/VC/Ingreso",
-  //baseUrl: "http://localhost/Ingreso/server",
+  production: false,
+  // Para desarrollo en Docker: apunta al servicio api en localhost:8080
+  baseUrl: "http://localhost:8080",
 };
 
 /*

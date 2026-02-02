@@ -3,3 +3,12 @@ node_modules
 dist
 dist/
 /dist
+
+# Backend dependencies and environment files
+vendor/
+.env
+.env.local
+
+# Angular build output
+/dist
+/dist*/
