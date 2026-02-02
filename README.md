@@ -2,7 +2,7 @@
 
 ## 📋 Descripción General
 
-**VC-INGRESO** es una aplicación web completa para la gestión y control de acceso de personas y vehículos en urbanizaciones, condominios o complejos residenciales. El sistema permite registrar ingresos, administrar usuarios, casas, vehículos, y mantener listas de control (observados, restringidos, VIPs y ludópatas).
+**VC-INGRESO** es una aplicación web completa para la gestión y control de acceso de personas y vehículos en urbanizaciones, condominios o complejos residenciales. El sistema permite registrar ingresos, administrar usuarios, casas, vehículos, mascotas y mantener listas de control (observados, restringidos; permitidos: propietarios, residentes, inquilinos, visitas, visitantes temporales). 
 
 ### Características Principales
 
@@ -10,13 +10,15 @@
 - 👥 **Gestión de Usuarios**: Administración de residentes, propietarios e inquilinos
 - 🏠 **Gestión de Viviendas**: Administración de casas/departamentos por bloques y lotes
 - 🚗 **Gestión de Vehículos**: Registro de vehículos residentes y externos
+- **Gestión de Mascotas**: Registro de Mascotas por casa/departamento 
 - 📊 **Dashboard y Estadísticas**: Visualización de datos con gráficos y métricas en tiempo real
-- 📋 **Listas de Control**: Manejo de personas observadas, restringidas, VIPs y ludópatas
-- 📅 **Historial de Ingresos**: Consulta de registros por fecha, rango y cliente
+- 📋 **Listas de Control**: Manejo de personas observadas, restringidas, permitidas. 
+- 📅 **Historial de Ingresos**: Consulta de registros por fecha, rango y usuario 
 - 🎂 **Cumpleaños**: Gestión de fechas especiales de residentes
 - 🔐 **Sistema de Autenticación**: Login con roles y permisos diferenciados
 - 📄 **Exportación de Datos**: Generación de reportes en Excel y PDF
-- 📤 **Carga Masiva**: Importación de listas desde archivos PDF
+- 📤 **Carga Masiva**: Importación de listas desde archivos Excel 
+NOTA: Hay archivos residuales que se tienen que eliminar sin afectar el funcionamiento (todo lo que diga "cliente" "vip" "ludópata" "colaborador" , etc)
 
 ---
 
@@ -56,41 +58,37 @@ VC-INGRESO/
 │   │   │   ├── login/            # Autenticación de usuarios
 │   │   │   ├── listas/           # Gestión de listas de control
 │   │   │   ├── history/          # Historial de ingresos
-│   │   │   ├── upload/           # Carga de archivos PDF (ludópatas)
+│   │   │   ├── upload/           # Carga de archivos Excel 
 │   │   │   ├── birthday/         # Gestión de cumpleaños
-│   │   │   ├── settings/         # Configuraciones del sistema
-│   │   │   ├── users/            # Administración de usuarios
-│   │   │   ├── houses/           # Administración de viviendas
-│   │   │   ├── vehicles/         # Administración de vehículos
-│   │   │   ├── my-house/         # Vista de residentes
+│   │   │   ├── settings/         # Configuraciones del sistema (ADMIN) 
+│   │   │   ├── users/            # Administración de usuarios  (ADMIN)
+│   │   │   ├── houses/           # Administración de viviendas (ADMIN) 
+│   │   │   ├── vehicles/         # Administración de vehículos (ADMIN) 
+│   │   │   ├── my-house/         # Vista y registro de residentes, vehiculos, visitas, temporales (USER)
 │   │   │   ├── nav-bar/          # Barra de navegación
 │   │   │   └── side-nav/         # Menú lateral
 │   │   │
 │   │   ├── services/             # Servicios de Angular
-│   │   │   ├── clientes.service.ts      # Gestión de clientes y personas
+ 
 │   │   │   ├── users.service.ts         # Gestión de usuarios del sistema
 │   │   │   ├── entrance.service.ts      # Control de ingresos
-│   │   │   ├── ludopatia.service.ts     # Gestión de ludópatas
+
 │   │   │   ├── access-log.service.ts    # Registro de accesos
-│   │   │   ├── personal.service.ts      # Gestión de personal
+ 
 │   │   │   ├── file-upload.service.ts   # Carga de archivos
 │   │   │   ├── cookies.service.ts       # Manejo de cookies
-│   │   │   └── ip-service.service.ts    # Gestión de IPs
+ 
 │   │   │
 │   │   ├── models/               # Modelos de datos (TypeScript)
-│   │   │   ├── person.ts         # Modelo de persona/cliente
+│   │   │   ├── person.ts         # Modelo de persona 
 │   │   │   ├── user.ts           # Modelo de usuario del sistema
 │   │   │   ├── house.ts          # Modelo de vivienda
 │   │   │   ├── vehicle.ts        # Modelo de vehículo
 │   │   │   ├── externalVehicle.ts # Modelo de vehículo externo
-│   │   │   ├── ludopata.ts       # Modelo de persona ludópata
+ 
 │   │   │   ├── payment.ts        # Modelo de pago/licencia
 │   │   │   ├── accessPoint.ts    # Modelo de punto de acceso
-│   │   │   ├── area.ts           # Modelo de área
-│   │   │   ├── collaborator.ts   # Modelo de colaborador
-│   │   │   ├── item.ts           # Modelo de item genérico
-│   │   │   ├── product.ts        # Modelo de producto
-│   │   │   ├── sale.ts           # Modelo de venta
+ 
 │   │   │   ├── systemClient.ts   # Modelo de cliente del sistema
 │   │   │   └── visit.ts          # Modelo de visita
 │   │   │
