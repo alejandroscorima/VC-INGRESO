@@ -8,6 +8,8 @@ header("Access-Control-Allow-Origin: *");
 $campus_id=$_GET['campus_id'];
 
 $bd = include_once "bdData.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 $sentencia = $bd->prepare("SELECT campus_id, name, address, company, ruc, table_entrance FROM campus WHERE campus_id='".$campus_id."'");
 

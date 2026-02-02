@@ -20,6 +20,9 @@ if (
 }
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 try {
     $sentencia = $bd->prepare("UPDATE temporary_visits SET temp_visit_name = ?, temp_visit_doc = ?, temp_visit_cel = ?, status_validated = ?, status_reason = ?, status_system = ? WHERE temp_visit_id = ?");
     $resultado = $sentencia->execute([

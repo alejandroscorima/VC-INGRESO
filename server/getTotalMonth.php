@@ -15,6 +15,8 @@ $fecha3=$_GET['fecha3'];
 $fecha4=$_GET['fecha4'];
 
 $bd = include_once "bdEntrance.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 if($sala=='PALACIO'){
   $sentencia = $bd->prepare("SELECT date_entrance FECHA, count(*) AFORO FROM visits_palacio WHERE date_entrance like '%".$fecha."%' GROUP BY FECHA");

@@ -23,6 +23,9 @@ if (
 }
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 try {
     $sentencia = $bd->prepare("insert into houses(block_house, lot, apartment, status_system) values (?,?,?,?)");
     $resultado = $sentencia->execute([

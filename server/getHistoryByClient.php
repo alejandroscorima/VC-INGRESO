@@ -9,6 +9,9 @@ $sala=$_GET['sala'];
 $fecha=$_GET['fecha'];
 
 $bd = include_once "bdEntrance.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
 

@@ -9,7 +9,7 @@ services:
     environment:
       - DB_HOST=${DB_HOST:-localhost}
       - DB_PORT=${DB_PORT:-3306}
-      - DB_NAME=${DB_NAME:-vc_entrance}
+      - DB_NAME=${DB_NAME:-vc_db}
       - DB_USER=${DB_USER:-root}
       - DB_PASS=${DB_PASS:-change_me}
       - DB_CHARSET=${DB_CHARSET:-utf8mb4}

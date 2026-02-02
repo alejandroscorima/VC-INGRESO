@@ -21,6 +21,9 @@ if (!$jsonClient) {
     exit("No hay datos");
 }
 $bd = include_once "bdEntrance.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 $sentencia = $bd->prepare("insert into clients(doc_number, client_name, birth_date, gender, address, distrito, provincia, departamento, fecha_registro, sala_registro, condicion, origin_list, motivo, sala_list, fecha_list) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 $resultado = $sentencia->execute([$jsonClient->doc_number, $jsonClient->client_name, $jsonClient->birth_date, $jsonClient->gender, $jsonClient->address, $jsonClient->distrito, $jsonClient->provincia, $jsonClient->departamento, $jsonClient->fecha_registro, $jsonClient->sala_registro, $jsonClient->condicion, $jsonClient->origin_list, $jsonClient->motivo, $jsonClient->sala_list, $jsonClient->fecha_list]);
 echo json_encode([

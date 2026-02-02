@@ -1,7 +1,9 @@
 <?php
-// Configuración para errores y CORS
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// No exponer errores PHP en producción
+if (getenv('APP_DEBUG') === 'true' || getenv('APP_DEBUG') === '1') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
@@ -20,6 +22,8 @@ $hashedPassword = password_hash($jsonUser->password_system, PASSWORD_DEFAULT);
 
 // Conexión a la base de datos
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 // Preparar la consulta SQL para actualizar el usuario
 $sql = "UPDATE users SET 

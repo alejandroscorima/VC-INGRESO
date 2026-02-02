@@ -7,6 +7,8 @@ header("Access-Control-Allow-Origin: *");
 $area_id=$_GET['area_id'];
 
 $bd = include_once "bdData.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 $sentencia = $bd->prepare("SELECT area_id, name, chief_id, zone  FROM areas WHERE area_id=".$area_id);
 

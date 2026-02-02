@@ -1,5 +1,5 @@
 <?php
-// PDO connection for main entrance database using environment variables.
+// Conexión PDO para BD de ingresos. Usa DB_ENTRANCE_NAME (vc_entrance). No cambiar nombre de archivo.
 
 // Basic CORS handling for all endpoints that include this file
 $allowedOrigin = getenv('CORS_ALLOW_ORIGIN') ?: '*';
@@ -20,7 +20,8 @@ $dbHost    = getenv('DB_HOST') ?: 'localhost';
 $dbPort    = getenv('DB_PORT') ?: '3306';
 $dbName    = getenv('DB_ENTRANCE_NAME') ?: 'vc_entrance';
 $dbUser    = getenv('DB_USER') ?: 'root';
-$dbPass    = getenv('DB_PASS') ?: 'Oscorpsvr';
+// En producción .env debe definir DB_PASS; sin fallback para no exponer credenciales
+$dbPass    = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
 $dbCharset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $dbHost, $dbPort, $dbName, $dbCharset);

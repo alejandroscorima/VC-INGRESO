@@ -18,6 +18,8 @@ $fecha4=$_GET['fecha4'];
 $fecha5=$_GET['fecha5'];
 
 $bd = include_once "bdEntrance.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 if($sala=='PALACIO'){
   if($mes=='SELECCIONAR'){

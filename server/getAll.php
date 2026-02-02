@@ -15,6 +15,9 @@ if ($fecha_cumple !== '' && !preg_match('/^[0-9\-\/]{1,10}$/', $fecha_cumple)) {
 
 try {
 	$bd = include_once "bd.php";
+	require_once __DIR__ . '/auth_middleware.php';
+	requireAuth();
+
 	$sentencia = $bd->prepare("SELECT doc_number, client_name FROM clients WHERE birth_date LIKE ?");
 	$sentencia->execute(["%{$fecha_cumple}%"]);
 	$clientes = $sentencia->fetchAll();

@@ -10,6 +10,9 @@ $doc_number = $_GET["doc_number"];
 $date_entrance = $_GET["date_entrance"];
 $selectedSala = $_GET['selectedSala'];
 $bd = include_once "bd.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 if($selectedSala == 'PALACIO'){
   $sentencia = $bd->prepare("SELECT hour_entrance, age FROM visits_palacio WHERE doc_number = '".$doc_number."' AND date_entrance = '".$date_entrance."'");
 }

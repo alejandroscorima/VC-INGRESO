@@ -9,6 +9,9 @@ if ($metodo != "DELETE" && $metodo != "OPTIONS") {
 
 $ludop_id = $_GET["ludop_id"];
 $bd = include_once "bdEntrance.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 $sentencia = $bd->prepare("DELETE FROM ludopatas WHERE id = ?");
 $resultado = $sentencia->execute([$ludop_id]);
 echo json_encode($resultado);

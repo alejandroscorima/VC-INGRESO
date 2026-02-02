@@ -20,6 +20,9 @@ if (
 }
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 try {
     $sentencia = $bd->prepare("UPDATE houses SET block_house = ?, lot = ?, apartment = ?, status_system = ? WHERE house_id = ?");
     $resultado = $sentencia->execute([

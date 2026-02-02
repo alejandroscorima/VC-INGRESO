@@ -17,8 +17,10 @@
 - 🎂 **Cumpleaños**: Gestión de fechas especiales de residentes
 - 🔐 **Sistema de Autenticación**: Login con roles y permisos diferenciados
 - 📄 **Exportación de Datos**: Generación de reportes en Excel y PDF
-- 📤 **Carga Masiva**: Importación de listas desde archivos Excel 
-NOTA: Hay archivos residuales que se tienen que eliminar sin afectar el funcionamiento (todo lo que diga "cliente" "vip" "ludópata" "colaborador" , etc)
+- 📤 **Carga Masiva**: Importación de listas desde archivos Excel *(módulo legacy; previsto eliminar)*
+
+### Origen del proyecto
+El sistema se desarrolló sobre una base de **control de acceso para casinos** (términos como "cliente", "VIP", "ludópata", "colaborador"). Para **condominios** se mantiene la funcionalidad útil y se irán eliminando residuos de esa terminología sin afectar el funcionamiento.
 
 ---
 
@@ -37,8 +39,8 @@ NOTA: Hay archivos residuales que se tienen que eliminar sin afectar el funciona
 
 #### Backend
 - **Lenguaje**: PHP (APIs RESTful)
-- **Base de Datos**: MySQL (vc_db)
-- **Servidor**: Apache/XAMPP
+- **Base de Datos**: MySQL (nombre típico: `vc_db`; configurable vía `DB_NAME` en `.env`)
+- **Servidor**: Apache/XAMPP o Docker
 
 #### Control de Versiones
 - **Repositorio**: GitHub (alejandroscorima/VC-INGRESO)
@@ -102,23 +104,26 @@ VC-INGRESO/
 │   └── index.html                # HTML principal
 │
 ├── server/                       # Backend PHP
-│   ├── vc_db.php                # Configuración de base de datos
-│   ├── bd*.php                  # Archivos de conexión
+│   ├── vc_db.php                # Conexión BD principal (DB_NAME = vc_db)
+│   ├── bd.php                   # Conexión BD ingresos (DB_ENTRANCE_NAME = vc_entrance)
+│   ├── bdEntrance.php           # Conexión BD ingresos (DB_ENTRANCE_NAME)
+│   ├── bdLicense.php            # Conexión BD licencias (DB_LICENSE_NAME = vc_clients)
+│   ├── bdData.php               # Conexión BD datos (DB_DATA_NAME = vc_data)
 │   │
 │   ├── GET Endpoints/           # APIs de consulta
-│   │   ├── getAll.php           # Obtener todos los clientes
-│   │   ├── getClient.php        # Obtener cliente por documento
-│   │   ├── getAllUsers.php      # Obtener todos los usuarios
-│   │   ├── getUserById.php      # Obtener usuario por ID
-│   │   ├── getAllHouses.php     # Obtener todas las viviendas
-│   │   ├── getAllVehicles.php   # Obtener todos los vehículos
-│   │   ├── getAllLudopatas.php  # Obtener lista de ludópatas
+│   │   ├── getAll.php           # Obtener todos (usa bd.php)
+│   │   ├── getClient.php        # Persona por documento
+│   │   ├── getAllUsers.php      # Usuarios del sistema
+│   │   ├── getUserById.php      # Usuario por ID
+│   │   ├── getAllHouses.php     # Viviendas
+│   │   ├── getAllVehicles.php   # Vehículos
 │   │   ├── getHistoryByDate.php # Historial por fecha
 │   │   ├── getHistoryByRange.php # Historial por rango
-│   │   ├── getObservados.php    # Lista de observados
-│   │   ├── getRestringidos.php  # Lista de restringidos
-│   │   ├── getVIPs.php          # Lista de VIPs
+│   │   ├── getObservados.php    # Lista observados
+│   │   ├── getRestringidos.php  # Lista restringidos
 │   │   ├── getAforo.php         # Control de aforo
+│   │   ├── getAllLudopatas.php  # (legacy casino – previsto eliminar)
+│   │   ├── getVIPs.php          # (legacy casino – previsto eliminar)
 │   │   └── ...                  # Más endpoints GET
 │   │
 │   ├── POST Endpoints/          # APIs de creación
@@ -177,7 +182,7 @@ VC-INGRESO/
 
 ## 🗂️ Modelos de Datos Principales
 
-### Person (Cliente/Visitante)
+### Person (Persona / residente / visitante)
 ```typescript
 {
   type_doc, doc_number, first_name, paternal_surname, maternal_surname,
@@ -246,16 +251,20 @@ ng serve
    - Crear base de datos MySQL llamada `vc_db`
    - Importar el esquema de base de datos (si está disponible)
 
-2. **Variables de entorno**: copiar `.env.example` a `.env` y ajustar valores:
+2. **Variables de entorno**: copiar `.env.example` a `.env` y ajustar valores. Hay 5 archivos de conexión, cada uno con su BD (mismo host/user/pass):
 ```env
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=vc_entrance
 DB_USER=root
 DB_PASS=change_me
 DB_CHARSET=utf8mb4
+DB_NAME=vc_db
+DB_ENTRANCE_NAME=vc_entrance
+DB_LICENSE_NAME=vc_clients
+DB_DATA_NAME=vc_data
 CORS_ALLOW_ORIGIN=*
 ```
+   **Mapeo:** `vc_db.php` → DB_NAME; `bd.php` y `bdEntrance.php` → DB_ENTRANCE_NAME; `bdLicense.php` → DB_LICENSE_NAME; `bdData.php` → DB_DATA_NAME. No renombrar estos archivos para no romper los `include` en el resto de PHP.
 
 3. **Configurar Servidor**:
    - Colocar la carpeta `server/` en el directorio del servidor web
@@ -275,13 +284,15 @@ export const environment = {
 };
 ```
 
-### Docker (desarrollo rápido)
+### Docker (recomendado – despliegue viable)
+
+El proyecto **es desplegable en Docker** y está listo para desarrollo y pruebas.
 
 ```bash
 # Copiar variables
 cp .env.example .env
 
-# Levantar backend PHP (porta 8080) y frontend Angular (porta 4200)
+# Levantar backend PHP (puerto 8080) y frontend Angular (puerto 4200)
 docker compose up --build
 
 # Backend disponible en http://localhost:8080
@@ -320,7 +331,7 @@ docker compose up --build
 - **Funcionalidades**:
   - Gestión de personas observadas
   - Gestión de personas restringidas
-  - Gestión de VIPs
+  - Gestión de VIPs *(legacy casino; previsto eliminar o reemplazar)*
   - Filtrado y búsqueda
   - Exportación a Excel
 
@@ -377,11 +388,11 @@ docker compose up --build
   - Filtros por mes
   - Recordatorios
 
-### 10. Carga de Archivos
+### 10. Carga de Archivos *(legacy – previsto eliminar)*
 - **Ruta**: `/upload`
 - **Componente**: `UploadComponent`
 - **Funcionalidades**:
-  - Carga de PDFs (listas de ludópatas)
+  - Carga de PDFs (listas de ludópatas – origen casino)
   - Procesamiento automático
   - Validación y actualización
 
@@ -440,17 +451,16 @@ ng generate service nombre-servicio
 
 ### Tablas Principales
 
-- **clients**: Personas/clientes/visitantes
+- **clients**: Personas (residentes, visitantes; nombre de tabla heredado de casino)
 - **users**: Usuarios del sistema
 - **houses**: Viviendas del condominio
 - **vehicles**: Vehículos registrados
 - **external_vehicles**: Vehículos externos/temporales
-- **ludopatas**: Lista de personas con ludopatía
 - **access_points**: Puntos de acceso/garitas
 - **areas**: Áreas del complejo
-- **collaborators**: Colaboradores/empleados
 - **payments**: Pagos y licencias
-- **entrance_logs**: Registro de ingresos (posible)
+- **entrance_logs**: Registro de ingresos
+- **ludopatas**, **collaborators**: Tablas/entidades legacy (casino); previsto depurar
 
 ---
 
@@ -606,18 +616,27 @@ Para soporte técnico o consultas:
 
 ---
 
-## 🔮 Roadmap Futuro
+## 🔮 Roadmap y mejoras
+
+Para **condominios**, está previsto (ver `MEJORAS_PROPUESTAS.md` líneas 1290-1322):
+
+- Eliminar residuos de terminología casino (ludópatas, VIP, carga masiva PDF).
+- Añadir registro y gestión de **mascotas** (con foto).
+- Fotos en registro de **vehículos** y mascotas (subir o capturar).
+- Módulo **casa club**: reserva del salón de convenciones (calendario).
+- Nuevo punto de acceso para **aforo de piscina**.
+- **QR o código de barras** por usuario para lectura en puertas.
+- Refactorizar inicio/dashboard; eliminar listas-control y carga-masiva; ampliar Mi casa (inquilinos, mascotas).
+
+Otros posibles pasos:
 
 - [ ] Autenticación con JWT
 - [ ] API RESTful con Node.js/Express (migración desde PHP)
-- [ ] Base de datos con Prisma ORM
 - [ ] Notificaciones push en tiempo real
 - [ ] App móvil (Ionic/React Native)
-- [ ] Reconocimiento facial para acceso
-- [ ] Integración con sistemas de cámaras
 - [ ] Dashboard analítico avanzado
 - [ ] Multi-tenancy para múltiples condominios
 
 ---
 
-*Última actualización: Enero 2026*
+*Última actualización: Febrero 2026*

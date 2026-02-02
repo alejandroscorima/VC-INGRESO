@@ -3,6 +3,8 @@ header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 $doc_number=$_GET['doc_number'];
 

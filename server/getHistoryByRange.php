@@ -9,6 +9,8 @@ $access_point = $_GET['access_point'];
 
 // Conectar a la base de datos
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 // Validar los parámetros
 if (empty($fecha_inicial) || empty($fecha_final) || empty($access_point)) {

@@ -5,6 +5,8 @@ header("Content-Type: application/json");
 
 // Incluir conexión a la base de datos
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 // Validación y sanitización del parámetro 'house_id'
 if (!isset($_GET['house_id'])) {

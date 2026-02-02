@@ -4,6 +4,8 @@ header("Access-Control-Allow-Origin: *");
 //header("Access-Control-Allow-Origin: http://192.168.4.250");
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 $sentencia = $bd->prepare("SELECT 
 ap_id,

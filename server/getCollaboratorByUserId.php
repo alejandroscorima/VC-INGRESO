@@ -7,6 +7,8 @@ header("Access-Control-Allow-Origin: *");
 $user_id=$_GET['user_id'];
 
 $bd = include_once "bdData.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 $sentencia = $bd->prepare("SELECT 
 colab_id,

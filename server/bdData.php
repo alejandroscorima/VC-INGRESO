@@ -1,5 +1,5 @@
 <?php
-// PDO connection for data database (duplicate of bd.php, kept for compatibility).
+// Conexión PDO para BD de datos. Usa DB_DATA_NAME (vc_data). No cambiar nombre de archivo.
 
 // Basic CORS handling for all endpoints that include this file
 $allowedOrigin = getenv('CORS_ALLOW_ORIGIN') ?: '*';
@@ -20,7 +20,8 @@ $dbHost    = getenv('DB_HOST') ?: 'localhost';
 $dbPort    = getenv('DB_PORT') ?: '3306';
 $dbName    = getenv('DB_DATA_NAME') ?: 'vc_data';
 $dbUser    = getenv('DB_USER') ?: 'root';
-$dbPass    = getenv('DB_PASS') ?: 'Oscorpsvr';
+// En producción .env debe definir DB_PASS; sin fallback para no exponer credenciales
+$dbPass    = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
 $dbCharset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $dbHost, $dbPort, $dbName, $dbCharset);

@@ -17,6 +17,8 @@ if (!$jsonVehicle) {
 }
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 try {
     // Preparar la consulta SQL

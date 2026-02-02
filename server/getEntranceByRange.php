@@ -8,6 +8,8 @@ $date_init=$_GET['date_init'];
 $date_end=$_GET['date_end'];
 
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 // Consulta SQL para obtener la cantidad de registros de ingreso por día
 $sentencia = $bd->prepare("SELECT DATE(entry_time) as date, COUNT(*) as count

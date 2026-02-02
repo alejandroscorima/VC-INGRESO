@@ -1104,12 +1104,12 @@ ng add @angular/pwa
 
 ## 📊 Priorización de Implementación
 
-### Fase 1 (1-2 semanas) - Crítico
-1. ✅ Mover credenciales a variables de entorno
+### Fase 1 (1-2 semanas) - Crítico (validado Feb 2026)
+1. ✅ Mover credenciales a variables de entorno (sin fallback de contraseña en vc_db/bd)
 2. ✅ Implementar hashing de contraseñas
-3. ✅ Arreglar SQL injection vulnerabilities
+3. ⚠️ Arreglar SQL injection (getAll corregido; get.php, getClient, getHistory*, getTotalMonth*, getHours*, getLudopataxDoc, getCampus*, getAreaById, update.php siguen vulnerables)
 4. ✅ Implementar AuthGuard básico
-5. ✅ Manejo centralizado de errores
+5. ✅ Manejo centralizado de errores (vc_db no filtra; postUser/updateUser solo muestran errores si APP_DEBUG=true)
 
 ### Fase 2 (2-3 semanas) - Importante
 6. ✅ Refactorizar backend a estructura MVC
@@ -1208,17 +1208,17 @@ Cambios que se pueden hacer en 1-2 días con alto impacto:
 
 ## ✅ Checklist de Implementación
 
-### Seguridad
-- [ ] Variables de entorno configuradas
-- [ ] Contraseñas hasheadas
-- [ ] JWT implementado
-- [ ] AuthGuard en todas las rutas
-- [ ] SQL injection prevenido
-- [ ] XSS prevenido
+### Seguridad (validado Feb 2026 – ver sección "Validación de seguridad" más abajo)
+- [x] Variables de entorno configuradas (vc_db.php, bd.php; pendiente quitar default de contraseña)
+- [x] Contraseñas hasheadas (postUser, updateUser, getUser con password_verify)
+- [x] JWT implementado (token.php; no todos los endpoints exigen token)
+- [x] AuthGuard en todas las rutas (frontend)
+- [ ] SQL injection prevenido (getAll corregido; get.php, getClient, getHistory*, getTotalMonth*, getHours*, etc. siguen con concatenación)
+- [ ] XSS prevenido (Angular escapa por defecto; no revisado explícitamente)
 - [ ] CSRF tokens
 - [ ] HTTPS en producción
 - [ ] Rate limiting
-- [ ] Input sanitization
+- [ ] Input sanitization (parcial)
 
 ### Arquitectura
 - [ ] Backend refactorizado a MVC
@@ -1320,3 +1320,102 @@ vc-ingreso/
 --- garita (añadir) (control de ingreso)
 --- formulario (añadir) (registro en el sistema y otros tipos de formularios futuros)
 --- casa-club (añadir) (reserva del salón de convención)
+
+---
+
+## Validación del producto (estado actual)
+
+**Conclusión:** El proyecto, tal como está, **es un producto viable** para control de acceso en condominios.
+
+| Aspecto | Estado |
+|--------|--------|
+| **Arquitectura** | Angular 18 + PHP + MySQL; flujo claro y documentado. |
+| **Seguridad** | Conexión a BD vía variables de entorno (`.env`); `vc_db.php` centralizado; CORS configurable. |
+| **Despliegue** | Docker listo (`docker compose up`); backend en 8080, frontend en 4200. |
+| **Funcionalidad condominio** | Usuarios, viviendas, vehículos, Mi casa (residentes, visitas, vehículos externos), historial, cumpleaños, listas (observados/restringidos), configuraciones. |
+| **Residuos casino** | Ludópatas, VIP, carga masiva PDF y rutas/listas asociadas siguen en código; no impiden uso actual pero conviene eliminarlos o reemplazarlos. |
+
+**README:** Actualizado con origen casino→condominio, nombre de BD unificado (`vc_db`), endpoints legacy marcados y roadmap alineado con estas mejoras.
+
+---
+
+## Validación de seguridad (crítico – MEJORAS_PROPUESTAS)
+
+Revisión contra **Prioridad ALTA - Seguridad** y **Fase 1 Crítico** de este documento.
+
+### 1. Credenciales de base de datos (Fase 1 – Crítico)
+
+| Aspecto | Estado | Evidencia |
+|--------|--------|-----------|
+| Variables de entorno (`.env`) | ✅ Aplicado | `vc_db.php` y `bd.php` usan `getenv('DB_HOST')`, `getenv('DB_NAME')`, `getenv('DB_USER')`, `getenv('DB_PASS')`. |
+| `.env` en `.gitignore` | ✅ Aplicado | `.gitignore` incluye `.env` y `.env.local`. |
+| `.env.example` sin secretos | ✅ Aplicado | `.env.example` existe con placeholders (`change_me`, `vc_db`). |
+| **Contraseña por defecto en código** | ✅ Corregido | `vc_db.php` y `bd.php` ya no usan fallback; si `DB_PASS` no está en `.env`, se usa cadena vacía (conexión fallará si MySQL exige contraseña). |
+
+### 2. Autenticación y autorización
+
+| Aspecto | Estado | Evidencia |
+|--------|--------|-----------|
+| Contraseñas hasheadas al crear usuario | ✅ Aplicado | `postUser.php`: `password_hash($jsonUser->password_system, PASSWORD_DEFAULT)`. |
+| Contraseñas hasheadas al actualizar | ✅ Aplicado | `updateUser.php`: mismo `password_hash` antes del UPDATE. |
+| Verificación en login | ✅ Aplicado | `getUser.php`: `password_verify($password, $user->password_system)` (y compatibilidad con claves en texto plano para migración). |
+| JWT en backend | ✅ Aplicado | `token.php`: generación y verificación JWT (HS256) sin deps externas; `getenv('JWT_SECRET')`. |
+| Login devuelve token | ✅ Aplicado | `getUser.php` devuelve `token` y `user` sin `password_system`. |
+| Middleware de auth en backend | ✅ Aplicado | **Todos los endpoints sensibles** usan `requireAuth()` (50 archivos). Solo `getUser.php` (login) queda sin auth para emitir el token. |
+| AuthGuard en frontend | ✅ Aplicado | `auth.guard.ts` + rutas protegidas con `canActivate: [AuthGuard]`. |
+| Interceptor envía Bearer | ✅ Aplicado | `auth.interceptor.ts` + `provideHttpClient(withInterceptors([authInterceptor]))`. |
+| isAuthenticated() | ⚠️ Parcial | Solo comprueba si hay `user` en localStorage; no valida que el token siga siendo válido en backend. |
+
+### 3. SQL injection (Fase 1 – Crítico)
+
+| Aspecto | Estado | Evidencia |
+|--------|--------|-----------|
+| `getAll.php` | ✅ Corregido | Validación de `fecha_cumple` + `prepare` con `?` y `execute([...])`. |
+| Endpoints que usan `vc_db.php` con prepared statements | ✅ Mayoría | `postUser.php`, `updateUser.php`, `getUser.php`, `getAllUsers.php`, etc. usan `prepare` + `execute` con parámetros. |
+| **Concatenación en SQL (vulnerables)** | ❌ Pendiente | Varios archivos siguen concatenando entrada en la consulta: `get.php` (doc_number, date_entrance), `getClient.php` (doc_number), `getLudopataxDoc.php` (doc_number), `getTotalMonth.php`, `getTotalMonthNew.php` (fecha, sala), `getHours.php`, `getHoursReal.php`, `getHistoryByDate.php`, `getHistoryByClient.php`, `getCampusActiveById.php`, `getCampusById.php`, `getAreaById.php`, `update.php`. **Recomendación:** pasar todos a `prepare` + `execute` con placeholders. |
+
+### 4. Manejo de errores
+
+| Aspecto | Estado | Evidencia |
+|--------|--------|-----------|
+| `vc_db.php` no filtra excepciones | ✅ Aplicado | `catch` devuelve solo `['error' => 'Database connection failed']`. |
+| **Exposición de errores PHP** | ✅ Corregido | `postUser.php` y `updateUser.php` solo activan `display_errors` cuando `APP_DEBUG=true` o `1` en `.env`. En producción usar `APP_DEBUG=false`. |
+
+### 5. Checklist de seguridad (estado real)
+
+| Ítem | Estado |
+|------|--------|
+| Variables de entorno configuradas | ✅ (sin default de contraseña en código) |
+| Contraseñas hasheadas | ✅ |
+| JWT implementado | ✅ (backend; todos los endpoints sensibles exigen token; solo login sin auth) |
+| AuthGuard en todas las rutas | ✅ (frontend) |
+| SQL injection prevenido | ❌ Solo en parte; muchos endpoints legacy con concatenación |
+| XSS prevenido | ⚠️ No revisado (Angular escapa por defecto en templates) |
+| CSRF tokens | ❌ No implementado |
+| HTTPS en producción | ⚠️ Depende del despliegue |
+| Rate limiting | ❌ No implementado |
+| Input sanitization | ⚠️ Parcial (validación en algunos PHP) |
+
+### Resumen seguridad
+
+- **Aplicado:** .env, .gitignore, hashing de contraseñas, JWT (generación/verificación), AuthGuard, interceptor Bearer, login con token, `getAll.php` corregido, conexión centralizada sin filtrar excepciones.
+- **Pendiente crítico:** (1) ~~Quitar contraseña por defecto~~ ✅ Hecho. (2) ~~Proteger con requireAuth() todos los endpoints sensibles~~ ✅ Hecho (50 endpoints; solo getUser.php sin auth). (3) Corregir SQL injection en los PHP que concatenan (get.php, getClient, getHistoryBy*, getTotalMonth*, getHours*, getLudopataxDoc, getCampus*, getAreaById, update.php). (4) ~~display_errors en producción~~ ✅ Hecho (solo con APP_DEBUG).
+
+---
+
+## Plan de ajustes (según líneas 1290-1322)
+
+| # | Mejora | Acción sugerida | Prioridad |
+|---|--------|-----------------|-----------|
+| 1 | **Quitar residuos Ludópatas y VIP** | Eliminar o reemplazar: componente/ruta `/listas` (sección VIP), `/upload`, servicios `ludopatia.service`, `getDestacados`/getVIPs/getLudopatas en frontend; en server: `getAllLudopatas.php`, `getVIPs.php`, `getDestacados.php`, `getLudopataxDoc.php`, `deleteLudopata.php`; referencias en history (dialog-ludops). Opcional: renombrar “clientes” a “personas” donde sea solo UI/API. | Alta |
+| 2 | **Registro y gestión de Mascotas** | Nueva entidad mascotas (tabla, modelo TS, CRUD PHP). Nueva pestaña/sección en Mi casa + módulo admin si aplica. | Alta |
+| 3 | **Foto en Vehículos y Mascotas** | Campos `photo_url` (o similar); subida de imagen + opción captura desde dispositivo (input file + getUsuarioMedia o similar). | Media |
+| 4 | **Módulo Casa club (reserva salón)** | Nuevo módulo tipo calendario: reservas del centro de convenciones; backend de reservas; vista calendario en frontend. | Media |
+| 5 | **Access point Piscina (aforo)** | Nuevo punto de acceso en BD/config; reutilizar lógica de `getAforo`/`getAforoNew` para “piscina”. | Media |
+| 6 | **QR o barcode por usuario** | Generar código por usuario (lib. ej. qrcode/ngx-qrcode o barcode); mostrar en perfil/Mi casa y en garita; guardar solo si se requiere persistir (ej. URL o id). | Media |
+| 7 | **Desplegable en Docker** | Ya cubierto: `docker compose` funcional; documentado en README. | Hecho |
+| 8 | **Refactor inicio/dashboard** | Unificar bajo “dashboard” (renombrar o redirigir “inicio” → dashboard). | Baja |
+| 9 | **Eliminar listas-control y carga-masiva** | Quitar rutas `/listas` y `/upload`; eliminar o ocultar en menú (side-nav ya no muestra Listas/Upload; las rutas siguen existiendo). | Alta |
+| 10 | **Mi casa: inquilinos, mascotas** | Añadir pestaña Inquilinos (si difiere de residentes en modelo); pestaña Mascotas (enlazada a punto 2). | Alta |
+
+Orden recomendado para implementar: (1) y (9) primero para limpiar legacy; luego (2) y (10) mascotas; después (3) fotos; (5) piscina; (6) QR; (4) casa club; (8) refactor dashboard.

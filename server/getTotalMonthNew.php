@@ -15,7 +15,8 @@ $fecha3=$_GET['fecha3'];
 $fecha4=$_GET['fecha4'];
 
 $bd = include_once "bdEntrance.php";
-
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
 
 $sentencia = $bd->prepare("SELECT fecha_registro FECHA, count(*) AFORO FROM clients WHERE fecha_registro like '%".$fecha."%' AND sala_registro='".$sala."' GROUP BY FECHA");
 
