@@ -1,5 +1,8 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+// CORS, DB connection, and preflight are handled inside bdLicense.php
+$bd = include_once "bdLicense.php";
+
+header('Content-Type: application/json');
 
 try {
     // Obtén el ID del cliente desde la solicitud GET
@@ -9,9 +12,6 @@ try {
     if ($client_id === null) {
         throw new Exception("ID de cliente no proporcionado en la solicitud");
     }
-
-    // Incluir el archivo de configuración y conexión a la base de datos
-    $bd = include_once "bdLicense.php";
 
     // Consulta preparada con comparación de fechas
     $sql = "SELECT payment_id, client_id, date_start, date_expire, payment_date FROM payment WHERE client_id = :client_id AND STR_TO_DATE(date_expire, '%Y-%m-%d') >= STR_TO_DATE(:current_date, '%Y-%m-%d')";
