@@ -17,9 +17,9 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
-    # Uncomment for live-editing PHP during development
-    # volumes:
-    #   - ./server:/var/www/html:ro
+    # Live-edit PHP during development (mounted RW so changes reflect instantly)
+    volumes:
+      - ./server:/var/www/html
 
   frontend:
     image: node:20-alpine

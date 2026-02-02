@@ -1,10 +1,10 @@
 <?php
-// Permitir solicitudes de cualquier origen (modificar en producción para mayor seguridad)
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-
-// Incluir conexión a la base de datos
+// Incluir conexión a la base de datos y middleware de auth
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
+header("Content-Type: application/json");
 
 // Validación y sanitización del parámetro 'user_id'
 if (!isset($_GET['user_id'])) {

@@ -1291,7 +1291,32 @@ QUIEREN:
 - Añadir Registro y Gestión de Mascotas
 - Quitar residuos de "Ludópatas" y "VIP" porque este sistema se trabajó sobre un sistema de ingreso de jugadores de casinos. 
 - Para el registro de Vehículos y Mascotas, que permita subir una foto o fotografiar desde el dispositivo.
-- Quiero un nuevo módulo (formato calendario) para que se pueda solicitar la reserva del centro de convenciones comunitario.
+- Quiero un nuevo módulo (formato calendario) para que se pueda solicitar la reserva del centro de convenciones comunitario (casa club).
 - Quiero añadir un nuevo access point para controlar el aforo de la piscina.
 - Quiero que por usuario se genere un QR o barcode para que sea más sencillo leer en las puertas.
 - Tiene que ser desplegable en Docker 
+
+vc-ingreso/
+├── login.html
+├── dashboard.html
+|-- inicio.html (es el dashboard, hay que refactorizar para que todo sea dashboard)
+├── listas-control.html (eliminar)
+├── historial.html
+└── configuracion.html 
+    ├── usuarios.html 
+    ├── viviendas.html 
+    ├── vehiculos.html 
+├── mi-casa.html
+    ---residentes
+    ---visitas
+    ---inquilinos
+    ---vehiculos
+    ---vehiculos externos (temporales)
+    ---mascotas
+├── cumpleanos.html
+├── carga-masiva.html (eliminar)
+--- mascotas (añadir)
+--- piscina (añadir) (aforo y control de ingreso)
+--- garita (añadir) (control de ingreso)
+--- formulario (añadir) (registro en el sistema y otros tipos de formularios futuros)
+--- casa-club (añadir) (reserva del salón de convención)

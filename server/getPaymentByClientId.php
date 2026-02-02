@@ -1,6 +1,8 @@
 <?php
 // CORS, DB connection, and preflight are handled inside bdLicense.php
 $bd = include_once "bdLicense.php";
+require_once __DIR__ . '/auth_middleware.php';
+$payload = requireAuth();
 
 header('Content-Type: application/json');
 

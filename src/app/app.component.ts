@@ -10,6 +10,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Payment } from './payment';
 import { ToastrService } from 'ngx-toastr';
 import { Collaborator } from './collaborator';
+import { AuthService } from './auth.service';
 
 import { initFlowbite } from 'flowbite';
 
@@ -47,27 +48,47 @@ export class AppComponent implements OnInit {
     private usersService: UsersService,
     private entranceService: EntranceService,
     private toastr: ToastrService,
+    private auth: AuthService,
   ){}
 
   logout(){
     this.cookies.deleteToken('user_id');
-    location.reload();
+    this.cookies.deleteToken('user_role');
+    this.cookies.deleteToken('userOnSes');
+    this.auth.logout();
+    this.logged = false;
   }
 
   ngOnInit() {
     initFlowbite();
+    // Reflect auth state changes (login/logout) without reload
+    this.auth.user$.subscribe((user) => {
+      this.logged = !!user;
+      if (user) {
+        this.user = user;
+        this.usersService.setUsr(user);
+      }
+    });
+
     this.usersService.getPaymentByClientId(1).subscribe((resPay: Payment) => {
       if (resPay.error) {
         this.handleLicenseError(resPay.error);
       } else {
-        if (this.cookies.checkToken('user_id')) {
+        const existing = this.auth.getUser();
+        if (existing) {
+          this.logged = true;
+          this.user = existing;
+          this.usersService.setUsr(existing);
+        } else if (this.cookies.checkToken('user_id')) {
           this.user.user_id = parseInt(this.cookies.getToken('user_id'));
           this.logged = true;
-  
-          // Obtén el usuario y actualiza el estado global
+
           this.usersService.getUserById(this.user.user_id).subscribe((u: User) => {
             this.user = u;
-            this.usersService.setUsr(u); // Actualiza el estado en el servicio
+            this.usersService.setUsr(u);
+            // Sincronizar auth storage para siguientes cargas
+            localStorage.setItem('auth_user', JSON.stringify(u));
+            this.auth['userSubject'].next(u as any);
           });
         } else {
           this.router.navigateByUrl('/login');

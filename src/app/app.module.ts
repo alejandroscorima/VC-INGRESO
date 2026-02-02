@@ -17,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { InicioComponent } from './inicio/inicio.component';
 import { MatTableModule } from '@angular/material/table';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { DialogHistoryDetail, DialogLudops, HistoryComponent } from './history/history.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
@@ -57,6 +57,7 @@ import { MyHouseComponent } from './my-house/my-house.component';
 
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
+import { authInterceptor } from './auth.interceptor';
 
 Chart.register(...registerables);
 
@@ -119,5 +120,5 @@ Chart.register(...registerables);
         MatTabsModule,
         NgChartsModule,
         ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
-        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService, provideHttpClient(withInterceptorsFromDi())] })
+        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService, provideHttpClient(withInterceptors([authInterceptor]))] })
 export class AppModule { }

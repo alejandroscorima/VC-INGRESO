@@ -1,33 +1,49 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header('Content-Type: application/json'); // Crucial!
-
+// CORS y preflight se manejan en vc_db.php
 $bd = include_once "vc_db.php";
+require_once __DIR__ . '/token.php';
 
-// Validar las entradas
-$username = trim($_GET['username_system'] ?? '');
-$password = $_GET['password_system'] ?? '';
+header('Content-Type: application/json');
 
-if (empty($username) || empty($password)) {
-    echo json_encode(['error' => 'Faltan parámetros']);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
     exit;
 }
 
-// Cambiar la consulta para obtener el hash de la contraseña
-$sentencia = $bd->prepare("SELECT user_id, type_doc, doc_number, first_name, paternal_surname, maternal_surname, gender, birth_date, cel_number, email, role_system, property_category, house_id, photo_url, status_validated, status_reason, status_system, civil_status, profession, address_reniec, district, province, region, password_system FROM users WHERE LOWER(username_system) = LOWER(?)");
-$sentencia->execute([$username]);
+$payload = json_decode(file_get_contents('php://input'), true) ?? [];
+$username = trim($payload['username_system'] ?? '');
+$password = $payload['password_system'] ?? '';
+
+if ($username === '' || $password === '') {
+    http_response_code(400);
+    echo json_encode(['error' => 'Parámetros requeridos']);
+    exit;
+}
+
+$sentencia = $bd->prepare("SELECT user_id, type_doc, doc_number, first_name, paternal_surname, maternal_surname, gender, birth_date, cel_number, email, role_system, property_category, house_id, photo_url, status_validated, status_reason, status_system, civil_status, profession, address_reniec, district, province, region, password_system FROM users WHERE LOWER(username_system) = LOWER(:username)");
+$sentencia->bindParam(':username', $username, PDO::PARAM_STR);
+$sentencia->execute();
 $user = $sentencia->fetchObject();
 
 if ($user) {
-    // Verificar la contraseña
-    if (password_verify($password, $user->password_system)) {
-        // Remover el hash antes de enviar la respuesta
+    $hashInfo = password_get_info($user->password_system);
+    $isHashed = $hashInfo['algo'] !== 0;
+    $validPassword = $isHashed
+        ? password_verify($password, $user->password_system)
+        : hash_equals($user->password_system, $password); // compatibilidad con claves en texto plano
+
+    if ($validPassword) {
+        $token = generateToken([
+            'user_id' => $user->user_id,
+            'role_system' => $user->role_system,
+            'house_id' => $user->house_id,
+        ]);
         unset($user->password_system);
-        echo json_encode($user);
-    } else {
-        echo json_encode(['error' => 'Contraseña incorrecta']);
+        echo json_encode(['user' => $user, 'token' => $token]);
+        exit;
     }
-} else {
-    echo json_encode(['error' => 'Usuario no encontrado']);
 }
+
+http_response_code(401);
+echo json_encode(['error' => 'Credenciales inválidas']);
 ?>

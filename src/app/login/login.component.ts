@@ -21,6 +21,7 @@ import { Area } from '../area';
 import { AccessPoint } from '../accessPoint';
 import { Payment } from '../payment';
 import { SystemClient } from '../systemClient';
+import { AuthService } from '../auth.service';
 
 
 @Component({
@@ -65,6 +66,7 @@ export class LoginComponent implements OnInit {
     private snackBar: MatSnackBar,
     private router: Router,
     private toastr: ToastrService,
+    private auth: AuthService,
     
   ) { }
 
@@ -84,69 +86,58 @@ export class LoginComponent implements OnInit {
   }
 
   login(){
-    this.isloading=true;// Habilitar el estado de carga
+    this.isloading=true;
+    this.username_system=this.username_system.trim();
+    this.password_system=this.password_system.trim();
 
-    this.usersService.getPaymentByClientId(1).subscribe((resPay:Payment)=>{
-      console.log(resPay);
-      if(resPay.error){
-        this.cookies.deleteToken("user_id");
-        this.cookies.deleteToken("user_role");
-        this.cookies.deleteToken('sala');
-        this.cookies.deleteToken('onSession');
-        console.error('Error al obtener el pago:', resPay.error);
-        this.toastr.error('Error al obtener la licencia: '+resPay.error);
-        this.router.navigateByUrl('/login');
+    this.auth.login(this.username_system, this.password_system).subscribe({
+      next: (user: User) => {
+        this.user = user;
+        if (this.user.role_system && this.user.role_system !== 'NINGUNO') {
+          this.cookiesService.setToken('user_id', String(this.user.user_id));
+          this.cookiesService.setToken('user_role', String(this.user.role_system));
+          this.cookiesService.setToken('userOnSes', JSON.stringify(this.user));
 
+          // Ahora que hay token, validar licencia
+          this.usersService.getPaymentByClientId(1).subscribe({
+            next: (resPay: Payment) => {
+              this.isloading = false;
+              if ((resPay as any)?.error) {
+                this.cookies.deleteToken("user_id");
+                this.cookies.deleteToken("user_role");
+                this.cookies.deleteToken('sala');
+                this.cookies.deleteToken('onSession');
+                this.toastr.error('Error al obtener la licencia: ' + (resPay as any).error);
+                this.router.navigateByUrl('/login');
+                return;
+              }
+              this.toastr.success('Inicio de sesión exitoso');
+              this.router.navigateByUrl('/');
+            },
+            error: (error) => {
+              this.isloading = false;
+              this.cookies.deleteToken("user_id");
+              this.cookies.deleteToken("user_role");
+              this.cookies.deleteToken('sala');
+              this.cookies.deleteToken('onSession');
+              this.toastr.error('Error al obtener la licencia: ' + error);
+              this.router.navigateByUrl('/login');
+            }
+          });
+        } else {
+          this.isloading = false;
+          this.toastr.warning('El usuario no tiene permisos');
+        }
+      },
+      error: (err) => {
+        this.isloading = false;
+        if (this.username_system === '' || this.password_system === '') {
+          this.toastr.warning('Ingresa un usuario y contraseña');
+        } else {
+          this.toastr.error(err?.message || 'Usuario y/o contraseña incorrecto(s)');
+        }
       }
-      else{
-
-        this.username_system=this.username_system.trim();
-        this.password_system=this.password_system.trim();
-        this.usersService.getUser(this.username_system,this.password_system).subscribe((res:User)=>{
-        console.log(res);
-        console.log('este');
-          this.isloading = false; // Deshabilitar el estado de carga
-          if(res && res['error'] !== 'Contraseña incorrecta' && res['error'] !== 'Usuario no encontrado'){
-            this.user=res;
-            if(this.user.role_system!='NINGUNO'){
-              this.cookiesService.setToken('user_id',String(this.user.user_id));
-              this.cookiesService.setToken('userOnSes',String(this.user));
-              location.reload();
-              this.toastr.success('Inicio de sesión exitoso')
-            }
-            else{
-              this.toastr.warning('El usuario no tiene permisos');
-            }
-  
-    
-          }
-          else{
-            if(this.username_system==''||this.password_system==''){
-              this.toastr.warning('Ingresa un usuario y contraseña');
-            }
-            else{
-              this.toastr.error('Usuario y/o contraseña incorrecto(s)');
-            }
-    
-          }
-        })
-      }
-    },
-    (error) => {
-      this.isloading = false; // Deshabilitar el estado de carga
-      this.cookies.deleteToken("user_id");
-      this.cookies.deleteToken("user_role");
-      this.cookies.deleteToken('sala');
-      this.cookies.deleteToken('onSession');
-      console.error('Error al obtener el pago:', error);
-
-      // Maneja el error aquí según tus necesidades
-      this.toastr.error('Error al obtener la licencia: '+error);
-      this.router.navigateByUrl('/login');
     });
-
-    
-
   }
 
 
@@ -158,13 +149,8 @@ export class LoginComponent implements OnInit {
       }
     })
 
-    if(this.cookiesService.checkToken('user_id')){
-
+    if(this.auth.isAuthenticated()){
       this.router.navigateByUrl('/');
-
-    }
-    else{
-      this.router.navigateByUrl('/login');
     }
   }
 

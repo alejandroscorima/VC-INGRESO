@@ -12,19 +12,20 @@ import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
-  { path: "", component: InicioComponent },
-  { path: "listas", component: ListasComponent  },
-  { path: "history", component: HistoryComponent },
-  { path: "hb", component: BirthdayComponent },
-  { path: "upload", component: UploadComponent },
   { path: "login", component: LoginComponent },
-  { path: "settings", component: SettingsComponent },
-  { path: "users", component: UsersComponent },
-  { path: "houses", component: HousesComponent },
-  { path: "vehicles", component: VehiclesComponent },
-  { path: "my-house", component: MyHouseComponent },
+  { path: "", component: InicioComponent, canActivate: [AuthGuard] },
+  { path: "listas", component: ListasComponent, canActivate: [AuthGuard] },
+  { path: "history", component: HistoryComponent, canActivate: [AuthGuard] },
+  { path: "hb", component: BirthdayComponent, canActivate: [AuthGuard] },
+  { path: "upload", component: UploadComponent, canActivate: [AuthGuard] },
+  { path: "settings", component: SettingsComponent, canActivate: [AuthGuard] },
+  { path: "users", component: UsersComponent, canActivate: [AuthGuard] },
+  { path: "houses", component: HousesComponent, canActivate: [AuthGuard] },
+  { path: "vehicles", component: VehiclesComponent, canActivate: [AuthGuard] },
+  { path: "my-house", component: MyHouseComponent, canActivate: [AuthGuard] },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz
   //{ path: "**", redirectTo: "/clientes" }
 ];

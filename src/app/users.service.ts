@@ -32,8 +32,8 @@ export class UsersService {
   //Commit change getUserNew
 
   //login
-  getUser(username_system, password_system) {
-    return this.http.get(`${this.baseUrl}/getUser.php?username_system=${username_system}&password_system=${password_system}`);
+  getUser(username_system: string, password_system: string) {
+    return this.http.post(`${this.baseUrl}/getUser.php`, { username_system, password_system });
   }
 
   //myhouse
