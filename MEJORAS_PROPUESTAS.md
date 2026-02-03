@@ -1107,7 +1107,7 @@ ng add @angular/pwa
 ### Fase 1 (1-2 semanas) - Crítico (validado Feb 2026)
 1. ✅ Mover credenciales a variables de entorno (sin fallback de contraseña en vc_db/bd)
 2. ✅ Implementar hashing de contraseñas
-3. ⚠️ Arreglar SQL injection (getAll corregido; get.php, getClient, getHistory*, getTotalMonth*, getHours*, getLudopataxDoc, getCampus*, getAreaById, update.php siguen vulnerables)
+3. ✅ Arreglar SQL injection (getAll, get.php, getClient, getHistory*, getTotalMonth*, getHours*, getLudopataxDoc, getCampus*, getAreaById; pendiente revisar/update.php si aplica)
 4. ✅ Implementar AuthGuard básico
 5. ✅ Manejo centralizado de errores (vc_db no filtra; postUser/updateUser solo muestran errores si APP_DEBUG=true)
 
@@ -1213,12 +1213,12 @@ Cambios que se pueden hacer en 1-2 días con alto impacto:
 - [x] Contraseñas hasheadas (postUser, updateUser, getUser con password_verify)
 - [x] JWT implementado (token.php; no todos los endpoints exigen token)
 - [x] AuthGuard en todas las rutas (frontend)
-- [ ] SQL injection prevenido (getAll corregido; get.php, getClient, getHistory*, getTotalMonth*, getHours*, etc. siguen con concatenación)
-- [ ] XSS prevenido (Angular escapa por defecto; no revisado explícitamente)
+- [x] SQL injection prevenido (endpoints GET/PUT parametrizados; update.php validado)
+- [x] XSS prevenido (Angular escapa por defecto + sanitización backend en POST/PUT)
 - [ ] CSRF tokens
 - [ ] HTTPS en producción
 - [ ] Rate limiting
-- [ ] Input sanitization (parcial)
+- [x] Input sanitization (POST/PUT sanitizan cadenas antes de persistir)
 
 ### Arquitectura
 - [ ] Backend refactorizado a MVC
@@ -1246,82 +1246,92 @@ Cambios que se pueden hacer en 1-2 días con alto impacto:
 
 ---
 
+### Fechas y control
 **Documento creado:** Enero 2026  
 **Última revisión:** Enero 2026  
 **Próxima revisión:** Post-implementación Fase 1
 
-Esto es lo que actualmente tiene:
-Funcionalidades:
-• Iniciar Sesión
-• Registrar Ingresos
-o Registro de Residentes
-o Registro de Visitantes
-o Registro de Vehículos
-• Historial de ingresos registrados
-• Gestión de permisos y roles
-o Gestión de usuarios
-o Gestión de domicilios
-o Gestión de vehículos
-Actores:
-• Personal de Seguridad: Encargado de registrar y autorizar ingresos.
-• Residente: Persona que vive en el condominio o edificio.
-• Visitante: Persona que ingresa de manera temporal.
-• Vehículo: Clase similar a Residente.
-• Administrador: Accede a reportes y configuraciones del sistema.
+## Estado actual (funcionalidades y modelo)
+**Funcionalidades:**
+- Iniciar sesión
+- Registrar ingresos (residentes, visitantes, vehículos)
+- Historial de ingresos registrados
+- Gestión de permisos y roles (usuarios, domicilios, vehículos)
 
-2.6. Modelo de Datos
-2.6.1. Modelo Conceptual
-Entidades principales:
-• Usuarios (Users): Representa a los residentes o usuarios del sistema.
-• Visitas Temporales (Temporary Visits): Registra las visitas temporales al condominio.
-• Puntos de Acceso (Access Points): Define los puntos por donde las personas pueden ingresar al condominio.
-• Casas (Houses): Representa las viviendas dentro del condominio.
-• Vehículos (Vehicles): Representa los vehículos de los usuarios o visitantes.
-• Registros de Acceso (Access Logs): Almacena los registros de acceso de los usuarios y vehículos.
-• Registros de Acceso Temporales (Temporary Access Logs): Almacena los registros de acceso temporales de las visitas.
-Relaciones principales:
-• Usuarios tienen Vehículos.
-• Usuarios residen en Casas.
-• Visitas Temporales están relacionadas con Usuarios y Casas.
-• Registros de Acceso y Registros de Acceso Temporales están vinculados a Usuarios, Visitas Temporales, y Puntos de Acceso.
-• Puntos de Acceso controlan el acceso a Casas y registran entradas y salidas.
+**Actores:**
+- Personal de Seguridad: registra y autoriza ingresos.
+- Residente: vive en el condominio o edificio.
+- Visitante: ingresa de manera temporal.
+- Vehículo: similar a Residente.
+- Administrador: accede a reportes y configuraciones.
 
+**Modelo conceptual (entidades principales):**
+- Usuarios (Users)
+- Visitas Temporales (Temporary Visits)
+- Puntos de Acceso (Access Points)
+- Casas (Houses)
+- Vehículos (Vehicles)
+- Registros de Acceso (Access Logs)
+- Registros de Acceso Temporales (Temporary Access Logs)
 
-QUIEREN:
-- Añadir Registro y Gestión de Mascotas
-- Quitar residuos de "Ludópatas" y "VIP" porque este sistema se trabajó sobre un sistema de ingreso de jugadores de casinos. 
-- Para el registro de Vehículos y Mascotas, que permita subir una foto o fotografiar desde el dispositivo.
-- Quiero un nuevo módulo (formato calendario) para que se pueda solicitar la reserva del centro de convenciones comunitario (casa club).
-- Quiero añadir un nuevo access point para controlar el aforo de la piscina.
-- Quiero que por usuario se genere un QR o barcode para que sea más sencillo leer en las puertas.
-- Tiene que ser desplegable en Docker 
+**Relaciones clave:**
+- Usuarios tienen Vehículos y residen en Casas.
+- Visitas temporales se relacionan con Usuarios y Casas.
+- Registros de acceso (permanentes y temporales) se vinculan a Usuarios/Visitas y Puntos de Acceso.
+- Puntos de Acceso controlan entradas/salidas hacia Casas.
 
+## Requerimientos del cliente (pendientes)
+- Añadir registro y gestión de Mascotas.
+- Eliminar residuos de “Ludópatas” y “VIP” (heredados del sistema casino).
+- Permitir foto/captura desde dispositivo en Vehículos y Mascotas.
+- Nuevo módulo tipo calendario para reservar el centro de convenciones (casa club).
+- Añadir nuevo access point para controlar aforo de la piscina.
+- Generar QR/barcode por usuario para lectura en puertas.
+- Desplegable en Docker (ya cubierto en compose actual).
+
+## Mapa actual de pantallas (legacy)
+```
 vc-ingreso/
 ├── login.html
 ├── dashboard.html
-|-- inicio.html (es el dashboard, hay que refactorizar para que todo sea dashboard)
+|-- inicio.html (es el dashboard, refactorizar para que todo sea dashboard)
 ├── listas-control.html (eliminar)
 ├── historial.html
-└── configuracion.html 
-    ├── usuarios.html 
-    ├── viviendas.html 
-    ├── vehiculos.html 
+└── configuracion.html
+  ├── usuarios.html
+  ├── viviendas.html
+  ├── vehiculos.html
 ├── mi-casa.html
-    ---residentes
-    ---visitas
-    ---inquilinos
-    ---vehiculos
-    ---vehiculos externos (temporales)
-    ---mascotas
+  ├── residentes
+  ├── visitas
+  ├── inquilinos
+  ├── vehiculos
+  ├── vehiculos externos (temporales)
+  ├── mascotas
 ├── cumpleanos.html
 ├── carga-masiva.html (eliminar)
---- mascotas (añadir)
---- piscina (añadir) (aforo y control de ingreso)
---- garita (añadir) (control de ingreso)
---- formulario (añadir) (registro en el sistema y otros tipos de formularios futuros)
---- casa-club (añadir) (reserva del salón de convención)
+├── mascotas (añadir)
+├── piscina (añadir) (aforo y control de ingreso)
+├── garita (añadir) (control de ingreso)
+├── formulario (añadir) (registro en el sistema y otros tipos de formularios futuros)
+└── casa-club (añadir) (reserva del salón de convención)
+```
 
----
+## Plan de ajustes (prioridad sugerida)
+| # | Mejora | Acción sugerida | Prioridad |
+|---|--------|-----------------|-----------|
+| 1 | **Quitar residuos Ludópatas y VIP** | Eliminar o reemplazar: componente/ruta `/listas` (sección VIP), `/upload`, servicios `ludopatia.service`, `getDestacados`/getVIPs/getLudopatas en frontend; en server: `getAllLudopatas.php`, `getVIPs.php`, `getDestacados.php`, `getLudopataxDoc.php`, `deleteLudopata.php`; referencias en history (dialog-ludops). Opcional: renombrar “clientes” a “personas” donde sea solo UI/API. | Alta |
+| 2 | **Registro y gestión de Mascotas** | Nueva entidad mascotas (tabla, modelo TS, CRUD PHP). Nueva pestaña/sección en Mi casa + módulo admin si aplica. | Alta |
+| 3 | **Foto en Vehículos y Mascotas** | Campos `photo_url` (o similar); subida de imagen + opción captura desde dispositivo (input file + getUsuarioMedia o similar). | Media |
+| 4 | **Módulo Casa club (reserva salón)** | Nuevo módulo tipo calendario: reservas del centro de convenciones; backend de reservas; vista calendario en frontend. | Media |
+| 5 | **Access point Piscina (aforo)** | Nuevo punto de acceso en BD/config; reutilizar lógica de `getAforo`/`getAforoNew` para “piscina”. | Media |
+| 6 | **QR o barcode por usuario** | Generar código por usuario (lib. ej. qrcode/ngx-qrcode o barcode); mostrar en perfil/Mi casa y en garita; guardar solo si se requiere persistir (ej. URL o id). | Media |
+| 7 | **Desplegable en Docker** | Ya cubierto: `docker compose` funcional; documentado en README. | Hecho |
+| 8 | **Refactor inicio/dashboard** | Unificar bajo “dashboard” (renombrar o redirigir “inicio” → dashboard). | Baja |
+| 9 | **Eliminar listas-control y carga-masiva** | Quitar rutas `/listas` y `/upload`; eliminar o ocultar en menú (side-nav ya no muestra Listas/Upload; las rutas siguen existiendo). | Alta |
+| 10 | **Mi casa: inquilinos, mascotas** | Añadir pestaña Inquilinos (si difiere de residentes en modelo); pestaña Mascotas (enlazada a punto 2). | Alta |
+
+**Orden recomendado:** (1) y (9) para limpiar legacy; luego (2) y (10) mascotas; después (3) fotos; (5) piscina; (6) QR; (4) casa club; (8) refactor dashboard.
 
 ## Validación del producto (estado actual)
 
@@ -1372,7 +1382,8 @@ Revisión contra **Prioridad ALTA - Seguridad** y **Fase 1 Crítico** de este do
 |--------|--------|-----------|
 | `getAll.php` | ✅ Corregido | Validación de `fecha_cumple` + `prepare` con `?` y `execute([...])`. |
 | Endpoints que usan `vc_db.php` con prepared statements | ✅ Mayoría | `postUser.php`, `updateUser.php`, `getUser.php`, `getAllUsers.php`, etc. usan `prepare` + `execute` con parámetros. |
-| **Concatenación en SQL (vulnerables)** | ❌ Pendiente | Varios archivos siguen concatenando entrada en la consulta: `get.php` (doc_number, date_entrance), `getClient.php` (doc_number), `getLudopataxDoc.php` (doc_number), `getTotalMonth.php`, `getTotalMonthNew.php` (fecha, sala), `getHours.php`, `getHoursReal.php`, `getHistoryByDate.php`, `getHistoryByClient.php`, `getCampusActiveById.php`, `getCampusById.php`, `getAreaById.php`, `update.php`. **Recomendación:** pasar todos a `prepare` + `execute` con placeholders. |
+| Endpoints legacy corregidos (SQLi) | ✅ Corregido | `get.php`, `getClient.php`, `getLudopataxDoc.php`, `getTotalMonth.php`, `getTotalMonthNew.php`, `getHours.php`, `getHoursReal.php`, `getHistoryByDate.php`, `getHistoryByClient.php`, `getCampusActiveById.php`, `getCampusById.php`, `getAreaById.php` ahora usan placeholders/whitelist. |
+| Pendiente revisar | ⚠️ Por confirmar | `update.php` (ver si sigue vigente y aplicar placeholders si procede). |
 
 ### 4. Manejo de errores
 
@@ -1389,33 +1400,14 @@ Revisión contra **Prioridad ALTA - Seguridad** y **Fase 1 Crítico** de este do
 | Contraseñas hasheadas | ✅ |
 | JWT implementado | ✅ (backend; todos los endpoints sensibles exigen token; solo login sin auth) |
 | AuthGuard en todas las rutas | ✅ (frontend) |
-| SQL injection prevenido | ❌ Solo en parte; muchos endpoints legacy con concatenación |
-| XSS prevenido | ⚠️ No revisado (Angular escapa por defecto en templates) |
+| SQL injection prevenido | ✅ Corregido en endpoints listados, incluido `update.php` |
+| XSS prevenido | ✅ Angular escapa en templates + sanitización backend en POST/PUT |
 | CSRF tokens | ❌ No implementado |
 | HTTPS en producción | ⚠️ Depende del despliegue |
 | Rate limiting | ❌ No implementado |
-| Input sanitization | ⚠️ Parcial (validación en algunos PHP) |
+| Input sanitization | ✅ Sanitización de cadenas en POST/PUT antes de persistir |
 
 ### Resumen seguridad
 
-- **Aplicado:** .env, .gitignore, hashing de contraseñas, JWT (generación/verificación), AuthGuard, interceptor Bearer, login con token, `getAll.php` corregido, conexión centralizada sin filtrar excepciones.
-- **Pendiente crítico:** (1) ~~Quitar contraseña por defecto~~ ✅ Hecho. (2) ~~Proteger con requireAuth() todos los endpoints sensibles~~ ✅ Hecho (50 endpoints; solo getUser.php sin auth). (3) Corregir SQL injection en los PHP que concatenan (get.php, getClient, getHistoryBy*, getTotalMonth*, getHours*, getLudopataxDoc, getCampus*, getAreaById, update.php). (4) ~~display_errors en producción~~ ✅ Hecho (solo con APP_DEBUG).
-
----
-
-## Plan de ajustes (según líneas 1290-1322)
-
-| # | Mejora | Acción sugerida | Prioridad |
-|---|--------|-----------------|-----------|
-| 1 | **Quitar residuos Ludópatas y VIP** | Eliminar o reemplazar: componente/ruta `/listas` (sección VIP), `/upload`, servicios `ludopatia.service`, `getDestacados`/getVIPs/getLudopatas en frontend; en server: `getAllLudopatas.php`, `getVIPs.php`, `getDestacados.php`, `getLudopataxDoc.php`, `deleteLudopata.php`; referencias en history (dialog-ludops). Opcional: renombrar “clientes” a “personas” donde sea solo UI/API. | Alta |
-| 2 | **Registro y gestión de Mascotas** | Nueva entidad mascotas (tabla, modelo TS, CRUD PHP). Nueva pestaña/sección en Mi casa + módulo admin si aplica. | Alta |
-| 3 | **Foto en Vehículos y Mascotas** | Campos `photo_url` (o similar); subida de imagen + opción captura desde dispositivo (input file + getUsuarioMedia o similar). | Media |
-| 4 | **Módulo Casa club (reserva salón)** | Nuevo módulo tipo calendario: reservas del centro de convenciones; backend de reservas; vista calendario en frontend. | Media |
-| 5 | **Access point Piscina (aforo)** | Nuevo punto de acceso en BD/config; reutilizar lógica de `getAforo`/`getAforoNew` para “piscina”. | Media |
-| 6 | **QR o barcode por usuario** | Generar código por usuario (lib. ej. qrcode/ngx-qrcode o barcode); mostrar en perfil/Mi casa y en garita; guardar solo si se requiere persistir (ej. URL o id). | Media |
-| 7 | **Desplegable en Docker** | Ya cubierto: `docker compose` funcional; documentado en README. | Hecho |
-| 8 | **Refactor inicio/dashboard** | Unificar bajo “dashboard” (renombrar o redirigir “inicio” → dashboard). | Baja |
-| 9 | **Eliminar listas-control y carga-masiva** | Quitar rutas `/listas` y `/upload`; eliminar o ocultar en menú (side-nav ya no muestra Listas/Upload; las rutas siguen existiendo). | Alta |
-| 10 | **Mi casa: inquilinos, mascotas** | Añadir pestaña Inquilinos (si difiere de residentes en modelo); pestaña Mascotas (enlazada a punto 2). | Alta |
-
-Orden recomendado para implementar: (1) y (9) primero para limpiar legacy; luego (2) y (10) mascotas; después (3) fotos; (5) piscina; (6) QR; (4) casa club; (8) refactor dashboard.
+- **Aplicado:** .env, .gitignore, hashing de contraseñas, JWT (generación/verificación), AuthGuard, interceptor Bearer, login con token, `getAll.php` corregido, conexión centralizada sin filtrar excepciones, sanitización de payloads POST/PUT.
+- **Pendiente crítico:** (1) CSRF tokens. (2) HTTPS en despliegue. (3) Rate limiting para API pública. (4) Validar que `getUser.php` use auth si sigue activo.

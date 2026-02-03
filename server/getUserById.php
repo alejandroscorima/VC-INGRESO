@@ -1,10 +1,10 @@
 <?php
-// Incluir conexión a la base de datos y middleware de auth
+// CORS se maneja en vc_db.php
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
-header("Content-Type: application/json");
+header('Content-Type: application/json');
 
 // Validación y sanitización del parámetro 'user_id'
 if (!isset($_GET['user_id'])) {
@@ -87,5 +87,3 @@ try {
         "message" => "An error occurred. Please try again later."
     ]);
 }
-
-?>

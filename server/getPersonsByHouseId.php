@@ -1,13 +1,12 @@
 <?php
-// Permitir solicitudes de cualquier origen (modificar en producción para mayor seguridad)
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-
-// Incluir conexión a la base de datos
+// CORS se maneja en vc_db.php
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
+header('Content-Type: application/json');
+
+// Incluir conexión a la base de datos
 // Validación y sanitización del parámetro 'house_id'
 if (!isset($_GET['house_id'])) {
     echo json_encode([
@@ -93,5 +92,3 @@ try {
         "message" => "An error occurred. Please try again later."
     ]);
 }
-
-?>

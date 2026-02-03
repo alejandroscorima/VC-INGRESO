@@ -70,6 +70,17 @@ export class AppComponent implements OnInit {
       }
     });
 
+    // Si no hay sesión activa (ni token ni cookie heredada), no llames al backend: evita bucles de navegación
+    const storedUser = this.auth.getUser();
+    const cookieUserId = this.cookies.checkToken('user_id') ? parseInt(this.cookies.getToken('user_id'), 10) : null;
+    if (!storedUser && !cookieUserId) {
+      this.logged = false;
+      if (this.router.url !== '/login') {
+        this.router.navigateByUrl('/login');
+      }
+      return;
+    }
+
     this.usersService.getPaymentByClientId(1).subscribe((resPay: Payment) => {
       if (resPay.error) {
         this.handleLicenseError(resPay.error);
@@ -79,8 +90,8 @@ export class AppComponent implements OnInit {
           this.logged = true;
           this.user = existing;
           this.usersService.setUsr(existing);
-        } else if (this.cookies.checkToken('user_id')) {
-          this.user.user_id = parseInt(this.cookies.getToken('user_id'));
+        } else if (cookieUserId) {
+          this.user.user_id = cookieUserId;
           this.logged = true;
 
           this.usersService.getUserById(this.user.user_id).subscribe((u: User) => {

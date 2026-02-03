@@ -4,26 +4,48 @@ if (getenv('APP_DEBUG') === 'true' || getenv('APP_DEBUG') === '1') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 }
+
+// Headers CORS explícitos
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Origin, Accept');
+
+// Manejar preflight OPTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 if ($_SERVER["REQUEST_METHOD"] != "PUT") {
-    exit("Solo acepto peticiones PUT");
+    http_response_code(405);
+    exit(json_encode(["error" => "Solo acepto peticiones PUT"]));
 }
 
-$jsonUser  = json_decode(file_get_contents("php://input"));
-if (!$jsonUser ) {
-    exit("No hay datos");
+$jsonUser  = json_decode(file_get_contents("php://input"), true);
+if (!$jsonUser) {
+    http_response_code(400);
+    exit(json_encode(["error" => "No hay datos"]));
 }
+require_once __DIR__ . '/sanitize.php';
+$fields = [
+    'type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname',
+    'gender', 'birth_date', 'cel_number', 'email', 'role_system', 'username_system',
+    'property_category', 'house_id', 'photo_url', 'status_validated', 'status_reason',
+    'status_system', 'civil_status', 'profession', 'address_reniec', 'district',
+    'province', 'region', 'user_id'
+];
+$clean = sanitize_payload($jsonUser, $fields);
 
 // Hashear la contraseña antes de guardarla
-$hashedPassword = password_hash($jsonUser->password_system, PASSWORD_DEFAULT);
+$password = $jsonUser['password_system'] ?? '';
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-// Conexión a la base de datos
+// CORS se maneja arriba
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
+
+header('Content-Type: application/json');
 
 // Preparar la consulta SQL para actualizar el usuario
 $sql = "UPDATE users SET 
@@ -57,31 +79,31 @@ $sentencia = $bd->prepare($sql);
 
 // Ejecutar la consulta con los valores del JSON recibido
 $resultado = $sentencia->execute([
-    $jsonUser->type_doc,
-    $jsonUser->doc_number,
-    $jsonUser->first_name,
-    $jsonUser->paternal_surname,
-    $jsonUser->maternal_surname,
-    $jsonUser->gender,
-    $jsonUser->birth_date,
-    $jsonUser->cel_number,
-    $jsonUser->email,
-    $jsonUser->role_system,
-    $jsonUser->username_system,
+    $clean['type_doc'],
+    $clean['doc_number'],
+    $clean['first_name'],
+    $clean['paternal_surname'],
+    $clean['maternal_surname'],
+    $clean['gender'],
+    $clean['birth_date'],
+    $clean['cel_number'],
+    $clean['email'],
+    $clean['role_system'],
+    $clean['username_system'],
     $hashedPassword,
-    $jsonUser->property_category,
-    $jsonUser->house_id,
-    $jsonUser->photo_url,
-    $jsonUser->status_validated,
-    $jsonUser->status_reason,
-    $jsonUser->status_system,
-    $jsonUser->civil_status,
-    $jsonUser->profession,
-    $jsonUser->address_reniec,
-    $jsonUser->district,
-    $jsonUser->province,
-    $jsonUser->region,
-    $jsonUser->user_id
+    $clean['property_category'],
+    $clean['house_id'],
+    $clean['photo_url'],
+    $clean['status_validated'],
+    $clean['status_reason'],
+    $clean['status_system'],
+    $clean['civil_status'],
+    $clean['profession'],
+    $clean['address_reniec'],
+    $clean['district'],
+    $clean['province'],
+    $clean['region'],
+    $clean['user_id']
 ]);
 
 // Retornar respuesta en JSON

@@ -1,12 +1,12 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header('Content-Type: application/json');
-
+// CORS se maneja en vc_db.php
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
-$doc_number=$_GET['doc_number'];
+header('Content-Type: application/json');
+
+$doc_number=$_GET['doc_number'] ?? '';
 
 // Validar los parámetros
 if (empty($doc_number)) {
@@ -65,6 +65,6 @@ try {
         echo json_encode(['error' => 'Usuario no encontrado.']);
     }
 } catch (PDOException $e) {
-    echo json_encode(['error' => 'Error al consultar la base de datos.', 'details' => $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(['error' => 'Error al consultar la base de datos.']);
 }
-?>

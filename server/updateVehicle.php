@@ -1,38 +1,41 @@
-
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: PUT");
-header("Access-Control-Allow-Headers: *");
-if ($_SERVER["REQUEST_METHOD"] != "PUT") {
-    exit("Solo acepto peticiones PUT");
-}
-$jsonVehicle = json_decode(file_get_contents("php://input"));
-if (!$jsonVehicle) {
-    exit(json_encode(["error"=>"No hay datos"]));
-}
-if (
-    empty($jsonVehicle->vehicle_id) || 
-    empty($jsonVehicle->house_id) || 
-    empty($jsonVehicle->status_system)
-) {
-    exit(json_encode(["error" => "Datos incompletos"]));
-}
-
+// CORS se maneja en vc_db.php
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
+header('Content-Type: application/json');
+
+if ($_SERVER["REQUEST_METHOD"] != "PUT") {
+    http_response_code(405);
+    exit(json_encode(["error" => "Solo acepto peticiones PUT"]));
+}
+$jsonVehicle = json_decode(file_get_contents("php://input"), true);
+if (!$jsonVehicle) {
+    http_response_code(400);
+    exit(json_encode(["error"=>"No hay datos"]));
+}
+require_once __DIR__ . '/sanitize.php';
+$clean = sanitize_payload($jsonVehicle, ['vehicle_id', 'type_vehicle', 'house_id', 'status_validated', 'status_reason', 'status_system', 'category_entry']);
+if (
+    empty($clean['vehicle_id']) || 
+    empty($clean['house_id']) || 
+    empty($clean['status_system'])
+) {
+    http_response_code(400);
+    exit(json_encode(["error" => "Datos incompletos"]));
+}
+
 try {
     $sentencia = $bd->prepare("UPDATE vehicles SET type_vehicle = ?, house_id = ?, status_validated = ?, status_reason = ?, status_system = ?, category_entry = ? WHERE vehicle_id = ?");
     $resultado = $sentencia->execute([
-        $jsonVehicle->type_vehicle, 
-        $jsonVehicle->house_id, 
-        $jsonVehicle->status_validated, 
-        $jsonVehicle->status_reason, 
-        $jsonVehicle->status_system,
-        $jsonVehicle->category_entry, 
-        $jsonVehicle->vehicle_id
+        $clean['type_vehicle'], 
+        $clean['house_id'], 
+        $clean['status_validated'], 
+        $clean['status_reason'], 
+        $clean['status_system'],
+        $clean['category_entry'], 
+        $clean['vehicle_id']
     ]);
     if ($resultado) {
         echo json_encode(["success" => true, "message" => "Vehículo actualizado correctamente"]);
@@ -41,5 +44,6 @@ try {
     }
 
 } catch (PDOException $e) {
-    echo json_encode(["success" => false, "error" => "Error de base de datos: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Error de base de datos"]);
 }

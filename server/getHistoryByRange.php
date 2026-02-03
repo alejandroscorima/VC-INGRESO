@@ -1,6 +1,10 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+// CORS se maneja en vc_db.php
+$bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
+header('Content-Type: application/json; charset=UTF-8');
 
 // Recibir los parámetros enviados a través de GET
 $fecha_inicial = $_GET['fecha_inicial'];
@@ -8,10 +12,6 @@ $fecha_final = $_GET['fecha_final'];
 $access_point = $_GET['access_point'];
 
 // Conectar a la base de datos
-$bd = include_once "vc_db.php";
-require_once __DIR__ . '/auth_middleware.php';
-requireAuth();
-
 // Validar los parámetros
 if (empty($fecha_inicial) || empty($fecha_final) || empty($access_point)) {
     echo json_encode(['error' => 'Faltan parámetros requeridos.']);
@@ -129,7 +129,6 @@ try {
     // Devolver los resultados como JSON
     echo json_encode($results);
 } catch (PDOException $e) {
-    // Manejo de errores
-    echo json_encode(['error' => $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(['error' => 'Error en la consulta']);
 }
-?>

@@ -12,10 +12,8 @@ $bd = include_once "bdEntrance.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
-$sentencia = $bd->prepare("SELECT id, type_doc, code, doc_number, name FROM ludopatas WHERE doc_number = '".$doc_number."'");
-
+$sentencia = $bd->prepare("SELECT id, type_doc, code, doc_number, name FROM ludopatas WHERE doc_number = :doc");
+$sentencia->bindParam(':doc', $doc_number, PDO::PARAM_STR);
 $sentencia->execute();
-//$cliente = $sentencia->fetchObject();
 $ludop = $sentencia->fetchObject();
-//echo json_encode($cliente[$cliente.length()-1]);
 echo json_encode($ludop);

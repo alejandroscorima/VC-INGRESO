@@ -1,10 +1,10 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header('Content-Type: application/json');
-
+// CORS se maneja en vc_db.php
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
+
+header('Content-Type: application/json');
 
 $fecha_cumple = $_GET['fecha_cumple'] ?? null;
 
@@ -65,6 +65,6 @@ try {
     // Verificar si se encontraron resultados
     echo json_encode($user);
 } catch (PDOException $e) {
-    echo json_encode(['error' => true, 'message' => $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(['error' => true, 'message' => 'Error en la consulta']);
 }
-?>

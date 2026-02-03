@@ -4,16 +4,14 @@
 header("Access-Control-Allow-Origin: *");
 //header("Access-Control-Allow-Origin: http://192.168.4.250");
 
-$area_id=$_GET['area_id'];
+$area_id = $_GET['area_id'] ?? '';
 
 $bd = include_once "bdData.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
-$sentencia = $bd->prepare("SELECT area_id, name, chief_id, zone  FROM areas WHERE area_id=".$area_id);
-
+$sentencia = $bd->prepare("SELECT area_id, name, chief_id, zone FROM areas WHERE area_id = :area_id");
+$sentencia->bindParam(':area_id', $area_id, PDO::PARAM_INT);
 $sentencia->execute();
-//$cliente = $sentencia->fetchObject();
 $area = $sentencia->fetchObject();
-//echo json_encode($cliente[$cliente.length()-1]);
 echo json_encode($area);
