@@ -58,6 +58,7 @@ import { MyHouseComponent } from './my-house/my-house.component';
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
 import { authInterceptor } from './auth.interceptor';
+import { errorInterceptor } from './error.interceptor';
 
 Chart.register(...registerables);
 
@@ -120,5 +121,9 @@ Chart.register(...registerables);
         MatTabsModule,
         NgChartsModule,
         ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
-        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService, provideHttpClient(withInterceptors([authInterceptor]))] })
+        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, 
+        CookieService, 
+        provideHttpClient(
+            withInterceptors([authInterceptor, errorInterceptor])
+        )] })
 export class AppModule { }

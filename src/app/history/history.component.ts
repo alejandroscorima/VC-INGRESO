@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { ClientesService } from "../clientes.service"
-import { Person } from "../person"
+import { UsersService } from "../users.service"
+import { User } from "../user"
+import { AccessLogService } from "../access-log.service"
 import { Visit } from "../visit"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,7 +13,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Sale } from '../sale';
-import { PersonalService } from '../personal.service';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
 import html2canvas from 'html2canvas';
@@ -63,7 +63,7 @@ export class HistoryComponent implements OnInit {
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
   constructor(
-    private clientesService: ClientesService,
+    private accessLogService: AccessLogService,
     private entranceService: EntranceService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
@@ -90,7 +90,7 @@ export class HistoryComponent implements OnInit {
   }
 
   salaChange(){
-    this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
+    this.accessLogService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
       this.visits=vrange;
       this.dataSourceHistory = new MatTableDataSource(this.visits);
       this.dataSourceHistory.paginator = this.paginator.toArray()[0];
@@ -132,7 +132,7 @@ export class HistoryComponent implements OnInit {
       if(this.access_point!=''){
   
   
-        this.clientesService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
+        this.accessLogService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
           this.visits=vrange;
           this.dataSourceHistory = new MatTableDataSource(this.visits);
           this.dataSourceHistory.paginator = this.paginator.toArray()[0];
@@ -152,7 +152,7 @@ export class HistoryComponent implements OnInit {
       data:{data:vis,dataSala:this.access_point}
     })
 
-    dialogRef.afterClosed().subscribe((res:Person) => {
+    dialogRef.afterClosed().subscribe((res:User) => {
     })
   }
 
@@ -163,7 +163,7 @@ export class HistoryComponent implements OnInit {
       data:""
     })
 
-    dialogRef.afterClosed().subscribe((res:Person) => {
+    dialogRef.afterClosed().subscribe((res:User) => {
     })
   }
 
@@ -190,7 +190,7 @@ export class HistoryComponent implements OnInit {
     this.toastr.success('Mostrando historial del día de hoy: '+this.day+'/'+this.month+'/'+this.year);
 
   //Cargar historial al inicio basado en valores predefinidos
-    this.clientesService.getHistoryByRange(this.fechaString_inicial, this.fechaString_final, this.access_point).subscribe((vrange: Visit[]) => {
+    this.accessLogService.getHistoryByRange(this.fechaString_inicial, this.fechaString_final, this.access_point).subscribe((vrange: Visit[]) => {
       this.visits = vrange;
       console.log(this.visits);
       this.dataSourceHistory = new MatTableDataSource(this.visits);
@@ -230,13 +230,13 @@ export class DialogHistoryDetail implements OnInit {
     public dialogRef: MatDialogRef<DialogHistoryDetail>,
     @Inject(MAT_DIALOG_DATA) public data,
     private fb: FormBuilder,
-    private clientesService: ClientesService,
+    private accessLogService: AccessLogService,
     private toastr: ToastrService,
   ) {}
 
   ngOnInit(): void {
 
-    this.clientesService.getHistoryByClient(this.data['data'].date_entrance,this.data['dataSala'],this.data['data'].doc_number).subscribe((vList:Visit[])=>{
+    this.accessLogService.getHistoryByClient(this.data['data'].date_entrance,this.data['dataSala'],this.data['data'].doc_number).subscribe((vList:Visit[])=>{
       vList.unshift(this.data['data']);
       this.visits=vList;
       this.dataSourceHistoryClient = new MatTableDataSource(this.visits);
@@ -274,7 +274,6 @@ export class DialogLudops implements OnInit {
     public dialogRef: MatDialogRef<DialogLudops>,
     @Inject(MAT_DIALOG_DATA) public data,
     private fb: FormBuilder,
-    private clientesService: ClientesService,
     private toastr: ToastrService,
   ) {}
 

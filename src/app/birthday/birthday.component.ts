@@ -11,7 +11,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Sale } from '../sale';
-import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -106,7 +105,7 @@ export class BirthdayComponent implements OnInit {
   }
 
   private loadBirthdays(fecha_cumple: string) {
-    this.usersServices.getUsersByBirthday(fecha_cumple).subscribe((nList: User[]) => {
+    this.usersServices.getPersonsByBirthday(fecha_cumple).subscribe((nList: User[]) => {
       this.neighbors = nList;
       this.dataSourceHB = new MatTableDataSource(this.neighbors);
       this.dataSourceHB.paginator = this.paginator.toArray()[0];

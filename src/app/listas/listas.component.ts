@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { ClientesService } from "../clientes.service"
-import { Person } from "../person"
+import { UsersService } from "../users.service"
+import { User } from "../user"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
@@ -11,7 +11,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Sale } from '../sale';
-import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
 
 import html2canvas from 'html2canvas';
@@ -36,18 +35,18 @@ export class ListasComponent implements OnInit {
 
   expandedElement: Item ;
 
-  cliente: Person;
+  cliente: User;
 
-  observados: Person[]= [];
-  restringidos: Person[] = [];
-  vips: Person[] = [];
+  observados: User[]= [];
+  restringidos: User[] = [];
+  permitidos: User[] = [];
 
   fecha;
   fechaString;
 
-  dataSourceObservados: MatTableDataSource<Person>;
-  dataSourceRestringidos: MatTableDataSource<Person>;
-  dataSourceVips: MatTableDataSource<Person>;
+  dataSourceObservados: MatTableDataSource<User>;
+  dataSourceRestringidos: MatTableDataSource<User>;
+  dataSourcePermitidos: MatTableDataSource<User>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
@@ -55,7 +54,7 @@ export class ListasComponent implements OnInit {
   month: string;
   year: string;
 
-  constructor(    private clientesService: ClientesService,
+  constructor(    private usersService: UsersService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -91,32 +90,32 @@ export class ListasComponent implements OnInit {
 
   applyFilterV(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSourceVips.filter = filterValue.trim().toLowerCase();
+    this.dataSourcePermitidos.filter = filterValue.trim().toLowerCase();
 
-    if (this.dataSourceVips.paginator) {
-      this.dataSourceVips.paginator.firstPage();
+    if (this.dataSourcePermitidos.paginator) {
+      this.dataSourcePermitidos.paginator.firstPage();
     }
   }
 
   ngOnInit() {
 
-    this.clientesService.getObservados().subscribe((observadosList:Person[])=>{
+    this.usersService.getPersonsByStatus('OBSERVADO').subscribe((observadosList:User[])=>{
       this.observados=observadosList;
       this.dataSourceObservados = new MatTableDataSource(this.observados);
       this.dataSourceObservados.paginator = this.paginator.toArray()[0];
       this.dataSourceObservados.sort = this.sort.toArray()[0];
 
-      this.clientesService.getRestringidos().subscribe((restringidosList:Person[])=>{
+      this.usersService.getPersonsByStatus('DENEGADO').subscribe((restringidosList:User[])=>{
         this.restringidos=restringidosList;
         this.dataSourceRestringidos = new MatTableDataSource(this.restringidos);
         this.dataSourceRestringidos.paginator = this.paginator.toArray()[1];
         this.dataSourceRestringidos.sort = this.sort.toArray()[1];
 
-        this.clientesService.getVips().subscribe((vipsList:Person[])=>{
-          this.vips=vipsList;
-          this.dataSourceVips = new MatTableDataSource(this.vips);
-          this.dataSourceVips.paginator = this.paginator.toArray()[2];
-          this.dataSourceVips.sort = this.sort.toArray()[2];
+        this.usersService.getPersonsByStatus('PERMITIDO').subscribe((permitidosList:User[])=>{
+          this.permitidos=permitidosList;
+          this.dataSourcePermitidos = new MatTableDataSource(this.permitidos);
+          this.dataSourcePermitidos.paginator = this.paginator.toArray()[2];
+          this.dataSourcePermitidos.sort = this.sort.toArray()[2];
         });
       });
     })
@@ -125,7 +124,7 @@ export class ListasComponent implements OnInit {
   onSubmit() {
   }
 
-  delete(c:Person){
+  delete(c: User){
 
   }
 
@@ -268,7 +267,7 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    this.cliente = new Person('','','','','','','','','','','RESTRINGIDO','','','','INDIVIDUAL','','','','','','',0,0,'','')
+    this.cliente = new User('','','','','','','','','','','DENEGADO','','','','INDIVIDUAL','','','','','','',0,0,'','')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,
@@ -385,7 +384,7 @@ export class ListasComponent implements OnInit {
 
     // console.log(this.fechaString);
 
-    this.cliente = new Person('','','','','','','','','','','VIP','CLIENTE VIP','','','INDIVIDUAL','','','','','','',0,0,'','')
+    this.cliente = new User('','','','','','','','','','','PERMITIDO','CLIENTE PERMITIDO','','','INDIVIDUAL','','','','','','',0,0,'','')
 
     dialogRef=this.dialog.open(DialogNewR,{
       data:this.cliente,

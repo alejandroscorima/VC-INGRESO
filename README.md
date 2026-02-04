@@ -1,642 +1,191 @@
 # VC-INGRESO - Sistema de Control de Acceso Residencial
 
-## 📋 Descripción General
+## Descripción General
 
-**VC-INGRESO** es una aplicación web completa para la gestión y control de acceso de personas y vehículos en urbanizaciones, condominios o complejos residenciales. El sistema permite registrar ingresos, administrar usuarios, casas, vehículos, mascotas y mantener listas de control (observados, restringidos; permitidos: propietarios, residentes, inquilinos, visitas, visitantes temporales). 
+**VC-INGRESO** es una aplicación web para gestión y control de acceso de personas y vehículos en condominios.
 
 ### Características Principales
 
-- ✅ **Control de Acceso**: Registro y validación de ingresos de personas y vehículos
-- 👥 **Gestión de Usuarios**: Administración de residentes, propietarios e inquilinos
-- 🏠 **Gestión de Viviendas**: Administración de casas/departamentos por bloques y lotes
-- 🚗 **Gestión de Vehículos**: Registro de vehículos residentes y externos
-- **Gestión de Mascotas**: Registro de Mascotas por casa/departamento 
-- 📊 **Dashboard y Estadísticas**: Visualización de datos con gráficos y métricas en tiempo real
-- 📋 **Listas de Control**: Manejo de personas observadas, restringidas, permitidas. 
-- 📅 **Historial de Ingresos**: Consulta de registros por fecha, rango y usuario 
-- 🎂 **Cumpleaños**: Gestión de fechas especiales de residentes
-- 🔐 **Sistema de Autenticación**: Login con roles y permisos diferenciados
-- 📄 **Exportación de Datos**: Generación de reportes en Excel y PDF
-- 📤 **Carga Masiva**: Importación de listas desde archivos Excel *(módulo legacy; previsto eliminar)*
-
-### Origen del proyecto
-El sistema se desarrolló sobre una base de **control de acceso para casinos** (términos como "cliente", "VIP", "ludópata", "colaborador"). Para **condominios** se mantiene la funcionalidad útil y se irán eliminando residuos de esa terminología sin afectar el funcionamiento.
+- Control de acceso con validación de estado (PERMITIDO/OBSERVADO/DENEGADO)
+- Gestión de residentes, visitantes y personal
+- Administración de viviendas y vehículos
+- Dashboard con estadísticas en tiempo real
+- Sistema de autenticación con roles
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura del Sistema
 
 ### Stack Tecnológico
 
 #### Frontend
 - **Framework**: Angular 18.2.11
-- **UI Framework**: Angular Material 17.3.10
-- **Estilos**: Tailwind CSS 3.4.1 + Flowbite 2.5.2
-- **Gráficos**: Chart.js 4.4.7, ng2-charts 7.0.0, angular-google-charts 16.0.1
-- **Notificaciones**: ngx-toastr 17.0.2
-- **Exportación**: mat-table-exporter 15.0.0, xlsx 0.18.5
-- **PDF**: jsPDF 2.5.1, html2canvas 1.4.1, pdfjs-dist 3.8.162
+- **UI**: Angular Material 17.3.10
+- **Estilos**: Tailwind CSS 3.4.1
+- **Gráficos**: Chart.js 4.4.7
 
 #### Backend
-- **Lenguaje**: PHP (APIs RESTful)
-- **Base de Datos**: MySQL (nombre típico: `vc_db`; configurable vía `DB_NAME` en `.env`)
-- **Servidor**: Apache/XAMPP o Docker
-
-#### Control de Versiones
-- **Repositorio**: GitHub (alejandroscorima/VC-INGRESO)
-- **Branch actual**: feature/settings
-- **Branch principal**: main
+- **Lenguaje**: PHP 8.2 (APIs RESTful)
+- **Patrón**: MVC (Model-View-Controller)
+- **Base de Datos**: MySQL
+- **Servidor**: Apache/Docker
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 VC-INGRESO/
-├── src/                          # Código fuente del frontend
-│   ├── app/                      # Módulos y componentes de Angular
-│   │   ├── components/           # Componentes de la aplicación
-│   │   │   ├── inicio/           # Dashboard principal con estadísticas
-│   │   │   ├── login/            # Autenticación de usuarios
-│   │   │   ├── listas/           # Gestión de listas de control
-│   │   │   ├── history/          # Historial de ingresos
-│   │   │   ├── upload/           # Carga de archivos Excel 
-│   │   │   ├── birthday/         # Gestión de cumpleaños
-│   │   │   ├── settings/         # Configuraciones del sistema (ADMIN) 
-│   │   │   ├── users/            # Administración de usuarios  (ADMIN)
-│   │   │   ├── houses/           # Administración de viviendas (ADMIN) 
-│   │   │   ├── vehicles/         # Administración de vehículos (ADMIN) 
-│   │   │   ├── my-house/         # Vista y registro de residentes, vehiculos, visitas, temporales (USER)
-│   │   │   ├── nav-bar/          # Barra de navegación
-│   │   │   └── side-nav/         # Menú lateral
-│   │   │
-│   │   ├── services/             # Servicios de Angular
- 
-│   │   │   ├── users.service.ts         # Gestión de usuarios del sistema
-│   │   │   ├── entrance.service.ts      # Control de ingresos
-
-│   │   │   ├── access-log.service.ts    # Registro de accesos
- 
-│   │   │   ├── file-upload.service.ts   # Carga de archivos
-│   │   │   ├── cookies.service.ts       # Manejo de cookies
- 
-│   │   │
-│   │   ├── models/               # Modelos de datos (TypeScript)
-│   │   │   ├── person.ts         # Modelo de persona 
-│   │   │   ├── user.ts           # Modelo de usuario del sistema
-│   │   │   ├── house.ts          # Modelo de vivienda
-│   │   │   ├── vehicle.ts        # Modelo de vehículo
-│   │   │   ├── externalVehicle.ts # Modelo de vehículo externo
- 
-│   │   │   ├── payment.ts        # Modelo de pago/licencia
-│   │   │   ├── accessPoint.ts    # Modelo de punto de acceso
- 
-│   │   │   ├── systemClient.ts   # Modelo de cliente del sistema
-│   │   │   └── visit.ts          # Modelo de visita
-│   │   │
-│   │   ├── app-routing.module.ts # Configuración de rutas
-│   │   ├── app.module.ts         # Módulo principal
-│   │   └── app.component.ts      # Componente raíz
-│   │
-│   ├── assets/                   # Recursos estáticos (imágenes, iconos)
-│   ├── environments/             # Configuración de entornos
-│   ├── styles.css                # Estilos globales con Tailwind
-│   └── index.html                # HTML principal
+├── src/                          # Frontend Angular
+│   ├── app/
+│   │   ├── api.service.ts        # Servicio HTTP unificado
+│   │   ├── error.interceptor.ts  # Manejo de errores
+│   │   ├── auth.service.ts       # Autenticación
+│   │   ├── auth.interceptor.ts   # Bearer token
+│   │   ├── controllers/          # Controladores Angular
+│   │   └── components/           # Componentes UI
+│   └── environments/
 │
 ├── server/                       # Backend PHP
-│   ├── vc_db.php                # Conexión BD principal (DB_NAME = vc_db)
-│   ├── bd.php                   # Conexión BD ingresos (DB_ENTRANCE_NAME = vc_entrance)
-│   ├── bdEntrance.php           # Conexión BD ingresos (DB_ENTRANCE_NAME)
-│   ├── bdLicense.php            # Conexión BD licencias (DB_LICENSE_NAME = vc_clients)
-│   ├── bdData.php               # Conexión BD datos (DB_DATA_NAME = vc_data)
-│   │
-│   ├── GET Endpoints/           # APIs de consulta
-│   │   ├── getAll.php           # Obtener todos (usa bd.php)
-│   │   ├── getClient.php        # Persona por documento
-│   │   ├── getAllUsers.php      # Usuarios del sistema
-│   │   ├── getUserById.php      # Usuario por ID
-│   │   ├── getAllHouses.php     # Viviendas
-│   │   ├── getAllVehicles.php   # Vehículos
-│   │   ├── getHistoryByDate.php # Historial por fecha
-│   │   ├── getHistoryByRange.php # Historial por rango
-│   │   ├── getObservados.php    # Lista observados
-│   │   ├── getRestringidos.php  # Lista restringidos
-│   │   ├── getAforo.php         # Control de aforo
-│   │   ├── getAllLudopatas.php  # (legacy casino – previsto eliminar)
-│   │   ├── getVIPs.php          # (legacy casino – previsto eliminar)
-│   │   └── ...                  # Más endpoints GET
-│   │
-│   ├── POST Endpoints/          # APIs de creación
-│   │   ├── postClient.php       # Crear cliente
-│   │   ├── postUser.php         # Crear usuario
-│   │   ├── postHouse.php        # Crear vivienda
-│   │   ├── postVehicle.php      # Crear vehículo
-│   │   └── postExternalVehicle.php # Crear vehículo externo
-│   │
-│   ├── PUT Endpoints/           # APIs de actualización
-│   │   ├── update.php           # Actualización general
-│   │   ├── updateClient.php     # Actualizar cliente
-│   │   ├── updateUser.php       # Actualizar usuario
-│   │   ├── updateHouse.php      # Actualizar vivienda
-│   │   └── updateVehicle.php    # Actualizar vehículo
-│   │
-│   └── DELETE Endpoints/        # APIs de eliminación
-│       ├── deleteClient.php     # Eliminar cliente
-│       └── deleteLudopata.php   # Eliminar ludópata
+│   ├── controllers/              # Controladores MVC
+│   │   ├── Controller.php        # Clase base
+│   │   ├── UserController.php    # Usuarios del sistema
+│   │   ├── PersonController.php  # Personas (unificado)
+│   │   ├── HouseController.php   # Viviendas
+│   │   ├── VehicleController.php # Vehículos
+│   │   └── ExternalVehicleController.php
+│   ├── utils/
+│   │   ├── Response.php          # Respuestas JSON
+│   │   └── Router.php            # Enrutamiento
+│   ├── index.php                 # Entry point API
+│   ├── vc_db.php                 # Conexión BD
+│   └── auth_middleware.php       # JWT Auth
 │
-├── e2e/                         # Tests end-to-end (Protractor)
-├── angular.json                 # Configuración de Angular
-├── package.json                 # Dependencias NPM
-├── tsconfig.json                # Configuración TypeScript
-├── tailwind.config.js           # Configuración Tailwind CSS
-└── karma.conf.js                # Configuración de tests
-
+├── docker-compose.yml            # Docker配置
+└── README.md
 ```
 
 ---
 
-## 🔄 Flujo de Datos
+## API REST v1
 
-### Arquitectura Cliente-Servidor
+### Endpoints
 
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| **USERS** |
+| GET | `/api/v1/users` | Listar usuarios |
+| GET | `/api/v1/users/:id` | Usuario por ID |
+| POST | `/api/v1/users` | Crear usuario |
+| PUT | `/api/v1/users/:id` | Actualizar |
+| DELETE | `/api/v1/users/:id` | Eliminar |
+| **PERSONS** |
+| GET | `/api/v1/persons` | Listar personas |
+| GET | `/api/v1/persons/:id` | Persona por ID |
+| GET | `/api/v1/persons/observed` | Solo OBSERVADOS |
+| GET | `/api/v1/persons/restricted` | Solo DENEGADOS |
+| POST | `/api/v1/persons` | Crear persona |
+| PUT | `/api/v1/persons/:id` | Actualizar |
+| PUT | `/api/v1/persons/:id/validate` | Cambiar estado |
+| DELETE | `/api/v1/persons/:id` | Eliminar |
+| **HOUSES** |
+| GET | `/api/v1/houses` | Listar viviendas |
+| POST | `/api/v1/houses` | Crear vivienda |
+| PUT | `/api/v1/houses/:id` | Actualizar |
+| DELETE | `/api/v1/houses/:id` | Eliminar |
+| **VEHICLES** |
+| GET | `/api/v1/vehicles` | Listar vehículos |
+| POST | `/api/v1/vehicles` | Crear vehículo |
+| PUT | `/api/v1/vehicles/:id` | Actualizar |
+| DELETE | `/api/v1/vehicles/:id` | Eliminar |
+| **EXTERNAL-VEHICLES** |
+| GET | `/api/v1/external-vehicles` | Listar externos |
+| POST | `/api/v1/external-vehicles` | Crear |
+| PUT | `/api/v1/external-vehicles/:id` | Actualizar |
+| DELETE | `/api/v1/external-vehicles/:id` | Eliminar |
+
+### Estados de Validación (Persons)
+
+| Estado | Significado |
+|--------|-------------|
+| `PERMITIDO` | Acceso normal (default) |
+| `OBSERVADO` | Requiere atención especial |
+| `DENEGADO` | Sin acceso |
+
+---
+
+## Instalación
+
+### Docker (Recomendado)
+
+```bash
+cp .env.example .env
+docker compose up --build
+
+# Backend: http://localhost:8080
+# Frontend: http://localhost:4200
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         FRONTEND (Angular)                       │
-├─────────────────────────────────────────────────────────────────┤
-│  Componentes  →  Servicios  →  HttpClient  →  APIs PHP          │
-│     ↓              ↓             ↓                               │
-│  Templates   Models/Types   Observable/RxJS                     │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │ HTTP Requests (GET/POST/PUT/DELETE)
-                           ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                      BACKEND (PHP + MySQL)                       │
-├─────────────────────────────────────────────────────────────────┤
-│  PHP Scripts  →  PDO Connection  →  MySQL Database (vc_db)      │
-│     ↓              ↓                     ↓                       │
-│  JSON Response  SQL Queries        Tables & Relations           │
-└─────────────────────────────────────────────────────────────────┘
+
+### Manual
+
+```bash
+# Frontend
+npm install
+ng serve
+
+# Backend
+# Colocar server/ en Apache
+# Configurar .env
 ```
 
 ---
 
-## 🗂️ Modelos de Datos Principales
+## Modelos de Datos
 
-### Person (Persona / residente / visitante)
+### Person (Persona)
 ```typescript
 {
-  type_doc, doc_number, first_name, paternal_surname, maternal_surname,
-  gender, birth_date, civil_status, profession, cel_number, email,
-  address, district, province, region, username, password,
-  entrance_role, status, reason, house_id, colab_id, photo_url
+  id, doc_number, first_name, paternal_surname, maternal_surname,
+  gender, birth_date, cel_number, email, address,
+  status_validated: 'PERMITIDO' | 'OBSERVADO' | 'DENEGADO',
+  status_reason, person_type, house_id, photo_url
 }
 ```
 
 ### User (Usuario del Sistema)
 ```typescript
 {
-  type_doc, doc_number, first_name, paternal_surname, maternal_surname,
-  gender, birth_date, cel_number, email, role_system, username_system,
-  password_system, property_category, house_id, photo_url,
-  status_validated, status_reason, status_system, block_house, lot, apartment
+  user_id, doc_number, first_name, paternal_surname, email,
+  role_system, username_system, house_id, status_validated
 }
 ```
 
 ### House (Vivienda)
 ```typescript
 {
-  house_id, block_house, lot, apartment, status_system
+  id, block_house, lot, apartment, status_system
 }
 ```
 
 ### Vehicle (Vehículo)
 ```typescript
 {
-  vehicle_id, license_plate, type_vehicle, house_id,
-  status_validated, status_reason, status_system, category_entry
+  id, license_plate, type_vehicle, house_id,
+  status_validated, category_entry
 }
 ```
 
 ---
 
-## 🚀 Instalación y Configuración
+## Seguridad
 
-### Prerrequisitos
-
-- Node.js 20+ y npm
-- Angular CLI 18.2.11
-- PHP 7.4+
-- MySQL 5.7+
-- Apache (XAMPP/WAMP recomendado)
-
-### Instalación del Frontend
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/alejandroscorima/VC-INGRESO.git
-cd VC-INGRESO
-
-# Instalar dependencias
-npm install
-
-# Ejecutar en modo desarrollo
-ng serve
-
-# La aplicación estará disponible en http://localhost:4200/
-```
-
-### Configuración del Backend
-
-1. **Configurar Base de Datos**:
-   - Crear base de datos MySQL llamada `vc_db`
-   - Importar el esquema de base de datos (si está disponible)
-
-2. **Variables de entorno**: copiar `.env.example` a `.env` y ajustar valores. Hay 5 archivos de conexión, cada uno con su BD (mismo host/user/pass):
-```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASS=change_me
-DB_CHARSET=utf8mb4
-DB_NAME=vc_db
-DB_ENTRANCE_NAME=vc_entrance
-DB_LICENSE_NAME=vc_clients
-DB_DATA_NAME=vc_data
-CORS_ALLOW_ORIGIN=*
-```
-   **Mapeo:** `vc_db.php` → DB_NAME; `bd.php` y `bdEntrance.php` → DB_ENTRANCE_NAME; `bdLicense.php` → DB_LICENSE_NAME; `bdData.php` → DB_DATA_NAME. No renombrar estos archivos para no romper los `include` en el resto de PHP.
-
-3. **Configurar Servidor**:
-   - Colocar la carpeta `server/` en el directorio del servidor web
-   - Asegurarse de que Apache y MySQL estén ejecutándose
-
-4. **Configurar CORS**:
-   - Los archivos PHP ya incluyen headers CORS para desarrollo
-   - Ajustar según sea necesario para producción
-
-### Configuración de Entornos
-
-Editar `src/environments/environment.ts`:
-```typescript
-export const environment = {
-  production: false,
-  baseUrl: 'http://localhost/VC-INGRESO/server'
-};
-```
-
-### Docker (recomendado – despliegue viable)
-
-El proyecto **es desplegable en Docker** y está listo para desarrollo y pruebas.
-
-```bash
-# Copiar variables
-cp .env.example .env
-
-# Levantar backend PHP (puerto 8080) y frontend Angular (puerto 4200)
-docker compose up --build
-
-# Backend disponible en http://localhost:8080
-# Frontend en http://localhost:4200
-```
-
-- El servicio `api` usa Apache + PHP 8.2 con las variables del `.env`.
-- El servicio `frontend` ejecuta `npm install` y `ng serve`. La primera vez puede tardar.
-- En producción, usa variables de entorno inyectadas por el orquestador y no montes `.env` en la imagen.
+- **Autenticación**: JWT (JSON Web Tokens)
+- **Contraseñas**: Hasheadas con `password_hash()`
+- **SQL Injection**: Prevenida con PDO prepared statements
+- **CORS**: Configurado para desarrollo
 
 ---
 
-## 📱 Módulos y Funcionalidades
+## Licencia
 
-### 1. Dashboard (Inicio)
-- **Ruta**: `/`
-- **Componente**: `InicioComponent`
-- **Funcionalidades**:
-  - Gráficos estadísticos (barras, líneas, donut)
-  - Métricas de ingresos en tiempo real
-  - Resumen de actividad diaria
-  - Alertas y notificaciones
-
-### 2. Login
-- **Ruta**: `/login`
-- **Componente**: `LoginComponent`
-- **Funcionalidades**:
-  - Autenticación de usuarios
-  - Validación de licencias/pagos
-  - Gestión de sesiones con cookies
-  - Redirección según rol
-
-### 3. Listas de Control
-- **Ruta**: `/listas`
-- **Componente**: `ListasComponent`
-- **Funcionalidades**:
-  - Gestión de personas observadas
-  - Gestión de personas restringidas
-  - Gestión de VIPs *(legacy casino; previsto eliminar o reemplazar)*
-  - Filtrado y búsqueda
-  - Exportación a Excel
-
-### 4. Historial de Ingresos
-- **Ruta**: `/history`
-- **Componente**: `HistoryComponent`
-- **Funcionalidades**:
-  - Consulta por fecha específica
-  - Consulta por rango de fechas
-  - Consulta por cliente
-  - Filtros por punto de acceso
-  - Exportación de reportes
-
-### 5. Gestión de Usuarios
-- **Ruta**: `/users`
-- **Componente**: `UsersComponent`
-- **Funcionalidades**:
-  - CRUD de usuarios del sistema
-  - Asignación de roles
-  - Validación de estados
-  - Vinculación con viviendas
-
-### 6. Gestión de Viviendas
-- **Ruta**: `/houses`
-- **Componente**: `HousesComponent`
-- **Funcionalidades**:
-  - CRUD de viviendas
-  - Organización por bloques y lotes
-  - Gestión de departamentos
-  - Estados de sistema (ACTIVO/INACTIVO)
-
-### 7. Gestión de Vehículos
-- **Ruta**: `/vehicles`
-- **Componente**: `VehiclesComponent`
-- **Funcionalidades**:
-  - Registro de vehículos residentes
-  - Registro de vehículos externos
-  - Validación de placas
-  - Categorización de entrada
-
-### 8. Mi Casa
-- **Ruta**: `/my-house`
-- **Componente**: `MyHouseComponent`
-- **Funcionalidades**:
-  - Vista de residente
-  - Información de su vivienda
-  - Gestión de autorizaciones
-
-### 9. Cumpleaños
-- **Ruta**: `/hb`
-- **Componente**: `BirthdayComponent`
-- **Funcionalidades**:
-  - Lista de cumpleaños
-  - Filtros por mes
-  - Recordatorios
-
-### 10. Carga de Archivos *(legacy – previsto eliminar)*
-- **Ruta**: `/upload`
-- **Componente**: `UploadComponent`
-- **Funcionalidades**:
-  - Carga de PDFs (listas de ludópatas – origen casino)
-  - Procesamiento automático
-  - Validación y actualización
-
-### 11. Configuraciones
-- **Ruta**: `/settings`
-- **Componente**: `SettingsComponent`
-- **Funcionalidades**:
-  - Configuraciones del sistema
-  - Parámetros de acceso
-  - Personalización
-
----
-
-## 🔧 Scripts Disponibles
-
-```bash
-# Desarrollo
-npm start              # Inicia servidor de desarrollo
-ng serve               # Mismo que npm start
-ng serve --open        # Abre automáticamente en navegador
-
-# Construcción
-npm run build          # Build de producción
-ng build --prod        # Build optimizado
-
-# Testing
-npm test               # Ejecuta tests unitarios (Karma)
-npm run e2e            # Ejecuta tests e2e (Protractor)
-npm run lint           # Linter (TSLint)
-
-# Generación de componentes
-ng generate component nombre-componente
-ng generate service nombre-servicio
-```
-
----
-
-## 🔐 Sistema de Autenticación
-
-### Roles de Usuario
-- **Admin**: Acceso completo al sistema
-- **Supervisor**: Gestión de registros y reportes
-- **Guardia**: Registro de ingresos básico
-- **Residente**: Vista limitada (Mi Casa)
-
-### Flujo de Autenticación
-1. Usuario ingresa credenciales en `/login`
-2. `UsersService.getUser()` valida contra base de datos
-3. Si es válido, se verifica licencia con `getPaymentByClientId()`
-4. Se almacenan datos en cookies (`user_id`, `user_role`, `sala`, `onSession`)
-5. Redirección al dashboard según rol
-
----
-
-## 📊 Base de Datos
-
-### Tablas Principales
-
-- **clients**: Personas (residentes, visitantes; nombre de tabla heredado de casino)
-- **users**: Usuarios del sistema
-- **houses**: Viviendas del condominio
-- **vehicles**: Vehículos registrados
-- **external_vehicles**: Vehículos externos/temporales
-- **access_points**: Puntos de acceso/garitas
-- **areas**: Áreas del complejo
-- **payments**: Pagos y licencias
-- **entrance_logs**: Registro de ingresos
-- **ludopatas**, **collaborators**: Tablas/entidades legacy (casino); previsto depurar
-
----
-
-## 🎨 Diseño y UI/UX
-
-### Librerías de Estilos
-- **Angular Material**: Componentes Material Design
-- **Tailwind CSS**: Utility-first CSS framework
-- **Flowbite**: Componentes UI basados en Tailwind
-- **Material Icons**: Iconografía
-
-### Características de Diseño
-- Diseño responsive (móvil, tablet, desktop)
-- Dark mode compatible
-- Animaciones suaves con Angular animations
-- Notificaciones toast (ngx-toastr)
-- Tablas con paginación y ordenamiento
-- Diálogos modales para CRUD
-- Formularios reactivos con validación
-
----
-
-## 📈 Exportación y Reportes
-
-### Formatos Soportados
-- **Excel (.xlsx)**: mat-table-exporter, xlsx
-- **PDF**: jsPDF + html2canvas
-- **CSV**: Incluido en mat-table-exporter
-
-### Datos Exportables
-- Historial de ingresos
-- Listas de control (observados, restringidos, VIPs)
-- Lista de usuarios
-- Lista de vehículos
-- Reportes estadísticos
-
----
-
-## 🐛 Debugging y Logs
-
-### Herramientas
-- Chrome DevTools
-- Angular DevTools
-- Console.log en componentes
-- Network tab para APIs
-
-### Errores Comunes
-- **CORS errors**: Verificar headers en PHP
-- **404 en APIs**: Verificar baseUrl en environment
-- **Cookies no guardadas**: Verificar permisos del navegador
-- **Gráficos no se renderizan**: Verificar Chart.js registration
-
----
-
-## 🚀 Despliegue
-
-### Producción
-
-```bash
-# Build de producción
-ng build --prod --base-href /VC-INGRESO/
-
-# Los archivos se generan en dist/Ingreso/
-# Copiar a servidor web (Apache/Nginx)
-```
-
-### Configuración de Servidor
-
-#### Apache (.htaccess)
-```apache
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
-</IfModule>
-```
-
-### Variables de Entorno
-- Crear `environment.prod.ts` con URLs de producción
-- Configurar baseUrl del backend
-- Ajustar CORS en PHP para dominio específico
-
----
-
-## 📝 Convenciones de Código
-
-### TypeScript/Angular
-- Nombres de clases: PascalCase
-- Nombres de variables/funciones: camelCase
-- Nombres de archivos: kebab-case
-- Interfaces: PascalCase con prefijo I (opcional)
-- Servicios: Sufijo Service
-- Componentes: Sufijo Component
-
-### PHP
-- Nombres de archivos: snake_case
-- Funciones: camelCase
-- Variables: snake_case
-- Constantes: UPPER_SNAKE_CASE
-
----
-
-## 🤝 Contribución
-
-### Flujo de Trabajo
-1. Crear rama desde `main`: `git checkout -b feature/nueva-funcionalidad`
-2. Hacer commits descriptivos
-3. Push a GitHub: `git push origin feature/nueva-funcionalidad`
-4. Crear Pull Request a `main`
-5. Revisión y merge
-
-### Estándares
-- Commits en español o inglés (consistente)
-- Mensajes descriptivos
-- Código comentado en secciones complejas
-- Tests para nuevas funcionalidades
-
----
-
-## 📄 Licencia
-
-Este proyecto es privado y pertenece a los propietarios del repositorio alejandroscorima/VC-INGRESO.
-
----
-
-## 👥 Autores
-
-- **Desarrollador Principal**: Alejandro Oscorima & Luis Gustavo
-- **Repositorio**: [alejandroscorima/VC-INGRESO](https://github.com/alejandroscorima/VC-INGRESO)
-
----
-
-## 📞 Soporte
-
-Para soporte técnico o consultas:
-- Abrir un issue en GitHub
-- Contactar al equipo de desarrollo
-
----
-
-## 🔄 Changelog
-
-### Versión Actual (feature/settings)
-- Implementación de módulo de configuraciones
-- Mejoras en gestión de usuarios
-- Optimización de carga de datos
-
-### Versiones Anteriores
-- Ver historial de commits en GitHub
-
----
-
-## 🔮 Roadmap y mejoras
-
-Para **condominios**, está previsto (ver `MEJORAS_PROPUESTAS.md` líneas 1290-1322):
-
-- Eliminar residuos de terminología casino (ludópatas, VIP, carga masiva PDF).
-- Añadir registro y gestión de **mascotas** (con foto).
-- Fotos en registro de **vehículos** y mascotas (subir o capturar).
-- Módulo **casa club**: reserva del salón de convenciones (calendario).
-- Nuevo punto de acceso para **aforo de piscina**.
-- **QR o código de barras** por usuario para lectura en puertas.
-- Refactorizar inicio/dashboard; eliminar listas-control y carga-masiva; ampliar Mi casa (inquilinos, mascotas).
-
-Otros posibles pasos:
-
-- [ ] Autenticación con JWT
-- [ ] API RESTful con Node.js/Express (migración desde PHP)
-- [ ] Notificaciones push en tiempo real
-- [ ] App móvil (Ionic/React Native)
-- [ ] Dashboard analítico avanzado
-- [ ] Multi-tenancy para múltiples condominios
-
----
-
-*Última actualización: Febrero 2026*
+MIT
