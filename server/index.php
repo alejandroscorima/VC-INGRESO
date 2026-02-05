@@ -275,6 +275,165 @@ if (str_starts_with($uri, '/api/v1/')) {
             exit;
         }
     }
+    
+    // ==================== PETS ====================
+    if (str_starts_with($path, 'pets')) {
+        require_once __DIR__ . '/controllers/PetController.php';
+        $controller = new \Controllers\PetController();
+        
+        // pets/:id/photo - subir foto
+        if (str_contains($path, 'photo') && preg_match('#^pets/(\d+)/photo#', $path, $m)) {
+            if ($method === 'POST') {
+                $controller->uploadPhoto($m[1]);
+            }
+            exit;
+        }
+        
+        // pets/:id/validate - cambiar estado
+        if (str_contains($path, 'validate') && preg_match('#^pets/(\d+)/validate#', $path, $m)) {
+            if ($method === 'PUT') {
+                $controller->validate($m[1], []);
+            }
+            exit;
+        }
+        
+        // pets/person/:person_id - mascotas de un propietario
+        if (str_contains($path, 'person/') && preg_match('#^pets/person/(\d+)#', $path, $m)) {
+            if ($method === 'GET') {
+                $controller->byOwner($m[1]);
+            }
+            exit;
+        }
+        
+        // pets/:id
+        if (preg_match('#^pets(?:/(\d+))?#', $path, $matches)) {
+            $id = $matches[1] ?? null;
+            
+            switch ($method) {
+                case 'GET':
+                    if ($id) {
+                        $controller->show($id);
+                    } else {
+                        $controller->index($_GET);
+                    }
+                    break;
+                case 'POST':
+                    $controller->store([]);
+                    break;
+                case 'PUT':
+                    if ($id) {
+                        $controller->update($id, []);
+                    }
+                    break;
+                case 'DELETE':
+                    if ($id) {
+                        $controller->destroy($id);
+                    }
+                    break;
+            }
+            exit;
+        }
+    }
+    
+    // ==================== ACCESS LOGS ====================
+    if (str_starts_with($path, 'access-logs')) {
+        require_once __DIR__ . '/controllers/AccessLogController.php';
+        $controller = new \Controllers\AccessLogController();
+        
+        // access-logs/access-points
+        if (str_contains($path, 'access-points')) {
+            if ($method === 'GET') {
+                $controller->accessPoints();
+            }
+            exit;
+        }
+        
+        // access-logs/stats/daily
+        if (str_contains($path, 'stats/daily')) {
+            if ($method === 'GET') {
+                $controller->dailyStats();
+            }
+            exit;
+        }
+        
+        // access-logs/:id
+        if (preg_match('#^access-logs(?:/(\d+))?#', $path, $matches)) {
+            $id = $matches[1] ?? null;
+            
+            switch ($method) {
+                case 'GET':
+                    if ($id) {
+                        $controller->show($id);
+                    } else {
+                        $controller->index();
+                    }
+                    break;
+                case 'POST':
+                    $controller->store();
+                    break;
+            }
+            exit;
+        }
+    }
+    
+    // ==================== RESERVATIONS ====================
+    if (str_starts_with($path, 'reservations')) {
+        require_once __DIR__ . '/controllers/ReservationController.php';
+        $controller = new \Controllers\ReservationController();
+        
+        // reservations/areas
+        if (str_contains($path, 'areas')) {
+            if ($method === 'GET') {
+                $controller->areas();
+            }
+            exit;
+        }
+        
+        // reservations/availability
+        if (str_contains($path, 'availability')) {
+            if ($method === 'GET') {
+                $controller->availability();
+            }
+            exit;
+        }
+        
+        // reservations/:id/status
+        if (str_contains($path, 'status') && preg_match('#^reservations/(\d+)/status#', $path, $m)) {
+            if ($method === 'PUT') {
+                $controller->updateStatus($m[1]);
+            }
+            exit;
+        }
+        
+        // reservations/:id
+        if (preg_match('#^reservations(?:/(\d+))?#', $path, $matches)) {
+            $id = $matches[1] ?? null;
+            
+            switch ($method) {
+                case 'GET':
+                    if ($id) {
+                        $controller->show($id);
+                    } else {
+                        $controller->index();
+                    }
+                    break;
+                case 'POST':
+                    $controller->store();
+                    break;
+                case 'PUT':
+                    if ($id) {
+                        $controller->update($id);
+                    }
+                    break;
+                case 'DELETE':
+                    if ($id) {
+                        $controller->destroy($id);
+                    }
+                    break;
+            }
+            exit;
+        }
+    }
 }
 
 // Backward compatibility - endpoints legacy
@@ -326,7 +485,34 @@ if (file_exists($file)) {
             'GET /api/v1/external-vehicles/:id' => 'Obtener vehículo externo',
             'POST /api/v1/external-vehicles' => 'Crear vehículo externo',
             'PUT /api/v1/external-vehicles/:id' => 'Actualizar vehículo externo',
-            'DELETE /api/v1/external-vehicles/:id' => 'Eliminar vehículo externo'
+            'DELETE /api/v1/external-vehicles/:id' => 'Eliminar vehículo externo',
+            
+            // Pets (Mascotas)
+            'GET /api/v1/pets' => 'Listar todas las mascotas',
+            'GET /api/v1/pets/:id' => 'Obtener mascota por ID',
+            'GET /api/v1/pets/person/:person_id' => 'Mascotas de un propietario',
+            'POST /api/v1/pets' => 'Crear mascota',
+            'PUT /api/v1/pets/:id' => 'Actualizar mascota',
+            'PUT /api/v1/pets/:id/validate' => 'Cambiar estado de validación',
+            'POST /api/v1/pets/:id/photo' => 'Subir foto de mascota',
+            'DELETE /api/v1/pets/:id' => 'Eliminar mascota',
+            
+            // Access Logs (Logs de Acceso)
+            'GET /api/v1/access-logs' => 'Listar logs de acceso',
+            'GET /api/v1/access-logs/:id' => 'Obtener log por ID',
+            'POST /api/v1/access-logs' => 'Crear registro de acceso',
+            'GET /api/v1/access-logs/access-points' => 'Listar puntos de acceso',
+            'GET /api/v1/access-logs/stats/daily' => 'Estadísticas diarias',
+            
+            // Reservations (Reservaciones Casa Club)
+            'GET /api/v1/reservations' => 'Listar reservaciones',
+            'GET /api/v1/reservations/:id' => 'Obtener reservación',
+            'POST /api/v1/reservations' => 'Crear reservación',
+            'PUT /api/v1/reservations/:id' => 'Actualizar reservación',
+            'PUT /api/v1/reservations/:id/status' => 'Cambiar estado',
+            'DELETE /api/v1/reservations/:id' => 'Eliminar reservación',
+            'GET /api/v1/reservations/areas' => 'Listar áreas disponibles',
+            'GET /api/v1/reservations/availability' => 'Consultar disponibilidad'
         ]
     ]);
 }

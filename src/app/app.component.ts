@@ -2,7 +2,7 @@ import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core'
 import { Router, RouterLink } from '@angular/router';
 import { Area } from './area';
 import { AccessPoint } from './accessPoint';
-import { CookiesService } from './cookies.service';
+import { AuthService } from './auth.service';
 import { EntranceService } from './entrance.service';
 import { User } from './user';
 import { UsersService } from './users.service';
@@ -10,7 +10,6 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Payment } from './payment';
 import { ToastrService } from 'ngx-toastr';
 import { Collaborator } from './collaborator';
-import { AuthService } from './auth.service';
 
 import { initFlowbite } from 'flowbite';
 
@@ -44,17 +43,16 @@ export class AppComponent implements OnInit {
 
 
   constructor(private router: Router,
-    private cookies: CookiesService,
+    private auth: AuthService,
     private usersService: UsersService,
     private entranceService: EntranceService,
     private toastr: ToastrService,
-    private auth: AuthService,
   ){}
 
   logout(){
-    this.cookies.deleteToken('user_id');
-    this.cookies.deleteToken('user_role');
-    this.cookies.deleteToken('userOnSes');
+    this.auth.deleteToken('user_id');
+    this.auth.deleteToken('user_role');
+    this.auth.deleteToken('userOnSes');
     this.auth.logout();
     this.logged = false;
   }
@@ -72,7 +70,7 @@ export class AppComponent implements OnInit {
 
     // Si no hay sesión activa (ni token ni cookie heredada), no llames al backend: evita bucles de navegación
     const storedUser = this.auth.getUser();
-    const cookieUserId = this.cookies.checkToken('user_id') ? parseInt(this.cookies.getToken('user_id'), 10) : null;
+    const cookieUserId = this.auth.checkToken('user_id') ? parseInt(this.auth.getTokenItem('user_id'), 10) : null;
     if (!storedUser && !cookieUserId) {
       this.logged = false;
       if (this.router.url !== '/login') {
@@ -111,10 +109,10 @@ export class AppComponent implements OnInit {
   }
 
   private handleLicenseError(error: any): void {
-    this.cookies.deleteToken("user_id");
-    this.cookies.deleteToken("role_system");
-    this.cookies.deleteToken('sala');
-    this.cookies.deleteToken('onSession');
+    this.auth.deleteToken("user_id");
+    this.auth.deleteToken("role_system");
+    this.auth.deleteToken('sala');
+    this.auth.deleteToken('onSession');
     console.error('Error al obtener la licencia:', error);
     this.toastr.error('Error al obtener la licencia: ' + error);
     this.router.navigateByUrl('/login');

@@ -3,7 +3,7 @@ import { User } from '../user';
 import { House } from '../house';
 import { initFlowbite } from 'flowbite';
 import { EntranceService } from '../entrance.service';
-import { CookiesService } from '../cookies.service';
+import { AuthService } from '../auth.service';
 import { UsersService } from '../users.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { Vehicle } from '../vehicle';
@@ -50,15 +50,15 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   constructor(
     private entranceService: EntranceService,
-    private cookiesService: CookiesService,
+    private auth: AuthService,
     private usersService: UsersService,
     private toastr: ToastrService,
   ){}
 
   ngOnInit(): void {
-    this.cookiesService.getToken('user_id');
-    console.log(this.cookiesService.getToken('user_id'));
-    this.usersService.getUserById(this.cookiesService.getToken('user_id')).subscribe({
+    const userId = this.auth.getTokenItem('user_id');
+    console.log('User ID:', userId);
+    this.usersService.getUserById(Number(userId)).subscribe({
       next:(os:User)=>{
         this.userOnSes.house_id=os.house_id;
         this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe({

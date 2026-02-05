@@ -42,8 +42,18 @@ VC-INGRESO/
 │   │   ├── error.interceptor.ts  # Manejo de errores
 │   │   ├── auth.service.ts       # Autenticación
 │   │   ├── auth.interceptor.ts   # Bearer token
-│   │   ├── controllers/          # Controladores Angular
-│   │   └── components/           # Componentes UI
+│   │   ├── users.service.ts     # Usuarios/personas
+│   │   ├── access-log.service.ts
+│   │   ├── pets.service.ts      # Mascotas
+│   │   ├── reservations.service.ts
+│   │   ├── pet.ts, reservation.ts, user.ts, accessPoint.ts
+│   │   ├── pets/                 # Componente mascotas
+│   │   ├── calendar/             # Calendario reservas Casa Club
+│   │   ├── qr-scanner/           # Escáner QR puertas
+│   │   ├── webcam/               # Captura de fotos
+│   │   ├── history/, birthday/, users/, houses/, vehicles/
+│   │   ├── my-house/, login/, settings/, inicio/, side-nav/
+│   │   └── ...
 │   └── environments/
 │
 ├── server/                       # Backend PHP
@@ -53,7 +63,10 @@ VC-INGRESO/
 │   │   ├── PersonController.php  # Personas (unificado)
 │   │   ├── HouseController.php   # Viviendas
 │   │   ├── VehicleController.php # Vehículos
-│   │   └── ExternalVehicleController.php
+│   │   ├── ExternalVehicleController.php
+│   │   ├── PetController.php    # Mascotas
+│   │   ├── AccessLogController.php  # Logs de acceso
+│   │   └── ReservationController.php # Reservaciones
 │   ├── utils/
 │   │   ├── Response.php          # Respuestas JSON
 │   │   └── Router.php            # Enrutamiento
@@ -61,7 +74,12 @@ VC-INGRESO/
 │   ├── vc_db.php                 # Conexión BD
 │   └── auth_middleware.php       # JWT Auth
 │
-├── docker-compose.yml            # Docker配置
+├── database/                     # Migraciones SQL
+│   ├── access_logs_migration.sql # access_logs + access_points
+│   ├── pets_migration.sql
+│   └── reservations_migration.sql
+├── plans/                        # Plan de trabajo y refactor
+├── docker-compose.yml
 └── README.md
 ```
 
@@ -103,6 +121,30 @@ VC-INGRESO/
 | POST | `/api/v1/external-vehicles` | Crear |
 | PUT | `/api/v1/external-vehicles/:id` | Actualizar |
 | DELETE | `/api/v1/external-vehicles/:id` | Eliminar |
+| **PETS** |
+| GET | `/api/v1/pets` | Listar mascotas |
+| GET | `/api/v1/pets/:id` | Mascota por ID |
+| GET | `/api/v1/pets/person/:person_id` | Mascotas de un propietario |
+| POST | `/api/v1/pets` | Crear mascota |
+| PUT | `/api/v1/pets/:id` | Actualizar |
+| PUT | `/api/v1/pets/:id/validate` | Cambiar estado |
+| POST | `/api/v1/pets/:id/photo` | Subir foto |
+| DELETE | `/api/v1/pets/:id` | Eliminar |
+| **ACCESS-LOGS** |
+| GET | `/api/v1/access-logs` | Listar logs de acceso |
+| GET | `/api/v1/access-logs/:id` | Log por ID |
+| POST | `/api/v1/access-logs` | Crear registro |
+| GET | `/api/v1/access-logs/access-points` | Listar puntos de acceso |
+| GET | `/api/v1/access-logs/stats/daily` | Estadísticas diarias |
+| **RESERVATIONS** |
+| GET | `/api/v1/reservations` | Listar reservaciones |
+| GET | `/api/v1/reservations/:id` | Obtener reservación |
+| POST | `/api/v1/reservations` | Crear reservación |
+| PUT | `/api/v1/reservations/:id` | Actualizar reservación |
+| PUT | `/api/v1/reservations/:id/status` | Cambiar estado |
+| DELETE | `/api/v1/reservations/:id` | Eliminar reservación |
+| GET | `/api/v1/reservations/areas` | Listar áreas disponibles |
+| GET | `/api/v1/reservations/availability` | Consultar disponibilidad |
 
 ### Estados de Validación (Persons)
 
@@ -125,6 +167,14 @@ docker compose up --build
 # Backend: http://localhost:8080
 # Frontend: http://localhost:4200
 ```
+
+### Base de datos
+
+Ejecutar las migraciones en `database/` en este orden (si las tablas base ya existen):
+
+1. `access_logs_migration.sql` — crea `access_logs` y `access_points`
+2. `pets_migration.sql` — crea `pets` (requiere tabla `persons`)
+3. `reservations_migration.sql` — crea `reservations`
 
 ### Manual
 
@@ -172,6 +222,44 @@ ng serve
 {
   id, license_plate, type_vehicle, house_id,
   status_validated, category_entry
+}
+```
+
+### Pet (Mascota)
+```typescript
+{
+  id, name, species: 'DOG'|'CAT'|'BIRD'|'OTHER',
+  breed, color, owner_id, photo_url,
+  status_validated: 'PERMITIDO'|'OBSERVADO'|'DENEGADO',
+  status_reason, microchip_id
+}
+```
+
+### AccessLog (Registro de Acceso)
+```typescript
+{
+  id, access_point_id, person_id, doc_number,
+  vehicle_id, type: 'INGRESO'|'EGRESO',
+  observation, created_at
+}
+```
+
+### AccessPoint (Punto de Acceso)
+```typescript
+{
+  id, name, type, location, is_active,
+  max_capacity, current_capacity
+}
+```
+
+### Reservation (Reservación)
+```typescript
+{
+  id, access_point_id, person_id, house_id,
+  reservation_date, end_date,
+  status: 'PENDIENTE'|'CONFIRMADA'|'CANCELADA'|'COMPLETADA',
+  observation, num_guests, contact_phone,
+  area_name, area_type
 }
 ```
 

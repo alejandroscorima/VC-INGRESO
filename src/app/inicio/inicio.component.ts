@@ -21,7 +21,7 @@ import { Sale } from '../sale';
 import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
 import { Product } from '../product';
-import { CookiesService } from '../cookies.service';
+import { AuthService } from '../auth.service';
 import { Collaborator } from '../collaborator';
 import { AccessPoint } from '../accessPoint';
 import { EntranceService } from '../entrance.service';
@@ -477,11 +477,12 @@ export class InicioComponent implements OnInit {
   @ViewChild('tuTabla', { static: true }) table: ElementRef;
 
 
-  constructor(private clientesService: ClientesService, private dialogo: MatDialog,
+  constructor(
+    private dialogo: MatDialog,
     private snackBar: MatSnackBar, private router: Router,
     public dialog: MatDialog,
     private toastr: ToastrService,
-    private cookies: CookiesService,
+    private auth: AuthService,
     private userService: UsersService,
     private entranceService: EntranceService,
     private accessLogService: AccessLogService,
@@ -528,7 +529,7 @@ export class InicioComponent implements OnInit {
 
     this.getEntrances();
 
-    if(this.cookies.checkToken('user_id')){
+    if(this.auth.checkToken('user_id')){
       this.salaDisabled=false;
       this.mesDisabled=false;
       this.diaDisabled=false;
@@ -537,7 +538,7 @@ export class InicioComponent implements OnInit {
       
 
 
-      this.userService.getUserById(this.cookies.getToken('user_id')).subscribe((user:User)=>{
+      this.userService.getUserById(Number(this.auth.getTokenItem('user_id'))).subscribe((user:User)=>{
         
         this.actualUser=user
         console.log(this.actualUser)

@@ -1,5 +1,4 @@
 import { Component, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener, Inject, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { ClientesService } from "../clientes.service"
 import { User } from "../user"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,12 +14,10 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { UsersService } from '../users.service';
-import { CookiesService } from '../cookies.service';
 import { Session } from 'protractor';
 import { Area } from '../area';
 import { AccessPoint } from '../accessPoint';
 import { Payment } from '../payment';
-import { SystemClient } from '../systemClient';
 import { AuthService } from '../auth.service';
 
 
@@ -50,17 +47,15 @@ export class LoginComponent implements OnInit {
 
   listaReq: Item[]= [];
 
-  systemClient: SystemClient = new SystemClient('','','','','');
+  // systemClient: SystemClient = new SystemClient('','','','','');
 
   dataSourceReq: MatTableDataSource<Item>;
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
-  constructor(private clientesService: ClientesService,
+  constructor(
     private usersService: UsersService,
-    private cookiesService: CookiesService,
-    private cookies: CookiesService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -94,19 +89,19 @@ export class LoginComponent implements OnInit {
       next: (user: User) => {
         this.user = user;
         if (this.user.role_system && this.user.role_system !== 'NINGUNO') {
-          this.cookiesService.setToken('user_id', String(this.user.user_id));
-          this.cookiesService.setToken('user_role', String(this.user.role_system));
-          this.cookiesService.setToken('userOnSes', JSON.stringify(this.user));
+          this.auth.setToken('user_id', String(this.user.user_id));
+          this.auth.setToken('user_role', String(this.user.role_system));
+          this.auth.setToken('userOnSes', JSON.stringify(this.user));
 
           // Ahora que hay token, validar licencia
           this.usersService.getPaymentByClientId(1).subscribe({
             next: (resPay: Payment) => {
               this.isloading = false;
               if ((resPay as any)?.error) {
-                this.cookies.deleteToken("user_id");
-                this.cookies.deleteToken("user_role");
-                this.cookies.deleteToken('sala');
-                this.cookies.deleteToken('onSession');
+                this.auth.deleteToken("user_id");
+                this.auth.deleteToken("user_role");
+                this.auth.deleteToken('sala');
+                this.auth.deleteToken('onSession');
                 this.toastr.error('Error al obtener la licencia: ' + (resPay as any).error);
                 this.router.navigateByUrl('/login');
                 return;
@@ -116,10 +111,10 @@ export class LoginComponent implements OnInit {
             },
             error: (error) => {
               this.isloading = false;
-              this.cookies.deleteToken("user_id");
-              this.cookies.deleteToken("user_role");
-              this.cookies.deleteToken('sala');
-              this.cookies.deleteToken('onSession');
+              this.auth.deleteToken("user_id");
+              this.auth.deleteToken("user_role");
+              this.auth.deleteToken('sala');
+              this.auth.deleteToken('onSession');
               this.toastr.error('Error al obtener la licencia: ' + error);
               this.router.navigateByUrl('/login');
             }
@@ -142,12 +137,12 @@ export class LoginComponent implements OnInit {
 
 
   ngOnInit() {
-
-    this.clientesService.getSystemClientById(1).subscribe((sc:SystemClient)=>{
-      if(sc){
-        this.systemClient=sc;
-      }
-    })
+    // SystemClient info - comentado por refactorización
+    // this.clientesService.getSystemClientById(1).subscribe((sc:SystemClient)=>{
+    //   if(sc){
+    //     this.systemClient=sc;
+    //   }
+    // })
 
     if(this.auth.isAuthenticated()){
       this.router.navigateByUrl('/');

@@ -1,0 +1,203 @@
+<div class="pets-container">
+  <div class="header">
+    <h1>Gestión de Mascotas</h1>
+    <button mat-raised-button color="primary" (click)="openAddDialog()">
+      <mat-icon>add</mat-icon>
+      Registrar Mascota
+    </button>
+  </div>
+
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Buscar</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Nombre, especie, raza...">
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <div class="table-container mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <!-- Foto -->
+      <ng-container matColumnDef="photo">
+        <th mat-header-cell *matHeaderCellDef>Foto</th>
+        <td mat-cell *matCellDef="let pet">
+          <div class="pet-photo">
+            <img *ngIf="pet.photo_url" [src]="pet.photo_url" [alt]="pet.name">
+            <mat-icon *ngIf="!pet.photo_url">pets</mat-icon>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Nombre -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+        <td mat-cell *matCellDef="let pet">{{ pet.name }}</td>
+      </ng-container>
+
+      <!-- Especie -->
+      <ng-container matColumnDef="species">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Especie</th>
+        <td mat-cell *matCellDef="let pet">
+          <mat-chip-set>
+            <mat-chip [class]="'species-' + pet.species.toLowerCase()">
+              {{ pet.species }}
+            </mat-chip>
+          </mat-chip-set>
+        </td>
+      </ng-container>
+
+      <!-- Raza -->
+      <ng-container matColumnDef="breed">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Raza</th>
+        <td mat-cell *matCellDef="let pet">{{ pet.breed || '-' }}</td>
+      </ng-container>
+
+      <!-- Propietario -->
+      <ng-container matColumnDef="owner">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Propietario</th>
+        <td mat-cell *matCellDef="let pet">
+          {{ getOwnerName(pet.owner_id) }}
+        </td>
+      </ng-container>
+
+      <!-- Estado -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+        <td mat-cell *matCellDef="let pet">
+          <mat-chip [style.background-color]="getStatusColor(pet.status_validated)">
+            {{ pet.status_validated }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Acciones -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let pet">
+          <button mat-icon-button color="primary" (click)="openPhotoDialog(pet)" matTooltip="Tomar foto">
+            <mat-icon>photo_camera</mat-icon>
+          </button>
+          <button mat-icon-button (click)=" color="accent"openEditDialog(pet)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deletePet(pet)" matTooltip="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+  </div>
+</div>
+
+<!-- Dialogo Agregar Mascota -->
+<ng-template #addDialog>
+  <h2 mat-dialog-title>Registrar Mascota</h2>
+  <mat-dialog-content>
+    <form class="pet-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="newPet.name" name="name" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Especie</mat-label>
+        <mat-select [(ngModel)]="newPet.species" name="species" required>
+          <mat-option *ngFor="let opt of speciesOptions" [value]="opt.value">
+            {{ opt.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Raza</mat-label>
+        <input matInput [(ngModel)]="newPet.breed" name="breed">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Color</mat-label>
+        <input matInput [(ngModel)]="newPet.color" name="color">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Propietario</mat-label>
+        <mat-select [(ngModel)]="newPet.owner_id" name="owner_id" required>
+          <mat-option *ngFor="let owner of owners" [value]="owner.id">
+            {{ owner.first_name }} {{ owner.paternal_surname }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select [(ngModel)]="newPet.status_validated" name="status">
+          <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
+            {{ opt.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-raised-button color="primary" (click)="createPet()">Guardar</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<!-- Dialogo Editar Mascota -->
+<ng-template #editDialog>
+  <h2 mat-dialog-title>Editar Mascota</h2>
+  <mat-dialog-content>
+    <form class="pet-form" *ngIf="editPet">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="editPet.name" name="name" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Especie</mat-label>
+        <mat-select [(ngModel)]="editPet.species" name="species" required>
+          <mat-option *ngFor="let opt of speciesOptions" [value]="opt.value">
+            {{ opt.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Raza</mat-label>
+        <input matInput [(ngModel)]="editPet.breed" name="breed">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Color</mat-label>
+        <input matInput [(ngModel)]="editPet.color" name="color">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <mat-select [(ngModel)]="editPet.status_validated" name="status">
+          <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
+            {{ opt.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-raised-button color="primary" (click)="updatePet()">Actualizar</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<!-- Dialogo Tomar Foto -->
+<ng-template #photoDialog>
+  <h2 mat-dialog-title>Capturar Foto</h2>
+  <mat-dialog-content>
+    <app-webcam *ngIf="showPhotoDialog" (photoCaptured)="onPhotoCaptured($event)"></app-webcam>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cerrar</button>
+  </mat-dialog-actions>
+</ng-template>

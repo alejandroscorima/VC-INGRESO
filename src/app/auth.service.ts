@@ -65,4 +65,66 @@ export class AuthService {
   isAuthenticated(): boolean {
     return !!this.getUser();
   }
+
+  // ========== Métodos Migrados de CookiesService ==========
+  // Usan localStorage en lugar de cookies
+
+  /**
+   * Guarda un valor en localStorage
+   */
+  setItem(key: string, value: string): void {
+    localStorage.setItem(key, value);
+  }
+
+  /**
+   * Obtiene un valor de localStorage
+   */
+  getItem(key: string): string | null {
+    return localStorage.getItem(key);
+  }
+
+  /**
+   * Verifica si existe un valor en localStorage
+   */
+  hasItem(key: string): boolean {
+    return localStorage.getItem(key) !== null;
+  }
+
+  /**
+   * Elimina un valor de localStorage
+   */
+  removeItem(key: string): void {
+    localStorage.removeItem(key);
+  }
+
+  // ========== Métodos Legacy (Alias para compatibilidad con CookiesService) ==========
+
+  /**
+   * Alias legacy para setItem - usa token_name como key
+   */
+  setToken(token_name: string, token: string): void {
+    this.setItem(token_name, token);
+  }
+
+  /**
+   * Alias legacy para getItem - usa token_name como key
+   * Nota: Para el token de autenticación usar getToken() sin parámetros
+   */
+  getTokenItem(token_name: string): string {
+    return this.getItem(token_name) || '';
+  }
+
+  /**
+   * Alias legacy para hasItem
+   */
+  checkToken(token_name: string): boolean {
+    return this.hasItem(token_name);
+  }
+
+  /**
+   * Alias legacy para removeItem
+   */
+  deleteToken(token_name: string): void {
+    this.removeItem(token_name);
+  }
 }

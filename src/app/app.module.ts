@@ -37,12 +37,11 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { MatTableExporterModule } from 'mat-table-exporter';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { DialogNewO, DialogNewR, DialogConfirm, ListasComponent, DialogNewV, DialogMasiveV } from './listas/listas.component';
 import { DialogDatos, BirthdayComponent } from './birthday/birthday.component';
 
 import {MatGridListModule} from '@angular/material/grid-list';
 import { GoogleChartsModule } from 'angular-google-charts';
-import { UploadComponent, DialogStatus, DialogEditLudop } from './upload/upload.component';
+
 import {MatTabsModule} from '@angular/material/tabs';
 
 import { CookieService } from 'ngx-cookie-service';
@@ -54,6 +53,8 @@ import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
+import { PetsComponent } from './pets/pets.component';
+import { WebcamComponent } from './webcam/webcam.component';
 
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
@@ -65,23 +66,13 @@ Chart.register(...registerables);
 
 @NgModule({ declarations: [
         AppComponent,
-        ListasComponent,
         InicioComponent,
         HistoryComponent,
         BirthdayComponent,
-        UploadComponent,
-        DialogEditLudop,
-        //DialogRevisar,
         DialogRevalidar,
-        DialogNewO,
-        DialogNewR,
-        DialogNewV,
-        DialogMasiveV,
         DialogDatos,
-        DialogConfirm,
         DialogHistoryDetail,
         DialogLudops,
-        DialogStatus,
         LoginComponent,
         NavBarComponent,
         SideNavComponent,
@@ -90,6 +81,8 @@ Chart.register(...registerables);
         HousesComponent,
         VehiclesComponent,
         MyHouseComponent,
+        PetsComponent,
+        WebcamComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
