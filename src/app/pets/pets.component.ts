@@ -200,7 +200,7 @@ export class PetsComponent implements OnInit {
   }
 
   getOwnerName(ownerId: number): string {
-    const owner = this.owners.find(o => o.id === ownerId);
+    const owner = this.owners.find(o => o.user_id === ownerId);
     return owner ? `${owner.first_name} ${owner.paternal_surname}` : 'Desconocido';
   }
 }

@@ -87,4 +87,34 @@ export class AccessLogService {
   getHistoryByClient(fecha: string, sala: string, doc: string): Observable<any> {
     return this.api.getRaw('getHistoryByClient.php', { fecha, sala, doc });
   }
+
+  /** Legacy: estadísticas de aforo (dashboard inicio) */
+  getAforoStat(sala: string, fechaInicio: string, fechaFin: string, fechaMes: string, mes: string, dia: string, fecha1: string, fecha2: string, fecha3: string, fecha4: string, fecha5: string): Observable<any[]> {
+    return this.api.getRaw('getAforo.php', { sala, fechaInicio, fechaFin, fechaMes, mes, dia, fecha1, fecha2, fecha3, fecha4, fecha5 });
+  }
+
+  /** Legacy: estadísticas por distrito */
+  getAddressStat(sala: string, fechaInicio: string, fechaFin: string, fechaMes: string, mes: string, dia: string, fecha1: string, fecha2: string, fecha3: string, fecha4: string, fecha5: string): Observable<any[]> {
+    return this.api.getRaw('getAddress.php', { sala, fechaInicio, fechaFin, fechaMes, mes, dia, fecha1, fecha2, fecha3, fecha4, fecha5 });
+  }
+
+  /** Legacy: total mensual */
+  getTotalMonth(sala: string, fechaMes: string, mes: string, dia: string, fecha1: string, fecha2: string, fecha3: string, fecha4: string): Observable<any[]> {
+    return this.api.getRaw('getTotalMonth.php', { sala, fechaMes, mes, dia, fecha1, fecha2, fecha3, fecha4 });
+  }
+
+  /** Legacy: total mensual (nuevo) */
+  getTotalMonthNew(sala: string, fechaMes: string, mes: string, dia: string, fecha1: string, fecha2: string, fecha3: string, fecha4: string): Observable<any[]> {
+    return this.api.getRaw('getTotalMonthNew.php', { sala, fechaMes, mes, dia, fecha1, fecha2, fecha3, fecha4 });
+  }
+
+  /** Legacy: estadísticas por hora */
+  getHourStat(sala: string, fechaInicio: string, fechaFin: string, fechaMes: string, mes: string, dia: string, fecha1: string, fecha2: string, fecha3: string, fecha4: string, fecha5: string): Observable<any[]> {
+    return this.api.getRaw('getHours.php', { sala, fechaInicio, fechaFin, fechaMes, mes, dia, fecha1, fecha2, fecha3, fecha4, fecha5 });
+  }
+
+  /** Legacy: estadísticas por edad */
+  getAgeStat(sala: string, fechaInicio: string, fechaFin: string, fechaMes: string, mes: string, dia: string, fecha1: string, fecha2: string, fecha3: string, fecha4: string, fecha5: string): Observable<any[]> {
+    return this.api.getRaw('getAge.php', { sala, fechaInicio, fechaFin, fechaMes, mes, dia, fecha1, fecha2, fecha3, fecha4, fecha5 });
+  }
 }

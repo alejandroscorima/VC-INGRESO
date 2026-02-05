@@ -1,7 +1,5 @@
 
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
-import { ClientesService } from "../clientes.service"
-import { Person } from "../person"
 import * as XLSX from 'xlsx';
 
 import { User } from '../user';
@@ -18,7 +16,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MAT_SORT_HEADER_INTL_PROVIDER_FACTORY } from '@angular/material/sort';
 import { Sale } from '../sale';
-import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
 import { Product } from '../product';
 import { AuthService } from '../auth.service';
@@ -194,9 +191,7 @@ export class InicioComponent implements OnInit {
     }
   };
 
-  clientes: Person[] = [
-    new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','','','','','','','',0,0,'','')
-  ];
+  clientes: User[] = [];
   
 
 
@@ -509,12 +504,12 @@ export class InicioComponent implements OnInit {
   }
 
   getEntrances(){
-    this.accessLogService.getAccessLogs('','').subscribe(resLogs => {
-      console.log(resLogs);
-      resLogs.forEach(an=>{
-        this.lineChartData.labels.push(an.date);
-        this.lineChartData.datasets[0].data.push(an.count);
-      })
+    this.accessLogService.getAccessLogs().subscribe((res: any) => {
+      const resLogs = Array.isArray(res) ? res : (res?.data ?? []);
+      resLogs.forEach((an: any) => {
+        this.lineChartData.labels.push(an.date ?? an.FECHA);
+        this.lineChartData.datasets[0].data.push(an.count ?? an.AFORO ?? 0);
+      });
       console.log(this.lineChartData);
     });
   }
@@ -584,13 +579,13 @@ export class InicioComponent implements OnInit {
             this.mesActual = this.meses[this.fecha.getMonth()];
             this.diaActual = String(this.fecha.getDate());
         
-            this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
+            this.accessLogService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
               //corregir lo que supone el dashboard, puedes hacerlo con powerbi
               console.log('Response from API:', res);
               this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
       
       
-              this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
+              this.accessLogService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
       
                 this.fechas=[];
       
@@ -635,7 +630,7 @@ export class InicioComponent implements OnInit {
                   }
                 }
       
-                this.clientesService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
+                this.accessLogService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
       
                   a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
       
@@ -657,9 +652,9 @@ export class InicioComponent implements OnInit {
                     }
                   })
       
-                  this.clientesService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
+                  this.accessLogService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
       
-                    this.clientesService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
+                    this.accessLogService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
       
                       this.mensual=[];
       
@@ -696,7 +691,7 @@ export class InicioComponent implements OnInit {
       
                       this.hours=[];
       
-                      this.clientesService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
+                      this.accessLogService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
                         var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
                         this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
                         var cantidadXHoras=[24];
@@ -728,7 +723,7 @@ export class InicioComponent implements OnInit {
                           }
                         }
       
-                        this.clientesService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
+                        this.accessLogService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
                           if(resAge.length>0){
                             this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
                             var count18a30 = 0;
@@ -1100,14 +1095,14 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
     this.logoSrc="assets/logo"+this.salaCmbBox+".png"
 
-    this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
+    this.accessLogService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
       if(res.length>0){
 
         this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]];
 
         this.fechas=[];
 
-        this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
+        this.accessLogService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
 
           this.columnsFechas=['Fecha','Total',{role:'annotation'},'Nuevos',{role:'annotation'}]
 
@@ -1155,7 +1150,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
         this.fechas=[['No hay datos',0]]
       ]
 
-      this.clientesService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
+      this.accessLogService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
         if(a.length>0){
           this.address=[];
           a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
@@ -1185,11 +1180,11 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
         }
 
 
-        this.clientesService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
+        this.accessLogService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
           if(b.length>0){
             this.mensual=[];
 
-            this.clientesService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
+            this.accessLogService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
 
               this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{role:'annotation'}];
 
@@ -1228,7 +1223,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
           this.hours=[];
 
-          this.clientesService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
+          this.accessLogService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
             var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
             this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
             var cantidadXHoras=[24];
@@ -1265,7 +1260,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
             this.age=[];
 
-            this.clientesService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
+            this.accessLogService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
               if(resAge.length>0){
                 this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
                 var count18a30 = 0;
@@ -1348,7 +1343,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
                 this.age.push(elem);
 
 
-/*                 this.clientesService.getHourWargos(this.salaCmbBox,this.fechaInicio,this.fechaFin,'','','','','','','','').subscribe((ans:any[])=>{
+/*                 this.accessLogService.getHourWargos(this.salaCmbBox,this.fechaInicio,this.fechaFin,'','','','','','','','').subscribe((ans:any[])=>{
                   if(ans.length>0){
                     var contHW1;
                     var contHW2;
@@ -1407,7 +1402,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
                 }) */
               }
 
-/*               this.clientesService.getHourReal(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe(r=>{
+/*               this.accessLogService.getHourReal(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe(r=>{
                 console.log(r);
               }) */
             })
@@ -1468,7 +1463,6 @@ export class DialogRevalidar implements OnInit {
     public dialogRef: MatDialogRef<DialogRevalidar>,
     @Inject(MAT_DIALOG_DATA) public data:Product,
     private fb: FormBuilder,
-    private personalService: PersonalService,
     private toastr: ToastrService,
   ) {}
 
@@ -1508,7 +1502,6 @@ export class DialogSelectSala implements OnInit {
     public dialogRef: MatDialogRef<DialogRevalidar>,
     @Inject(MAT_DIALOG_DATA) public data:String,
     private fb: FormBuilder,
-    private personalService: PersonalService,
     private toastr: ToastrService,
   ) {}
 

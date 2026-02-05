@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { Pet } from './pet';
 import { ApiService } from './api.service';
@@ -46,14 +47,18 @@ export class PetsService {
    * Crea una nueva mascota
    */
   createPet(pet: Partial<Pet>): Observable<Pet> {
-    return this.api.post('api/v1/pets', pet);
+    return this.api.post('api/v1/pets', pet).pipe(
+      map((res: any) => res?.data ?? res)
+    );
   }
 
   /**
    * Actualiza una mascota
    */
   updatePet(id: number, pet: Partial<Pet>): Observable<Pet> {
-    return this.api.put(`api/v1/pets/${id}`, pet);
+    return this.api.put(`api/v1/pets/${id}`, pet).pipe(
+      map((res: any) => res?.data ?? res)
+    );
   }
 
   /**
@@ -67,7 +72,9 @@ export class PetsService {
    * Cambia el estado de validación de una mascota
    */
   validatePet(id: number, status: 'PERMITIDO' | 'OBSERVADO' | 'DENEGADO', reason?: string): Observable<Pet> {
-    return this.api.put(`api/v1/pets/${id}/validate`, { status_validated: status, status_reason: reason });
+    return this.api.put(`api/v1/pets/${id}/validate`, { status_validated: status, status_reason: reason }).pipe(
+      map((res: any) => res?.data ?? res)
+    );
   }
 
   /**

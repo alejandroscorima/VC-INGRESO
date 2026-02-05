@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { Reservation, TimeSlot } from './reservation';
 import { ApiService } from './api.service';
@@ -46,21 +47,27 @@ export class ReservationsService {
    * Crea una nueva reservación
    */
   createReservation(reservation: Partial<Reservation>): Observable<Reservation> {
-    return this.api.post('api/v1/reservations', reservation);
+    return this.api.post('api/v1/reservations', reservation).pipe(
+      map((res: any) => res?.data ?? res)
+    );
   }
 
   /**
    * Actualiza una reservación
    */
   updateReservation(id: number, reservation: Partial<Reservation>): Observable<Reservation> {
-    return this.api.put(`api/v1/reservations/${id}`, reservation);
+    return this.api.put(`api/v1/reservations/${id}`, reservation).pipe(
+      map((res: any) => res?.data ?? res)
+    );
   }
 
   /**
    * Cambia el estado de una reservación
    */
   updateStatus(id: number, status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'COMPLETADA'): Observable<Reservation> {
-    return this.api.put(`api/v1/reservations/${id}/status`, { status });
+    return this.api.put(`api/v1/reservations/${id}/status`, { status }).pipe(
+      map((res: any) => res?.data ?? res)
+    );
   }
 
   /**
@@ -81,9 +88,10 @@ export class ReservationsService {
    * Consulta disponibilidad de un área
    */
   getAvailability(accessPointId: number, date: string): Observable<{ date: string; access_point_id: number; slots: TimeSlot[] }> {
-    const params = new HttpParams()
-      .set('access_point_id', accessPointId.toString())
-      .set('date', date);
+    const params = {
+      access_point_id: accessPointId,
+      date
+    };
     return this.api.getRaw('api/v1/reservations/availability', params);
   }
 

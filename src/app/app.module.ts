@@ -43,6 +43,8 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import { GoogleChartsModule } from 'angular-google-charts';
 
 import {MatTabsModule} from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { CookieService } from 'ngx-cookie-service';
 import { LoginComponent } from './login/login.component';
@@ -112,6 +114,8 @@ Chart.register(...registerables);
         MatGridListModule,
         GoogleChartsModule,
         MatTabsModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
         NgChartsModule,
         ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, 

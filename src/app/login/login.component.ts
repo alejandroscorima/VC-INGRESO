@@ -47,7 +47,8 @@ export class LoginComponent implements OnInit {
 
   listaReq: Item[]= [];
 
-  // systemClient: SystemClient = new SystemClient('','','','','');
+  /** Logo del cliente/sistema (antes SystemClient) */
+  systemClient = { client_logo: '' as string };
 
   dataSourceReq: MatTableDataSource<Item>;
 
