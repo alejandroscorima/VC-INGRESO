@@ -7,7 +7,7 @@ export const environment = {
   // API en localhost:8080 (Docker o php -S). CORS en backend (vc_db.php para legacy, index.php/htaccess para /api)
   baseUrl: "http://localhost:8080",
   // API token para RENIEC (obtener de variable de entorno en producción)
-  reniecApiToken: "e9cc47e67d492cdee675bfb2b365c09393611b5141144aa0da34cab5429bb5e8",
+  reniecApiToken: "e9cc47e67d492cdee675bfb2b365cvcs93611b5141144aa0da34cab5429bb5e8",
 };
 
 /*

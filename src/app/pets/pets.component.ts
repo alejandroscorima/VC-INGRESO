@@ -106,7 +106,7 @@ export class PetsComponent implements OnInit {
   openAddDialog(): void {
     this.newPet = { 
       name: '', 
-      species: 'DOG', 
+      species: 'PERRO', 
       breed: '', 
       color: '',
       house_id: 0,

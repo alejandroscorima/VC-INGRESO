@@ -31,6 +31,7 @@ DROP TABLE IF EXISTS `houses`;
 
 CREATE TABLE `houses` (
     `house_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `house_type` ENUM('CASA', 'DEPARTAMENTO', 'LOCAL COMERCIAL','OTRO') NOT NULL,
     `block_house` VARCHAR(5) NOT NULL,
     `lot` INT NOT NULL,
     `apartment` VARCHAR(10) DEFAULT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE `houses` (
     `status_system` VARCHAR(50) DEFAULT NULL,
     PRIMARY KEY (`house_id`),
     KEY `idx_block_lot` (`block_house`, `lot`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Casas del condominio';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Casas, departamentos o locales comerciales del condominio';
 
 -- -----------------------------------------------------------------------------
 -- 2. USUARIOS (users) - Sistema y roles
@@ -146,6 +147,11 @@ CREATE TABLE `vehicles` (
     `status_reason` VARCHAR(255) DEFAULT NULL,
     `status_system` VARCHAR(50) DEFAULT NULL,
     `category_entry` VARCHAR(50) DEFAULT NULL,
+    `color` VARCHAR(15) DEFAULT NULL,
+    `brand` VARCHAR(15) DEFAULT NULL,
+    `model` VARCHAR(15) DEFAULT NULL,
+    `year` VARCHAR(15) DEFAULT NULL,
+    `photo_url` VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (`vehicle_id`),
     UNIQUE KEY `uk_plate` (`license_plate`),
     KEY `idx_house` (`house_id`)
@@ -214,7 +220,7 @@ CREATE TABLE `temporary_access_logs` (
 CREATE TABLE `pets` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
-    `species` ENUM('DOG', 'CAT', 'BIRD', 'OTHER') NOT NULL,
+    `species` ENUM('PERRO', 'GATO', 'AVE', 'OTRO') NOT NULL,
     `breed` VARCHAR(100) DEFAULT '',
     `color` VARCHAR(50) DEFAULT '',
     `house_id` INT UNSIGNED NOT NULL COMMENT 'Casa a la que pertenece (gestión por casa)',
@@ -302,7 +308,7 @@ ALTER TABLE `reservations`
 -- =============================================================================
 INSERT INTO `access_points` (`name`, `type`, `location`, `max_capacity`, `current_capacity`) VALUES
 ('Garita Principal', 'GARITA', 'Entrada principal del condominio', NULL, 0),
-('Entrada Peatonal Norte', 'ENTRADA_PEATONAL', 'Puerta norte', NULL, 0),
+('Entrada Peatonal', 'ENTRADA_PEATONAL', 'Puerta principal peatonal', NULL, 0),
 ('Piscina', 'PISCINA', 'Área de piscina', 50, 0),
 ('Casa Club', 'CASA_CLUB', 'Edificio de eventos', 200, 0)
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);

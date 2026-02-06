@@ -4,7 +4,7 @@
 export interface Pet {
   id?: number;
   name: string;
-  species: 'DOG' | 'CAT' | 'BIRD' | 'OTHER';
+  species: 'PERRO' | 'GATO' | 'AVE' | 'OTRO';
   breed: string;
   color: string;
   /** Casa a la que pertenece la mascota (gestión principal) */
@@ -26,10 +26,10 @@ export interface Pet {
  * Especie de mascota
  */
 export const PET_SPECIES = [
-  { value: 'DOG', label: 'Perro' },
-  { value: 'CAT', label: 'Gato' },
-  { value: 'BIRD', label: 'Ave' },
-  { value: 'OTHER', label: 'Otro' }
+  { value: 'PERRO', label: 'Perro' },
+  { value: 'GATO', label: 'Gato' },
+  { value: 'AVE', label: 'Ave' },
+  { value: 'OTRO', label: 'Otro' }
 ];
 
 /**

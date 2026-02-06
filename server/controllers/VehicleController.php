@@ -16,21 +16,21 @@ class VehicleController extends Controller {
      * Listar todos los vehículos
      */
     public function index($params = []) {
-        $vehicles = $this->getAll([], 'id DESC');
+        $vehicles = $this->getAll([], 'vehicle_id DESC');
         Response::success($vehicles, 'Vehículos obtenidos correctamente');
     }
-    
+
     /**
      * Obtener vehículo por ID
      */
     public function show($params = []) {
         $vehicleId = $params['id'] ?? null;
-        
+
         if (!$vehicleId) {
             Response::error('ID de vehículo requerido', 400);
         }
-        
-        $vehicle = $this->findById($vehicleId, 'id');
+
+        $vehicle = $this->findById($vehicleId, 'vehicle_id');
         
         if (!$vehicle) {
             Response::notFound('Vehículo no encontrado');
@@ -73,17 +73,17 @@ class VehicleController extends Controller {
         }
         
         // Campos permitidos
-        $allowed = ['license_plate', 'type_vehicle', 'house_id', 'status_validated', 'status_reason', 'status_system', 'category_entry'];
-        
+        $allowed = ['license_plate', 'type_vehicle', 'house_id', 'owner_id', 'status_validated', 'status_reason', 'status_system', 'category_entry', 'color', 'brand', 'model', 'year', 'photo_url'];
+
         $filtered = [];
         foreach ($allowed as $field) {
             if (isset($data[$field])) {
                 $filtered[$field] = $data[$field];
             }
         }
-        
+
         $vehicleId = $this->create($filtered);
-        $vehicle = $this->findById($vehicleId, 'id');
+        $vehicle = $this->findById($vehicleId, 'vehicle_id');
         
         Response::created($vehicle, 'Vehículo creado correctamente');
     }
@@ -98,29 +98,29 @@ class VehicleController extends Controller {
             Response::error('ID de vehículo requerido', 400);
         }
         
-        $vehicle = $this->findById($vehicleId, 'id');
+        $vehicle = $this->findById($vehicleId, 'vehicle_id');
         if (!$vehicle) {
             Response::notFound('Vehículo no encontrado');
         }
-        
+
         $data = $this->getInput();
-        
+
         // Campos permitidos
-        $allowed = ['license_plate', 'type_vehicle', 'house_id', 'status_validated', 'status_reason', 'status_system', 'category_entry'];
-        
+        $allowed = ['license_plate', 'type_vehicle', 'house_id', 'owner_id', 'status_validated', 'status_reason', 'status_system', 'category_entry', 'color', 'brand', 'model', 'year', 'photo_url'];
+
         $filtered = [];
         foreach ($allowed as $field) {
             if (isset($data[$field])) {
                 $filtered[$field] = $data[$field];
             }
         }
-        
+
         if (empty($filtered)) {
             Response::error('No hay datos para actualizar', 400);
         }
-        
-        parent::update($vehicleId, $filtered, 'id');
-        $vehicle = $this->findById($vehicleId, 'id');
+
+        parent::update($vehicleId, $filtered, 'vehicle_id');
+        $vehicle = $this->findById($vehicleId, 'vehicle_id');
         
         Response::success($vehicle, 'Vehículo actualizado correctamente');
     }
@@ -135,12 +135,12 @@ class VehicleController extends Controller {
             Response::error('ID de vehículo requerido', 400);
         }
         
-        $vehicle = $this->findById($vehicleId, 'id');
+        $vehicle = $this->findById($vehicleId, 'vehicle_id');
         if (!$vehicle) {
             Response::notFound('Vehículo no encontrado');
         }
-        
-        $this->delete($vehicleId, 'id');
+
+        $this->delete($vehicleId, 'vehicle_id');
         
         Response::success(null, 'Vehículo eliminado correctamente');
     }

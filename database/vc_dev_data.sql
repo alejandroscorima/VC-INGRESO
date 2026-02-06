@@ -16,10 +16,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- -----------------------------------------------------------------------------
 -- 1. CASAS (houses)
 -- -----------------------------------------------------------------------------
-INSERT INTO `houses` (`block_house`, `lot`, `apartment`, `status_system`) VALUES
-('A', 101, NULL, 'ACTIVO'),
-('A', 102, '201', 'ACTIVO'),
-('B', 1, NULL, 'ACTIVO')
+INSERT INTO `houses` (`house_type`, `block_house`, `lot`, `apartment`, `status_system`) VALUES
+('CASA', 'A', 101, NULL, 'ACTIVO'),
+('DEPARTAMENTO', 'A', 102, '201', 'ACTIVO'),
+('CASA', 'B', 1, NULL, 'ACTIVO')
 ON DUPLICATE KEY UPDATE `block_house` = VALUES(`block_house`);
 
 -- -----------------------------------------------------------------------------
@@ -66,9 +66,9 @@ ON DUPLICATE KEY UPDATE `license_plate` = VALUES(`license_plate`);
 -- 5. MASCOTAS (pets) - Funcionalidad nueva
 -- -----------------------------------------------------------------------------
 INSERT INTO `pets` (`name`, `species`, `breed`, `color`, `house_id`, `owner_id`, `status_validated`, `microchip_id`) VALUES
-('Max', 'DOG', 'Labrador', 'Negro', 1, 1, 'PERMITIDO', NULL),
-('Luna', 'CAT', 'Persa', 'Blanco', 1, 1, 'PERMITIDO', NULL),
-('Firulais', 'DOG', 'Criollo', 'Café', 2, 2, 'PERMITIDO', 'CHIP-001')
+('Max', 'PERRO', 'Labrador', 'Negro', 1, 1, 'PERMITIDO', NULL),
+('Luna', 'GATO', 'Persa', 'Blanco', 1, 1, 'PERMITIDO', NULL),
+('Firulais', 'PERRO', 'Criollo', 'Café', 2, 2, 'PERMITIDO', 'CHIP-001')
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- -----------------------------------------------------------------------------
