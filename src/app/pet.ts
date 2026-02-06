@@ -7,7 +7,13 @@ export interface Pet {
   species: 'DOG' | 'CAT' | 'BIRD' | 'OTHER';
   breed: string;
   color: string;
-  owner_id: number;
+  /** Casa a la que pertenece la mascota (gestión principal) */
+  house_id: number;
+  /** Dueño opcional (persona: residente, inquilino, visita) */
+  owner_id?: number;
+  block_house?: string;
+  lot?: number;
+  apartment?: string;
   photo_url?: string;
   status_validated: 'PERMITIDO' | 'OBSERVADO' | 'DENEGADO';
   status_reason?: string;

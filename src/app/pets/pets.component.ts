@@ -10,6 +10,8 @@ import { Pet, PET_SPECIES, PET_STATUS } from '../pet';
 import { PetsService } from '../pets.service';
 import { UsersService } from '../users.service';
 import { User } from '../user';
+import { EntranceService } from '../entrance.service';
+import { House } from '../house';
 import { WebcamComponent } from '../webcam/webcam.component';
 
 @Component({
@@ -18,13 +20,14 @@ import { WebcamComponent } from '../webcam/webcam.component';
   styleUrls: ['./pets.component.css']
 })
 export class PetsComponent implements OnInit {
-  displayedColumns: string[] = ['photo', 'name', 'species', 'breed', 'owner', 'status', 'actions'];
+  displayedColumns: string[] = ['photo', 'name', 'species', 'breed', 'house', 'owner', 'status', 'actions'];
   dataSource: MatTableDataSource<Pet> = new MatTableDataSource<Pet>([]);
   
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   pets: Pet[] = [];
+  houses: House[] = [];
   owners: User[] = [];
   speciesOptions = PET_SPECIES;
   statusOptions = PET_STATUS;
@@ -41,6 +44,7 @@ export class PetsComponent implements OnInit {
   constructor(
     private petsService: PetsService,
     private usersService: UsersService,
+    private entranceService: EntranceService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private router: Router,
@@ -49,12 +53,24 @@ export class PetsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPets();
+    this.loadHouses();
     this.loadOwners();
+  }
+
+  loadHouses(): void {
+    this.entranceService.getAllHouses().subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        this.houses = list;
+      },
+      error: () => this.toastr.error('Error al cargar casas')
+    });
   }
 
   loadPets(): void {
     this.petsService.getPets().subscribe({
-      next: (pets) => {
+      next: (res) => {
+        const pets = (res && (res as any).data) ? (res as any).data : (Array.isArray(res) ? res : []);
         this.pets = pets;
         this.dataSource.data = pets;
         this.dataSource.paginator = this.paginator;
@@ -68,7 +84,8 @@ export class PetsComponent implements OnInit {
 
   loadOwners(): void {
     this.usersService.getPersons({}).subscribe({
-      next: (persons) => {
+      next: (res) => {
+        const persons = (res && (res as any).data) ? (res as any).data : (Array.isArray(res) ? res : []);
         this.owners = persons;
       },
       error: (err) => {
@@ -92,7 +109,7 @@ export class PetsComponent implements OnInit {
       species: 'DOG', 
       breed: '', 
       color: '',
-      owner_id: 0,
+      house_id: 0,
       status_validated: 'PERMITIDO'
     };
     this.showAddDialog = true;
@@ -161,7 +178,7 @@ export class PetsComponent implements OnInit {
   }
 
   validatePet(pet: Partial<Pet>): boolean {
-    return !!(pet.name && pet.species && pet.owner_id);
+    return !!(pet.name && pet.species && pet.house_id);
   }
 
   onPhotoCaptured(event: { imageBase64: string, imageBlob: Blob }): void {
@@ -199,8 +216,18 @@ export class PetsComponent implements OnInit {
     return statusObj?.color || 'gray';
   }
 
-  getOwnerName(ownerId: number): string {
-    const owner = this.owners.find(o => o.user_id === ownerId);
+  getHouseDisplay(pet: Pet): string {
+    if (pet.block_house != null && pet.lot != null) {
+      return `Mz:${pet.block_house} Lt:${pet.lot}`;
+    }
+    const house = this.houses.find(h => h.house_id === pet.house_id);
+    if (house) return `Mz:${house.block_house} Lt:${house.lot}`;
+    return `Casa #${pet.house_id}`;
+  }
+
+  getOwnerName(ownerId: number | undefined): string {
+    if (ownerId == null) return '-';
+    const owner = this.owners.find(o => (o as any).id === ownerId || o.user_id === ownerId);
     return owner ? `${owner.first_name} ${owner.paternal_surname}` : 'Desconocido';
   }
 }

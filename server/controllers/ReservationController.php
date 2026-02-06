@@ -91,7 +91,7 @@ class ReservationController
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($values);
-        $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $reservations = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Get total count
         $countSql = "SELECT COUNT(*) FROM {$this->table} r";
@@ -129,7 +129,7 @@ class ReservationController
             WHERE r.id = ?
         ");
         $stmt->execute([$id]);
-        $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
+        $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$reservation) {
             Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
@@ -197,7 +197,7 @@ class ReservationController
                 'success' => true,
                 'data' => ['id' => $id, 'message' => 'Reservación creada correctamente']
             ], 201);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al crear: ' . $e->getMessage()], 500);
         }
     }
@@ -256,7 +256,7 @@ class ReservationController
                 'success' => true,
                 'data' => ['id' => $id, 'message' => 'Reservación actualizada correctamente']
             ]);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al actualizar: ' . $e->getMessage()], 500);
         }
     }
@@ -291,7 +291,7 @@ class ReservationController
                 'success' => true,
                 'data' => ['id' => $id, 'status' => $data['status']]
             ]);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error: ' . $e->getMessage()], 500);
         }
     }
@@ -314,7 +314,7 @@ class ReservationController
             }
 
             Response::json(['success' => true, 'data' => ['id' => $id, 'message' => 'Reservación eliminada']]);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al eliminar: ' . $e->getMessage()], 500);
         }
     }
@@ -334,7 +334,7 @@ class ReservationController
             ORDER BY name
         ");
 
-        Response::json(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+        Response::json(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
     }
 
     /**
@@ -363,7 +363,7 @@ class ReservationController
             ORDER BY reservation_date
         ");
         $stmt->execute([$accessPointId, $date]);
-        $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $bookings = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Generar horarios disponibles (假设 8:00 - 22:00)
         $availableSlots = [];

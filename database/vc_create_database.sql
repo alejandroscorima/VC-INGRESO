@@ -4,6 +4,14 @@
 -- Ejecutar en orden; las claves foráneas se añaden al final.
 -- =============================================================================
 
+-- Crear bases de datos para desarrollo (docker-compose.mysql)
+CREATE DATABASE IF NOT EXISTS vc_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS vc_entrance CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS vc_clients CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS vc_data CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Usar la base de datos vc_db para las tablas
+USE vc_db;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -112,10 +120,10 @@ CREATE TABLE `persons` (
     `photo_url` VARCHAR(255) DEFAULT NULL,
     `origin_list` VARCHAR(255) DEFAULT NULL,
     `motivo` VARCHAR(255) DEFAULT NULL,
-    `sala_list` VARCHAR(255) DEFAULT NULL,
+    `puerta_list` VARCHAR(255) DEFAULT NULL COMMENT 'Puntos de acceso (garita, piscina, etc.)',
     `fecha_list` VARCHAR(255) DEFAULT NULL,
     `fecha_registro` DATETIME DEFAULT NULL,
-    `sala_registro` VARCHAR(50) DEFAULT NULL,
+    `puerta_registro` VARCHAR(50) DEFAULT NULL COMMENT 'Puerta/punto de registro',
     `condicion` VARCHAR(100) DEFAULT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -209,7 +217,8 @@ CREATE TABLE `pets` (
     `species` ENUM('DOG', 'CAT', 'BIRD', 'OTHER') NOT NULL,
     `breed` VARCHAR(100) DEFAULT '',
     `color` VARCHAR(50) DEFAULT '',
-    `owner_id` INT UNSIGNED NOT NULL COMMENT 'persons.id',
+    `house_id` INT UNSIGNED NOT NULL COMMENT 'Casa a la que pertenece (gestión por casa)',
+    `owner_id` INT UNSIGNED DEFAULT NULL COMMENT 'persons.id - dueño opcional',
     `photo_url` VARCHAR(255) DEFAULT NULL,
     `status_validated` ENUM('PERMITIDO', 'OBSERVADO', 'DENEGADO') DEFAULT 'PERMITIDO',
     `status_reason` VARCHAR(255) DEFAULT NULL,
@@ -217,6 +226,7 @@ CREATE TABLE `pets` (
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
+    KEY `idx_house` (`house_id`),
     KEY `idx_owner` (`owner_id`),
     KEY `idx_status` (`status_validated`),
     KEY `idx_species` (`species`)
@@ -249,40 +259,42 @@ CREATE TABLE `reservations` (
 -- =============================================================================
 -- CLAVES FORÁNEAS
 -- =============================================================================
-
 -- users -> houses
 ALTER TABLE `users`
     ADD CONSTRAINT `fk_users_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
 -- persons -> houses
 ALTER TABLE `persons`
     ADD CONSTRAINT `fk_persons_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
 -- vehicles -> houses
 ALTER TABLE `vehicles`
     ADD CONSTRAINT `fk_vehicles_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- access_logs -> access_points, persons, vehicles
+-- access_logs -> access_points(id), persons(id), vehicles(vehicle_id)
 ALTER TABLE `access_logs`
-    ADD CONSTRAINT `fk_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_access_logs_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `access_logs`
+    ADD CONSTRAINT `fk_access_logs_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `access_logs`
     ADD CONSTRAINT `fk_access_logs_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`vehicle_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
 -- temporary_access_logs
 ALTER TABLE `temporary_access_logs`
-    ADD CONSTRAINT `fk_temp_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_temp_access_logs_temp_visit` FOREIGN KEY (`temp_visit_id`) REFERENCES `temporary_visits` (`temp_visit_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_temp_access_logs_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_temp_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `temporary_access_logs`
+    ADD CONSTRAINT `fk_temp_access_logs_temp_visit` FOREIGN KEY (`temp_visit_id`) REFERENCES `temporary_visits` (`temp_visit_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `temporary_access_logs`
+    ADD CONSTRAINT `fk_temp_access_logs_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `temporary_access_logs`
     ADD CONSTRAINT `fk_temp_access_logs_operario` FOREIGN KEY (`operario_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- pets -> persons
+-- pets -> houses, persons (opcional)
 ALTER TABLE `pets`
-    ADD CONSTRAINT `fk_pets_owner` FOREIGN KEY (`owner_id`) REFERENCES `persons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- reservations -> access_points, persons, houses
+    ADD CONSTRAINT `fk_pets_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `pets`
+    ADD CONSTRAINT `fk_pets_owner` FOREIGN KEY (`owner_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+-- reservations
 ALTER TABLE `reservations`
-    ADD CONSTRAINT `fk_reservations_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-    ADD CONSTRAINT `fk_reservations_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_reservations_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `reservations`
+    ADD CONSTRAINT `fk_reservations_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `reservations`
     ADD CONSTRAINT `fk_reservations_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- =============================================================================

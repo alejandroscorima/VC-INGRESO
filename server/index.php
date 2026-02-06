@@ -6,6 +6,24 @@
  * Sistema de control de acceso para condominio.
  */
 
+// Cargar variables de entorno desde .env (proyecto raíz o server/)
+$envFile = file_exists(__DIR__ . '/../.env') ? __DIR__ . '/../.env' : __DIR__ . '/.env';
+if ($envFile && is_readable($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value, " \t\n\r\0\x0B\"'");
+            if ($name !== '' && getenv($name) === false) {
+                putenv("$name=$value");
+                $_ENV[$name] = $value;
+            }
+        }
+    }
+}
+
 // CORS: enviar siempre desde PHP (funciona con servidor integrado PHP o Apache)
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -28,8 +46,9 @@ spl_autoload_register(function ($class) {
     if (strncmp($prefix, $class, $len) !== 0) {
         $prefix2 = 'Controllers\\';
         $baseDir2 = __DIR__ . '/controllers/';
-        if (strncmp($prefix2, $class, $len) === 0) {
-            $className = substr($class, $len);
+        $len2 = strlen($prefix2);
+        if (strncmp($prefix2, $class, $len2) === 0) {
+            $className = substr($class, $len2);
             $file = $baseDir2 . $className . '.php';
             if (file_exists($file)) {
                 require_once $file;
@@ -457,7 +476,7 @@ if (file_exists($file)) {
             'POST /api/v1/users' => 'Crear usuario',
             'PUT /api/v1/users/:id' => 'Actualizar usuario',
             'DELETE /api/v1/users/:id' => 'Eliminar usuario',
-            'GET /api/v1/users/by-birthday?fecha=MM-DD' => 'Usuarios por cumpleaños',
+            'GET /api/v1/users/by-birthday?fecha_cumple=MM-DD' => 'Usuarios por cumpleaños',
             
             // Houses
             'GET /api/v1/houses' => 'Listar casas',

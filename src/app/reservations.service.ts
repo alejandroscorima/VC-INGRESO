@@ -81,7 +81,12 @@ export class ReservationsService {
    * Lista las áreas disponibles para reservación
    */
   getAreas(): Observable<AccessPoint[]> {
-    return this.api.getRaw('api/v1/reservations/areas');
+    return this.api.getRaw('api/v1/reservations/areas').pipe(
+      map((res: any) => {
+        const list = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        return list.map((a: any) => ({ ...a, ap_id: a.id ?? a.ap_id }));
+      })
+    );
   }
 
   /**
@@ -103,6 +108,8 @@ export class ReservationsService {
     if (accessPointId) {
       params.access_point_id = accessPointId;
     }
-    return this.api.getRaw('api/v1/reservations', params);
+    return this.api.getRaw('api/v1/reservations', params).pipe(
+      map((res: any) => (res && res.data) ? res.data : (Array.isArray(res) ? res : []))
+    );
   }
 }

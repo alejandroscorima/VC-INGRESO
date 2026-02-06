@@ -1,5 +1,7 @@
 <?php
-// Conexión PDO para BD de licencias/clientes. Usa DB_LICENSE_NAME (vc_clients). No cambiar nombre de archivo.
+// Conexión PDO para BD de licencias/clientes Crearttech.
+// Usa DB_LICENSE_NAME (crearttech_clientes). Gestiona clientes que adquieren el sistema (VC5, Planicie5, etc.).
+// No cambiar nombre de archivo (referenciado por getPaymentByClientId.php, getSystemClientById.php).
 
 // Basic CORS handling for all endpoints that include this file
 $allowedOrigin = getenv('CORS_ALLOW_ORIGIN') ?: '*';
@@ -18,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $dbHost    = getenv('DB_HOST') ?: 'localhost';
 $dbPort    = getenv('DB_PORT') ?: '3306';
-$dbName    = getenv('DB_LICENSE_NAME') ?: 'vc_clients';
+$dbName    = getenv('DB_LICENSE_NAME') ?: 'crearttech_clientes';
 $dbUser    = getenv('DB_USER') ?: 'root';
 // En producción .env debe definir DB_PASS; sin fallback para no exponer credenciales
 $dbPass    = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';

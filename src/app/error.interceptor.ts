@@ -44,8 +44,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             errorMessage = error.error?.error || 'Conflicto de datos';
             break;
           case 500:
-            errorMessage = 'Error interno del servidor';
-            // No redirigir a /error (no existe la ruta); el componente puede mostrar toast/mensaje
+            errorMessage = (typeof error.error?.error === 'string' ? error.error.error : null)
+              || 'Error interno del servidor';
             break;
           default:
             errorMessage = `Error ${error.status}: ${error.message}`;

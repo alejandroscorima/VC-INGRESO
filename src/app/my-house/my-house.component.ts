@@ -8,6 +8,8 @@ import { UsersService } from '../users.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { Vehicle } from '../vehicle';
 import { ToastrService } from 'ngx-toastr';
+import { PetsService } from '../pets.service';
+import { Pet } from '../pet';
 
 
 @Component({
@@ -26,8 +28,11 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   houseToEdit: House = new House('',0,null,'',0);
 
   myFamily: User[] = [];
+  myResidents: User[] = [];
+  myTenants: User[] = [];
   myVisits: User[] = [];
   myVehicles: Vehicle[] = [];
+  myPets: Pet[] = [];
 
   user_id;
   userOnSes: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
@@ -53,6 +58,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     private auth: AuthService,
     private usersService: UsersService,
     private toastr: ToastrService,
+    private petsService: PetsService,
   ){}
 
   ngOnInit(): void {
@@ -62,29 +68,38 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       next:(os:User)=>{
         this.userOnSes.house_id=os.house_id;
         this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe({
-          next: (resMyFamily: User[]) => {
-            console.log('Datos devueltos por el servicio (sin filtrar):', resMyFamily);
-            this.myFamily = resMyFamily.filter(user =>
-              ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(user.property_category)
+          next: (resMyFamily: unknown) => {
+            const list = Array.isArray(resMyFamily) ? resMyFamily : [];
+            this.myFamily = list.filter((u: any) =>
+              ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category || u.person_type)
             );
-            console.log('Datos de myFamily (filtrados):', this.myFamily);
-        
-            this.myVisits = resMyFamily.filter(user => ['INVITADO'].includes(user.property_category)
-          )||[];
-            console.log('Datos de myVisits (filtrados):', this.myVisits);
+            this.myResidents = list.filter((u: any) =>
+              ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category || u.person_type)
+            );
+            this.myTenants = list.filter((u: any) => (u.property_category || u.person_type) === 'INQUILINO');
+            this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(u.property_category || u.person_type));
           },
-          error(err) {
-            this.myVisits=[];
+          error: () => {
+            this.myFamily = [];
+            this.myResidents = [];
+            this.myTenants = [];
+            this.myVisits = [];
           },
         });
+        if (this.userOnSes.house_id) {
+          this.petsService.getPets({ house_id: this.userOnSes.house_id }).subscribe({
+            next: (res: any) => {
+              this.myPets = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+            },
+            error: () => { this.myPets = []; },
+          });
+        }
         this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe({
-          next:( mv:Vehicle[])=>{
-            this.myVehicles=mv;
-            console.log('Datos de myVisits (filtrados):', this.myVehicles);
+          next: (mv: unknown) => {
+            this.myVehicles = Array.isArray(mv) ? mv : [];
           },
-          error(err) {
-            this.myVehicles=[];
-            console.log('Datos de myVisits (filtrados):', this.myVehicles);
+          error: () => {
+            this.myVehicles = [];
           },
         });
         this.entranceService.getAllExternalVehicles().subscribe({

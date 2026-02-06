@@ -17,9 +17,29 @@ class PetController {
     private $pdo;
     
     public function __construct() {
-        $this->pdo = getDbConnection();
+        try {
+            $this->pdo = getDbConnection();
+        } catch (\Throwable $e) {
+            Response::json([
+                'success' => false,
+                'error' => 'Error de conexión a la base de datos: ' . $e->getMessage()
+            ], 500);
+            exit;
+        }
     }
-    
+
+    /**
+     * Lee el body JSON de la petición (POST/PUT)
+     */
+    private function getInput(): array {
+        $input = file_get_contents('php://input');
+        if ($input === false || $input === '') {
+            return [];
+        }
+        $data = json_decode($input, true);
+        return is_array($data) ? $data : [];
+    }
+
     /**
      * GET /api/v1/pets
      * Lista todas las mascotas con filtros opcionales
@@ -29,18 +49,26 @@ class PetController {
             // Verificar autenticación
             requireAuth();
             
-            $sql = "SELECT p.*, 
+            $sql = "SELECT p.*,
+                           h.block_house, h.lot, h.apartment,
                            o.doc_number as owner_doc,
                            o.first_name as owner_first_name,
                            o.paternal_surname as owner_paternal_surname
                     FROM pets p
-                    JOIN persons o ON p.owner_id = o.id
+                    INNER JOIN houses h ON p.house_id = h.house_id
+                    LEFT JOIN persons o ON p.owner_id = o.id
                     WHERE 1=1";
             
             $types = [];
             $values = [];
             
-            // Filtro por owner_id
+            // Filtro por house_id (principal: mascotas de una casa)
+            if (isset($params['house_id']) && $params['house_id'] !== '' && $params['house_id'] !== null) {
+                $sql .= " AND p.house_id = ?";
+                $values[] = $params['house_id'];
+            }
+            
+            // Filtro por owner_id (opcional)
             if (isset($params['owner_id']) && !empty($params['owner_id'])) {
                 $sql .= " AND p.owner_id = ?";
                 $types[] = 'i';
@@ -65,14 +93,14 @@ class PetController {
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($values);
-            $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $pets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
             Response::json([
                 'success' => true,
                 'data' => $pets,
                 'count' => count($pets)
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -88,15 +116,17 @@ class PetController {
         try {
             requireAuth();
             
-            $stmt = $this->pdo->prepare("SELECT p.*, 
+            $stmt = $this->pdo->prepare("SELECT p.*,
+                                                h.block_house, h.lot, h.apartment,
                                                 o.doc_number as owner_doc,
                                                 o.first_name as owner_first_name,
                                                 o.paternal_surname as owner_paternal_surname
                                          FROM pets p
-                                         JOIN persons o ON p.owner_id = o.id
+                                         INNER JOIN houses h ON p.house_id = h.house_id
+                                         LEFT JOIN persons o ON p.owner_id = o.id
                                          WHERE p.id = ?");
             $stmt->execute([$id]);
-            $pet = $stmt->fetch(PDO::FETCH_ASSOC);
+            $pet = $stmt->fetch(\PDO::FETCH_ASSOC);
             
             if (!$pet) {
                 Response::json([
@@ -110,7 +140,7 @@ class PetController {
                 'success' => true,
                 'data' => $pet
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -128,14 +158,14 @@ class PetController {
             
             $stmt = $this->pdo->prepare("SELECT * FROM pets WHERE owner_id = ? ORDER BY created_at DESC");
             $stmt->execute([$person_id]);
-            $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $pets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
             Response::json([
                 'success' => true,
                 'data' => $pets,
                 'count' => count($pets)
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -147,21 +177,22 @@ class PetController {
      * POST /api/v1/pets
      * Crea una nueva mascota
      */
-    public function store($data) {
+    public function store($data = []) {
         try {
             requireAuth();
-            
-            // Validar datos requeridos
-            if (empty($data['name']) || empty($data['species']) || empty($data['owner_id'])) {
+            $data = $data ?: $this->getInput();
+
+            // Validar datos requeridos (gestión por casa)
+            if (empty($data['name']) || empty($data['species']) || empty($data['house_id'])) {
                 Response::json([
                     'success' => false,
-                    'error' => 'Faltan datos requeridos: name, species, owner_id'
+                    'error' => 'Faltan datos requeridos: name, species, house_id'
                 ], 400);
                 return;
             }
             
-            $sql = "INSERT INTO pets (name, species, breed, color, owner_id, photo_url, status_validated, microchip_id, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+            $sql = "INSERT INTO pets (name, species, breed, color, house_id, owner_id, photo_url, status_validated, microchip_id, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
@@ -169,7 +200,8 @@ class PetController {
                 $data['species'],
                 $data['breed'] ?? '',
                 $data['color'] ?? '',
-                $data['owner_id'],
+                $data['house_id'],
+                $data['owner_id'] ?? null,
                 $data['photo_url'] ?? null,
                 $data['status_validated'] ?? 'PERMITIDO',
                 $data['microchip_id'] ?? null
@@ -182,7 +214,7 @@ class PetController {
                 'data' => ['id' => $id, ...$data],
                 'message' => 'Mascota creada exitosamente'
             ], 201);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -194,10 +226,11 @@ class PetController {
      * PUT /api/v1/pets/:id
      * Actualiza una mascota
      */
-    public function update($id, $data) {
+    public function update($id, $data = []) {
         try {
             requireAuth();
-            
+            $data = $data ?: $this->getInput();
+
             // Verificar que existe
             $stmt = $this->pdo->prepare("SELECT id FROM pets WHERE id = ?");
             $stmt->execute([$id]);
@@ -209,7 +242,7 @@ class PetController {
                 return;
             }
             
-            $allowedFields = ['name', 'species', 'breed', 'color', 'photo_url', 'status_validated', 'status_reason', 'microchip_id'];
+            $allowedFields = ['name', 'species', 'breed', 'color', 'house_id', 'owner_id', 'photo_url', 'status_validated', 'status_reason', 'microchip_id'];
             $updates = [];
             $values = [];
             
@@ -238,7 +271,7 @@ class PetController {
                 'success' => true,
                 'message' => 'Mascota actualizada exitosamente'
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -250,12 +283,13 @@ class PetController {
      * PUT /api/v1/pets/:id/validate
      * Cambia el estado de validación de una mascota
      */
-    public function validate($id, $data) {
+    public function validate($id, $data = []) {
         try {
             requireAuth();
-            
+            $data = $data ?: $this->getInput();
+
             $allowedStatuses = ['PERMITIDO', 'OBSERVADO', 'DENEGADO'];
-            
+
             if (empty($data['status_validated']) || !in_array($data['status_validated'], $allowedStatuses)) {
                 Response::json([
                     'success' => false,
@@ -275,7 +309,7 @@ class PetController {
                 'success' => true,
                 'message' => 'Estado de validación actualizado'
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -308,7 +342,7 @@ class PetController {
                 'success' => true,
                 'message' => 'Mascota eliminada exitosamente'
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -369,7 +403,7 @@ class PetController {
                     'error' => 'Error al subir la imagen'
                 ], 500);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Response::json([
                 'success' => false,
                 'error' => $e->getMessage()

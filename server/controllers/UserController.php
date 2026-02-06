@@ -161,20 +161,28 @@ class UserController extends Controller {
     }
     
     /**
-     * Obtener usuarios por fecha de cumpleaños
+     * Obtener usuarios por fecha de cumpleaños (con domicilio: manzana/lote)
      */
     public function byBirthday($params = []) {
         $fecha_cumple = $params['fecha_cumple'] ?? $_GET['fecha_cumple'] ?? null;
         
         if (!$fecha_cumple) {
             Response::error('Parámetro fecha_cumple requerido', 400);
+            return;
         }
         
-        $sql = "SELECT * FROM users WHERE DATE_FORMAT(birth_date,'%m-%d') = ? AND status_validated='PERMITIDO'";
+        $sql = "SELECT u.user_id, u.type_doc, u.doc_number, u.first_name, u.paternal_surname, u.maternal_surname,
+                       u.gender, u.birth_date, u.cel_number, u.email, u.role_system, u.username_system,
+                       u.property_category, u.house_id, u.photo_url, u.status_validated, u.status_reason, u.status_system,
+                       h.block_house, h.lot, h.apartment
+                FROM users u
+                LEFT JOIN houses h ON u.house_id = h.house_id
+                WHERE DATE_FORMAT(u.birth_date,'%m-%d') = ? AND u.status_validated = 'PERMITIDO'
+                ORDER BY u.paternal_surname, u.first_name";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$fecha_cumple]);
         
-        $users = $stmt->fetchAll();
+        $users = $stmt->fetchAll(\PDO::FETCH_OBJ);
         Response::success($users);
     }
 }

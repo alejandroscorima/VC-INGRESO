@@ -62,21 +62,14 @@ try {
     // Obtener los resultados como un arreglo de objetos
     $persons = $sentencia->fetchAll(PDO::FETCH_OBJ);
     
-    // Comprobar si se encontraron resultados
+    // Siempre devolver un array (vacío si no hay resultados) para que el frontend no falle con *ngFor
     if ($persons) {
-        // Eliminar el campo 'password_system' del objeto antes de devolverlo
         foreach ($persons as $person) {
           unset($person->password_system);
         }
-
-        // Devolver los resultados en formato JSON
         echo json_encode($persons);
     } else {
-        // Si no se encuentran resultados, se devuelve un mensaje de error
-        echo json_encode([
-            "error" => true,
-            "message" => "persons not found"
-        ]);
+        echo json_encode([]);
     }
 
     // Cerrar la sentencia

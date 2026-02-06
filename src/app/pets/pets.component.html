@@ -50,6 +50,12 @@
         <td mat-cell *matCellDef="let pet">{{ pet.breed || '-' }}</td>
       </ng-container>
 
+      <!-- Casa -->
+      <ng-container matColumnDef="house">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Casa</th>
+        <td mat-cell *matCellDef="let pet">{{ getHouseDisplay(pet) }}</td>
+      </ng-container>
+
       <!-- Propietario -->
       <ng-container matColumnDef="owner">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Propietario</th>
@@ -122,10 +128,10 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Propietario</mat-label>
-        <mat-select [(ngModel)]="newPet.owner_id" name="owner_id" required>
-          <mat-option *ngFor="let owner of owners" [value]="owner.id">
-            {{ owner.first_name }} {{ owner.paternal_surname }}
+        <mat-label>Casa</mat-label>
+        <mat-select [(ngModel)]="newPet.house_id" name="house_id" required>
+          <mat-option *ngFor="let h of houses" [value]="h.house_id">
+            Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -173,6 +179,15 @@
       <mat-form-field appearance="outline">
         <mat-label>Color</mat-label>
         <input matInput [(ngModel)]="editPet.color" name="color">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Casa</mat-label>
+        <mat-select [(ngModel)]="editPet.house_id" name="house_id" required>
+          <mat-option *ngFor="let h of houses" [value]="h.house_id">
+            Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="outline">

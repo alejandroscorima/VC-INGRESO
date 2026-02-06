@@ -30,7 +30,7 @@ class Controller {
             $port = getenv('DB_PORT') ?: '3306';
             $dbname = getenv('DB_NAME') ?: 'vc_db';
             $user = getenv('DB_USER') ?: 'root';
-            $pass = getenv('DB_PASS') ?: '';
+            $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
             $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
             
             $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=$charset";

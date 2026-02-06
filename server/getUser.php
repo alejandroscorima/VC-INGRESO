@@ -25,12 +25,14 @@ $sentencia->bindParam(':username', $username, PDO::PARAM_STR);
 $sentencia->execute();
 $user = $sentencia->fetchObject();
 
-if ($user) {
-    $hashInfo = password_get_info($user->password_system);
-    $isHashed = $hashInfo['algo'] !== 0;
+if ($user && $user->password_system !== null && $user->password_system !== '') {
+    $stored = (string) $user->password_system;
+    // Bcrypt/Argon2: empiezan por $2y$, $2a$, $argon2
+    $isHashed = (strlen($stored) >= 60 && (strpos($stored, '$2y$') === 0 || strpos($stored, '$2a$') === 0))
+        || strpos($stored, '$argon2') === 0;
     $validPassword = $isHashed
-        ? password_verify($password, $user->password_system)
-        : hash_equals($user->password_system, $password); // compatibilidad con claves en texto plano
+        ? password_verify($password, $stored)
+        : hash_equals($stored, (string) $password); // texto plano (entorno dev)
 
     if ($validPassword) {
         $token = generateToken([

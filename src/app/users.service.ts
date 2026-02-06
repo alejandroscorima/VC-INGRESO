@@ -84,14 +84,14 @@ export class UsersService {
   // Usa endpoints /api/v1/users con filtros de status
 
   /**
-   * Lista todas las personas (usuarios) con filtros opcionales
+   * Lista todas las personas (persons, para mascotas/residentes) con filtros opcionales
    */
   getPersons(params?: { 
     fecha_cumple?: string; 
     status?: string;
     house_id?: number;
   }): Observable<any> {
-    return this.api.getRaw('api/v1/users', params);
+    return this.api.getRaw('api/v1/persons', params);
   }
 
   /**

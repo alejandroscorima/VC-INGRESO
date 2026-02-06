@@ -44,16 +44,11 @@ try {
     // Obtener los resultados como un arreglo de objetos
     $vehicles = $sentencia->fetchAll(PDO::FETCH_OBJ);
     
-    // Comprobar si se encontraron resultados
+    // Siempre devolver un array (vacío si no hay resultados) para que el frontend no falle con *ngFor
     if ($vehicles) {
-        // Devolver los resultados en formato JSON
         echo json_encode($vehicles);
     } else {
-        // Si no se encuentran resultados, se devuelve un mensaje de error
-        echo json_encode([
-            "error" => true,
-            "message" => "vehicles not found"
-        ]);
+        echo json_encode([]);
     }
 
     // Cerrar la sentencia

@@ -23,6 +23,7 @@ export class PetsService {
    */
   getPets(params?: {
     owner_id?: number;
+    house_id?: number;
     status?: string;
     species?: string;
   }): Observable<Pet[]> {
