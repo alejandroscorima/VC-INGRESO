@@ -5,6 +5,7 @@ services:
     env_file:
       - .env
     environment:
+      # Si falla acceso root en Windows, revisar que .env tenga saltos LF (no CRLF)
       - MYSQL_ROOT_PASSWORD=${DB_PASS:-change_me}
       - MYSQL_DATABASE=${DB_NAME:-vc_db}
       - MYSQL_CHARSET=${DB_CHARSET:-utf8mb4}
@@ -58,19 +59,23 @@ services:
     working_dir: /workspace
     volumes:
       - ./:/workspace
-      # Volumen anónimo para node_modules evita ENOTEMPTY en bind mount y acelera reinicios
-      - /workspace/node_modules
-    command: sh -c "npm install --legacy-peer-deps && npm run start -- --host 0.0.0.0 --port 4200"
+      # Volumen nombrado: node_modules persiste entre reinicios; arranque rápido tras la primera vez
+      - frontend_node_modules:/workspace/node_modules
+    command: sh -c "echo '>>> npm install...' && npm install --legacy-peer-deps && echo '>>> Iniciando Angular...' && npm run start -- --host 0.0.0.0 --port 4200"
     ports:
       - "4200:4200"
     environment:
       - CHOKIDAR_USEPOLLING=true
+      # Salida visible en docker logs (npm/ng sin TTY suelen bufferizar)
+      - CI=1
+      - NG_CLI_ANALYTICS=false
     depends_on:
       - api
     restart: unless-stopped
 
 volumes:
   mysql_data:
+  frontend_node_modules:
 
 networks:
   default:
