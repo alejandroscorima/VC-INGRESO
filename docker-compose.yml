@@ -30,6 +30,8 @@ services:
     working_dir: /workspace
     volumes:
       - ./:/workspace
+      # Volumen anónimo para node_modules evita ENOTEMPTY en bind mount y acelera reinicios
+      - /workspace/node_modules
     command: sh -c "npm install --legacy-peer-deps && npm run start -- --host 0.0.0.0 --port 4200"
     ports:
       - "4200:4200"
