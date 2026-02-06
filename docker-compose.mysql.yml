@@ -12,7 +12,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init-dev.sql:/docker-entrypoint-initdb.d/01-init-databases.sql:ro
+      # Opcional: descomentar y crear database/init-dev.sql para ejecutar SQL al primer arranque (solo con volumen vacío)
+      # - ./database/init-dev.sql:/docker-entrypoint-initdb.d/01-init-databases.sql:ro
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
