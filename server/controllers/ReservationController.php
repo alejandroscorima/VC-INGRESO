@@ -5,9 +5,14 @@
  * Maneja las reservaciones de la Casa Club y áreas comunes
  */
 
+namespace Controllers;
+
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Router.php';
 require_once __DIR__ . '/../auth_middleware.php';
+
+use Utils\Response;
+use Utils\Router;
 
 class ReservationController
 {

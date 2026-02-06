@@ -31,7 +31,6 @@
     "mat-table-exporter": "^15.0.0",
     "material-icons": "^1.13.8",
     "ng2-charts": "^5.0.4",
-    "ngx-cookie-service": "^18.0.0",
     "ngx-toastr": "^17.0.2",
     "pdfjs-dist": "^3.8.162",
     "prisma": "^5.0.0",

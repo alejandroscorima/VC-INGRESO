@@ -160,6 +160,8 @@ VC-INGRESO/
 
 ### Docker (Recomendado)
 
+**Las pruebas y el desarrollo se realizan con Docker** para no alterar dependencias del sistema operativo (Node, PHP, etc.).
+
 ```bash
 cp .env.example .env
 docker compose up --build
@@ -167,6 +169,9 @@ docker compose up --build
 # Backend: http://localhost:8080
 # Frontend: http://localhost:4200
 ```
+
+- El servicio `frontend` hace `npm install --legacy-peer-deps` y `ng serve` dentro del contenedor.
+- El servicio `api` monta `./server` en el contenedor para editar PHP en caliente.
 
 ### Base de datos
 
@@ -176,16 +181,17 @@ Ejecutar las migraciones en `database/` en este orden (si las tablas base ya exi
 2. `pets_migration.sql` — crea `pets` (requiere tabla `persons`)
 3. `reservations_migration.sql` — crea `reservations`
 
-### Manual
+### Manual (opcional)
+
+Solo si no usas Docker: instalar Node, PHP y MySQL en el equipo. **Se recomienda usar Docker para pruebas y desarrollo.**
 
 ```bash
 # Frontend
-npm install
+npm install --legacy-peer-deps
 ng serve
 
 # Backend
-# Colocar server/ en Apache
-# Configurar .env
+# Colocar server/ en Apache; configurar .env
 ```
 
 ---

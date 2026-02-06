@@ -5,9 +5,14 @@
  * Maneja el registro de ingresos/egresos del condominio
  */
 
+namespace Controllers;
+
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Router.php';
 require_once __DIR__ . '/../auth_middleware.php';
+
+use Utils\Response;
+use Utils\Router;
 
 class AccessLogController
 {

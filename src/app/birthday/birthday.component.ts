@@ -105,7 +105,8 @@ export class BirthdayComponent implements OnInit {
   }
 
   private loadBirthdays(fecha_cumple: string) {
-    this.usersServices.getPersonsByBirthday(fecha_cumple).subscribe((nList: User[]) => {
+    this.usersServices.getPersonsByBirthday(fecha_cumple).subscribe((res: any) => {
+      const nList = Array.isArray(res) ? res : (res?.data ?? []);
       this.neighbors = nList;
       this.dataSourceHB = new MatTableDataSource(this.neighbors);
       this.dataSourceHB.paginator = this.paginator.toArray()[0];

@@ -6,9 +6,11 @@ FROM php:8.2-apache
 # Install extensions
 RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-# Silence ServerName warning
+# Silence ServerName warning; enable mod_rewrite and mod_headers for .htaccess (CORS)
 RUN echo 'ServerName localhost' > /etc/apache2/conf-available/servername.conf \
-    && a2enconf servername
+    && a2enconf servername \
+    && a2enmod rewrite \
+    && a2enmod headers
 
 # PHP configuration
 RUN { \
@@ -27,6 +29,9 @@ RUN { \
     echo 'session.cookie_httponly=1'; \
     echo 'session.cookie_samesite=Lax'; \
 } > /usr/local/etc/php/conf.d/custom.ini
+
+# Allow .htaccess (rewrite to index.php)
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
 # Copy backend source
 WORKDIR /var/www/html

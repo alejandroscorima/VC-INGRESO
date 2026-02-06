@@ -5,9 +5,13 @@
  * Endpoints para CRUD de mascotas
  */
 
+namespace Controllers;
+
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../auth_middleware.php';
-require_once __DIR__ . '/../vc_db.php';
+require_once __DIR__ . '/../db_connection.php';
+
+use Utils\Response;
 
 class PetController {
     private $pdo;

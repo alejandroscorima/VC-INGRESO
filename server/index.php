@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * VC-INGRESO API - Entry Point (MVC)
  * 
@@ -6,13 +6,14 @@
  * Sistema de control de acceso para condominio.
  */
 
-// CORS headers
+// CORS: enviar siempre desde PHP (funciona con servidor integrado PHP o Apache)
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept');
+header('Access-Control-Max-Age: 86400');
 header('Content-Type: application/json');
 
-// Manejar preflight
+// Preflight OPTIONS: responder 204 con las cabeceras anteriores
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -337,8 +338,10 @@ if (str_starts_with($uri, '/api/v1/')) {
     
     // ==================== ACCESS LOGS ====================
     if (str_starts_with($path, 'access-logs')) {
+        require_once __DIR__ . '/db_connection.php';
         require_once __DIR__ . '/controllers/AccessLogController.php';
-        $controller = new \Controllers\AccessLogController();
+        $pdo = getDbConnection();
+        $controller = new \Controllers\AccessLogController($pdo);
         
         // access-logs/access-points
         if (str_contains($path, 'access-points')) {
@@ -378,8 +381,10 @@ if (str_starts_with($uri, '/api/v1/')) {
     
     // ==================== RESERVATIONS ====================
     if (str_starts_with($path, 'reservations')) {
+        require_once __DIR__ . '/db_connection.php';
         require_once __DIR__ . '/controllers/ReservationController.php';
-        $controller = new \Controllers\ReservationController();
+        $pdo = getDbConnection();
+        $controller = new \Controllers\ReservationController($pdo);
         
         // reservations/areas
         if (str_contains($path, 'areas')) {

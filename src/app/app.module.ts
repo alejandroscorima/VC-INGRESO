@@ -46,7 +46,6 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 
-import { CookieService } from 'ngx-cookie-service';
 import { LoginComponent } from './login/login.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
@@ -57,6 +56,8 @@ import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
 import { PetsComponent } from './pets/pets.component';
 import { WebcamComponent } from './webcam/webcam.component';
+import { CalendarComponent } from './calendar/calendar.component';
+import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
 
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
@@ -117,9 +118,13 @@ Chart.register(...registerables);
         MatProgressSpinnerModule,
         MatChipsModule,
         NgChartsModule,
-        ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
-        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, 
-        CookieService, 
+        ToastrModule.forRoot(),
+        CalendarComponent,
+        QrScannerComponent
+    ],
+    providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
         provideHttpClient(
             withInterceptors([authInterceptor, errorInterceptor])
         )] })

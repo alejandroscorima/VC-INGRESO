@@ -6,7 +6,26 @@
  * Inspirado en Laravel y Express.
  */
 
+namespace Utils;
+
 class Router {
+    /**
+     * Obtener parámetros de la petición (query string + body para compatibilidad)
+     */
+    public static function getParams(): array {
+        $params = $_GET;
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'HEAD') {
+            $input = file_get_contents('php://input');
+            if ($input) {
+                $decoded = json_decode($input, true);
+                if (is_array($decoded)) {
+                    $params = array_merge($params, $decoded);
+                }
+            }
+        }
+        return $params;
+    }
+
     private $routes = [];
     private $prefix = '';
     

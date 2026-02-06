@@ -60,7 +60,7 @@
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="['doc','name','birth_date','house'];"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['doc','name','birth_date','house'];"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['doc','name','birth_date','house']"></tr>
                 <tr class="mat-row" *matNoDataRow>
                   <td class="mat-cell" colspan="6">No se encontró "{{input1.value}}"</td>
                 </tr>

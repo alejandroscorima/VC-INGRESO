@@ -45,7 +45,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
           case 500:
             errorMessage = 'Error interno del servidor';
-            router.navigate(['/error'], { queryParams: { message: errorMessage } });
+            // No redirigir a /error (no existe la ruta); el componente puede mostrar toast/mensaje
             break;
           default:
             errorMessage = `Error ${error.status}: ${error.message}`;

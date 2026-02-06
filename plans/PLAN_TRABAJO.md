@@ -4,6 +4,8 @@
 
 **VC-INGRESO** es un sistema de control de acceso residencial con:
 
+**Entorno:** Las pruebas y el desarrollo se hacen con **docker-compose** para no romper dependencias del sistema operativo (Node, PHP, etc.). Ver README para `docker compose up --build`.
+
 - **Frontend**: Angular 18.2.11 + Angular Material 17.3.10 + Tailwind CSS
 - **Backend**: PHP 8.2 + MySQL + MVC
 - **Autenticación**: JWT
@@ -19,6 +21,9 @@ Detalle del refactor frontend ya realizado: ver [REFACTORIZACION_FRONTEND.md](RE
 - **Controladores MVC** (todos en `server/controllers/`): `UserController`, `PersonController`, `HouseController`, `VehicleController`, `ExternalVehicleController`, `PetController`, `AccessLogController`, `ReservationController`.
 - **Rutas en** `server/index.php`: users, houses, vehicles, persons (observed, restricted, validate), external-vehicles, **pets** (CRUD + photo + validate + byOwner), **access-logs** (CRUD + access-points + stats/daily), **reservations** (CRUD + areas + availability + status).
 - **Autenticación**: Los controladores nuevos (`PetController`, `AccessLogController`, `ReservationController`) llaman a `requireAuth()` en sus métodos.
+- **CORS**: Cabeceras y preflight OPTIONS enviados desde `server/index.php`; eliminado CORS duplicado de `.htaccess` para evitar `Access-Control-Allow-Origin` múltiple.
+- **Conexión DB**: `server/db_connection.php` con `getDbConnection()` para controladores que no extienden `Controller`; `ReservationController` y `AccessLogController` reciben `$pdo` en el constructor desde `index.php`.
+- **Namespaces y use**: `PetController`, `ReservationController`, `AccessLogController` con `namespace Controllers` y `use Utils\Response`, `use Utils\Router`; `Utils\Router::getParams()` implementado para parámetros de petición.
 
 ### Frontend (Angular)
 
@@ -26,12 +31,20 @@ Detalle del refactor frontend ya realizado: ver [REFACTORIZACION_FRONTEND.md](RE
 - **Componentes**: History, Birthday, Pets, Webcam; eliminación de `listas/` y `upload/`.
 - **Modelos**: `user.ts`, `pet.ts`, `reservation.ts`, `accessPoint.ts`, `house.ts`, `vehicle.ts`, etc.
 - **Rutas**: `/pets`, `/calendar`, `/scanner` definidas en `app-routing.module.ts`.
+- **Calendar y Scanner**: `CalendarComponent` y `QrScannerComponent` (standalone) importados en `AppModule` (array `imports`); rutas `/calendar` y `/scanner` operativas.
+- **Menú lateral**: Enlaces añadidos a Mascotas (`/pets`), Calendario (`/calendar`) y Escáner QR (`/scanner`) en `side-nav.component.html`.
+- **CookieService**: Eliminado de `app.module.ts` y de `providers`; dependencia `ngx-cookie-service` eliminada de `package.json`; eliminado `cookies.service.spec.ts` (spec huérfano).
+- **Interceptor de errores**: En respuestas HTTP 500 ya no se redirige a `/error` (ruta inexistente); se evita el error de rutas `NG04002`.
+- **Accesibilidad**: Eliminado `aria-hidden` del `<aside>` del menú lateral para evitar el aviso de foco oculto a lectores de pantalla.
+- **Material**: `MatInputModule` añadido a `CalendarComponent` para corregir el error "mat-form-field must contain a MatFormFieldControl".
 
-### Migraciones de base de datos
+### Base de datos (esquema unificado)
 
-- `database/pets_migration.sql` — tabla `pets` (requiere `persons`).
-- `database/reservations_migration.sql` — tabla `reservations`.
-- `database/access_logs_migration.sql` — tablas `access_logs` y `access_points` (INSERT de `access_points` corregido con columnas `max_capacity` y `current_capacity`).
+- **`database/Creación de tablas VC.sql`** actualizado: script único que recrea toda la DB con orden correcto de DROP/CREATE.
+  - Tablas: `houses`, `users`, `access_points` (formato API: `id`, `name`, `type`, `location`, `is_active`, `max_capacity`, `current_capacity`), `persons`, `vehicles`, `temporary_visits`, `access_logs` (formato API: `id`, `access_point_id`, `person_id`, `type`, etc.), `temporary_access_logs` (usa `access_point_id`), `pets`, `reservations`.
+  - Claves foráneas al final del script; INSERT inicial de `access_points` (Garita, Entrada Peatonal, Piscina, Casa Club).
+- **`database/Relación Claves Foráneas VC.sql`** actualizado al nuevo esquema (`access_points.id`, `persons.id`, etc.).
+- Migraciones `pets_migration.sql`, `reservations_migration.sql`, `access_logs_migration.sql` integradas conceptualmente en el script único; pueden seguir usándose como referencia.
 
 ### Limpieza realizada
 
@@ -43,9 +56,9 @@ Detalle del refactor frontend ya realizado: ver [REFACTORIZACION_FRONTEND.md](RE
 
 ## Pendientes – Prioridad alta
 
-- [ ] **Declarar `CalendarComponent` y `QrScannerComponent` en `AppModule`** (y crear template/HTML si faltan) para que las rutas `/calendar` y `/scanner` no fallen.
-- [ ] **Eliminar `CookieService`** de `app.module.ts` y la dependencia `ngx-cookie-service` si no se usa en ningún otro sitio; eliminar o reescribir `src/app/cookies.service.spec.ts` (spec huérfano).
-- [ ] (Opcional) **Añadir en el menú lateral** enlaces a Mascotas, Calendario y Scanner.
+- [x] ~~Declarar `CalendarComponent` y `QrScannerComponent` en `AppModule`~~ — Hecho (standalone importados en `imports`).
+- [x] ~~Eliminar `CookieService` y `ngx-cookie-service`; eliminar `cookies.service.spec.ts`~~ — Hecho.
+- [x] ~~Añadir en el menú lateral enlaces a Mascotas, Calendario y Scanner~~ — Hecho.
 
 ---
 

@@ -119,7 +119,7 @@ export class UsersService {
    * Obtiene cumpleaños del mes/día
    */
   getPersonsByBirthday(fecha_cumple: string): Observable<any> {
-    return this.api.getRaw('api/v1/users/birthdays', { fecha_cumple });
+    return this.api.getRaw('api/v1/users/by-birthday', { fecha_cumple });
   }
 
   /**
