@@ -191,15 +191,16 @@ class PetController {
                 return;
             }
             
-            $sql = "INSERT INTO pets (name, species, breed, color, house_id, owner_id, photo_url, status_validated, microchip_id, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-            
+            $sql = "INSERT INTO pets (name, species, breed, color, age_years, house_id, owner_id, photo_url, status_validated, microchip_id, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $data['name'],
                 $data['species'],
                 $data['breed'] ?? '',
                 $data['color'] ?? '',
+                isset($data['age_years']) ? (int) $data['age_years'] : null,
                 $data['house_id'],
                 $data['owner_id'] ?? null,
                 $data['photo_url'] ?? null,
@@ -242,7 +243,7 @@ class PetController {
                 return;
             }
             
-            $allowedFields = ['name', 'species', 'breed', 'color', 'house_id', 'owner_id', 'photo_url', 'status_validated', 'status_reason', 'microchip_id'];
+            $allowedFields = ['name', 'species', 'breed', 'color', 'age_years', 'house_id', 'owner_id', 'photo_url', 'status_validated', 'status_reason', 'microchip_id'];
             $updates = [];
             $values = [];
             

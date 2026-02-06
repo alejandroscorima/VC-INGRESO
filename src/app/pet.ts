@@ -7,6 +7,7 @@ export interface Pet {
   species: 'PERRO' | 'GATO' | 'AVE' | 'OTRO';
   breed: string;
   color: string;
+  age_years?: number;
   /** Casa a la que pertenece la mascota (gestión principal) */
   house_id: number;
   /** Dueño opcional (persona: residente, inquilino, visita) */

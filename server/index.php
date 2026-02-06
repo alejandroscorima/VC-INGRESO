@@ -77,7 +77,15 @@ $method = $_SERVER['REQUEST_METHOD'];
 // API v1 Routes
 if (str_starts_with($uri, '/api/v1/')) {
     $path = substr($uri, strlen('/api/v1/'));
-    
+
+    // ==================== REGISTRO PÚBLICO (sin login) ====================
+    if ($path === 'public/register' && $method === 'POST') {
+        require_once __DIR__ . '/controllers/PublicRegistrationController.php';
+        $controller = new \Controllers\PublicRegistrationController();
+        $controller->register();
+        exit;
+    }
+
     // ==================== USERS ====================
     if (str_starts_with($path, 'users')) {
         require_once __DIR__ . '/controllers/UserController.php';
@@ -470,6 +478,8 @@ if (file_exists($file)) {
         'success' => false,
         'error' => 'Ruta no encontrada',
         'available_routes' => [
+            // Registro público (sin auth)
+            'POST /api/v1/public/register' => 'Registro público: vivienda + propietarios + vehículos + mascotas',
             // Users
             'GET /api/v1/users' => 'Listar todos los usuarios',
             'GET /api/v1/users/:id' => 'Obtener usuario por ID',

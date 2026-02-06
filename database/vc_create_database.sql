@@ -223,6 +223,7 @@ CREATE TABLE `pets` (
     `species` ENUM('PERRO', 'GATO', 'AVE', 'OTRO') NOT NULL,
     `breed` VARCHAR(100) DEFAULT '',
     `color` VARCHAR(50) DEFAULT '',
+    `age_years` TINYINT UNSIGNED DEFAULT NULL COMMENT 'Edad en años (opcional)',
     `house_id` INT UNSIGNED NOT NULL COMMENT 'Casa a la que pertenece (gestión por casa)',
     `owner_id` INT UNSIGNED DEFAULT NULL COMMENT 'persons.id - dueño opcional',
     `photo_url` VARCHAR(255) DEFAULT NULL,
