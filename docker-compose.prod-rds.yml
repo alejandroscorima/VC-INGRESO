@@ -1,0 +1,42 @@
+# Producción con RDS: frontend (nginx) + api. Sin contenedor MySQL.
+# .env debe tener DB_HOST=<rds-endpoint>, DB_USER, DB_PASS, etc.
+# Requiere: ng build --configuration=production (genera dist/Ingreso).
+# Uso: docker compose -f docker-compose.prod-rds.yml up -d
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vc-ingreso-api:prod
+    container_name: vc-ingreso-api
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-vc_db}
+      - DB_LICENSE_NAME=${DB_LICENSE_NAME:-crearttech_clientes}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_CHARSET=${DB_CHARSET:-utf8mb4}
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN}
+      - PHP_OPCACHE_ENABLE=1
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=0
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    container_name: vc-ingreso-frontend
+    volumes:
+      - ./dist/Ingreso:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
