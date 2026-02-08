@@ -58,6 +58,7 @@ import { PetsComponent } from './pets/pets.component';
 import { WebcamComponent } from './webcam/webcam.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
+import { PublicRegistrationComponent } from './public-registration/public-registration.component';
 
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
@@ -86,6 +87,7 @@ Chart.register(...registerables);
         MyHouseComponent,
         PetsComponent,
         WebcamComponent,
+        PublicRegistrationComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

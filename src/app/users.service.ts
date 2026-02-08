@@ -84,14 +84,24 @@ export class UsersService {
   // Usa endpoints /api/v1/users con filtros de status
 
   /**
-   * Lista todas las personas (persons, para mascotas/residentes) con filtros opcionales
+   * Lista todas las personas (persons, para mascotas/residentes) con filtros opcionales.
+   * without_user=1: solo personas que aún no tienen usuario (para "Dar acceso").
    */
   getPersons(params?: { 
     fecha_cumple?: string; 
     status?: string;
     house_id?: number;
+    without_user?: number;
   }): Observable<any> {
     return this.api.getRaw('api/v1/persons', params);
+  }
+
+  /**
+   * Crear usuario a partir de una persona existente (dar acceso al sistema).
+   * POST api/v1/users/from-person
+   */
+  createUserFromPerson(body: { person_id: number; username_system: string; password_system: string; role_system: string }): Observable<any> {
+    return this.api.post('api/v1/users/from-person', body);
   }
 
   /**

@@ -34,13 +34,39 @@ class PublicRegistrationController
     }
 
     /**
+     * GET /api/v1/public/houses
+     * Lista solo casas aún sin propietario registrado (para registro público de propietarios).
+     * A medida que se registran, esos domicilios dejan de aparecer.
+     */
+    public function listHouses(): void
+    {
+        $stmt = $this->pdo->query("
+            SELECT h.house_id, h.house_type, h.block_house, h.lot, CAST(COALESCE(h.apartment, '') AS CHAR) AS apartment
+            FROM houses h
+            WHERE NOT EXISTS (
+                SELECT 1 FROM persons p WHERE p.house_id = h.house_id AND p.person_type = 'PROPIETARIO'
+            )
+            ORDER BY h.block_house, h.lot, h.apartment
+        ");
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        // Normalizar apartment: siempre string (101, 102...) o vacío para CASA/LC
+        $houses = array_map(function ($row) {
+            $row['apartment'] = ($row['apartment'] ?? '') !== '' ? (string) $row['apartment'] : null;
+            return $row;
+        }, $rows);
+        Response::json(['success' => true, 'data' => $houses]);
+    }
+
+    /**
      * POST /api/v1/public/register
      * Body: {
      *   house: { house_type, block_house, lot, apartment? },
-     *   owners: [ { doc_number, first_name, paternal_surname, maternal_surname?, cel_number?, email?, type_doc? } ],
+     *   owners: [ { doc_number, first_name, paternal_surname, maternal_surname?, cel_number?, email?, type_doc?, gender?, birth_date?, address?, district?, province?, region?, civil_status? } ],
      *   vehicles?: [ { license_plate, type_vehicle?, brand?, color?, photo_url? } ],
      *   pets?: [ { species, name, breed?, color?, age_years?, photo_url? } ]
      * }
+     * Nota producción: La consulta DNI (apidev) se usa solo para rellenar nombres en el formulario.
+     * No se persisten gender, birth_date, address, district, province, region de esa API.
      */
     public function register(): void
     {
@@ -90,12 +116,12 @@ class PublicRegistrationController
 
         foreach ($pets as $i => $p) {
             if (empty($p['name']) || empty($p['species'])) {
-                Response::json(['success' => false, 'error' => "Mascota " . ($i + 1) . ": se requieren name y species (PERRO, GATO, AVE, OTRO)"], 400);
+                Response::json(['success' => false, 'error' => "Mascota " . ($i + 1) . ": se requieren name y species (PERRO, GATO, AVE, PEQUEÑO MAMÍFERO, ACUÁTICO, EXÓTICO, OTRO)"], 400);
                 return;
             }
-            $speciesAllowed = ['PERRO', 'GATO', 'AVE', 'OTRO'];
+            $speciesAllowed = ['PERRO', 'GATO', 'AVE', 'PEQUEÑO MAMÍFERO', 'ACUÁTICO', 'EXÓTICO', 'OTRO'];
             if (!in_array($p['species'], $speciesAllowed)) {
-                Response::json(['success' => false, 'error' => "Mascota " . ($i + 1) . ": species debe ser PERRO, GATO, AVE u OTRO"], 400);
+                Response::json(['success' => false, 'error' => "Mascota " . ($i + 1) . ": species debe ser una de: PERRO, GATO, AVE, PEQUEÑO MAMÍFERO, ACUÁTICO, EXÓTICO, OTRO"], 400);
                 return;
             }
         }
@@ -103,12 +129,24 @@ class PublicRegistrationController
         try {
             $this->pdo->beginTransaction();
 
-            $stmt = $this->pdo->prepare("INSERT INTO houses (house_type, block_house, lot, apartment, status_system) VALUES (?, ?, ?, ?, 'ACTIVO')");
-            $stmt->execute([$houseType, $blockHouse, (int) $lot, $apartment !== '' ? $apartment : null]);
-            $houseId = (int) $this->pdo->lastInsertId();
+            $apartmentVal = ($apartment !== '' && $apartment !== null) ? $apartment : null;
+            $lotInt = (int) $lot;
 
+            $stmt = $this->pdo->prepare("SELECT house_id FROM houses WHERE block_house = ? AND lot = ? AND (apartment <=> ?) LIMIT 1");
+            $stmt->execute([$blockHouse, $lotInt, $apartmentVal]);
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if ($row) {
+                $houseId = (int) $row['house_id'];
+            } else {
+                $stmt = $this->pdo->prepare("INSERT INTO houses (house_type, block_house, lot, apartment, status_system) VALUES (?, ?, ?, ?, 'ACTIVO')");
+                $stmt->execute([$houseType, $blockHouse, $lotInt, $apartmentVal]);
+                $houseId = (int) $this->pdo->lastInsertId();
+            }
+
+            // Invariante: cada propietario → exactamente 1 fila en persons → exactamente 1 fila en users (en ese orden).
             $personIds = [];
-            foreach ($owners as $o) {
+            foreach ($owners as $i => $o) {
                 $doc = trim($o['doc_number']);
                 $stmt = $this->pdo->prepare("SELECT id FROM persons WHERE doc_number = ? LIMIT 1");
                 $stmt->execute([$doc]);
@@ -118,20 +156,97 @@ class PublicRegistrationController
                     return;
                 }
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO persons (type_doc, doc_number, first_name, paternal_surname, maternal_surname, cel_number, email, person_type, house_id, status_validated, status_system)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, 'PROPIETARIO', ?, 'PERMITIDO', 'ACTIVO')
+                    INSERT INTO persons (type_doc, doc_number, first_name, paternal_surname, maternal_surname, gender, birth_date, cel_number, email, address, district, province, region, civil_status, person_type, house_id, status_validated, status_system)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PROPIETARIO', ?, 'PERMITIDO', 'ACTIVO')
                 ");
+                // Guardar nombres y ubicación en MAYÚSCULAS para igualar con datos de apidev/Nuevo Residente
+                $first = isset($o['first_name']) ? mb_strtoupper(trim($o['first_name']), 'UTF-8') : '';
+                $paternal = isset($o['paternal_surname']) ? mb_strtoupper(trim($o['paternal_surname']), 'UTF-8') : '';
+                $maternal = isset($o['maternal_surname']) && $o['maternal_surname'] !== '' ? mb_strtoupper(trim($o['maternal_surname']), 'UTF-8') : null;
+                $typeDoc = isset($o['type_doc']) ? mb_strtoupper(trim($o['type_doc']), 'UTF-8') : 'DNI';
+                $gender = isset($o['gender']) && $o['gender'] !== '' ? mb_strtoupper(trim($o['gender']), 'UTF-8') : null;
+                $address = isset($o['address']) && $o['address'] !== '' ? mb_strtoupper(trim($o['address']), 'UTF-8') : null;
+                $district = isset($o['district']) && $o['district'] !== '' ? mb_strtoupper(trim($o['district']), 'UTF-8') : null;
+                $province = isset($o['province']) && $o['province'] !== '' ? mb_strtoupper(trim($o['province']), 'UTF-8') : null;
+                $region = isset($o['region']) && $o['region'] !== '' ? mb_strtoupper(trim($o['region']), 'UTF-8') : null;
+                $civilStatus = isset($o['civil_status']) && $o['civil_status'] !== '' ? mb_strtoupper(trim($o['civil_status']), 'UTF-8') : null;
                 $stmt->execute([
-                    $o['type_doc'] ?? 'DNI',
+                    $typeDoc,
                     $doc,
-                    trim($o['first_name']),
-                    trim($o['paternal_surname']),
-                    isset($o['maternal_surname']) ? trim($o['maternal_surname']) : null,
+                    $first,
+                    $paternal,
+                    $maternal,
+                    $gender,
+                    isset($o['birth_date']) && $o['birth_date'] !== '' ? $o['birth_date'] : null,
                     isset($o['cel_number']) ? trim($o['cel_number']) : null,
                     isset($o['email']) ? trim($o['email']) : null,
+                    $address,
+                    $district,
+                    $province,
+                    $region,
+                    $civilStatus,
                     $houseId
                 ]);
-                $personIds[] = (int) $this->pdo->lastInsertId();
+                $newId = (int) $this->pdo->lastInsertId();
+                if ($newId <= 0) {
+                    $this->pdo->rollBack();
+                    Response::json(['success' => false, 'error' => 'Error al crear persona (propietario ' . ($i + 1) . ')'], 500);
+                    return;
+                }
+                $personIds[] = $newId;
+            }
+
+            if (count($personIds) !== count($owners)) {
+                $this->pdo->rollBack();
+                Response::json(['success' => false, 'error' => 'Inconsistencia: no se crearon todas las personas'], 500);
+                return;
+            }
+
+            // house_members: cada propietario es miembro de la casa (fuente de verdad)
+            foreach ($personIds as $idx => $pid) {
+                $stmt = $this->pdo->prepare("
+                    INSERT IGNORE INTO house_members (house_id, person_id, relation_type, is_active, is_primary)
+                    VALUES (?, ?, 'PROPIETARIO', 1, ?)
+                ");
+                $stmt->execute([$houseId, $pid, $idx === 0 ? 1 : 0]);
+            }
+
+            // Usuarios: cada propietario recibe acceso (username = primera letra nombre + apellido; contraseña temporal = DNI).
+            // Solo se crea user si la persona existe en persons y pertenece a esta casa.
+            $createdUsers = [];
+            foreach ($personIds as $idx => $pid) {
+                $stmt = $this->pdo->prepare("SELECT id FROM persons WHERE id = ? AND house_id = ? LIMIT 1");
+                $stmt->execute([$pid, $houseId]);
+                if (!$stmt->fetch()) {
+                    $this->pdo->rollBack();
+                    Response::json(['success' => false, 'error' => 'Persona no encontrada o domicilio no coincide (propietario ' . ($idx + 1) . ')'], 500);
+                    return;
+                }
+                $o = $owners[$idx];
+                $first = trim($o['first_name'] ?? '');
+                $paternal = trim($o['paternal_surname'] ?? '');
+                $doc = trim($o['doc_number'] ?? '');
+                $base = strtoupper(mb_substr($first, 0, 1) . preg_replace('/\s+/', '', $paternal));
+                $username = $base;
+                $suffix = 0;
+                while (true) {
+                    $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE username_system = ? LIMIT 1");
+                    $stmt->execute([$username]);
+                    if (!$stmt->fetch()) break;
+                    $suffix++;
+                    $username = $base . ($suffix > 1 ? (string) $suffix : '2');
+                }
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO users (person_id, username_system, password_system, role_system, house_id, status_validated, status_system, is_active, force_password_change)
+                    VALUES (?, ?, ?, 'USUARIO', ?, 'PERMITIDO', 'ACTIVO', 1, 1)
+                ");
+                $stmt->execute([
+                    $pid,
+                    $username,
+                    password_hash($doc, PASSWORD_DEFAULT),
+                    $houseId
+                ]);
+                $createdUsers[] = ['person_id' => $pid, 'username_system' => $username, 'temporary_password' => $doc];
             }
 
             $firstOwnerId = $personIds[0] ?? null;
@@ -146,8 +261,8 @@ class PublicRegistrationController
                     return;
                 }
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO vehicles (license_plate, type_vehicle, house_id, owner_id, brand, color, photo_url, status_validated, status_system)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, 'PERMITIDO', 'ACTIVO')
+                    INSERT INTO vehicles (license_plate, type_vehicle, house_id, owner_id, brand, model, color, photo_url, status_validated, status_system)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PERMITIDO', 'ACTIVO')
                 ");
                 $stmt->execute([
                     $plate,
@@ -155,6 +270,7 @@ class PublicRegistrationController
                     $houseId,
                     $firstOwnerId,
                     $v['brand'] ?? null,
+                    $v['model'] ?? null,
                     $v['color'] ?? null,
                     $v['photo_url'] ?? null
                 ]);
@@ -188,9 +304,10 @@ class PublicRegistrationController
                     'house_id' => $houseId,
                     'person_ids' => $personIds,
                     'vehicle_ids' => $vehicleIds,
-                    'pet_ids' => $petIds
+                    'pet_ids' => $petIds,
+                    'created_users' => $createdUsers
                 ],
-                'message' => 'Registro completado correctamente'
+                'message' => 'Registro completado. Use su usuario y contraseña temporal (DNI) para ingresar; deberá cambiar la contraseña en el primer acceso.'
             ], 201);
         } catch (\Throwable $e) {
             if ($this->pdo->inTransaction()) {

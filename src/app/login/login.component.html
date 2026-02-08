@@ -41,9 +41,36 @@
               class="!bg-amber-600 w-full text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-bg-amber-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
               {{ isloading ? 'Cargando...' : 'Ingresar' }}
               </button>
+              <p class="text-sm text-center text-gray-500 dark:text-gray-400">
+                <a routerLink="/registro" class="text-amber-600 hover:underline">¿Nuevo propietario? Regístrese aquí</a>
+              </p>
           </form>
           </div>
       </div>
+  </div>
+</div>
+
+<!-- Modal: cambiar contraseña temporal (primer acceso) -->
+<div *ngIf="showChangePasswordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cambiar contraseña temporal</h3>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Debe definir una nueva contraseña para continuar.</p>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nueva contraseña</label>
+        <input type="password" [(ngModel)]="newPassword" class="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar contraseña</label>
+        <input type="password" [(ngModel)]="confirmPassword" class="w-full rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2" placeholder="Repita la contraseña" />
+      </div>
+    </div>
+    <div class="flex gap-2 mt-6">
+      <button type="button" (click)="submitChangePassword()" [disabled]="changingPassword" class="flex-1 bg-amber-600 text-white rounded-lg py-2 px-4 hover:bg-amber-700 disabled:opacity-50">
+        {{ changingPassword ? 'Guardando...' : 'Guardar' }}
+      </button>
+      <button type="button" (click)="cancelChangePassword()" [disabled]="changingPassword" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Cancelar</button>
+    </div>
   </div>
 </div>
 </section>

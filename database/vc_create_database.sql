@@ -18,6 +18,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- -----------------------------------------------------------------------------
 -- 1. CASAS (houses)
 -- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `house_members`;
 DROP TABLE IF EXISTS `reservations`;
 DROP TABLE IF EXISTS `pets`;
 DROP TABLE IF EXISTS `temporary_access_logs`;
@@ -42,39 +43,29 @@ CREATE TABLE `houses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Casas, departamentos o locales comerciales del condominio';
 
 -- -----------------------------------------------------------------------------
--- 2. USUARIOS (users) - Sistema y roles
+-- 2. USUARIOS (users) - Solo datos del sistema (login, roles, estado). Identidad en persons.
 -- -----------------------------------------------------------------------------
 CREATE TABLE `users` (
     `user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `type_doc` VARCHAR(20) NOT NULL,
-    `doc_number` VARCHAR(15) NOT NULL,
-    `first_name` VARCHAR(100) DEFAULT NULL,
-    `paternal_surname` VARCHAR(50) DEFAULT NULL,
-    `maternal_surname` VARCHAR(50) DEFAULT NULL,
-    `gender` VARCHAR(10) DEFAULT NULL,
-    `birth_date` DATE DEFAULT NULL,
-    `cel_number` VARCHAR(15) DEFAULT NULL,
-    `email` VARCHAR(100) DEFAULT NULL,
+    `person_id` INT UNSIGNED DEFAULT NULL COMMENT 'FK persons.id - identidad civil; 1 user = 1 person',
     `role_system` VARCHAR(20) NOT NULL,
     `username_system` VARCHAR(50) NOT NULL,
     `password_system` VARCHAR(255) NOT NULL,
-    `property_category` VARCHAR(50) DEFAULT NULL,
-    `house_id` INT UNSIGNED DEFAULT NULL,
-    `photo_url` VARCHAR(255) DEFAULT NULL,
+    `house_id` INT UNSIGNED DEFAULT NULL COMMENT 'Legacy: preferir house_members',
     `status_validated` VARCHAR(50) DEFAULT NULL,
     `status_reason` VARCHAR(255) DEFAULT NULL,
     `status_system` VARCHAR(50) DEFAULT NULL,
-    `civil_status` VARCHAR(20) DEFAULT NULL,
-    `profession` VARCHAR(100) DEFAULT NULL,
-    `address_reniec` VARCHAR(255) DEFAULT NULL,
-    `district` VARCHAR(50) DEFAULT NULL,
-    `province` VARCHAR(50) DEFAULT NULL,
-    `region` VARCHAR(50) DEFAULT NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=habilitado, 0=deshabilitado',
+    `force_password_change` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=obligar cambio en próximo login',
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `uk_username` (`username_system`),
-    KEY `idx_doc` (`doc_number`),
-    KEY `idx_house` (`house_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Usuarios del sistema';
+    UNIQUE KEY `uk_person_id` (`person_id`),
+    KEY `idx_house` (`house_id`),
+    KEY `idx_person_id` (`person_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Usuarios del sistema (enlace a persons para datos civiles)';
+
+-- Si la BD ya existe y users no tiene force_password_change:
+-- ALTER TABLE users ADD COLUMN force_password_change TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=obligar cambio en próximo login' AFTER is_active;
 
 -- -----------------------------------------------------------------------------
 -- 3. PUNTOS DE ACCESO (access_points) - Áreas y garitas (formato unificado API)
@@ -113,6 +104,7 @@ CREATE TABLE `persons` (
     `district` VARCHAR(50) DEFAULT NULL,
     `province` VARCHAR(50) DEFAULT NULL,
     `region` VARCHAR(50) DEFAULT NULL,
+    `civil_status` VARCHAR(20) DEFAULT NULL,
     `status_validated` ENUM('PERMITIDO', 'OBSERVADO', 'DENEGADO') DEFAULT 'PERMITIDO',
     `status_reason` VARCHAR(255) DEFAULT NULL,
     `status_system` VARCHAR(50) DEFAULT NULL,
@@ -135,6 +127,27 @@ CREATE TABLE `persons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Personas (residentes, propietarios, visitas)';
 
 -- -----------------------------------------------------------------------------
+-- 4.1. HOUSE MEMBERS (house_members) - Fuente de verdad pertenencia persona-casa
+-- -----------------------------------------------------------------------------
+CREATE TABLE `house_members` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `house_id` INT UNSIGNED NOT NULL,
+    `person_id` INT UNSIGNED NOT NULL,
+    `relation_type` VARCHAR(50) NOT NULL DEFAULT 'RESIDENTE' COMMENT 'PROPIETARIO|RESIDENTE|INQUILINO|FAMILIAR|APODERADO|etc',
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `is_primary` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=contacto principal de la casa',
+    `start_date` DATE DEFAULT NULL,
+    `end_date` DATE DEFAULT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_house_person` (`house_id`, `person_id`),
+    KEY `idx_house_id` (`house_id`),
+    KEY `idx_person_id` (`person_id`),
+    KEY `idx_is_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pertenencia persona-casa. Fuente de verdad para Mi Casa y permisos house-centric.';
+
+-- -----------------------------------------------------------------------------
 -- 5. VEHÍCULOS (vehicles)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `vehicles` (
@@ -152,9 +165,13 @@ CREATE TABLE `vehicles` (
     `model` VARCHAR(15) DEFAULT NULL,
     `year` VARCHAR(15) DEFAULT NULL,
     `photo_url` VARCHAR(255) DEFAULT NULL,
+    `created_by_user_id` INT UNSIGNED DEFAULT NULL,
+    `updated_by_user_id` INT UNSIGNED DEFAULT NULL,
     PRIMARY KEY (`vehicle_id`),
     UNIQUE KEY `uk_plate` (`license_plate`),
-    KEY `idx_house` (`house_id`)
+    KEY `idx_house` (`house_id`),
+    KEY `idx_created_by_user` (`created_by_user_id`),
+    KEY `idx_updated_by_user` (`updated_by_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Vehículos registrados';
 
 -- -----------------------------------------------------------------------------
@@ -184,6 +201,7 @@ CREATE TABLE `access_logs` (
     `vehicle_id` INT UNSIGNED DEFAULT NULL,
     `type` ENUM('INGRESO', 'EGRESO') NOT NULL DEFAULT 'INGRESO',
     `observation` TEXT DEFAULT NULL,
+    `created_by_user_id` INT UNSIGNED DEFAULT NULL COMMENT 'user_id del guardia/operario que registró',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -192,7 +210,8 @@ CREATE TABLE `access_logs` (
     KEY `idx_doc_number` (`doc_number`),
     KEY `idx_vehicle` (`vehicle_id`),
     KEY `idx_type` (`type`),
-    KEY `idx_created_at` (`created_at`)
+    KEY `idx_created_at` (`created_at`),
+    KEY `idx_created_by_user` (`created_by_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de ingresos/egresos';
 
 -- -----------------------------------------------------------------------------
@@ -207,11 +226,13 @@ CREATE TABLE `temporary_access_logs` (
     `status_validated` VARCHAR(50) DEFAULT NULL,
     `house_id` INT UNSIGNED DEFAULT NULL,
     `operario_id` INT UNSIGNED DEFAULT NULL,
+    `created_by_user_id` INT UNSIGNED DEFAULT NULL COMMENT 'user_id quien registró (reemplazo conceptual de operario_id)',
     PRIMARY KEY (`temp_access_log_id`),
     KEY `idx_temp_visit` (`temp_visit_id`),
     KEY `idx_access_point` (`access_point_id`),
     KEY `idx_house` (`house_id`),
-    KEY `idx_operario` (`operario_id`)
+    KEY `idx_operario` (`operario_id`),
+    KEY `idx_created_by_user` (`created_by_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -220,7 +241,7 @@ CREATE TABLE `temporary_access_logs` (
 CREATE TABLE `pets` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
-    `species` ENUM('PERRO', 'GATO', 'AVE', 'OTRO') NOT NULL,
+    `species` ENUM('PERRO', 'GATO', 'AVE', 'PEQUEÑO MAMÍFERO', 'ACUÁTICO', 'EXÓTICO', 'OTRO') NOT NULL,
     `breed` VARCHAR(100) DEFAULT '',
     `color` VARCHAR(50) DEFAULT '',
     `age_years` TINYINT UNSIGNED DEFAULT NULL COMMENT 'Edad en años (opcional)',
@@ -230,13 +251,17 @@ CREATE TABLE `pets` (
     `status_validated` ENUM('PERMITIDO', 'OBSERVADO', 'DENEGADO') DEFAULT 'PERMITIDO',
     `status_reason` VARCHAR(255) DEFAULT NULL,
     `microchip_id` VARCHAR(50) DEFAULT NULL,
+    `created_by_user_id` INT UNSIGNED DEFAULT NULL,
+    `updated_by_user_id` INT UNSIGNED DEFAULT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_house` (`house_id`),
     KEY `idx_owner` (`owner_id`),
     KEY `idx_status` (`status_validated`),
-    KEY `idx_species` (`species`)
+    KEY `idx_species` (`species`),
+    KEY `idx_created_by_user` (`created_by_user_id`),
+    KEY `idx_updated_by_user` (`updated_by_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Mascotas registradas';
 
 -- -----------------------------------------------------------------------------
@@ -253,6 +278,7 @@ CREATE TABLE `reservations` (
     `observation` TEXT DEFAULT NULL,
     `num_guests` INT UNSIGNED NOT NULL DEFAULT 1,
     `contact_phone` VARCHAR(20) DEFAULT NULL,
+    `created_by_user_id` INT UNSIGNED DEFAULT NULL COMMENT 'user_id quien creó la reserva',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -260,49 +286,61 @@ CREATE TABLE `reservations` (
     KEY `idx_person` (`person_id`),
     KEY `idx_house` (`house_id`),
     KEY `idx_status` (`status`),
-    KEY `idx_reservation_date` (`reservation_date`)
+    KEY `idx_reservation_date` (`reservation_date`),
+    KEY `idx_created_by_user` (`created_by_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Reservaciones de áreas comunes';
 
 -- =============================================================================
 -- CLAVES FORÁNEAS
 -- =============================================================================
--- users -> houses
+-- users -> houses, persons
 ALTER TABLE `users`
-    ADD CONSTRAINT `fk_users_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+    ADD CONSTRAINT `fk_users_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_users_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- persons -> houses
 ALTER TABLE `persons`
     ADD CONSTRAINT `fk_persons_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
--- vehicles -> houses
+
+-- house_members -> houses, persons
+ALTER TABLE `house_members`
+    ADD CONSTRAINT `fk_house_members_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_house_members_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- vehicles -> houses, users
 ALTER TABLE `vehicles`
-    ADD CONSTRAINT `fk_vehicles_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
--- access_logs -> access_points(id), persons(id), vehicles(vehicle_id)
+    ADD CONSTRAINT `fk_vehicles_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_vehicles_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_vehicles_updated_by` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- access_logs -> access_points(id), persons(id), vehicles(vehicle_id), users(created_by)
 ALTER TABLE `access_logs`
-    ADD CONSTRAINT `fk_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE `access_logs`
-    ADD CONSTRAINT `fk_access_logs_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE `access_logs`
-    ADD CONSTRAINT `fk_access_logs_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`vehicle_id`) ON DELETE SET NULL ON UPDATE CASCADE;
--- temporary_access_logs
+    ADD CONSTRAINT `fk_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_access_logs_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_access_logs_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`vehicle_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_access_logs_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- temporary_access_logs -> users
 ALTER TABLE `temporary_access_logs`
-    ADD CONSTRAINT `fk_temp_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE `temporary_access_logs`
-    ADD CONSTRAINT `fk_temp_access_logs_temp_visit` FOREIGN KEY (`temp_visit_id`) REFERENCES `temporary_visits` (`temp_visit_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE `temporary_access_logs`
-    ADD CONSTRAINT `fk_temp_access_logs_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE `temporary_access_logs`
-    ADD CONSTRAINT `fk_temp_access_logs_operario` FOREIGN KEY (`operario_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
--- pets -> houses, persons (opcional)
+    ADD CONSTRAINT `fk_temp_access_logs_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_temp_access_logs_temp_visit` FOREIGN KEY (`temp_visit_id`) REFERENCES `temporary_visits` (`temp_visit_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_temp_access_logs_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_temp_access_logs_operario` FOREIGN KEY (`operario_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_temp_access_logs_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- pets -> houses, persons (opcional), users
 ALTER TABLE `pets`
-    ADD CONSTRAINT `fk_pets_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE `pets`
-    ADD CONSTRAINT `fk_pets_owner` FOREIGN KEY (`owner_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
--- reservations
+    ADD CONSTRAINT `fk_pets_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_pets_owner` FOREIGN KEY (`owner_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_pets_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_pets_updated_by` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- reservations -> users
 ALTER TABLE `reservations`
-    ADD CONSTRAINT `fk_reservations_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE `reservations`
-    ADD CONSTRAINT `fk_reservations_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-ALTER TABLE `reservations`
-    ADD CONSTRAINT `fk_reservations_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+    ADD CONSTRAINT `fk_reservations_ap` FOREIGN KEY (`access_point_id`) REFERENCES `access_points` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_reservations_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_reservations_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_reservations_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- =============================================================================
 -- DATOS INICIALES (puntos de acceso para reservas y API)

@@ -79,17 +79,28 @@ if (str_starts_with($uri, '/api/v1/')) {
     $path = substr($uri, strlen('/api/v1/'));
 
     // ==================== REGISTRO PÚBLICO (sin login) ====================
-    if ($path === 'public/register' && $method === 'POST') {
+    if (str_starts_with($path, 'public/')) {
         require_once __DIR__ . '/controllers/PublicRegistrationController.php';
         $controller = new \Controllers\PublicRegistrationController();
-        $controller->register();
-        exit;
+        if ($path === 'public/register' && $method === 'POST') {
+            $controller->register();
+            exit;
+        }
+        if ($path === 'public/houses' && $method === 'GET') {
+            $controller->listHouses();
+            exit;
+        }
     }
 
     // ==================== USERS ====================
     if (str_starts_with($path, 'users')) {
         require_once __DIR__ . '/controllers/UserController.php';
         $controller = new \Controllers\UserController();
+        
+        if (str_contains($path, 'from-person') && $method === 'POST') {
+            $controller->createFromPerson();
+            exit;
+        }
         
         if (preg_match('#^users(?:/(\d+))?#', $path, $matches)) {
             $id = $matches[1] ?? null;
@@ -131,6 +142,13 @@ if (str_starts_with($uri, '/api/v1/')) {
     if (str_starts_with($path, 'houses')) {
         require_once __DIR__ . '/controllers/HouseController.php';
         $controller = new \Controllers\HouseController();
+        
+        if (preg_match('#^houses/(\d+)/members$#', $path, $m)) {
+            if ($method === 'GET') {
+                $controller->members(['id' => $m[1]]);
+            }
+            exit;
+        }
         
         if (preg_match('#^houses(?:/(\d+))?#', $path, $matches)) {
             $id = $matches[1] ?? null;
@@ -216,7 +234,7 @@ if (str_starts_with($uri, '/api/v1/')) {
                     if ($id) {
                         $controller->show(['id' => $id]);
                     } else {
-                        $controller->index();
+                        $controller->index($_GET);
                     }
                     break;
                 case 'POST':

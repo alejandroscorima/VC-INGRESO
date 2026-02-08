@@ -27,10 +27,21 @@ class PersonController extends Controller {
     protected $tableName = 'persons';  // Tabla renombrada de 'clients'
     
     /**
-     * Listar todas las personas
+     * Listar todas las personas.
+     * Query: without_user=1 → solo personas que aún no tienen usuario (users.person_id).
      */
     public function index($params = []) {
-        $persons = $this->getAll([], 'id DESC');
+        $withoutUser = isset($params['without_user']) && ($params['without_user'] === '1' || $params['without_user'] === true);
+        if ($withoutUser) {
+            $sql = "SELECT p.* FROM {$this->tableName} p
+                    LEFT JOIN users u ON u.person_id = p.id
+                    WHERE u.user_id IS NULL
+                    ORDER BY p.id DESC";
+            $stmt = $this->db->query($sql);
+            $persons = $stmt->fetchAll();
+        } else {
+            $persons = $this->getAll([], 'id DESC');
+        }
         Response::success($persons, 'Personas obtenidas correctamente');
     }
     

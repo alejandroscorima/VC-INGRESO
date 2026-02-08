@@ -10,6 +10,7 @@ namespace Controllers;
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Router.php';
 require_once __DIR__ . '/../auth_middleware.php';
+require_once __DIR__ . '/../helpers/house_permissions.php';
 
 use Utils\Response;
 use Utils\Router;
@@ -145,7 +146,7 @@ class ReservationController
      */
     public function store()
     {
-        requireAuth();
+        $auth = requireAuth();
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -170,13 +171,19 @@ class ReservationController
             Response::json(['success' => false, 'error' => 'Estado inválido'], 400);
             return;
         }
+        if (!canAccessHouse($this->pdo, $auth, (int) $data['house_id'])) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para crear reservas en esta casa'], 403);
+            return;
+        }
+
+        $createdByUserId = isset($auth['user_id']) ? (int)$auth['user_id'] : null;
 
         try {
             $stmt = $this->pdo->prepare("
                 INSERT INTO {$this->table} 
                 (access_point_id, person_id, house_id, reservation_date, end_date, 
-                 status, observation, num_guests, contact_phone, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                 status, observation, num_guests, contact_phone, created_by_user_id, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
             ");
 
             $stmt->execute([
@@ -188,7 +195,8 @@ class ReservationController
                 $data['status'],
                 $data['observation'] ?? null,
                 $data['num_guests'] ?? 1,
-                $data['contact_phone'] ?? null
+                $data['contact_phone'] ?? null,
+                $createdByUserId
             ]);
 
             $id = $this->pdo->lastInsertId();
@@ -208,7 +216,7 @@ class ReservationController
      */
     public function update($id)
     {
-        requireAuth();
+        $auth = requireAuth();
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -217,12 +225,22 @@ class ReservationController
             return;
         }
 
-        // Verificar que existe
-        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT id, house_id FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
-        if (!$stmt->fetch()) {
+        $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$reservation) {
             Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
             return;
+        }
+        if (!canAccessHouse($this->pdo, $auth, (int) $reservation['house_id'])) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para editar esta reservación'], 403);
+            return;
+        }
+        if (isset($data['house_id']) && (int) $data['house_id'] !== (int) $reservation['house_id']) {
+            if (!canAccessHouse($this->pdo, $auth, (int) $data['house_id'])) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para asignar esta casa a la reservación'], 403);
+                return;
+            }
         }
 
         $fields = [];
@@ -267,7 +285,19 @@ class ReservationController
      */
     public function updateStatus($id)
     {
-        requireAuth();
+        $auth = requireAuth();
+
+        $stmt = $this->pdo->prepare("SELECT id, house_id FROM {$this->table} WHERE id = ?");
+        $stmt->execute([$id]);
+        $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$reservation) {
+            Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
+            return;
+        }
+        if (!canAccessHouse($this->pdo, $auth, (int) $reservation['house_id'])) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para cambiar estado de esta reservación'], 403);
+            return;
+        }
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -302,17 +332,23 @@ class ReservationController
      */
     public function destroy($id)
     {
-        requireAuth();
+        $auth = requireAuth();
+
+        $stmt = $this->pdo->prepare("SELECT id, house_id FROM {$this->table} WHERE id = ?");
+        $stmt->execute([$id]);
+        $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$reservation) {
+            Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
+            return;
+        }
+        if (!canAccessHouse($this->pdo, $auth, (int) $reservation['house_id'])) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para eliminar esta reservación'], 403);
+            return;
+        }
 
         try {
             $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE id = ?");
             $stmt->execute([$id]);
-
-            if ($stmt->rowCount() === 0) {
-                Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
-                return;
-            }
-
             Response::json(['success' => true, 'data' => ['id' => $id, 'message' => 'Reservación eliminada']]);
         } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al eliminar: ' . $e->getMessage()], 500);

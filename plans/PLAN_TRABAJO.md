@@ -144,3 +144,12 @@ stateDiagram-v2
 
 - Mantener compatibilidad con endpoints legacy hasta que el frontend esté completamente migrado.
 - **PENDIENTES.md** queda sustituido por este documento; usar solo este archivo para estado y pendientes del proyecto.
+
+--- Más adelante añadir 
+-Panel de suscripción para Crearttech (para que vea sus clientes, licencias, suscripciones, pagos, etc) y para VC5 (para que vea la información de sus suscripción)
+--
+Propietario (Esto se registra en la tabla Users no en la tabla persons):
+Problema de base de datos Persons vs Users 
+
+---
+En el formulario, si alguien ya se registra como propietario en una house, esta casa ya no debería estar disponible en el desplegable. Es decir a medida que van habiendo registros, los desplegables disponibles deberían reducirse. 

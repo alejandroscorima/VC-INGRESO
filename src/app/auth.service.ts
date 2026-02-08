@@ -58,6 +58,16 @@ export class AuthService {
     return this.userSubject.getValue();
   }
 
+  /** Marca que el usuario ya cambió la contraseña temporal (actualiza el usuario en storage) */
+  setForcePasswordChangeDone(): void {
+    const u = this.getUser();
+    if (u) {
+      (u as any).force_password_change = 0;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+      this.userSubject.next(u);
+    }
+  }
+
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }

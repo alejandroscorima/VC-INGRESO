@@ -128,11 +128,11 @@ class AccessLogController
 
     /**
      * POST /api/v1/access-logs
-     * Crear nuevo registro de acceso
+     * Crear nuevo registro de acceso. Auditoría: created_by_user_id (guardia/operario que registró).
      */
     public function store()
     {
-        requireAuth();
+        $auth = requireAuth();
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -158,11 +158,13 @@ class AccessLogController
             return;
         }
 
+        $createdByUserId = isset($auth['user_id']) ? (int)$auth['user_id'] : null;
+
         try {
             $stmt = $this->pdo->prepare("
                 INSERT INTO {$this->table} 
-                (access_point_id, person_id, doc_number, vehicle_id, type, observation, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                (access_point_id, person_id, doc_number, vehicle_id, type, observation, created_by_user_id, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
             ");
 
             $stmt->execute([
@@ -171,7 +173,8 @@ class AccessLogController
                 $data['doc_number'] ?? null,
                 $data['vehicle_id'] ?? null,
                 $data['type'],
-                $data['observation'] ?? null
+                $data['observation'] ?? null,
+                $createdByUserId
             ]);
 
             $id = $this->pdo->lastInsertId();

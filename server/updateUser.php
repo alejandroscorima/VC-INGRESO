@@ -30,86 +30,83 @@ require_once __DIR__ . '/sanitize.php';
 $fields = [
     'type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname',
     'gender', 'birth_date', 'cel_number', 'email', 'role_system', 'username_system',
-    'property_category', 'house_id', 'photo_url', 'status_validated', 'status_reason',
-    'status_system', 'civil_status', 'profession', 'address_reniec', 'district',
+    'house_id', 'photo_url', 'status_validated', 'status_reason',
+    'status_system', 'civil_status', 'address_reniec', 'district',
     'province', 'region', 'user_id'
 ];
 $clean = sanitize_payload($jsonUser, $fields);
 
-// Hashear la contraseña antes de guardarla
-$password = $jsonUser['password_system'] ?? '';
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-// CORS se maneja arriba
 $bd = include_once "vc_db.php";
 require_once __DIR__ . '/auth_middleware.php';
 requireAuth();
 
 header('Content-Type: application/json');
 
-// Preparar la consulta SQL para actualizar el usuario
-$sql = "UPDATE users SET 
-            type_doc = ?, 
-            doc_number = ?, 
-            first_name = ?, 
-            paternal_surname = ?, 
-            maternal_surname = ?, 
-            gender = ?, 
-            birth_date = ?, 
-            cel_number = ?, 
-            email = ?, 
-            role_system = ?, 
-            username_system = ?, 
-            password_system = ?, 
-            property_category = ?, 
-            house_id = ?, 
-            photo_url = ?, 
-            status_validated = ?, 
-            status_reason = ?, 
-            status_system = ?, 
-            civil_status = ?, 
-            profession = ?, 
-            address_reniec = ?, 
-            district = ?, 
-            province = ?, 
-            region = ? 
-        WHERE user_id = ?";
+if (empty($clean['user_id'])) {
+    http_response_code(400);
+    exit(json_encode(["error" => "user_id es requerido"]));
+}
 
-$sentencia = $bd->prepare($sql);
+$stmt = $bd->prepare("SELECT user_id, person_id FROM users WHERE user_id = ? LIMIT 1");
+$stmt->execute([$clean['user_id']]);
+$user = $stmt->fetch(PDO::FETCH_OBJ);
+if (!$user) {
+    http_response_code(404);
+    exit(json_encode(["error" => "Usuario no encontrado"]));
+}
 
-// Ejecutar la consulta con los valores del JSON recibido
-$resultado = $sentencia->execute([
-    $clean['type_doc'],
-    $clean['doc_number'],
-    $clean['first_name'],
-    $clean['paternal_surname'],
-    $clean['maternal_surname'],
-    $clean['gender'],
-    $clean['birth_date'],
-    $clean['cel_number'],
-    $clean['email'],
-    $clean['role_system'],
-    $clean['username_system'],
-    $hashedPassword,
-    $clean['property_category'],
-    $clean['house_id'],
-    $clean['photo_url'],
-    $clean['status_validated'],
-    $clean['status_reason'],
-    $clean['status_system'],
-    $clean['civil_status'],
-    $clean['profession'],
-    $clean['address_reniec'],
-    $clean['district'],
-    $clean['province'],
-    $clean['region'],
+// Actualizar persona (datos civiles) si tiene person_id
+if (!empty($user->person_id)) {
+    $stmt = $bd->prepare("UPDATE persons SET 
+        type_doc = ?, doc_number = ?, first_name = ?, paternal_surname = ?, maternal_surname = ?,
+        gender = ?, birth_date = ?, cel_number = ?, email = ?, address = ?, district = ?, province = ?, region = ?,
+        civil_status = ?, photo_url = ?, house_id = ?, status_validated = ?, status_system = ?
+        WHERE id = ?");
+    $stmt->execute([
+        $clean['type_doc'] ?? null,
+        $clean['doc_number'] ?? null,
+        $clean['first_name'] ?? null,
+        $clean['paternal_surname'] ?? null,
+        $clean['maternal_surname'] ?? null,
+        $clean['gender'] ?? null,
+        $clean['birth_date'] ?? null,
+        $clean['cel_number'] ?? null,
+        $clean['email'] ?? null,
+        $clean['address_reniec'] ?? null,
+        $clean['district'] ?? null,
+        $clean['province'] ?? null,
+        $clean['region'] ?? null,
+        $clean['civil_status'] ?? null,
+        $clean['photo_url'] ?? null,
+        $clean['house_id'] ?? null,
+        $clean['status_validated'] ?? null,
+        $clean['status_system'] ?? null,
+        $user->person_id
+    ]);
+}
+
+// Actualizar usuario (solo sistema); contraseña solo si se envía
+$params = [
+    $clean['role_system'] ?? null,
+    $clean['username_system'] ?? null,
+    $clean['house_id'] ?? null,
+    $clean['status_validated'] ?? null,
+    $clean['status_reason'] ?? null,
+    $clean['status_system'] ?? null,
     $clean['user_id']
-]);
+];
+$sql = "UPDATE users SET role_system = ?, username_system = ?, house_id = ?, status_validated = ?, status_reason = ?, status_system = ? WHERE user_id = ?";
+if (!empty($jsonUser['password_system'])) {
+    $hashedPassword = password_hash($jsonUser['password_system'], PASSWORD_DEFAULT);
+    $sql = "UPDATE users SET role_system = ?, username_system = ?, password_system = ?, house_id = ?, status_validated = ?, status_reason = ?, status_system = ? WHERE user_id = ?";
+    array_splice($params, 2, 0, [$hashedPassword]);
+}
+$sentencia = $bd->prepare($sql);
+$resultado = $sentencia->execute($params);
 
-// Retornar respuesta en JSON
 if ($resultado) {
     echo json_encode(["success" => true, "message" => "Usuario actualizado correctamente."]);
 } else {
-    http_response_code(500); // Error interno
+    http_response_code(500);
     echo json_encode(["error" => "Error al actualizar el usuario."]);
 }

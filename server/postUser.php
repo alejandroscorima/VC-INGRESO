@@ -37,59 +37,89 @@ require_once __DIR__ . '/sanitize.php';
 $fields = [
     'type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname',
     'gender', 'birth_date', 'cel_number', 'email', 'username_system', 'role_system',
-    'house_id', 'property_category', 'photo_url', 'status_validated', 'status_reason',
-    'status_system', 'civil_status', 'profession', 'address_reniec', 'district',
+    'house_id', 'photo_url', 'status_validated', 'status_reason',
+    'status_system', 'civil_status', 'address_reniec', 'district',
     'province', 'region'
 ];
 $clean = sanitize_payload($jsonUser, $fields);
 
-// Hashear la contraseña antes de guardarla
+if (empty($clean['doc_number']) || empty($clean['first_name']) || empty($clean['paternal_surname'])) {
+    http_response_code(400);
+    exit(json_encode(["error" => "Se requieren doc_number, first_name y paternal_surname"]));
+}
+
+// Buscar persona por documento
+$stmt = $bd->prepare("SELECT id FROM persons WHERE doc_number = ? LIMIT 1");
+$stmt->execute([trim($clean['doc_number'])]);
+$existingPerson = $stmt->fetch(PDO::FETCH_OBJ);
+if ($existingPerson) {
+    $stmt = $bd->prepare("SELECT 1 FROM users WHERE person_id = ? LIMIT 1");
+    $stmt->execute([$existingPerson->id]);
+    if ($stmt->fetch()) {
+        http_response_code(409);
+        exit(json_encode(["error" => "Ya existe un usuario con este número de documento"]));
+    }
+    $personId = (int) $existingPerson->id;
+} else {
+    // Crear persona (datos civiles)
+    $address = $clean['address_reniec'] ?? null;
+    $stmt = $bd->prepare("INSERT INTO persons (
+        type_doc, doc_number, first_name, paternal_surname, maternal_surname,
+        gender, birth_date, cel_number, email, address, district, province, region,
+        civil_status, photo_url, person_type, house_id, status_validated, status_system
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RESIDENTE', ?, ?, ?)");
+    $stmt->execute([
+        $clean['type_doc'] ?? null,
+        trim($clean['doc_number']),
+        $clean['first_name'] ?? null,
+        $clean['paternal_surname'] ?? null,
+        $clean['maternal_surname'] ?? null,
+        $clean['gender'] ?? null,
+        $clean['birth_date'] ?? null,
+        $clean['cel_number'] ?? null,
+        $clean['email'] ?? null,
+        $address,
+        $clean['district'] ?? null,
+        $clean['province'] ?? null,
+        $clean['region'] ?? null,
+        $clean['civil_status'] ?? null,
+        $clean['photo_url'] ?? null,
+        $clean['house_id'] ?? null,
+        $clean['status_validated'] ?? null,
+        $clean['status_system'] ?? null
+    ]);
+    $personId = (int) $bd->lastInsertId();
+}
+
+// Verificar username único
+$username = trim($clean['username_system'] ?? $clean['doc_number']);
+$stmt = $bd->prepare("SELECT 1 FROM users WHERE username_system = ? LIMIT 1");
+$stmt->execute([$username]);
+if ($stmt->fetch()) {
+    http_response_code(409);
+    exit(json_encode(["error" => "El nombre de usuario ya existe"]));
+}
+
 $password = $jsonUser['password_system'] ?? '';
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-// Preparar la consulta SQL para insertar un nuevo usuario
-$sql = "INSERT INTO users (
-            type_doc, doc_number, first_name, paternal_surname, maternal_surname, 
-            gender, birth_date, cel_number, email, username_system, password_system, 
-            role_system, house_id, property_category, photo_url, 
-            status_validated, status_reason, status_system, civil_status, 
-            profession, address_reniec, district, province, region
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+// Insertar usuario (solo datos del sistema)
+$sql = "INSERT INTO users (person_id, username_system, password_system, role_system, house_id, status_validated, status_reason, status_system) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 $sentencia = $bd->prepare($sql);
-
-// Ejecutar la consulta con los valores del JSON recibido
 $resultado = $sentencia->execute([
-    $clean['type_doc'],
-    $clean['doc_number'],
-    $clean['first_name'],
-    $clean['paternal_surname'],
-    $clean['maternal_surname'],
-    $clean['gender'],
-    $clean['birth_date'],
-    $clean['cel_number'],
-    $clean['email'],
-    $clean['username_system'],
+    $personId,
+    $username,
     $hashedPassword,
-    $clean['role_system'],
-    $clean['house_id'],
-    $clean['property_category'],
-    $clean['photo_url'],
-    $clean['status_validated'],
-    $clean['status_reason'],
-    $clean['status_system'],
-    $clean['civil_status'],
-    $clean['profession'],
-    $clean['address_reniec'],
-    $clean['district'],
-    $clean['province'],
-    $clean['region']
+    $clean['role_system'] ?? 'RESIDENTE',
+    $clean['house_id'] ?? null,
+    $clean['status_validated'] ?? null,
+    $clean['status_reason'] ?? null,
+    $clean['status_system'] ?? null
 ]);
 
-// Retornar respuesta en JSON
 if ($resultado) {
     echo json_encode(["success" => true, "message" => "Usuario creado correctamente."]);
 } else {
-    http_response_code(500); // Error interno
+    http_response_code(500);
     echo json_encode(["error" => "Error al crear el usuario."]);
 }

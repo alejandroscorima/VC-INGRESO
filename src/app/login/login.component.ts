@@ -40,9 +40,14 @@ export class LoginComponent implements OnInit {
 
   hide = true;
   isloading=false;
+  /** Modal: cambiar contraseña temporal (primer acceso tras registro público) */
+  showChangePasswordModal = false;
+  newPassword = '';
+  confirmPassword = '';
+  changingPassword = false;
 
   //user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
-  user: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  user: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','',0,'',0);
 
 
   listaReq: Item[]= [];
@@ -63,7 +68,6 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private auth: AuthService,
-    
   ) { }
 
   searchItem(){
@@ -94,32 +98,13 @@ export class LoginComponent implements OnInit {
           this.auth.setToken('user_role', String(this.user.role_system));
           this.auth.setToken('userOnSes', JSON.stringify(this.user));
 
-          // Ahora que hay token, validar licencia
-          this.usersService.getPaymentByClientId(1).subscribe({
-            next: (resPay: Payment) => {
-              this.isloading = false;
-              if ((resPay as any)?.error) {
-                this.auth.deleteToken("user_id");
-                this.auth.deleteToken("user_role");
-                this.auth.deleteToken('sala');
-                this.auth.deleteToken('onSession');
-                this.toastr.error('Error al obtener la licencia: ' + (resPay as any).error);
-                this.router.navigateByUrl('/login');
-                return;
-              }
-              this.toastr.success('Inicio de sesión exitoso');
-              this.router.navigateByUrl('/');
-            },
-            error: (error) => {
-              this.isloading = false;
-              this.auth.deleteToken("user_id");
-              this.auth.deleteToken("user_role");
-              this.auth.deleteToken('sala');
-              this.auth.deleteToken('onSession');
-              this.toastr.error('Error al obtener la licencia: ' + error);
-              this.router.navigateByUrl('/login');
-            }
-          });
+          if (this.user.force_password_change) {
+            this.isloading = false;
+            this.showChangePasswordModal = true;
+            return;
+          }
+
+          this.proceedAfterLogin();
         } else {
           this.isloading = false;
           this.toastr.warning('El usuario no tiene permisos');
@@ -138,16 +123,82 @@ export class LoginComponent implements OnInit {
 
 
   ngOnInit() {
-    // SystemClient info - comentado por refactorización
-    // this.clientesService.getSystemClientById(1).subscribe((sc:SystemClient)=>{
-    //   if(sc){
-    //     this.systemClient=sc;
-    //   }
-    // })
-
-    if(this.auth.isAuthenticated()){
+    this.route.queryParams.subscribe(q => {
+      if (q['username']) this.username_system = q['username'];
+    });
+    if (this.auth.isAuthenticated()) {
       this.router.navigateByUrl('/');
     }
+  }
+
+  proceedAfterLogin(): void {
+    this.usersService.getPaymentByClientId(1).subscribe({
+      next: (resPay: Payment) => {
+        this.isloading = false;
+        if ((resPay as any)?.error) {
+          this.auth.deleteToken('user_id');
+          this.auth.deleteToken('user_role');
+          this.auth.deleteToken('sala');
+          this.auth.deleteToken('onSession');
+          this.toastr.error('Error al obtener la licencia: ' + (resPay as any).error);
+          this.router.navigateByUrl('/login');
+          return;
+        }
+        this.toastr.success('Inicio de sesión exitoso');
+        this.router.navigateByUrl('/');
+      },
+      error: (error) => {
+        this.isloading = false;
+        this.auth.deleteToken('user_id');
+        this.auth.deleteToken('user_role');
+        this.auth.deleteToken('sala');
+        this.auth.deleteToken('onSession');
+        this.toastr.error('Error al obtener la licencia: ' + error);
+        this.router.navigateByUrl('/login');
+      }
+    });
+  }
+
+  submitChangePassword(): void {
+    if (!this.newPassword || this.newPassword.length < 6) {
+      this.toastr.warning('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    if (this.newPassword !== this.confirmPassword) {
+      this.toastr.warning('Las contraseñas no coinciden');
+      return;
+    }
+    const uid = this.user?.user_id ?? (this.user as any)?.user_id;
+    if (!uid) {
+      this.toastr.error('No se pudo identificar el usuario');
+      return;
+    }
+    this.changingPassword = true;
+    this.usersService.updatePerson(uid, { password_system: this.newPassword }).subscribe({
+      next: () => {
+        this.changingPassword = false;
+        this.showChangePasswordModal = false;
+        this.newPassword = '';
+        this.confirmPassword = '';
+        this.auth.setForcePasswordChangeDone();
+        this.toastr.success('Contraseña actualizada. Bienvenido.');
+        this.proceedAfterLogin();
+      },
+      error: () => {
+        this.changingPassword = false;
+        this.toastr.error('No se pudo actualizar la contraseña');
+      }
+    });
+  }
+
+  cancelChangePassword(): void {
+    this.showChangePasswordModal = false;
+    this.newPassword = '';
+    this.confirmPassword = '';
+    this.auth.deleteToken('user_id');
+    this.auth.deleteToken('user_role');
+    this.auth.deleteToken('userOnSes');
+    this.toastr.info('Debe cambiar la contraseña para continuar');
   }
 
   onSubmit() {

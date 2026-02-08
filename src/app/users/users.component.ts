@@ -14,12 +14,25 @@ import { ToastrService } from 'ngx-toastr';
 export class UsersComponent implements OnInit, AfterViewInit{
 
   users: User[] = [];
-  userToAdd: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
-  userToEdit: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userToAdd: User = User.empty();
+  userToEdit: User = User.empty();
+
+  /** Pestaña activa: 'users' | 'persons' */
+  activeTab: 'users' | 'persons' = 'users';
+
+  /** Personas registradas que aún no tienen usuario (para "Dar acceso") */
+  personsWithoutUser: any[] = [];
+  loadingPersonsWithoutUser = false;
+  hasLoadedPersonsWithoutUser = false;
+  giveAccessPerson: any = null;
+  giveAccessUsername = '';
+  giveAccessPassword = '';
+  giveAccessRole = 'USUARIO';
+  savingGiveAccess = false;
 
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];
-  roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO'];
+  roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO','GUARDIA'];
   status: string[] = ['ACTIVO', 'INACTIVO']
   houses: House[] = [];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
@@ -48,11 +61,8 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   searchUser(doc_number: string){
-    console.log('Buscando documento:'+doc_number);
     this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
-      console.log(resExistentUser);
       if(resExistentUser.user_id){
-        console.log('Encontrado en BD');
         if(resExistentUser.role_system!='SN'&&resExistentUser.role_system!='NINGUNO'&&resExistentUser.role_system!=''){
           this.clean();
           this.toastr.warning('El usuario ya existe');
@@ -63,7 +73,6 @@ export class UsersComponent implements OnInit, AfterViewInit{
         }
       }
       else if(doc_number.trim().length==8){
-        console.log('No encontrado en BD, pero con DNI. Buscando en RENIEC');
         this.usersService.getUserFromReniec(doc_number).subscribe((resReniecUser:any)=>{
           if(resReniecUser&&resReniecUser['success']){
             this.toastr.success('Datos obtenidos correctamente');
@@ -99,8 +108,8 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   clean(){
-    this.userToAdd = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
-    this.userToEdit = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+    this.userToAdd = User.empty();
+    this.userToEdit = User.empty();
   }
 
   newUser(){
@@ -149,7 +158,6 @@ export class UsersComponent implements OnInit, AfterViewInit{
       // Decidir si es una actualización o un nuevo registro
       if (this.userToAdd.user_id && this.userToAdd.user_id !== 0) {
         // Actualizar usuario existente
-        console.log('User new para update:', this.userToAdd);
         this.usersService.updateUser(this.userToAdd).subscribe({
           next: (resUpdateUser) =>{
             if (resUpdateUser) {
@@ -160,9 +168,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
             this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
             console.error(error);
           },
-          complete: () => {
-            console.info('Proceso de actualización de usuario completado.');
-          }
+          complete: () => {}
         })
       }
       else {
@@ -177,9 +183,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
             this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
             console.error(error);
           },
-          complete: () => {
-            console.info('Proceso de adición de usuario completado.');
-          }
+          complete: () => {}
         });
       }
     });
@@ -209,5 +213,57 @@ export class UsersComponent implements OnInit, AfterViewInit{
         this.handleSuccess();
       }
     })
+  }
+
+  /** Listar personas que aún no tienen usuario (para convertir en usuario) */
+  loadPersonsWithoutUser() {
+    this.loadingPersonsWithoutUser = true;
+    this.usersService.getPersons({ without_user: 1 }).subscribe({
+      next: (res: any) => {
+        this.loadingPersonsWithoutUser = false;
+        this.hasLoadedPersonsWithoutUser = true;
+        this.personsWithoutUser = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+      },
+      error: () => {
+        this.loadingPersonsWithoutUser = false;
+        this.toastr.error('No se pudo cargar la lista de personas sin acceso.');
+      }
+    });
+  }
+
+  /** Abrir modal para dar acceso a una persona */
+  openGiveAccessModal(person: any) {
+    this.giveAccessPerson = person;
+    this.giveAccessUsername = '';
+    this.giveAccessPassword = '';
+    this.giveAccessRole = 'USUARIO';
+    document.getElementById('give-access-button')?.click();
+  }
+
+  /** Crear usuario desde persona (dar acceso) */
+  saveGiveAccess() {
+    if (!this.giveAccessPerson || !this.giveAccessUsername?.trim() || !this.giveAccessPassword?.trim()) {
+      this.toastr.error('Complete usuario y contraseña.');
+      return;
+    }
+    this.savingGiveAccess = true;
+    this.usersService.createUserFromPerson({
+      person_id: this.giveAccessPerson.id,
+      username_system: this.giveAccessUsername.trim(),
+      password_system: this.giveAccessPassword,
+      role_system: this.giveAccessRole
+    }).subscribe({
+      next: () => {
+        this.savingGiveAccess = false;
+        this.toastr.success('Usuario creado. La persona ya puede iniciar sesión.');
+        document.getElementById('close-give-access-modal')?.click();
+        this.loadPersonsWithoutUser();
+        this.usersService.getAllUsers().subscribe((res: any[]) => { this.users = res; });
+      },
+      error: (err) => {
+        this.savingGiveAccess = false;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al crear usuario.');
+      }
+    });
   }
 }

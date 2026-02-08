@@ -20,8 +20,8 @@ import { Pet } from '../pet';
 export class MyHouseComponent implements OnInit, AfterViewInit {
 
   users: User[] = [];
-  userToAdd: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
-  userToEdit: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userToAdd: User = User.empty();
+  userToEdit: User = User.empty();
 
   houses: House[] = [];
   houseToAdd: House = new House('',0,null,'',0);
@@ -35,10 +35,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   myPets: Pet[] = [];
 
   user_id;
-  userOnSes: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userOnSes: User = User.empty();
 
   typeDocs: string[] = ['DNI','CE'];
-  genders: string[] = ['MASCULINO','FEMENINO'];
+  genders: string[] = ['F', 'M'];
   roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO'];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INQUILINO'];
@@ -63,7 +63,6 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     const userId = this.auth.getTokenItem('user_id');
-    console.log('User ID:', userId);
     this.usersService.getUserById(Number(userId)).subscribe({
       next:(os:User)=>{
         this.userOnSes.house_id=os.house_id;
@@ -104,14 +103,11 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         });
         this.entranceService.getAllExternalVehicles().subscribe({
           next:( ev:ExternalVehicle[])=>{
-            console.log('Datos de myVisits (filtrados):', this.externalVehicles);
             this.externalVehicles=ev;
           }
         });
       },
-      error:(err)=>{
-        console.log('No se pudo obtener al usuario en sesión:', err);
-      }
+      error:()=>{}
     })
     
   }
@@ -122,11 +118,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
 
   searchUser(doc_number: string){
-    console.log('Buscando documento:'+doc_number);
     this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
-      console.log(resExistentUser);
       if(resExistentUser.user_id){
-        console.log('Encontrado en BD');
         if(resExistentUser.role_system!='SN'&&resExistentUser.role_system!='NINGUNO'&&resExistentUser.role_system!=''){
           this.clean();
           this.toastr.warning('El usuario ya existe');
@@ -137,7 +130,6 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         }
       }
       else if(doc_number.trim().length==8){
-        console.log('No encontrado en BD, pero con DNI. Buscando en RENIEC');
         this.usersService.getUserFromReniec(doc_number).subscribe((resReniecUser:any)=>{
           if(resReniecUser&&resReniecUser['success']){
             this.toastr.success('Datos obtenidos correctamente');
@@ -145,7 +137,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
             this.userToAdd.first_name=resReniecUser['data']['nombres'];
             this.userToAdd.paternal_surname=resReniecUser['data']['apellido_paterno'];
             this.userToAdd.maternal_surname=resReniecUser['data']['apellido_materno'];
-            this.userToAdd.gender=resReniecUser['data']['sexo'];
+            const sexo = (resReniecUser['data']['sexo'] || '').toString().toUpperCase();
+            this.userToAdd.gender = (sexo === 'FEMENINO' || sexo === 'F') ? 'F' : (sexo === 'MASCULINO' || sexo === 'M') ? 'M' : sexo || '';
             this.userToAdd.birth_date=resReniecUser['data']['fecha_nacimiento'];
             this.userToAdd.civil_status=resReniecUser['data']['estado_civil'];
             this.userToAdd.address_reniec=resReniecUser['data']['direccion_completa'];
@@ -176,8 +169,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     document.getElementById('new-user-button')?.click();
   }
 
-  editUser(user:User){
-    this.userToEdit = user;
+  editUser(user: User): void {
+    this.userToEdit = { ...user } as User;
+    const g = (this.userToEdit.gender || '').toString().toUpperCase();
+    this.userToEdit.gender = (g === 'FEMENINO' || g === 'F') ? 'F' : (g === 'MASCULINO' || g === 'M') ? 'M' : g || '';
     document.getElementById('edit-user-button')?.click();
   }
   newVisit(){
@@ -190,8 +185,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
   
   clean(){
-    this.userToAdd = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
-    this.userToEdit = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+    this.userToAdd = User.empty();
+    this.userToEdit = User.empty();
     this.vehicleToAdd = new Vehicle('','',0,'','','','');
     this.vehicleToEdit = new Vehicle('','',0,'','','','');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
@@ -211,12 +206,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     }
     // Configurar valores predeterminados
     this.userToAdd.password_system = this.userToAdd.doc_number;
-    if(this.userToAdd.gender=='MASCULINO'){
-      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-male.png';
-    }
-    else{
-      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-female.png';
-    }
+    this.userToAdd.photo_url = ''; // Sin foto por el momento
     this.userToAdd.status_system = 'ACTIVO';
     this.userToAdd.house_id = this.userOnSes.house_id;
     // Verificar existencia del usuario en la base de datos
@@ -240,7 +230,6 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       // Decidir si es una actualización o un nuevo registro
       if (this.userToAdd.user_id && this.userToAdd.user_id !== 0) {
         // Actualizar usuario existente
-        console.log('User new para update:', this.userToAdd);
         this.usersService.updateUser(this.userToAdd).subscribe({
           next: (resUpdateUser) =>{
             if (resUpdateUser) {
@@ -252,9 +241,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
             this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
             console.error(error);
           },
-          complete: () => {
-            console.info('Proceso de actualización de usuario completado.');
-          }
+          complete: () => {}
         })
       }
       else {
@@ -269,9 +256,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
             this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
             console.error(error);
           },
-          complete: () => {
-            console.info('Proceso de adición de usuario completado.');
-          }
+          complete: () => {}
         });
       }
     });
@@ -318,12 +303,10 @@ saveEditVehicle(){
         this.handleSuccess();
       }
       else{
-        console.log(resUpdate.message);
         this.toastr.error('Error al actualizar el vehículo');
       }
     },
-    error:(err)=>{
-      console.log(err);
+    error:()=>{
       this.toastr.error('Error al actualizar el vehículo')
     },
   })
@@ -348,7 +331,6 @@ saveNewVehicle(): void {
         this.toastr.success('Vehículo guardado correctamente');
         this.handleSuccess();
       } else {
-        console.log(res.message);
         this.toastr.error('Error al guardar el vehículo');
       }
     },
@@ -385,7 +367,6 @@ saveNewVehicle(): void {
           this.toastr.success('Vehículo externo actualizado correctamente');
           this.handleSuccess();
         } else {
-          console.log(resUpdateExternalVehicle.message);
           this.toastr.error('Error al actualizar el vehículo externo');
         }
       },
@@ -417,7 +398,6 @@ saveNewVehicle(): void {
           this.toastr.success(res.message);
           this.handleSuccess();
         } else {
-          console.log(res.message);
           this.toastr.error('Error al guardar el vehículo externo');
         }
       },

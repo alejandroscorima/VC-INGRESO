@@ -13,10 +13,12 @@ import { MyHouseComponent } from './my-house/my-house.component';
 import { PetsComponent } from './pets/pets.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
+import { PublicRegistrationComponent } from './public-registration/public-registration.component';
 import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
+  { path: "registro", component: PublicRegistrationComponent },
   { path: "", component: InicioComponent, canActivate: [AuthGuard] },
   { path: "history", component: HistoryComponent, canActivate: [AuthGuard] },
   { path: "hb", component: BirthdayComponent, canActivate: [AuthGuard] },

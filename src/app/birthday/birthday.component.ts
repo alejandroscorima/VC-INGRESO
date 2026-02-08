@@ -33,7 +33,7 @@ export class BirthdayComponent implements OnInit {
 
   expandedElement: Item ;
 
-  neighbor: User= new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  neighbor: User= new User('','','','','','','','','','','','','',0,'','','','','','','','','','',0,'',0);
   neighbors: User[] = [];
 
   fecha;

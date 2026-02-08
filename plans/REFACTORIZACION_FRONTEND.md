@@ -129,7 +129,6 @@ Frontend Angular
 │   ├── LoginComponent      (existente)
 │   ├── UsersComponent      (existente)
 │   ├── HousesComponent     (existente)
-│   └── ListrasComponent    ⚠️ Eliminar (reemplazar)
 └── Modelos
     ├── User               ✅ (unificado)
     ├── Visit              (existente)
@@ -138,38 +137,122 @@ Frontend Angular
     └── AccessPoint       (existente)
 ```
 
+----
+
+Formulario de registro público (PublicRegistrationController.php): (*obligatorios) (cualquier campo opcional que no se llene ahora, se podrá actualizar en el sistema posterior al registro)
+🔵 SECCIÓN 1 — REGISTRO DE PROPIETARIO PRINCIPAL
+Tipo de Vivienda* (house_type)
+Manzana* (block_house)
+Lote* (lot)
+Departamento (apartment)
 ---
+Propietario Principal  (Ingresar los datos solamente del propietario, más adelante se podrá ingresar la información de residentes, inquilinos y visitantes en el sistema)
 
-## 📅 Próximos Pasos
+Tipo de Documento* (type_doc) DNI/CE/Otros
+Num DNI/CE/Otros* (doc_number) (Si type_doc es DNI debe aparecer un botón luego del número para utilizar consulta a https://my.apidev.pro/api/dni/ para obtener estos datos, más info: API.md)
+Apellidos* (paternal_surname+maternal_surname)
+Nombres* (first_name)
+Celular / Teléfono de contacto* (cel_number)
+email* (email)
 
-### Inmediatos
-1. ~~Actualizar UsersService~~ ✅
-2. ~~Actualizar AccessLogService~~ ✅
-3. ~~Eliminar servicios legacy~~ ✅
-4. ~~Actualizar HistoryComponent~~ ✅
-5. ~~Actualizar BirthdayComponent~~ ✅
-6. Decidir futuro de ListrasComponent
+Pregunta: “¿Existe un segundo propietario?”
 
-### Futuro (Nueva UI)
-1. Crear nuevo componente `PersonsComponent`
-2. Usar `getPersonsByStatus()` para filtrar
-3. Implementar nueva interfaz de gestión de personas
-4. Eliminar `ListrasComponent` cuando nueva UI esté lista
+Sí → Ir a Sección 2
 
----
+No → Ir a Sección 3
 
-## 🗑️ Archivos para Eliminar (Futuro)
+🔵 SECCIÓN 2 — SEGUNDO PROPIETARIO
 
-Cuando se implemente la nueva UI:
-- `src/app/listas/` (directorio completo)
-- `src/app/listas/listas.component.ts`
-- `src/app/listas/listas.component.html`
-- `src/app/listas/listas.component.css`
+Tipo de Documento* (type_doc) DNI/CE/Otros
+Num DNI/CE/Otros* (doc_number) (Si type_doc es DNI debe aparecer un botón luego del número para utilizar consulta a https://my.apidev.pro/api/dni/ para obtener estos datos, más info: API.md)
+Apellidos* (paternal_surname+maternal_surname)
+Nombres* (first_name)
+Celular / Teléfono de contacto* (cel_number)
+email* (email)
 
----
+Al finalizar → Ir a Sección 3
 
-## 📌 Notas
+🔵 SECCIÓN 3 — ¿DESEA REGISTRAR VEHÍCULOS?
 
-- Los métodos legacy en `UsersService` están marcados con comentario `// LEGACY COMPATIBILITY`
-- La API v1 usa endpoints `/api/v1/users` y `/api/v1/access-logs`
-- El modelo `User` ahora es unificado (reemplaza `Person`, `Ludopata`, `SystemClient`)
+Sí → Ir a Sección 4 (Vehículo 1)
+
+No → Ir a Sección 7 (¿Desea registrar mascotas?)
+
+🔵 SECCIÓN 4 — PRIMER VEHÍCULO
+
+Placa* (license_plate)
+Tipo* (type_vehicle)
+Marca* (brand)
+Modelo* (model)
+Color* (color)
+Foto del vehículo (photo_url)
+
+Pregunta: “¿Deseas agregar otro vehículo?”
+
+Sí → Ir a Sección 5 (Vehículo 2)
+
+No → Ir a Sección 7 (¿Registrar Mascotas?)
+
+🔵 SECCIÓN 5 — SEGUNDO VEHÍCULO
+
+Placa* (license_plate)
+Tipo* (type_vehicle)
+Marca* (brand)
+Modelo* (model)
+Color* (color)
+Foto del vehículo (photo_url)
+
+Pregunta: “¿Deseas agregar otro vehículo?”
+
+Sí → Ir a Sección 6
+
+No → Ir a Sección 7
+
+🔵 SECCIÓN 6 — TERCER VEHÍCULO
+
+Placa* (license_plate)
+Tipo* (type_vehicle)
+Marca* (brand)
+Modelo* (model)
+Color* (color)
+Foto del vehículo (photo_url)
+
+Finalizar sección → Ir a Sección 7
+
+🔵 SECCIÓN 7 — ¿DESEA REGISTRAR MASCOTAS?
+
+Pregunta:
+
+Sí → Ir a Sección 8 (Mascota 1)
+
+No → Enviar formulario
+
+🔵 SECCIÓN 8 — MASCOTA 1
+
+Campos:
+
+Tipo de mascota* (species) (Perro, Gato, Ave, Otros)
+Nombre* (name)
+Raza (breed)
+color* (color)
+Edad (age_years)
+Foto de la mascota (photo_url)
+
+Pregunta: “¿Deseas agregar otra mascota?”
+
+Sí → Ir a Sección 9
+
+No → Enviar formulario
+
+🔵 SECCIÓN 9 — MASCOTA 2 (Opcional)
+
+Tipo de mascota* (species) (Perro, Gato, Ave, Otros)
+Nombre* (name)
+Raza (breed)
+color* (color)
+Edad (age_years)
+Foto de la mascota (photo_url)
+
+Fin → Enviar formulario
+
+NOTA: La cantidad de Vehículos y Mascotas no deberían estar limitadas, sino debería ser un registro recursivo. Los propietarios máximo pueden ser 2

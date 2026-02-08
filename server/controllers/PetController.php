@@ -10,6 +10,7 @@ namespace Controllers;
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../auth_middleware.php';
 require_once __DIR__ . '/../db_connection.php';
+require_once __DIR__ . '/../helpers/house_permissions.php';
 
 use Utils\Response;
 
@@ -46,9 +47,15 @@ class PetController {
      */
     public function index($params = []) {
         try {
-            // Verificar autenticación
-            requireAuth();
-            
+            $auth = requireAuth();
+            // Si filtra por casa, debe tener acceso a esa casa
+            if (isset($params['house_id']) && $params['house_id'] !== '' && $params['house_id'] !== null) {
+                if (!canAccessHouse($this->pdo, $auth, (int) $params['house_id'])) {
+                    Response::json(['success' => false, 'error' => 'Sin permiso para ver mascotas de esta casa'], 403);
+                    return;
+                }
+            }
+
             $sql = "SELECT p.*,
                            h.block_house, h.lot, h.apartment,
                            o.doc_number as owner_doc,
@@ -114,8 +121,7 @@ class PetController {
      */
     public function show($id) {
         try {
-            requireAuth();
-            
+            $auth = requireAuth();
             $stmt = $this->pdo->prepare("SELECT p.*,
                                                 h.block_house, h.lot, h.apartment,
                                                 o.doc_number as owner_doc,
@@ -135,7 +141,10 @@ class PetController {
                 ], 404);
                 return;
             }
-            
+            if (!canAccessHouse($this->pdo, $auth, (int) $pet['house_id'])) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para ver esta mascota'], 403);
+                return;
+            }
             Response::json([
                 'success' => true,
                 'data' => $pet
@@ -179,7 +188,7 @@ class PetController {
      */
     public function store($data = []) {
         try {
-            requireAuth();
+            $auth = requireAuth();
             $data = $data ?: $this->getInput();
 
             // Validar datos requeridos (gestión por casa)
@@ -190,9 +199,20 @@ class PetController {
                 ], 400);
                 return;
             }
-            
-            $sql = "INSERT INTO pets (name, species, breed, color, age_years, house_id, owner_id, photo_url, status_validated, microchip_id, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+            $houseId = (int) $data['house_id'];
+            if (!canAccessHouse($this->pdo, $auth, $houseId)) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para crear mascotas en esta casa'], 403);
+                return;
+            }
+            $ownerId = isset($data['owner_id']) ? (int) $data['owner_id'] : null;
+            if ($ownerId !== null && !validateOwnerInHouse($this->pdo, $houseId, $ownerId)) {
+                Response::json(['success' => false, 'error' => 'El responsable (owner_id) debe ser miembro activo de la misma casa'], 400);
+                return;
+            }
+            $createdBy = isset($auth['user_id']) ? (int) $auth['user_id'] : null;
+
+            $sql = "INSERT INTO pets (name, species, breed, color, age_years, house_id, owner_id, photo_url, status_validated, microchip_id, created_by_user_id, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
@@ -205,7 +225,8 @@ class PetController {
                 $data['owner_id'] ?? null,
                 $data['photo_url'] ?? null,
                 $data['status_validated'] ?? 'PERMITIDO',
-                $data['microchip_id'] ?? null
+                $data['microchip_id'] ?? null,
+                $createdBy
             ]);
             
             $id = $this->pdo->lastInsertId();
@@ -229,31 +250,50 @@ class PetController {
      */
     public function update($id, $data = []) {
         try {
-            requireAuth();
+            $auth = requireAuth();
             $data = $data ?: $this->getInput();
 
-            // Verificar que existe
-            $stmt = $this->pdo->prepare("SELECT id FROM pets WHERE id = ?");
+            $stmt = $this->pdo->prepare("SELECT id, house_id FROM pets WHERE id = ?");
             $stmt->execute([$id]);
-            if (!$stmt->fetch()) {
+            $pet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$pet) {
                 Response::json([
                     'success' => false,
                     'error' => 'Mascota no encontrada'
                 ], 404);
                 return;
             }
-            
+            if (!canAccessHouse($this->pdo, $auth, (int) $pet['house_id'])) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para editar esta mascota'], 403);
+                return;
+            }
+            $houseId = isset($data['house_id']) ? (int) $data['house_id'] : (int) $pet['house_id'];
+            if (isset($data['house_id']) && (int) $data['house_id'] !== (int) $pet['house_id']) {
+                if (!canAccessHouse($this->pdo, $auth, (int) $data['house_id'])) {
+                    Response::json(['success' => false, 'error' => 'Sin permiso para asignar esta casa a la mascota'], 403);
+                    return;
+                }
+            }
+            if (isset($data['owner_id'])) {
+                $ownerId = $data['owner_id'] === null || $data['owner_id'] === '' ? null : (int) $data['owner_id'];
+                if ($ownerId !== null && !validateOwnerInHouse($this->pdo, $houseId, $ownerId)) {
+                    Response::json(['success' => false, 'error' => 'El responsable (owner_id) debe ser miembro activo de la misma casa'], 400);
+                    return;
+                }
+            }
+            $updatedBy = isset($auth['user_id']) ? (int) $auth['user_id'] : null;
+
             $allowedFields = ['name', 'species', 'breed', 'color', 'age_years', 'house_id', 'owner_id', 'photo_url', 'status_validated', 'status_reason', 'microchip_id'];
             $updates = [];
             $values = [];
-            
             foreach ($data as $key => $value) {
                 if (in_array($key, $allowedFields)) {
                     $updates[] = "$key = ?";
                     $values[] = $value;
                 }
             }
-            
+            $updates[] = 'updated_by_user_id = ?';
+            $values[] = $updatedBy;
             if (empty($updates)) {
                 Response::json([
                     'success' => false,
@@ -261,10 +301,8 @@ class PetController {
                 ], 400);
                 return;
             }
-            
             $values[] = $id;
             $sql = "UPDATE pets SET " . implode(', ', $updates) . ", updated_at = NOW() WHERE id = ?";
-            
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($values);
             
@@ -286,7 +324,18 @@ class PetController {
      */
     public function validate($id, $data = []) {
         try {
-            requireAuth();
+            $auth = requireAuth();
+            $stmt = $this->pdo->prepare("SELECT id, house_id FROM pets WHERE id = ?");
+            $stmt->execute([$id]);
+            $pet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$pet) {
+                Response::json(['success' => false, 'error' => 'Mascota no encontrada'], 404);
+                return;
+            }
+            if (!canAccessHouse($this->pdo, $auth, (int) $pet['house_id'])) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para validar esta mascota'], 403);
+                return;
+            }
             $data = $data ?: $this->getInput();
 
             $allowedStatuses = ['PERMITIDO', 'OBSERVADO', 'DENEGADO'];
@@ -324,18 +373,21 @@ class PetController {
      */
     public function destroy($id) {
         try {
-            requireAuth();
-            
-            $stmt = $this->pdo->prepare("SELECT id FROM pets WHERE id = ?");
+            $auth = requireAuth();
+            $stmt = $this->pdo->prepare("SELECT id, house_id FROM pets WHERE id = ?");
             $stmt->execute([$id]);
-            if (!$stmt->fetch()) {
+            $pet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$pet) {
                 Response::json([
                     'success' => false,
                     'error' => 'Mascota no encontrada'
                 ], 404);
                 return;
             }
-            
+            if (!canAccessHouse($this->pdo, $auth, (int) $pet['house_id'])) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para eliminar esta mascota'], 403);
+                return;
+            }
             $stmt = $this->pdo->prepare("DELETE FROM pets WHERE id = ?");
             $stmt->execute([$id]);
             
@@ -357,8 +409,18 @@ class PetController {
      */
     public function uploadPhoto($id) {
         try {
-            requireAuth();
-            
+            $auth = requireAuth();
+            $stmt = $this->pdo->prepare("SELECT id, house_id FROM pets WHERE id = ?");
+            $stmt->execute([$id]);
+            $pet = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$pet) {
+                Response::json(['success' => false, 'error' => 'Mascota no encontrada'], 404);
+                return;
+            }
+            if (!canAccessHouse($this->pdo, $auth, (int) $pet['house_id'])) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para subir foto a esta mascota'], 403);
+                return;
+            }
             if (!isset($_FILES['photo'])) {
                 Response::json([
                     'success' => false,

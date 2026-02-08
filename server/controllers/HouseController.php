@@ -38,6 +38,33 @@ class HouseController extends Controller {
         
         Response::success($house);
     }
+
+    /**
+     * GET houses/:id/members - Miembros de la casa (fuente: house_members + persons)
+     * Reemplazo conceptual de getPersonsByHouseId (que devolvía users).
+     */
+    public function members($params = []) {
+        $houseId = $params['id'] ?? null;
+        if (!$houseId) {
+            Response::error('ID de casa requerido', 400);
+        }
+        $house = $this->findById($houseId, 'house_id');
+        if (!$house) {
+            Response::notFound('Casa no encontrada');
+        }
+        $stmt = $this->db->prepare("
+            SELECT hm.id AS membership_id, hm.relation_type, hm.is_primary, hm.is_active, hm.start_date, hm.end_date,
+                   p.id AS person_id, p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
+                   p.gender, p.birth_date, p.cel_number, p.email, p.person_type, p.status_validated, p.status_system
+            FROM house_members hm
+            JOIN persons p ON p.id = hm.person_id
+            WHERE hm.house_id = ? AND hm.is_active = 1
+            ORDER BY hm.is_primary DESC, hm.relation_type, p.paternal_surname, p.first_name
+        ");
+        $stmt->execute([$houseId]);
+        $members = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        Response::success($members, 'Miembros obtenidos correctamente');
+    }
     
     /**
      * Crear nueva casa

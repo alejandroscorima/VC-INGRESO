@@ -12,46 +12,42 @@ try {
     // Preparar la consulta SQL
     $sentencia = $bd->prepare("SELECT 
         u.user_id,
-        u.type_doc,
-        u.doc_number,
-        u.first_name,
-        u.paternal_surname,
-        u.maternal_surname,
-        u.gender,
-        u.birth_date,
-        u.cel_number,
-        u.email,
+        u.person_id,
         u.role_system,
         u.username_system,
-        u.password_system,
-        u.property_category,
         u.house_id,
-        u.photo_url,
         u.status_validated,
         u.status_reason,
-        u.status_system,
-        u.civil_status,
-        u.profession,
-        u.address_reniec,
-        u.district,
-        u.province,
-        u.region,
+        COALESCE(u.status_system, 'ACTIVO') AS status_system,
+        p.type_doc,
+        p.doc_number,
+        p.first_name,
+        p.paternal_surname,
+        p.maternal_surname,
+        p.gender,
+        p.birth_date,
+        p.cel_number,
+        p.email,
+        p.photo_url,
+        p.civil_status,
+        p.address,
+        p.address AS address_reniec,
+        p.district,
+        p.province,
+        p.region,
         h.block_house,
         h.lot,
         h.apartment
     FROM users AS u
+    LEFT JOIN persons AS p ON u.person_id = p.id
     LEFT JOIN houses AS h ON u.house_id = h.house_id
-    WHERE u.status_system = 'ACTIVO'
-    ORDER BY h.block_house ASC;
+    WHERE (u.status_system = 'ACTIVO' OR u.status_system IS NULL) AND COALESCE(u.is_active, 1) = 1
+    ORDER BY COALESCE(h.block_house, ''), h.lot, h.apartment, u.user_id;
     ");
     
-    // Ejecutar la consulta
     $sentencia->execute();
-    
-    // Obtener los resultados como un arreglo de objetos
     $users = $sentencia->fetchAll(PDO::FETCH_OBJ);
     
-    // Devolver los resultados en formato JSON
     echo json_encode($users);
 
 } catch (Exception $e) {

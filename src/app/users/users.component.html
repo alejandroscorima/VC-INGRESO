@@ -1,6 +1,20 @@
 <div class="p-4 sm:ml-64 dark:bg-gray-900">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
 
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Usuarios / Personas</h2>
+
+        <!-- Pestañas -->
+        <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+            <button type="button" (click)="activeTab = 'users'" [class.border-b-2]="activeTab === 'users'" [class.border-teal-500]="activeTab === 'users'" [class.text-teal-600]="activeTab === 'users'" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-b-2 border-transparent">
+                Usuarios
+            </button>
+            <button type="button" (click)="activeTab = 'persons'; loadPersonsWithoutUser()" [class.border-b-2]="activeTab === 'persons'" [class.border-teal-500]="activeTab === 'persons'" [class.text-teal-600]="activeTab === 'persons'" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-b-2 border-transparent">
+                Personas
+            </button>
+        </div>
+
+        <!-- Tab Usuarios -->
+        <div *ngIf="activeTab === 'users'">
         <button type="button" (click)="newUser()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
             Nuevo
         </button>
@@ -39,13 +53,13 @@
                             {{u.username_system.toUpperCase()}}
                         </td>
                         <td class="px-6 py-4">
-                            Mz:{{u.block_house}} Lt:{{u.lot}} Dpto:{{u.apartment}}
+                            Mz:{{u.block_house || '-'}} Lt:{{u.lot ?? '-'}} Dpto:{{u.apartment ?? '-'}}
                         </td>
                         <td class="px-6 py-4">
-                            {{u.status_system.toUpperCase()}}
+                            {{(u.status_system || 'ACTIVO').toUpperCase()}}
                         </td>
                         <td class="px-6 py-4">
-                            {{u.cel_number}}
+                            {{u.cel_number || '-'}}
                         </td>
                         <td class="px-6 py-4 text-right">
                             <a (click)="editUser(u)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
@@ -53,6 +67,78 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+        </div>
+
+        <!-- Tab Personas -->
+        <div *ngIf="activeTab === 'persons'" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Personas registradas que aún no tienen usuario. Use «Dar acceso» para asignar usuario y contraseña.</p>
+            <button type="button" (click)="loadPersonsWithoutUser()" [disabled]="loadingPersonsWithoutUser" class="text-white bg-indigo-600 hover:bg-indigo-700 font-medium rounded-lg text-sm px-4 py-2 mb-3 disabled:opacity-50">
+                {{ loadingPersonsWithoutUser ? 'Cargando...' : 'Cargar personas sin acceso' }}
+            </button>
+            <div class="relative overflow-x-auto shadow rounded-lg" *ngIf="personsWithoutUser.length > 0">
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-2">Documento</th>
+                            <th class="px-4 py-2">Nombre</th>
+                            <th class="px-4 py-2">Cel / Email</th>
+                            <th class="px-4 py-2">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of personsWithoutUser" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <td class="px-4 py-2">{{ p.doc_number }}</td>
+                            <td class="px-4 py-2">{{ p.paternal_surname }} {{ p.maternal_surname }} {{ p.first_name }}</td>
+                            <td class="px-4 py-2">{{ p.cel_number || '-' }} / {{ p.email || '-' }}</td>
+                            <td class="px-4 py-2">
+                                <button type="button" (click)="openGiveAccessModal(p)" class="text-indigo-600 hover:underline font-medium">Dar acceso</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p *ngIf="hasLoadedPersonsWithoutUser && !loadingPersonsWithoutUser && personsWithoutUser.length === 0" class="text-sm text-gray-500 mt-2">No hay personas sin acceso.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal toggle: Dar acceso a persona -->
+<button hidden id="give-access-button" data-modal-target="give-access-modal" data-modal-toggle="give-access-modal" type="button">Abrir dar acceso</button>
+
+<!-- Modal: Dar acceso (crear usuario desde persona) -->
+<div id="give-access-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <div class="flex items-center justify-between p-4 border-b dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Dar acceso al sistema</h3>
+                <button type="button" id="close-give-access-modal" data-modal-hide="give-access-modal" class="text-gray-400 bg-transparent hover:bg-gray-200 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                    <span class="sr-only">Cerrar</span> &times;
+                </button>
+            </div>
+            <div class="p-4" *ngIf="giveAccessPerson">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {{ giveAccessPerson.paternal_surname }} {{ giveAccessPerson.maternal_surname }} {{ giveAccessPerson.first_name }} ({{ giveAccessPerson.doc_number }})
+                </p>
+                <div class="mb-3">
+                    <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Usuario (login)</label>
+                    <input [(ngModel)]="giveAccessUsername" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" placeholder="Nombre de usuario" />
+                </div>
+                <div class="mb-3">
+                    <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
+                    <input [(ngModel)]="giveAccessPassword" type="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white" placeholder="Contraseña" />
+                </div>
+                <div class="mb-3">
+                    <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                    <select [(ngModel)]="giveAccessRole" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                        <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center p-4 border-t dark:border-gray-600">
+                <button (click)="saveGiveAccess()" [disabled]="savingGiveAccess" type="button" class="text-white bg-indigo-600 hover:bg-indigo-700 font-medium rounded-lg text-sm px-5 py-2.5 disabled:opacity-50">{{ savingGiveAccess ? 'Guardando...' : 'Crear usuario' }}</button>
+                <button type="button" data-modal-hide="give-access-modal" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700">Cancelar</button>
+            </div>
         </div>
     </div>
 </div>

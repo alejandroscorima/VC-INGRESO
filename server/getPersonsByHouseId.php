@@ -19,53 +19,55 @@ if (!isset($_GET['house_id'])) {
 $house_id = (int) $_GET['house_id'];
 
 try {
+    // Listar todas las personas del domicilio (persons.house_id), tengan o no usuario.
+    // Incluir person_type y property_category para que My House filtre residentes/visitas.
     $sentencia = $bd->prepare("SELECT 
+        p.id AS person_id,
+        p.type_doc,
+        p.doc_number,
+        p.first_name,
+        p.paternal_surname,
+        p.maternal_surname,
+        p.gender,
+        p.birth_date,
+        p.cel_number,
+        p.email,
+        p.photo_url,
+        p.civil_status,
+        p.address,
+        p.address AS address_reniec,
+        p.district,
+        p.province,
+        p.region,
+        p.person_type,
+        p.person_type AS property_category,
+        p.house_id,
+        p.status_validated,
+        p.status_system,
         u.user_id,
-        u.type_doc,
-        u.doc_number,
-        u.first_name,
-        u.paternal_surname,
-        u.maternal_surname,
-        u.gender,
-        u.birth_date,
-        u.cel_number,
-        u.email,
         u.role_system,
         u.username_system,
-        u.password_system,
-        u.property_category,
-        u.house_id,
-        u.photo_url,
-        u.status_validated,
+        u.status_validated AS user_status_validated,
         u.status_reason,
-        u.status_system,
-        u.civil_status,
-        u.profession,
-        u.address_reniec,
-        u.district,
-        u.province,
-        u.region,
+        u.status_system AS user_status_system,
         h.block_house,
         h.lot,
         h.apartment
-    FROM users AS u
-    LEFT JOIN houses AS h ON u.house_id = h.house_id
-    WHERE u.house_id = :house_id");
+    FROM persons AS p
+    LEFT JOIN users AS u ON u.person_id = p.id
+    LEFT JOIN houses AS h ON p.house_id = h.house_id
+    WHERE p.house_id = :house_id
+    ORDER BY p.person_type, p.paternal_surname, p.first_name");
 
-    // Vincula el parámetro
     $sentencia->bindParam(':house_id', $house_id);
-    
-
-    // Ejecutar la consulta
     $sentencia->execute();
-    
-    // Obtener los resultados como un arreglo de objetos
     $persons = $sentencia->fetchAll(PDO::FETCH_OBJ);
-    
-    // Siempre devolver un array (vacío si no hay resultados) para que el frontend no falle con *ngFor
+
     if ($persons) {
         foreach ($persons as $person) {
-          unset($person->password_system);
+            if (isset($person->password_system)) {
+                unset($person->password_system);
+            }
         }
         echo json_encode($persons);
     } else {
