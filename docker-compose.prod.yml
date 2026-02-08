@@ -1,0 +1,69 @@
+# Producción: frontend (nginx) + api + mysql (todo en contenedores).
+# Requiere: ng build --configuration=production (genera dist/Ingreso).
+# Uso: docker compose -f docker-compose.prod.yml up -d
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: vc-ingreso-mysql
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - MYSQL_DATABASE=${DB_NAME:-vc_db}
+      - MYSQL_CHARSET=${DB_CHARSET:-utf8mb4}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init-docker.sh:/docker-entrypoint-initdb.d/01-init-docker.sh:ro
+      - ./database/vc_create_database.sql:/docker-entrypoint-initdb.d/02-vc_create_database.sql.template:ro
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vc-ingreso-api:prod
+    container_name: vc-ingreso-api
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME:-vc_db}
+      - DB_LICENSE_NAME=${DB_LICENSE_NAME:-crearttech_clientes}
+      - DB_USER=root
+      - DB_PASS=${DB_PASS}
+      - DB_CHARSET=${DB_CHARSET:-utf8mb4}
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN}
+      - PHP_OPCACHE_ENABLE=1
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=0
+    ports:
+      - "80:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    container_name: vc-ingreso-frontend
+    volumes:
+      - ./dist/Ingreso:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  default:
+    driver: bridge

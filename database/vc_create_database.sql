@@ -3,12 +3,19 @@
 -- Incluye tablas legacy + mascotas, reservaciones y access_logs (nuevo formato)
 -- Ejecutar en orden; las claves foráneas se añaden al final.
 -- =============================================================================
+-- En Docker, este archivo se ejecuta desde database/init-docker.sh sustituyendo
+-- __MYSQL_ROOT_PASSWORD__ por la contraseña real (root@'%' para que la API conecte).
+-- Ejecución manual: sed 's/__MYSQL_ROOT_PASSWORD__/PASSWORD/g' database/vc_create_database.sql | mysql -uroot -p
+-- =============================================================================
 
--- Crear bases de datos para desarrollo (docker-compose.mysql)
+-- Permitir root desde la red Docker (contenedor API). Placeholder sustituido por init-docker.sh o por sed en ejecución manual.
+CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED WITH mysql_native_password BY '__MYSQL_ROOT_PASSWORD__';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+-- Crear bases de datos (dev/stage/prod). Licencias: crearttech_clientes (bdLicense.php, DB_LICENSE_NAME).
 CREATE DATABASE IF NOT EXISTS vc_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE IF NOT EXISTS vc_entrance CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE IF NOT EXISTS vc_clients CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE IF NOT EXISTS vc_data CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS crearttech_clientes CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Usar la base de datos vc_db para las tablas
 USE vc_db;
