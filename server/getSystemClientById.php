@@ -1,19 +1,22 @@
-
 <?php
-//header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Origin: *");
-//header("Access-Control-Allow-Origin: http://192.168.4.250");
+// CORS, DB connection, and preflight are handled inside bdLicense.php
+$bd = include_once "bdLicense.php";
+require_once __DIR__ . '/auth_middleware.php';
+$payload = requireAuth();
+
 if (empty($_GET["client_id"])) {
-    exit("No está en sala");
+    http_response_code(400);
+    echo json_encode(["error" => "Parámetro client_id requerido"]);
+    exit;
 }
+
 $client_id = $_GET["client_id"];
 
-$bd = include_once "bdLicense.php";
-
-$sentencia = $bd->prepare("SELECT client_id, client_name, client_phone, client_email, client_ruc, client_logo FROM clients WHERE client_id = '".$client_id."'");
-
+$sentencia = $bd->prepare("SELECT client_id, client_name, client_phone, client_email, client_ruc, client_logo FROM clients WHERE client_id = :client_id");
+$sentencia->bindParam(':client_id', $client_id, PDO::PARAM_INT);
 $sentencia->execute();
-//$cliente = $sentencia->fetchObject();
-$cliente = $sentencia->fetchObject();
-//echo json_encode($cliente[$cliente.length()-1]);
+
+$cliente = $sentencia->fetch();
+
+header('Content-Type: application/json');
 echo json_encode($cliente);

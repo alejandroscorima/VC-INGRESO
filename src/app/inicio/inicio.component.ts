@@ -1,7 +1,5 @@
 
 import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
-import { ClientesService } from "../clientes.service"
-import { Person } from "../person"
 import * as XLSX from 'xlsx';
 
 import { User } from '../user';
@@ -18,10 +16,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MAT_SORT_HEADER_INTL_PROVIDER_FACTORY } from '@angular/material/sort';
 import { Sale } from '../sale';
-import { PersonalService } from '../personal.service';
 import { ToastrService } from 'ngx-toastr';
 import { Product } from '../product';
-import { CookiesService } from '../cookies.service';
+import { AuthService } from '../auth.service';
 import { Collaborator } from '../collaborator';
 import { AccessPoint } from '../accessPoint';
 import { EntranceService } from '../entrance.service';
@@ -194,9 +191,7 @@ export class InicioComponent implements OnInit {
     }
   };
 
-  clientes: Person[] = [
-    new Person("none", "Jugador Prueba", '', "none",'','','','','','','','','','','','','','','','','',0,0,'','')
-  ];
+  clientes: User[] = [];
   
 
 
@@ -477,11 +472,12 @@ export class InicioComponent implements OnInit {
   @ViewChild('tuTabla', { static: true }) table: ElementRef;
 
 
-  constructor(private clientesService: ClientesService, private dialogo: MatDialog,
+  constructor(
+    private dialogo: MatDialog,
     private snackBar: MatSnackBar, private router: Router,
     public dialog: MatDialog,
     private toastr: ToastrService,
-    private cookies: CookiesService,
+    private auth: AuthService,
     private userService: UsersService,
     private entranceService: EntranceService,
     private accessLogService: AccessLogService,
@@ -508,12 +504,12 @@ export class InicioComponent implements OnInit {
   }
 
   getEntrances(){
-    this.accessLogService.getAccessLogs('','').subscribe(resLogs => {
-      console.log(resLogs);
-      resLogs.forEach(an=>{
-        this.lineChartData.labels.push(an.date);
-        this.lineChartData.datasets[0].data.push(an.count);
-      })
+    this.accessLogService.getAccessLogs().subscribe((res: any) => {
+      const resLogs = Array.isArray(res) ? res : (res?.data ?? []);
+      resLogs.forEach((an: any) => {
+        this.lineChartData.labels.push(an.date ?? an.FECHA);
+        this.lineChartData.datasets[0].data.push(an.count ?? an.AFORO ?? 0);
+      });
       console.log(this.lineChartData);
     });
   }
@@ -526,9 +522,10 @@ export class InicioComponent implements OnInit {
 
     initFlowbite();
 
-    this.getEntrances();
+    // Dashboard (inicio): cargar gráficos al final; por ahora no llamar para poder probar el resto
+    // this.getEntrances();
 
-    if(this.cookies.checkToken('user_id')){
+    if(this.auth.checkToken('user_id')){
       this.salaDisabled=false;
       this.mesDisabled=false;
       this.diaDisabled=false;
@@ -537,7 +534,7 @@ export class InicioComponent implements OnInit {
       
 
 
-      this.userService.getUserById(this.cookies.getToken('user_id')).subscribe((user:User)=>{
+      this.userService.getUserById(Number(this.auth.getTokenItem('user_id'))).subscribe((user:User)=>{
         
         this.actualUser=user
         console.log(this.actualUser)
@@ -583,251 +580,15 @@ export class InicioComponent implements OnInit {
             this.mesActual = this.meses[this.fecha.getMonth()];
             this.diaActual = String(this.fecha.getDate());
         
-            this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
-              //corregir lo que supone el dashboard, puedes hacerlo con powerbi
-              console.log('Response from API:', res);
-              this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]]
-      
-      
-              this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
-      
-                this.fechas=[];
-      
-                this.columnsFechas=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }];
-      
-                this.numberClients=0;
-                this.numberClientsNew=0;
-      
-                for(var i=0,l=res.length;i<l;i++){
-                  if(res[i]['FECHA']!='S/N' && res[i]['FECHA']!='--'){
-      
-                    var ele=[];
-                    var flag1=false;
-      
-                    ele.push(String(res[i]['FECHA']));
-                    ele.push(parseInt(res[i]['AFORO']));
-                    ele.push(String(res[i]['AFORO']));
-      
-                    this.numberClients+=parseInt(res[i]['AFORO']);
-                    this.numberClientsAverage=(this.numberClients/res.length).toFixed(0);
-      
-                    if(res2.length>0){
-                      res2.forEach(rd2=>{
-                        if(rd2['FECHA']==res[i]['FECHA']){
-                          flag1=true;
-                          ele.push(parseInt(rd2['AFORO']));
-                          ele.push(String(rd2['AFORO']));
-      
-                          this.numberClientsNew+=parseInt(rd2['AFORO']);
-                        }
-                      })
-                      if(!flag1){
-                        ele.push(0);
-                        ele.push('0');
-                      }
-                    }
-                    else{
-                      ele.push(0);
-                      ele.push('0');
-                    }
-                    this.fechas.push(ele);
-                  }
-                }
-      
-                this.clientesService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
-      
-                  a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
-      
-                  this.distritoTop=a[0]['DISTRITO'];
-      
-                  var ndist=0;
-      
-                  a.forEach(ad=>{
-                    if(ad['DISTRITO']!='S/N' && ad['DISTRITO']!='--' && ad['DISTRITO']!='SN'&&ndist<12){
-                      var el =[];
-      
-                      this.columnsAddress=['Dir','Cantidad',{ role: 'annotation' }]
-      
-                      el.push(String(ad['CANTIDAD']));
-                      el.push(parseInt(ad['CANTIDAD']));
-                      el.push(ad['DISTRITO']);
-                      this.address.push(el);
-                      ndist+=1;
-                    }
-                  })
-      
-                  this.clientesService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
-      
-                    this.clientesService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
-      
-                      this.mensual=[];
-      
-                      this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{ role: 'annotation' }]
-      
-                      for(var i=0, l=b.length;i<l;i++){
-                        if(b[i]['FECHA']!='S/N' && b[i]['FECHA']!='--'){
-                          var el =[];
-                          var flag2=false;
-                          el.push(b[i]['FECHA']);
-                          el.push(parseInt(b[i]['AFORO']));
-                          el.push(String(b[i]['AFORO']));
-      
-                          if(b2.length>0){
-                            b2.forEach(ad2=>{
-                              if(ad2['FECHA']==b[i]['FECHA']){
-                                flag2=true;
-                                el.push(parseInt(ad2['AFORO']));
-                                el.push(String(ad2['AFORO']));
-                              }
-                            })
-                            if(!flag2){
-                              el.push(0);
-                              el.push('0');
-                            }
-                          }
-                          else{
-                            el.push(0);
-                            el.push('0');
-                          }
-                          this.mensual.push(el);
-                        }
-                      }
-      
-                      this.hours=[];
-      
-                      this.clientesService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
-                        var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
-                        this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
-                        var cantidadXHoras=[24];
-                        if(resHours.length>0){
-                          var cantHourAux=0;
-                          for(var i=0;i<24;i++){
-                            var elem=[];
-                            var contador=0;
-                            resHours.forEach(hItem=>{
-                              if(String(hItem['HORA']).substring(0,2)==horasString[i]){
-                                contador+=parseInt(hItem['AFORO']);
-                              }
-                            })
-                            elem.push(horasString[i]+':00');
-                            elem.push(contador);
-                            elem.push(String(contador));
-      
-                            cantidadXHoras[i]=contador;
-                            if(contador>=cantHourAux){
-                              cantHourAux=contador;
-                              if(i<23){
-                                this.horaTop=horasString[i]+':00 a '+horasString[i+1]+':00';
-                              }
-                              else{
-                                this.horaTop=horasString[i]+':00 a 24:00';
-                              }
-                            }
-                            this.hours.push(elem);
-                          }
-                        }
-      
-                        this.clientesService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
-                          if(resAge.length>0){
-                            this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
-                            var count18a30 = 0;
-                            var count30a40 = 0;
-                            var count40a50 = 0;
-                            var count50a60 = 0;
-                            var count60amas = 0;
-      
-                            var cantEdad=0;
-      
-                            resAge.forEach(clientAge=>{
-      
-                              if(parseInt(clientAge['EDAD'])<=30){
-                                count18a30+=parseInt(clientAge['AFORO']);
-                                if(count18a30>cantEdad){
-                                  cantEdad=count18a30;
-                                  this.edadTop='18 a 30';
-                                }
-                              }
-                              else if(parseInt(clientAge['EDAD'])<=40){
-                                count30a40+=parseInt(clientAge['AFORO']);
-                                if(count30a40>cantEdad){
-                                  cantEdad=count30a40;
-                                  this.edadTop='31 a 40';
-                                }
-                              }
-                              else if(parseInt(clientAge['EDAD'])<=50){
-                                count40a50+=parseInt(clientAge['AFORO']);
-                                if(count40a50>cantEdad){
-                                  cantEdad=count40a50;
-                                  this.edadTop='41 a 50';
-                                }
-                              }
-                              else if(parseInt(clientAge['EDAD'])<=60){
-                                count50a60+=parseInt(clientAge['AFORO']);
-                                if(count50a60>cantEdad){
-                                  cantEdad=count50a60;
-                                  this.edadTop='51 a 60';
-                                }
-                              }
-                              else{
-                                count60amas+=parseInt(clientAge['AFORO']);
-                                if(count60amas>cantEdad){
-                                  cantEdad=count60amas;
-                                  this.edadTop='60+';
-                                }
-                              }
-      
-                            })
-      
-                            var elem=[];
-      
-                            elem.push('18 a 30');
-                            elem.push(count18a30);
-                            elem.push(String(count18a30));
-                            this.age.push(elem);
-      
-                            elem=[];
-                            elem.push('31 a 40');
-                            elem.push(count30a40);
-                            elem.push(String(count30a40));
-                            this.age.push(elem);
-      
-                            elem=[];
-                            elem.push('41 a 50');
-                            elem.push(count40a50);
-                            elem.push(String(count40a50));
-                            this.age.push(elem);
-      
-                            elem=[];
-                            elem.push('51 a 60');
-                            elem.push(count50a60);
-                            elem.push(String(count50a60));
-                            this.age.push(elem);
-      
-                            elem=[];
-                            elem.push('61 a más');
-                            elem.push(count60amas);
-                            elem.push(String(count60amas));
-                            this.age.push(elem);
-      
-      
-                          }
-                        })
-      
-      
-                      })
-      
-                    })
-                  })
-                })
-              })
-        
-            })
+            // Dashboard stats desactivados temporalmente (reactivar al armar el dashboard)
+            this.aforo = [];
+            this.fechas = [];
+            this.address = [];
+            this.mensual = [];
+            this.hours = [];
+            this.age = [];
           }
-
-
-        })
-
-
+        });
       });
 
     }
@@ -1099,14 +860,14 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
     this.logoSrc="assets/logo"+this.salaCmbBox+".png"
 
-    this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
+    this.accessLogService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res:any[])=>{
       if(res.length>0){
 
         this.aforo=[[String(res[0]['FECHA']),parseInt(res[0]['AFORO']),0]];
 
         this.fechas=[];
 
-        this.clientesService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
+        this.accessLogService.getAforoStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((res2:any[])=>{
 
           this.columnsFechas=['Fecha','Total',{role:'annotation'},'Nuevos',{role:'annotation'}]
 
@@ -1154,7 +915,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
         this.fechas=[['No hay datos',0]]
       ]
 
-      this.clientesService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
+      this.accessLogService.getAddressStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((a:any[])=>{
         if(a.length>0){
           this.address=[];
           a.sort(function(m,n){return n['CANTIDAD'] - m['CANTIDAD'];});
@@ -1184,11 +945,11 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
         }
 
 
-        this.clientesService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
+        this.accessLogService.getTotalMonth(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b:any[])=>{
           if(b.length>0){
             this.mensual=[];
 
-            this.clientesService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
+            this.accessLogService.getTotalMonthNew(this.salaCmbBox.ap_location,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4).subscribe((b2:any[])=>{
 
               this.columnsMensual=['Fecha','Total',{ role: 'annotation' },'Nuevos',{role:'annotation'}];
 
@@ -1227,7 +988,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
           this.hours=[];
 
-          this.clientesService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
+          this.accessLogService.getHourStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resHours:any[])=>{
             var horasString=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
             this.columnsHours=['Hora','Cantidad',{ role: 'annotation' }];
             var cantidadXHoras=[24];
@@ -1264,7 +1025,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 
             this.age=[];
 
-            this.clientesService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
+            this.accessLogService.getAgeStat(this.salaCmbBox.ap_location,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe((resAge:any[])=>{
               if(resAge.length>0){
                 this.columnsAge=['Edad','Cantidad',{ role: 'annotation' }];
                 var count18a30 = 0;
@@ -1347,7 +1108,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
                 this.age.push(elem);
 
 
-/*                 this.clientesService.getHourWargos(this.salaCmbBox,this.fechaInicio,this.fechaFin,'','','','','','','','').subscribe((ans:any[])=>{
+/*                 this.accessLogService.getHourWargos(this.salaCmbBox,this.fechaInicio,this.fechaFin,'','','','','','','','').subscribe((ans:any[])=>{
                   if(ans.length>0){
                     var contHW1;
                     var contHW2;
@@ -1406,7 +1167,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
                 }) */
               }
 
-/*               this.clientesService.getHourReal(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe(r=>{
+/*               this.accessLogService.getHourReal(this.salaCmbBox,this.fechaInicio,this.fechaFin,this.fechaMes,this.mesCmbBox,this.diaCmbBox,this.fecha1,this.fecha2,this.fecha3,this.fecha4,this.fecha5).subscribe(r=>{
                 console.log(r);
               }) */
             })
@@ -1467,7 +1228,6 @@ export class DialogRevalidar implements OnInit {
     public dialogRef: MatDialogRef<DialogRevalidar>,
     @Inject(MAT_DIALOG_DATA) public data:Product,
     private fb: FormBuilder,
-    private personalService: PersonalService,
     private toastr: ToastrService,
   ) {}
 
@@ -1507,7 +1267,6 @@ export class DialogSelectSala implements OnInit {
     public dialogRef: MatDialogRef<DialogRevalidar>,
     @Inject(MAT_DIALOG_DATA) public data:String,
     private fb: FormBuilder,
-    private personalService: PersonalService,
     private toastr: ToastrService,
   ) {}
 

@@ -1,0 +1,26 @@
+<div class="webcam-container">
+  <div *ngIf="errorMessage" class="error-message">
+    <mat-icon>error</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="video-wrapper">
+    <video #videoElement autoplay playsinline [hidden]="!isStreaming"></video>
+    <canvas #canvasElement style="display: none;"></canvas>
+    
+    <div *ngIf="!isStreaming && !errorMessage" class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Inicializando cámara...</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button mat-fab color="primary" (click)="switchCamera()" [disabled]="!isStreaming">
+      <mat-icon>cameraswitch</mat-icon>
+    </button>
+    
+    <button mat-fab color="accent" (click)="capturePhoto()" [disabled]="!isStreaming">
+      <mat-icon>photo_camera</mat-icon>
+    </button>
+  </div>
+</div>

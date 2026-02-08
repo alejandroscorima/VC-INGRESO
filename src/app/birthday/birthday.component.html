@@ -22,7 +22,7 @@
             </mat-form-field>
           </p>    
           </div>
-          <mat-form-field appearance="standard" style="display:display-inline">
+            <mat-form-field appearance="fill" style="display:display-inline">
               <mat-label>Búsqueda</mat-label>
               <input matInput (keyup)="applyFilterList($event)" placeholder="Escribe algo para buscar" #input1>
           </mat-form-field>
@@ -49,18 +49,18 @@
                   <th class="bg-gray-50 border-b dark:bg-gray-800
                   dark:border-gray-700" mat-header-cell *matHeaderCellDef mat-sort-header> FECHA NAC. </th>
                   <td  class="px-6 py-4 font-medium
-                  text-gray-900 whitespace-nowrap dark:text-white" mat-cell *matCellDef="let a"> {{fechaString}}</td>
+                  text-gray-900 whitespace-nowrap dark:text-white" mat-cell *matCellDef="let a"> {{ a.birth_date | date:'d \'de\' MMMM' }}</td>
                 </ng-container>
     
                 <ng-container matColumnDef="house">
                   <th class="bg-gray-50 border-b dark:bg-gray-800
                   dark:border-gray-700" mat-header-cell *matHeaderCellDef mat-sort-header> DOMICILIO </th>
                   <td class="px-6 py-4 font-medium
-                  text-gray-900 whitespace-nowrap dark:text-white" mat-cell *matCellDef="let a"> {{'Mz:'+a.block_house+' Lt:'+a.lot}}</td>
+                  text-gray-900 whitespace-nowrap dark:text-white" mat-cell *matCellDef="let a"> Mz:{{ a.block_house || '-' }} Lt:{{ a.lot != null ? a.lot : '-' }}</td>
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="['doc','name','birth_date','house'];"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['doc','name','birth_date','house'];"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['doc','name','birth_date','house']"></tr>
                 <tr class="mat-row" *matNoDataRow>
                   <td class="mat-cell" colspan="6">No se encontró "{{input1.value}}"</td>
                 </tr>

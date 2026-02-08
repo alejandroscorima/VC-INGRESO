@@ -142,15 +142,15 @@
     
     
             <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <mat-form-field class="fecha" id="fecha" appearance="fill" style="width:100% ; font-size: 12px;">
+              <mat-form-field class="fecha" id="fecha2" appearance="fill" style="width:100% ; font-size: 12px;">
                 <mat-label>Fecha:</mat-label>
       
-                <mat-date-range-input [rangePicker]="picker" [disabled]="fechaDisabled">
+                <mat-date-range-input [rangePicker]="picker2" [disabled]="fechaDisabled">
                   <input matStartDate [(ngModel)]="fechaCmbBoxStart" placeholder="Desde">
                   <input matEndDate [(ngModel)]="fechaCmbBoxEnd" placeholder="Hasta" (dateChange)="fechaChange()">
                 </mat-date-range-input>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-date-range-picker #picker [disabled]="fechaDisabled"></mat-date-range-picker>
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker2 [disabled]="fechaDisabled"></mat-date-range-picker>
       
               </mat-form-field>
             </mat-grid-tile> 

@@ -1,158 +1,218 @@
-
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { User } from "./user";
-import { environment } from "../environments/environment";
-import {  BehaviorSubject, Observable } from 'rxjs';
-import { Item } from './item';
-import { CookieService } from 'ngx-cookie-service';
+import { HttpClient } from '@angular/common/http';
+import { User } from './user';
+import { environment } from '../environments/environment';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
-  baseUrl = environment.baseUrl;
+  private baseUrl = environment.baseUrl;
+  private reniecApiUrl = 'https://my.apidev.pro/api/dni';
 
   // BehaviorSubject para centralizar el estado del usuario
   private userSubject = new BehaviorSubject<User | null>(null);
   user$: Observable<User | null> = this.userSubject.asObservable();
 
-  respuesta;
-  urlconsulta;
+  constructor(
+    private http: HttpClient,
+    private api: ApiService
+  ) {}
 
-  constructor(private http: HttpClient, private cookies: CookieService) { }
+  // ==================== USERS CRUD ====================
 
-
-  getAllUsers() {
-    return this.http.get(`${this.baseUrl}/getAllUsers.php`);
+  getAllUsers(): Observable<any> {
+    return this.api.getRaw('getAllUsers.php');
   }
 
-
-
-  //Commit change getUserNew
-
-  //login
-  getUser(username_system, password_system) {
-    return this.http.get(`${this.baseUrl}/getUser.php?username_system=${username_system}&password_system=${password_system}`);
+  getUser(username_system: string, password_system: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/getUser.php`, { username_system, password_system });
   }
 
-  //myhouse
-  getUserById(user_id) {
-    return this.http.get(`${this.baseUrl}/getUserById.php?user_id=${user_id}`);
+  getUserById(user_id: number): Observable<any> {
+    return this.api.getRaw('getUserById.php', { user_id });
   }
-  // Establecer el usuario en el estado global
+
   setUsr(user: User): void {
     this.userSubject.next(user);
   }
 
-  // Obtener el usuario actual del estado global
   getUsr(): User | null {
     return this.userSubject.getValue();
   }
 
-  //users
-  getUserByDocNumber(doc_number: string) {
-    return this.http.get(`${this.baseUrl}/getUserByDocNumber.php?doc_number=${doc_number}`);
+  getUserByDocNumber(doc_number: string): Observable<any> {
+    return this.api.getRaw('getUserByDocNumber.php', { doc_number });
   }
 
-  //usersByBirthday
-  getUsersByBirthday(fecha_cumple: string) {
-    return this.http.get(`${this.baseUrl}/getUsersByBirthday.php?fecha_cumple=${fecha_cumple}`);
+  getUsersByBirthday(fecha_cumple: string): Observable<any> {
+    return this.api.getRaw('getUsersByBirthday.php', { fecha_cumple });
   }
 
-
-  getCollaboratorByUserId(user_id) {
-    return this.http.get(`${this.baseUrl}/getCollaboratorByUserId.php?user_id=${user_id}`);
+  getCollaboratorByUserId(user_id: number): Observable<any> {
+    return this.api.getRaw('getCollaboratorByUserId.php', { user_id });
   }
 
-  getPersonal(area_id) {
-    return this.http.get(`${this.baseUrl}/getPersonal.php?area_id=${area_id}`);
+  getPersonal(area_id: number): Observable<any> {
+    return this.api.getRaw('getPersonal.php', { area_id });
   }
 
-
-  addUser(u: User) {
-    return this.http.post(`${this.baseUrl}/postUser.php`, u);
+  addUser(u: User): Observable<any> {
+    return this.api.post('postUser.php', u);
   }
 
-  updateUser(u: User) {
-    return this.http.put(`${this.baseUrl}/updateUser.php`, u);
+  updateUser(u: User): Observable<any> {
+    return this.api.put('updateUser.php', u);
   }
 
-
-
-  getAreas() {
-    return this.http.get(`${this.baseUrl}/getAreas.php`);
+  getAreas(): Observable<any> {
+    return this.api.getRaw('getAreas.php');
   }
 
-  getSalas() {
-    return this.http.get(`${this.baseUrl}/getSalas.php`);
+  getSalas(): Observable<any> {
+    return this.api.getRaw('getSalas.php');
   }
 
-  getPrioridad() {
-    return this.http.get(`${this.baseUrl}/getPrioridad.php`);
+  getPrioridad(): Observable<any> {
+    return this.api.getRaw('getPrioridad.php');
   }
 
-  addReqDet(item: Item) {
-    return this.http.post(`${this.baseUrl}/postReqDetalle.php`, item);
+  // ==================== PERSONS UNIFICADO ====================
+  // Métodos consolidados de ClientesService + PersonalService
+  // Usa endpoints /api/v1/users con filtros de status
+
+  /**
+   * Lista todas las personas (persons, para mascotas/residentes) con filtros opcionales.
+   * without_user=1: solo personas que aún no tienen usuario (para "Dar acceso").
+   */
+  getPersons(params?: { 
+    fecha_cumple?: string; 
+    status?: string;
+    house_id?: number;
+    without_user?: number;
+  }): Observable<any> {
+    return this.api.getRaw('api/v1/persons', params);
   }
 
-  getClientes(fecha_cumple: string) {
-    return this.http.get(`${this.baseUrl}/getAll.php?fecha_cumple=${fecha_cumple}`);
+  /**
+   * Crear usuario a partir de una persona existente (dar acceso al sistema).
+   * POST api/v1/users/from-person
+   */
+  createUserFromPerson(body: { person_id: number; username_system: string; password_system: string; role_system: string }): Observable<any> {
+    return this.api.post('api/v1/users/from-person', body);
   }
 
-  getClientsHB(fecha_cumple: string) {
-    return this.http.get(`${this.baseUrl}/getClientsHB.php?fecha_cumple=${fecha_cumple}`);
+  /**
+   * Obtiene persona por ID
+   */
+  getPersonById(user_id: number): Observable<any> {
+    return this.api.getRaw('api/v1/users', { user_id });
   }
 
-  getHistoryByDate(fecha: string, sala: string) {
-    return this.http.get(`${this.baseUrl}/getHistoryByDate.php?fecha=${fecha}&sala=${sala}`);
+  /**
+   * Busca persona por número de documento
+   */
+  getPersonByDocNumber(doc_number: string): Observable<any> {
+    return this.api.getRaw('api/v1/users', { doc_number });
   }
 
-  getHistoryByClient(fecha: string, sala: string, doc:string) {
-    return this.http.get(`${this.baseUrl}/getHistoryByClient.php?fecha=${fecha}&sala=${sala}&doc=${doc}`);
+  /**
+   * Filtra personas por status de validación
+   */
+  getPersonsByStatus(status: 'PERMITIDO' | 'OBSERVADO' | 'DENEGADO'): Observable<any> {
+    return this.api.getRaw('api/v1/users', { status });
   }
 
-  getDestacados() {
-    return this.http.get(`${this.baseUrl}/getDestacados.php`);
+  /**
+   * Obtiene cumpleaños del mes/día
+   */
+  getPersonsByBirthday(fecha_cumple: string): Observable<any> {
+    return this.api.getRaw('api/v1/users/by-birthday', { fecha_cumple });
   }
 
-  getRestringidos() {
-    return this.http.get(`${this.baseUrl}/getRestringidos.php`);
+  /**
+   * Obtiene personas por ID de casa
+   */
+  getPersonsByHouseId(house_id: number): Observable<any> {
+    return this.api.getRaw('api/v1/users', { house_id });
   }
 
-  getClient(doc_number: string) {
-
-    return this.http.get(`${this.baseUrl}/getClient.php?doc_number=${doc_number}`);
+  /**
+   * Crea una nueva persona
+   */
+  createPerson(person: Partial<User>): Observable<any> {
+    return this.api.post('api/v1/users', person);
   }
 
-  addCliente(cliente: User) {
-    return this.http.post(`${this.baseUrl}/postClient.php`, cliente);
+  /**
+   * Actualiza una persona
+   */
+  updatePerson(user_id: number, person: Partial<User>): Observable<any> {
+    return this.api.put(`api/v1/users/${user_id}`, person);
   }
 
-  deleteCliente(cliente: User) {
-    return this.http.put(`${this.baseUrl}/deleteClient.php`, cliente);
+  /**
+   * Elimina una persona (soft delete)
+   */
+  deletePerson(user_id: number): Observable<any> {
+    return this.api.delete(`api/v1/users/${user_id}`);
   }
 
-  updateClient(cliente: User) {
-    return this.http.put(`${this.baseUrl}/updateClient.php`, cliente);
+  // ==================== LEGACY COMPATIBILITY ====================
+  // Métodos que serán eliminados después de la refactorización
+
+  getClientes(fecha_cumple: string): Observable<any> {
+    return this.api.getRaw('getAll.php', { fecha_cumple });
   }
 
-  getUserFromReniec(doc_number: string) {
-
-    this.urlconsulta = 'https://my.apidev.pro/api/dni/'+doc_number+'?api_token=e9cc47e67d492cdee675bfb2b365cvcs93611b5141144aa0da34cab5429bb5e8';
-    return this.http.get(this.urlconsulta);
-
+  getClientsHB(fecha_cumple: string): Observable<any> {
+    return this.api.getRaw('getClientsHB.php', { fecha_cumple });
   }
 
-
-  getPaymentByClientId(client_id: number) {
-    return this.http.get(
-      `${this.baseUrl}/getPaymentByClientId.php?client_id=${client_id}`
-    );
+  getHistoryByDate(fecha: string, sala: string): Observable<any> {
+    return this.api.getRaw('getHistoryByDate.php', { fecha, sala });
   }
 
+  getHistoryByClient(fecha: string, sala: string, doc: string): Observable<any> {
+    return this.api.getRaw('getHistoryByClient.php', { fecha, sala, doc });
+  }
 
-  //services para reutilizar
+  getDestacados(): Observable<any> {
+    return this.api.getRaw('getDestacados.php');
+  }
 
-  
+  getClient(doc_number: string): Observable<any> {
+    return this.api.getRaw('getClient.php', { doc_number });
+  }
+
+  addCliente(cliente: any): Observable<any> {
+    return this.api.post('postClient.php', cliente);
+  }
+
+  deleteCliente(cliente: any): Observable<any> {
+    return this.api.put('deleteClient.php', cliente);
+  }
+
+  updateClient(cliente: any): Observable<any> {
+    return this.api.put('updateClient.php', cliente);
+  }
+
+  // ==================== RENIEC ====================
+
+  /**
+   * Consultar datos de RENIEC usando token desde environment
+   */
+  getUserFromReniec(doc_number: string): Observable<any> {
+    const reniecToken = environment.reniecApiToken || '';
+    const url = `${this.reniecApiUrl}/${doc_number}?api_token=${reniecToken}`;
+    return this.http.get(url);
+  }
+
+  // ==================== PAYMENTS ====================
+
+  getPaymentByClientId(client_id: number): Observable<any> {
+    return this.api.getRaw('getPaymentByClientId.php', { client_id });
+  }
 }

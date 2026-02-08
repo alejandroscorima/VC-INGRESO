@@ -3,11 +3,11 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: true,
-  //baseUrl: "http://localhost:8888/Ingreso/server",
-  //baseUrl: "http://localhost:8888/InventarioPatrimonio/server",
-  baseUrl: "http://52.5.47.64/VC/Ingreso",
-  //baseUrl: "http://localhost/Ingreso/server",
+  production: false,
+  // API en localhost:8080 (Docker o php -S). CORS en backend (vc_db.php para legacy, index.php/htaccess para /api)
+  baseUrl: "http://localhost:8080",
+  // API token para RENIEC (obtener de variable de entorno en producción)
+  reniecApiToken: "e9cc47e67d492cdee675bfb2b365cvcs93611b5141144aa0da34cab5429bb5e8",
 };
 
 /*

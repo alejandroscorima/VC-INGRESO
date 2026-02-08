@@ -3,11 +3,13 @@ import { User } from '../user';
 import { House } from '../house';
 import { initFlowbite } from 'flowbite';
 import { EntranceService } from '../entrance.service';
-import { CookiesService } from '../cookies.service';
+import { AuthService } from '../auth.service';
 import { UsersService } from '../users.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { Vehicle } from '../vehicle';
 import { ToastrService } from 'ngx-toastr';
+import { PetsService } from '../pets.service';
+import { Pet } from '../pet';
 
 
 @Component({
@@ -18,22 +20,25 @@ import { ToastrService } from 'ngx-toastr';
 export class MyHouseComponent implements OnInit, AfterViewInit {
 
   users: User[] = [];
-  userToAdd: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
-  userToEdit: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userToAdd: User = User.empty();
+  userToEdit: User = User.empty();
 
   houses: House[] = [];
   houseToAdd: House = new House('',0,null,'',0);
   houseToEdit: House = new House('',0,null,'',0);
 
   myFamily: User[] = [];
+  myResidents: User[] = [];
+  myTenants: User[] = [];
   myVisits: User[] = [];
   myVehicles: Vehicle[] = [];
+  myPets: Pet[] = [];
 
   user_id;
-  userOnSes: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+  userOnSes: User = User.empty();
 
   typeDocs: string[] = ['DNI','CE'];
-  genders: string[] = ['MASCULINO','FEMENINO'];
+  genders: string[] = ['F', 'M'];
   roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO'];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INQUILINO'];
@@ -50,53 +55,59 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   constructor(
     private entranceService: EntranceService,
-    private cookiesService: CookiesService,
+    private auth: AuthService,
     private usersService: UsersService,
     private toastr: ToastrService,
+    private petsService: PetsService,
   ){}
 
   ngOnInit(): void {
-    this.cookiesService.getToken('user_id');
-    console.log(this.cookiesService.getToken('user_id'));
-    this.usersService.getUserById(this.cookiesService.getToken('user_id')).subscribe({
+    const userId = this.auth.getTokenItem('user_id');
+    this.usersService.getUserById(Number(userId)).subscribe({
       next:(os:User)=>{
         this.userOnSes.house_id=os.house_id;
         this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe({
-          next: (resMyFamily: User[]) => {
-            console.log('Datos devueltos por el servicio (sin filtrar):', resMyFamily);
-            this.myFamily = resMyFamily.filter(user =>
-              ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(user.property_category)
+          next: (resMyFamily: unknown) => {
+            const list = Array.isArray(resMyFamily) ? resMyFamily : [];
+            this.myFamily = list.filter((u: any) =>
+              ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category || u.person_type)
             );
-            console.log('Datos de myFamily (filtrados):', this.myFamily);
-        
-            this.myVisits = resMyFamily.filter(user => ['INVITADO'].includes(user.property_category)
-          )||[];
-            console.log('Datos de myVisits (filtrados):', this.myVisits);
+            this.myResidents = list.filter((u: any) =>
+              ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category || u.person_type)
+            );
+            this.myTenants = list.filter((u: any) => (u.property_category || u.person_type) === 'INQUILINO');
+            this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(u.property_category || u.person_type));
           },
-          error(err) {
-            this.myVisits=[];
+          error: () => {
+            this.myFamily = [];
+            this.myResidents = [];
+            this.myTenants = [];
+            this.myVisits = [];
           },
         });
+        if (this.userOnSes.house_id) {
+          this.petsService.getPets({ house_id: this.userOnSes.house_id }).subscribe({
+            next: (res: any) => {
+              this.myPets = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+            },
+            error: () => { this.myPets = []; },
+          });
+        }
         this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe({
-          next:( mv:Vehicle[])=>{
-            this.myVehicles=mv;
-            console.log('Datos de myVisits (filtrados):', this.myVehicles);
+          next: (mv: unknown) => {
+            this.myVehicles = Array.isArray(mv) ? mv : [];
           },
-          error(err) {
-            this.myVehicles=[];
-            console.log('Datos de myVisits (filtrados):', this.myVehicles);
+          error: () => {
+            this.myVehicles = [];
           },
         });
         this.entranceService.getAllExternalVehicles().subscribe({
           next:( ev:ExternalVehicle[])=>{
-            console.log('Datos de myVisits (filtrados):', this.externalVehicles);
             this.externalVehicles=ev;
           }
         });
       },
-      error:(err)=>{
-        console.log('No se pudo obtener al usuario en sesión:', err);
-      }
+      error:()=>{}
     })
     
   }
@@ -107,11 +118,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
 
   searchUser(doc_number: string){
-    console.log('Buscando documento:'+doc_number);
     this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
-      console.log(resExistentUser);
       if(resExistentUser.user_id){
-        console.log('Encontrado en BD');
         if(resExistentUser.role_system!='SN'&&resExistentUser.role_system!='NINGUNO'&&resExistentUser.role_system!=''){
           this.clean();
           this.toastr.warning('El usuario ya existe');
@@ -122,7 +130,6 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         }
       }
       else if(doc_number.trim().length==8){
-        console.log('No encontrado en BD, pero con DNI. Buscando en RENIEC');
         this.usersService.getUserFromReniec(doc_number).subscribe((resReniecUser:any)=>{
           if(resReniecUser&&resReniecUser['success']){
             this.toastr.success('Datos obtenidos correctamente');
@@ -130,7 +137,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
             this.userToAdd.first_name=resReniecUser['data']['nombres'];
             this.userToAdd.paternal_surname=resReniecUser['data']['apellido_paterno'];
             this.userToAdd.maternal_surname=resReniecUser['data']['apellido_materno'];
-            this.userToAdd.gender=resReniecUser['data']['sexo'];
+            const sexo = (resReniecUser['data']['sexo'] || '').toString().toUpperCase();
+            this.userToAdd.gender = (sexo === 'FEMENINO' || sexo === 'F') ? 'F' : (sexo === 'MASCULINO' || sexo === 'M') ? 'M' : sexo || '';
             this.userToAdd.birth_date=resReniecUser['data']['fecha_nacimiento'];
             this.userToAdd.civil_status=resReniecUser['data']['estado_civil'];
             this.userToAdd.address_reniec=resReniecUser['data']['direccion_completa'];
@@ -161,8 +169,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     document.getElementById('new-user-button')?.click();
   }
 
-  editUser(user:User){
-    this.userToEdit = user;
+  editUser(user: User): void {
+    this.userToEdit = { ...user } as User;
+    const g = (this.userToEdit.gender || '').toString().toUpperCase();
+    this.userToEdit.gender = (g === 'FEMENINO' || g === 'F') ? 'F' : (g === 'MASCULINO' || g === 'M') ? 'M' : g || '';
     document.getElementById('edit-user-button')?.click();
   }
   newVisit(){
@@ -175,8 +185,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
   
   clean(){
-    this.userToAdd = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
-    this.userToEdit = new User('','','','','','','','','','','','','',0,'','','','','','','','','','','',0,'',0);
+    this.userToAdd = User.empty();
+    this.userToEdit = User.empty();
     this.vehicleToAdd = new Vehicle('','',0,'','','','');
     this.vehicleToEdit = new Vehicle('','',0,'','','','');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
@@ -196,12 +206,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     }
     // Configurar valores predeterminados
     this.userToAdd.password_system = this.userToAdd.doc_number;
-    if(this.userToAdd.gender=='MASCULINO'){
-      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-male.png';
-    }
-    else{
-      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-female.png';
-    }
+    this.userToAdd.photo_url = ''; // Sin foto por el momento
     this.userToAdd.status_system = 'ACTIVO';
     this.userToAdd.house_id = this.userOnSes.house_id;
     // Verificar existencia del usuario en la base de datos
@@ -225,7 +230,6 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       // Decidir si es una actualización o un nuevo registro
       if (this.userToAdd.user_id && this.userToAdd.user_id !== 0) {
         // Actualizar usuario existente
-        console.log('User new para update:', this.userToAdd);
         this.usersService.updateUser(this.userToAdd).subscribe({
           next: (resUpdateUser) =>{
             if (resUpdateUser) {
@@ -237,9 +241,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
             this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
             console.error(error);
           },
-          complete: () => {
-            console.info('Proceso de actualización de usuario completado.');
-          }
+          complete: () => {}
         })
       }
       else {
@@ -254,9 +256,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
             this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
             console.error(error);
           },
-          complete: () => {
-            console.info('Proceso de adición de usuario completado.');
-          }
+          complete: () => {}
         });
       }
     });
@@ -303,12 +303,10 @@ saveEditVehicle(){
         this.handleSuccess();
       }
       else{
-        console.log(resUpdate.message);
         this.toastr.error('Error al actualizar el vehículo');
       }
     },
-    error:(err)=>{
-      console.log(err);
+    error:()=>{
       this.toastr.error('Error al actualizar el vehículo')
     },
   })
@@ -333,7 +331,6 @@ saveNewVehicle(): void {
         this.toastr.success('Vehículo guardado correctamente');
         this.handleSuccess();
       } else {
-        console.log(res.message);
         this.toastr.error('Error al guardar el vehículo');
       }
     },
@@ -370,7 +367,6 @@ saveNewVehicle(): void {
           this.toastr.success('Vehículo externo actualizado correctamente');
           this.handleSuccess();
         } else {
-          console.log(resUpdateExternalVehicle.message);
           this.toastr.error('Error al actualizar el vehículo externo');
         }
       },
@@ -402,7 +398,6 @@ saveNewVehicle(): void {
           this.toastr.success(res.message);
           this.handleSuccess();
         } else {
-          console.log(res.message);
           this.toastr.error('Error al guardar el vehículo externo');
         }
       },

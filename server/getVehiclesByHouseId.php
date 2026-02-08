@@ -1,11 +1,12 @@
 <?php
-// Permitir solicitudes de cualquier origen (modificar en producción para mayor seguridad)
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
+// CORS se maneja en vc_db.php
+$bd = include_once "vc_db.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
+header('Content-Type: application/json');
 
 // Incluir conexión a la base de datos
-$bd = include_once "vc_db.php";
-
 // Validación y sanitización del parámetro 'house_id'
 if (!isset($_GET['house_id'])) {
     echo json_encode([
@@ -43,16 +44,11 @@ try {
     // Obtener los resultados como un arreglo de objetos
     $vehicles = $sentencia->fetchAll(PDO::FETCH_OBJ);
     
-    // Comprobar si se encontraron resultados
+    // Siempre devolver un array (vacío si no hay resultados) para que el frontend no falle con *ngFor
     if ($vehicles) {
-        // Devolver los resultados en formato JSON
         echo json_encode($vehicles);
     } else {
-        // Si no se encuentran resultados, se devuelve un mensaje de error
-        echo json_encode([
-            "error" => true,
-            "message" => "vehicles not found"
-        ]);
+        echo json_encode([]);
     }
 
     // Cerrar la sentencia
@@ -69,5 +65,3 @@ try {
         "server_error" => $e->getMessage()
     ]);
 }
-
-?>

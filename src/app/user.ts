@@ -19,7 +19,6 @@ export class User {
     public status_reason: string,
     public status_system: string,
     public civil_status: string,
-    public profession: string,
     public address_reniec: string,
     public district: string,
     public province: string,
@@ -29,5 +28,16 @@ export class User {
     public lot?: number,
     public apartment?: string,
     public user_id?: number, // Incluido según la lista
+    public force_password_change?: number | boolean
   ) {}
+
+  /** Crea un User vacío (todos los campos por defecto). Evita errores de conteo de argumentos. */
+  static empty(): User {
+    return new User(
+      '', '', '', '', '', '', '', '', '', '', '', '', '',
+      0,
+      '', '', '', '', '', '', '', '', '',
+      '', 0, '', 0, 0
+    );
+  }
 }

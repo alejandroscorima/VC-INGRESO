@@ -78,11 +78,11 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "crud-angular-php-mysql:build"
+            "buildTarget": "crud-angular-php-mysql:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "crud-angular-php-mysql:production"
+              "buildTarget": "crud-angular-php-mysql:production"
             }
           }
         },
@@ -125,7 +125,6 @@
       }
     }
   },
-  "defaultProject": "crud-angular-php-mysql",
   "cli": {
     "analytics": "6af6b150-ec51-4fb3-9a2e-fea652b0f9e5"
   }

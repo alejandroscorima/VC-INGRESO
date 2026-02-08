@@ -1,11 +1,11 @@
 export class House {
-
-constructor(
-  public block_house: string,
-  public lot: number,
-  public apartment: string | null,
-  public status_system: string,
-  public house_id?: number
-){}
+  constructor(
+    public block_house: string,
+    public lot: number,
+    public apartment: string | null,
+    public status_system: string,
+    public house_id?: number,
+    public house_type?: 'CASA' | 'DEPARTAMENTO' | 'LOCAL COMERCIAL' | 'OTRO'
+  ) {}
 }
 

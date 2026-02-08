@@ -6,6 +6,9 @@ header("Access-Control-Allow-Origin: *");
 
 
 $bd = include_once "bdEntrance.php";
+require_once __DIR__ . '/auth_middleware.php';
+requireAuth();
+
 //$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
 //$sentencia = $bd->prepare("select * from actas.actas where estado= '".$estado."'");
 $sentencia = $bd->prepare("SELECT doc_number, client_name, birth_date, gender, address, distrito, provincia, departamento, fecha_registro, sala_registro, condicion,  motivo, sala_list, fecha_list, origin_list FROM clients WHERE condicion='VIP'");

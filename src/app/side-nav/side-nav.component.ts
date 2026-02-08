@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../app.component';
-import { CookiesService } from '../cookies.service';
+import { AuthService } from '../auth.service';
 import { User } from '../user';
 
 

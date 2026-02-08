@@ -3,15 +3,27 @@
 //header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Origin: *");
 //header("Access-Control-Allow-Origin: http://192.168.4.250");
-$fecha_cumple=$_GET['fecha_cumple'];
-$bd = include_once "bd.php";
-//$sentencia = $bd->query("select id, nombre, raza, edad from mascotas");
-$sentencia = $bd->prepare("select doc_number, client_name from clients where birth_date like '%".$fecha_cumple."%'");
-//where birth_date like '%?%'
-$sentencia -> execute();
-//[$fecha_cumple]
-//$mascotas = $sentencia->fetchAll(PDO::FETCH_OBJ);
-$clientes = $sentencia->fetchAll(PDO::FETCH_OBJ);
-//echo json_encode($mascotas);
-echo json_encode($clientes);
+
+$fecha_cumple = isset($_GET['fecha_cumple']) ? trim($_GET['fecha_cumple']) : '';
+
+// Basic input validation to reduce injection surface while keeping legacy flexibility
+if ($fecha_cumple !== '' && !preg_match('/^[0-9\-\/]{1,10}$/', $fecha_cumple)) {
+	http_response_code(400);
+	echo json_encode(['error' => 'Parámetro fecha_cumple inválido']);
+	exit;
+}
+
+try {
+	$bd = include_once "bd.php";
+	require_once __DIR__ . '/auth_middleware.php';
+	requireAuth();
+
+	$sentencia = $bd->prepare("SELECT doc_number, client_name FROM clients WHERE birth_date LIKE ?");
+	$sentencia->execute(["%{$fecha_cumple}%"]);
+	$clientes = $sentencia->fetchAll();
+	echo json_encode($clientes);
+} catch (Exception $e) {
+	http_response_code(500);
+	echo json_encode(['error' => 'Error al consultar clientes']);
+}
 ?>

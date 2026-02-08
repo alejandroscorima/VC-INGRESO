@@ -1,0 +1,11 @@
+# CORS se envían desde index.php para evitar duplicados
+
+# Enrutar todas las peticiones al entry point para API REST (OPTIONS también llega a index.php)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    # No reescribir archivos o directorios existentes
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

@@ -1,7 +1,30 @@
-<div *ngIf=true class="p-4 sm:ml-64 dark:bg-gray-900">
-    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-        <p>settings works!</p>
+<div class="p-4 sm:ml-64 dark:bg-gray-900 min-h-screen">
+  <div class="p-4 mt-14">
+    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Configuración</h1>
+
+    <div *ngIf="isAdmin" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <a routerLink="/users" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+        <h2 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Usuarios / Personas</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Gestionar usuarios del sistema y personas registradas.</p>
+      </a>
+      <a routerLink="/houses" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+        <h2 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Domicilios</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Gestionar viviendas y lotes.</p>
+      </a>
+      <a routerLink="/vehicles" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+        <h2 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Vehículos</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Gestionar vehículos registrados.</p>
+      </a>
+      <a routerLink="/pets" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+        <h2 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Mascotas</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Gestionar mascotas registradas.</p>
+      </a>
     </div>
+
+    <div *ngIf="!isAdmin && user" class="p-6 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+      <p class="text-gray-600 dark:text-gray-400">No tienes acceso a la configuración. Solo administradores pueden gestionar usuarios, domicilios, vehículos y mascotas.</p>
+    </div>
+  </div>
 </div>
 
 

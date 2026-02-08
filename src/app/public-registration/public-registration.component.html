@@ -1,0 +1,336 @@
+<div class="public-registration">
+  <div class="container">
+    <header class="header-container">
+      <div class="logo-container">
+        <div class="logo"><span class="logo-icon">1</span></div>
+        <div>
+          <h1>Registro de propietarios y vehículos</h1>
+          <p class="subtitle">Gestión integral de propiedad horizontal</p>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress" [style.width.%]="(step / maxStep) * 100"></div>
+      </div>
+      <div class="step-counter">
+        <span class="current-step">Paso {{ step }} de {{ maxStep }}</span>
+        <span>• Complete los campos obligatorios</span>
+      </div>
+    </header>
+
+    <div class="content-container">
+      <form [formGroup]="mainForm" (ngSubmit)="step < 5 ? nextStep() : submit()">
+        <!-- ========== PASO 1: Domicilio (desplegable) + Propietario principal ========== -->
+        <section *ngIf="step === 1" class="form-section">
+          <div class="section-header">
+            <div class="section-icon">1</div>
+            <h2 class="section-title">Datos de la vivienda</h2>
+          </div>
+          <div formGroupName="house" class="form-grid">
+            <div class="form-group full-width">
+              <label class="required">Tipo de vivienda</label>
+              <div class="choice-buttons" [class.disabled]="loadingHouses">
+                <button type="button" *ngFor="let t of houseTypeOptions" [class.selected]="selectedHouseType === t.value"
+                  [disabled]="loadingHouses" (click)="selectedHouseType = t.value; onHouseTypeChange()"
+                  class="choice-btn">
+                  <span class="choice-icon">{{ t.icon }}</span>
+                  <span class="choice-label">{{ t.label }}</span>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="required">Manzana</label>
+              <select [(ngModel)]="selectedMz" [ngModelOptions]="{standalone: true}" (ngModelChange)="onMzChange()" class="input-field" [disabled]="loadingHouses || !selectedHouseType" required>
+                <option value="">Seleccione manzana</option>
+                <option *ngFor="let m of mzOptions" [value]="m">{{ m }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="required">Lote</label>
+              <select [(ngModel)]="selectedLt" [ngModelOptions]="{standalone: true}" (ngModelChange)="onLtChange()" class="input-field" [disabled]="!selectedMz" required>
+                <option value="">Seleccione lote</option>
+                <option *ngFor="let l of ltOptions" [value]="l">{{ formatLot(l) }}</option>
+              </select>
+            </div>
+            <div class="form-group" *ngIf="selectedHouseType === 'DEPARTAMENTO'">
+              <label>Departamento</label>
+              <select [(ngModel)]="selectedApt" [ngModelOptions]="{standalone: true}" (ngModelChange)="onAptChange()" class="input-field" [disabled]="selectedLt === ''">
+                <option value="">Seleccione departamento</option>
+                <option *ngFor="let a of aptOptions" [ngValue]="a === null ? null : a">{{ a === null ? '—' : a }}</option>
+              </select>
+            </div>
+          </div>
+          <p *ngIf="loadingHouses" class="text-sm text-gray-500 dark:text-gray-400">Cargando domicilios...</p>
+
+          <div class="section-header mt-6">
+            <div class="section-icon">2</div>
+            <h2 class="section-title">Propietario principal</h2>
+          </div>
+          <div formArrayName="owners">
+            <div [formGroupName]="0" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de documento *</label>
+                  <select formControlName="type_doc" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm">
+                    <option *ngFor="let t of docTypes" [value]="t">{{ t }}</option>
+                  </select>
+                </div>
+                <div class="flex gap-2 items-end">
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nº documento *</label>
+                    <input type="text" formControlName="doc_number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" placeholder="DNI 8 dígitos" />
+                  </div>
+                  <button type="button" (click)="fetchDni(0)" [disabled]="loadingDni || owner1.get('type_doc')?.value !== 'DNI'" class="btn-search-dni" title="Buscar datos por DNI">
+                    <svg class="icon-lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <span class="sr-only">{{ loadingDni ? '...' : 'Buscar' }}</span>
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido paterno *</label>
+                  <input type="text" formControlName="paternal_surname" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido materno</label>
+                  <input type="text" formControlName="maternal_surname" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombres *</label>
+                <input type="text" formControlName="first_name" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de celular *</label>
+                  <input type="text" formControlName="cel_number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" placeholder="Ej. 987654321" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Correo electrónico *</label>
+                  <input type="email" formControlName="email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" placeholder="correo@ejemplo.com" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado civil</label>
+                <select formControlName="civil_status" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm">
+                  <option value="">Seleccione</option>
+                  <option *ngFor="let c of civilStatusOptions" [value]="c">{{ c }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== PASO 2: Segundo propietario ========== -->
+        <section *ngIf="step === 2" class="form-section">
+          <div class="section-header">
+            <div class="section-icon">3</div>
+            <h2 class="section-title">¿Existe un segundo propietario?</h2>
+          </div>
+          <div class="radio-group">
+            <label class="radio-card-label" [class.checked]="hasSecondOwner">
+              <input type="radio" [value]="true" [(ngModel)]="hasSecondOwner" [ngModelOptions]="{standalone: true}" name="hasSecondOwner" />
+              <span class="radio-text">Sí</span>
+              <small>Registrar segundo propietario</small>
+            </label>
+            <label class="radio-card-label" [class.checked]="!hasSecondOwner">
+              <input type="radio" [value]="false" [(ngModel)]="hasSecondOwner" [ngModelOptions]="{standalone: true}" name="hasSecondOwner" />
+              <span class="radio-text">No</span>
+              <small>Solo hay un propietario</small>
+            </label>
+          </div>
+
+          <div *ngIf="hasSecondOwner" formArrayName="owners" class="sub-section">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">Datos del segundo propietario</h3>
+            <div [formGroupName]="1">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de documento *</label>
+                  <select formControlName="type_doc" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm">
+                    <option *ngFor="let t of docTypes" [value]="t">{{ t }}</option>
+                  </select>
+                </div>
+                <div class="flex gap-2 items-end">
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nº documento *</label>
+                    <input type="text" formControlName="doc_number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" />
+                  </div>
+                  <button type="button" (click)="fetchDni(1)" [disabled]="loadingDni || owner2.get('type_doc')?.value !== 'DNI'" class="btn-search-dni" title="Buscar datos por DNI">
+                    <svg class="icon-lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <span class="sr-only">Buscar</span>
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido paterno *</label>
+                  <input type="text" formControlName="paternal_surname" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" /></div>
+                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido materno</label>
+                  <input type="text" formControlName="maternal_surname" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" /></div>
+              </div>
+              <div class="mt-2"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombres *</label>
+                <input type="text" formControlName="first_name" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" /></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de celular *</label>
+                  <input type="text" formControlName="cel_number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" /></div>
+                <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Correo electrónico *</label>
+                  <input type="email" formControlName="email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm" /></div>
+              </div>
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado civil</label>
+                <select formControlName="civil_status" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 text-sm">
+                  <option value="">Seleccione</option>
+                  <option *ngFor="let c of civilStatusOptions" [value]="c">{{ c }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== PASO 3: Vehículos ========== -->
+        <section *ngIf="step === 3" class="form-section">
+          <div class="section-header">
+            <div class="section-icon">4</div>
+            <h2 class="section-title">¿Desea registrar vehículos?</h2>
+          </div>
+          <div class="radio-group">
+            <label class="radio-card-label" [class.checked]="wantVehicles">
+              <input type="radio" [value]="true" [(ngModel)]="wantVehicles" [ngModelOptions]="{standalone: true}" name="wantVehicles" (change)="wantVehicles && vehicles.length === 0 && addVehicle()" />
+              <span class="radio-text">Sí</span>
+              <small>Registrar vehículo(s)</small>
+            </label>
+            <label class="radio-card-label" [class.checked]="!wantVehicles">
+              <input type="radio" [value]="false" [(ngModel)]="wantVehicles" [ngModelOptions]="{standalone: true}" name="wantVehicles" />
+              <span class="radio-text">No</span>
+              <small>No hay vehículos</small>
+            </label>
+          </div>
+
+          <div *ngIf="wantVehicles" formArrayName="vehicles" class="space-y-4">
+            <div *ngFor="let v of vehicles.controls; index as i" [formGroupName]="i" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative">
+              <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">Vehículo {{ i + 1 }}</h4>
+              <button type="button" (click)="removeVehicle(i)" *ngIf="vehicles.length > 1" class="absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm">Eliminar</button>
+              <div class="vehicle-fields">
+                <div class="form-group full-width">
+                  <label class="required">Tipo de vehículo</label>
+                  <div class="choice-buttons choice-buttons-sm">
+                    <button type="button" *ngFor="let t of vehicleTypeOptions" [class.selected]="v.get('type_vehicle')?.value === t.value"
+                      (click)="v.patchValue({ type_vehicle: t.value })" class="choice-btn">
+                      <span class="choice-icon">{{ t.icon }}</span>
+                      <span class="choice-label">{{ t.label }}</span>
+                    </button>
+                  </div>
+                  <input *ngIf="v.get('type_vehicle')?.value === 'OTRO'" type="text" formControlName="type_vehicle_other" class="input-field mt-2" placeholder="Escriba el tipo de vehículo" />
+                </div>
+                <div class="form-group"><label class="required">Placa</label>
+                  <input type="text" formControlName="license_plate" class="input-field" placeholder="ABC-123" /></div>
+                <div class="form-group"><label class="required">Marca</label>
+                  <input type="text" formControlName="brand" class="input-field" /></div>
+                <div class="form-group"><label>Modelo</label>
+                  <input type="text" formControlName="model" class="input-field" /></div>
+                <div class="form-group full-width">
+                  <label class="required">Color</label>
+                  <div class="color-dots">
+                    <button type="button" *ngFor="let c of vehicleColorPresets" [class.selected]="v.get('color')?.value === c"
+                      [style.background]="getVehicleColorHex(c)" class="color-dot" [title]="c" (click)="setVehicleColor(i, c)"></button>
+                  </div>
+                  <input type="text" formControlName="color" class="input-field mt-2" placeholder="O escriba el color" />
+                </div>
+                <div class="form-group full-width">
+                  <label>Foto del vehículo</label>
+                  <button type="button" class="btn-photo-placeholder" disabled><span class="photo-icon">📷</span> Subir o tomar foto (próximamente)</button>
+                </div>
+              </div>
+            </div>
+            <button type="button" (click)="addVehicle()" class="w-full py-2 rounded-lg border-2 border-dashed border-gray-400 dark:border-gray-500 text-gray-600 dark:text-gray-400 hover:border-amber-500 hover:text-amber-600 text-sm font-medium">
+              + Agregar otro vehículo
+            </button>
+          </div>
+        </section>
+
+        <!-- ========== PASO 4: Mascotas ========== -->
+        <section *ngIf="step === 4" class="form-section">
+          <div class="section-header">
+            <div class="section-icon">5</div>
+            <h2 class="section-title">¿Desea registrar mascotas?</h2>
+          </div>
+          <div class="radio-group">
+            <label class="radio-card-label" [class.checked]="wantPets">
+              <input type="radio" [value]="true" [(ngModel)]="wantPets" [ngModelOptions]="{standalone: true}" name="wantPets" (change)="wantPets && pets.length === 0 && addPet()" />
+              <span class="radio-text">Sí</span>
+              <small>Registrar mascota(s)</small>
+            </label>
+            <label class="radio-card-label" [class.checked]="!wantPets">
+              <input type="radio" [value]="false" [(ngModel)]="wantPets" [ngModelOptions]="{standalone: true}" name="wantPets" />
+              <span class="radio-text">No</span>
+              <small>No hay mascotas</small>
+            </label>
+          </div>
+
+          <div *ngIf="wantPets" formArrayName="pets" class="space-y-4">
+            <div *ngFor="let p of pets.controls; index as i" [formGroupName]="i" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative">
+              <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">Mascota {{ i + 1 }}</h4>
+              <button type="button" (click)="removePet(i)" *ngIf="pets.length > 1" class="absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm">Eliminar</button>
+              <div class="pet-fields">
+                <div class="form-group full-width">
+                  <label class="required">Categoría de mascota</label>
+                  <div class="choice-buttons choice-buttons-sm">
+                    <button type="button" *ngFor="let opt of petCategoryOptions" [class.selected]="p.get('species')?.value === opt.value"
+                      (click)="p.patchValue({ species: opt.value })" class="choice-btn">
+                      <span class="choice-icon">{{ opt.icon }}</span>
+                      <span class="choice-label">{{ opt.label }}</span>
+                    </button>
+                  </div>
+                  <input *ngIf="p.get('species')?.value === 'OTRO'" type="text" formControlName="species_other" class="input-field mt-2" placeholder="Escriba la especie" />
+                </div>
+                <div class="form-group"><label class="required">Nombre</label>
+                  <input type="text" formControlName="name" class="input-field" /></div>
+                <div class="form-group"><label>Raza</label>
+                  <input type="text" formControlName="breed" class="input-field" /></div>
+                <div class="form-group full-width">
+                  <label class="required">Color</label>
+                  <div class="color-dots">
+                    <button type="button" *ngFor="let c of petColorPresets" [class.selected]="p.get('color')?.value === c"
+                      [style.background]="getPetColorHex(c)" class="color-dot" [title]="c" (click)="setPetColor(i, c)"></button>
+                  </div>
+                  <input type="text" formControlName="color" class="input-field mt-2" placeholder="O escriba el color" />
+                </div>
+                <div class="form-group"><label>Edad (años)</label>
+                  <input type="number" formControlName="age_years" min="0" class="input-field" /></div>
+                <div class="form-group full-width">
+                  <label>Foto de la mascota</label>
+                  <button type="button" class="btn-photo-placeholder" disabled><span class="photo-icon">📷</span> Subir o tomar foto (próximamente)</button>
+                </div>
+              </div>
+            </div>
+            <button type="button" (click)="addPet()" class="w-full py-2 rounded-lg border-2 border-dashed border-gray-400 dark:border-gray-500 text-gray-600 dark:text-gray-400 hover:border-amber-500 hover:text-amber-600 text-sm font-medium">
+              + Agregar otra mascota
+            </button>
+          </div>
+        </section>
+
+        <!-- ========== PASO 5: Enviar ========== -->
+        <section *ngIf="step === 5" class="form-section">
+          <div class="section-header">
+            <div class="section-icon">6</div>
+            <h2 class="section-title">Enviar formulario</h2>
+          </div>
+          <p class="section-desc">Revise que todos los datos sean correctos. Al enviar se registrará la vivienda, propietario(s), vehículos y mascotas indicados.</p>
+          <p class="alert-info">Los campos opcionales que no complete ahora podrá actualizarlos más adelante en el sistema.</p>
+        </section>
+
+        <!-- Navegación -->
+        <div class="form-actions">
+          <button type="button" (click)="prevStep()" *ngIf="step > 1" class="btn btn-secondary">Anterior</button>
+          <span *ngIf="step === 1"></span>
+          <button *ngIf="step < 5" type="submit"
+            [disabled]="(step === 1 && !canProceedSection1()) || (step === 2 && hasSecondOwner && !canProceedSection2())"
+            class="btn btn-primary" [class.disabled]="(step === 1 && !canProceedSection1()) || (step === 2 && hasSecondOwner && !canProceedSection2())">
+            Siguiente
+          </button>
+          <button *ngIf="step === 5" type="button" (click)="submit()" [disabled]="submitting" class="btn btn-primary">
+            {{ submitting ? 'Enviando...' : 'Enviar registro' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

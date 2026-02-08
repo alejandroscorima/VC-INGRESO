@@ -17,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { InicioComponent } from './inicio/inicio.component';
 import { MatTableModule } from '@angular/material/table';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { DialogHistoryDetail, DialogLudops, HistoryComponent } from './history/history.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
@@ -37,15 +37,15 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { MatTableExporterModule } from 'mat-table-exporter';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { DialogNewO, DialogNewR, DialogConfirm, ListasComponent, DialogNewV, DialogMasiveV } from './listas/listas.component';
 import { DialogDatos, BirthdayComponent } from './birthday/birthday.component';
 
 import {MatGridListModule} from '@angular/material/grid-list';
 import { GoogleChartsModule } from 'angular-google-charts';
-import { UploadComponent, DialogStatus, DialogEditLudop } from './upload/upload.component';
-import {MatTabsModule} from '@angular/material/tabs';
 
-import { CookieService } from 'ngx-cookie-service';
+import {MatTabsModule} from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
+
 import { LoginComponent } from './login/login.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
@@ -54,32 +54,29 @@ import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
+import { PetsComponent } from './pets/pets.component';
+import { WebcamComponent } from './webcam/webcam.component';
+import { CalendarComponent } from './calendar/calendar.component';
+import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
+import { PublicRegistrationComponent } from './public-registration/public-registration.component';
 
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
+import { authInterceptor } from './auth.interceptor';
+import { errorInterceptor } from './error.interceptor';
 
 Chart.register(...registerables);
 
 
 @NgModule({ declarations: [
         AppComponent,
-        ListasComponent,
         InicioComponent,
         HistoryComponent,
         BirthdayComponent,
-        UploadComponent,
-        DialogEditLudop,
-        //DialogRevisar,
         DialogRevalidar,
-        DialogNewO,
-        DialogNewR,
-        DialogNewV,
-        DialogMasiveV,
         DialogDatos,
-        DialogConfirm,
         DialogHistoryDetail,
         DialogLudops,
-        DialogStatus,
         LoginComponent,
         NavBarComponent,
         SideNavComponent,
@@ -88,6 +85,9 @@ Chart.register(...registerables);
         HousesComponent,
         VehiclesComponent,
         MyHouseComponent,
+        PetsComponent,
+        WebcamComponent,
+        PublicRegistrationComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
@@ -117,7 +117,17 @@ Chart.register(...registerables);
         MatGridListModule,
         GoogleChartsModule,
         MatTabsModule,
-        BaseChartDirective,
-        ToastrModule.forRoot()], providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
-        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, CookieService, provideHttpClient(withInterceptorsFromDi())] })
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        NgChartsModule,
+        ToastrModule.forRoot(),
+        CalendarComponent,
+        QrScannerComponent
+    ],
+    providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
+        provideHttpClient(
+            withInterceptors([authInterceptor, errorInterceptor])
+        )] })
 export class AppModule { }

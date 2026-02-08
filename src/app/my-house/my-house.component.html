@@ -6,6 +6,12 @@
                     <button class="inline-block p-4 border-b-2 rounded-t-lg" id="family-tab" data-tabs-target="#family" type="button" role="tab" aria-controls="family" aria-selected="false">Residentes</button>
                 </li>
                 <li class="me-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="tenants-tab" data-tabs-target="#tenants" type="button" role="tab" aria-controls="tenants" aria-selected="false">Inquilinos</button>
+                </li>
+                <li class="me-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="pets-tab" data-tabs-target="#pets" type="button" role="tab" aria-controls="pets" aria-selected="false">Mascotas</button>
+                </li>
+                <li class="me-2" role="presentation">
                     <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="vehicles-tab" data-tabs-target="#vehicles" type="button" role="tab" aria-controls="vehicles" aria-selected="false">Vehiculos</button>
                 </li>
                 <li class="me-2" role="presentation">
@@ -52,7 +58,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let fm of myFamily" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <tr *ngFor="let fm of myResidents" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="uppercase px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                     {{fm?.doc_number}}
                                 </th>
@@ -72,6 +78,54 @@
                                     <a (click)="editUser(fm)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
                                 </td>
                             </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+<!--INQUILINOS-TAB-->
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="tenants" role="tabpanel" aria-labelledby="tenants-tab">
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Documento</th>
+                                <th scope="col" class="px-6 py-3">Nombre</th>
+                                <th scope="col" class="px-6 py-3">Número</th>
+                                <th scope="col" class="px-6 py-3">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let t of myTenants" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ t?.doc_number }}</td>
+                                <td class="px-6 py-4">{{ t?.first_name }} {{ t?.paternal_surname }} {{ t?.maternal_surname }}</td>
+                                <td class="px-6 py-4">{{ t?.cel_number }}</td>
+                                <td class="px-6 py-4">{{ t?.status_system }}</td>
+                            </tr>
+                            <tr *ngIf="myTenants.length === 0"><td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay inquilinos registrados</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+<!--MASCOTAS-TAB-->
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="pets" role="tabpanel" aria-labelledby="pets-tab">
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Nombre</th>
+                                <th scope="col" class="px-6 py-3">Especie</th>
+                                <th scope="col" class="px-6 py-3">Raza</th>
+                                <th scope="col" class="px-6 py-3">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let pt of myPets" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ pt?.name }}</td>
+                                <td class="px-6 py-4">{{ pt?.species }}</td>
+                                <td class="px-6 py-4">{{ pt?.breed || '-' }}</td>
+                                <td class="px-6 py-4">{{ pt?.status_validated }}</td>
+                            </tr>
+                            <tr *ngIf="myPets.length === 0"><td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay mascotas registradas</td></tr>
                         </tbody>
                     </table>
                 </div>

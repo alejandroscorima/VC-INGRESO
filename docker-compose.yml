@@ -1,0 +1,50 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vc-ingreso-api
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-vc_db}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASS=${DB_PASS:-change_me}
+      - DB_CHARSET=${DB_CHARSET:-utf8mb4}
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}
+      # Disable opcache for development (files mounted as volumes)
+      - PHP_OPCACHE_ENABLE=0
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    # Live-edit PHP during development (mounted RW so changes reflect instantly)
+    volumes:
+      - ./server:/var/www/html
+
+  frontend:
+    image: node:20-alpine
+    container_name: vc-ingreso-frontend
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - frontend_node_modules:/workspace/node_modules
+    command: sh -c "echo '>>> npm install...' && npm install --legacy-peer-deps && echo '>>> Iniciando Angular...' && npm run start -- --host 0.0.0.0 --port 4200"
+    ports:
+      - "4200:4200"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - CI=1
+      - NG_CLI_ANALYTICS=false
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  frontend_node_modules:
+
+networks:
+  default:
+    driver: bridge
