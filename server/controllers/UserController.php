@@ -269,6 +269,36 @@ class UserController extends Controller {
     }
 
     /**
+     * GET /api/v1/users/by-doc-number?doc_number=
+     * Obtener usuario por número de documento (person.doc_number).
+     */
+    public function byDocNumber($params = []) {
+        $doc_number = $params['doc_number'] ?? $_GET['doc_number'] ?? '';
+        if (empty($doc_number)) {
+            Response::error('doc_number requerido', 400);
+            return;
+        }
+        $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id,
+                       u.status_validated, u.status_reason, u.status_system,
+                       p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
+                       p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status,
+                       p.address, p.address AS address_reniec, p.district, p.province, p.region,
+                       h.block_house, h.lot, h.apartment
+                FROM users u
+                LEFT JOIN persons p ON u.person_id = p.id
+                LEFT JOIN houses h ON u.house_id = h.house_id
+                WHERE p.doc_number = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$doc_number]);
+        $user = $stmt->fetch(\PDO::FETCH_OBJ);
+        if (!$user) {
+            Response::notFound('Usuario no encontrado');
+            return;
+        }
+        Response::success($user);
+    }
+
+    /**
      * Obtener usuarios por fecha de cumpleaños (con domicilio: manzana/lote)
      */
     public function byBirthday($params = []) {

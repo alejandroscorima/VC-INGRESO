@@ -130,4 +130,31 @@ export class AppComponent implements OnInit {
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
   }
+
+  /** URL del avatar del usuario: photo_url si existe y es válida, o asset por género. */
+  getUserAvatarUrl(user: User | null): string {
+    if (!user) return 'assets/user-male.png';
+    const url = (user as any).photo_url;
+    if (url && typeof url === 'string' && url.trim().length > 0) return url;
+    const g = ((user as any).gender || '').toString().toUpperCase();
+    return (g === 'FEMENINO' || g === 'F') ? 'assets/user-female.png' : 'assets/user-male.png';
+  }
+
+  /** Nombre completo para mostrar (maneja undefined). */
+  getUserDisplayName(user: User | null): string {
+    if (!user) return '—';
+    const first = (user as any).first_name ?? '';
+    const paternal = (user as any).paternal_surname ?? '';
+    const maternal = (user as any).maternal_surname ?? '';
+    const parts = [first, paternal, maternal].filter(Boolean);
+    return parts.length ? parts.join(' ') : '—';
+  }
+
+  /** Domicilio Mz/Lt para mostrar (maneja undefined). */
+  getUserDomicilio(user: User | null): string {
+    if (!user) return '—';
+    const mz = (user as any).block_house ?? '—';
+    const lt = (user as any).lot ?? '—';
+    return `Mz:${mz} Lt:${lt}`;
+  }
 }

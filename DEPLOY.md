@@ -39,6 +39,7 @@ Para crear esquema y datos iniciales (primera vez o tras borrar volumen), hay qu
 - **PowerShell:**  
   `Get-Content database/vc_create_database.sql | ForEach-Object { $_ -replace '__MYSQL_ROOT_PASSWORD__', $env:DB_PASS } | docker exec -i vc-ingreso-mysql mysql -uroot -p"$env:DB_PASS"`  
   Luego: `Get-Content database/vc_dev_data.sql | docker exec -i vc-ingreso-mysql mysql -uroot -p"$env:DB_PASS"`
+  También: `Get-Content database/crearttech_clientes_schema.sql | ForEach-Object { $_ -replace '__MYSQL_ROOT_PASSWORD__', $env:DB_PASS } | docker exec -i vc-ingreso-mysql mysql -uroot -p"$env:DB_PASS"`
 
 - **Bash:**  
   `sed "s#__MYSQL_ROOT_PASSWORD__#$DB_PASS#g" database/vc_create_database.sql | docker exec -i vc-ingreso-mysql mysql -uroot -p"$DB_PASS"`  
@@ -57,6 +58,8 @@ docker compose -f docker-compose.stage.yml up -d
 
 - Contenedores: **frontend** (Node, live), **api**, **mysql**. MySQL sin puerto externo; API 8089, Frontend 8086.
 - El frontend en Stage usa el contenedor con `npm run start` (igual que dev). Para servir estáticos harías antes `ng build --configuration=stage` y usar nginx en otro paso si lo prefieres.
+- **Tras `git pull`** (p. ej. si cambió `angular.json`): forzar recreación del frontend para que use el código nuevo:  
+  `docker compose -f docker-compose.stage.yml up -d --force-recreate frontend`
 
 ---
 

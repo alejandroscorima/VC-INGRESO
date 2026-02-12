@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { User } from './user';
 import { environment } from '../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -24,15 +25,15 @@ export class UsersService {
   // ==================== USERS CRUD ====================
 
   getAllUsers(): Observable<any> {
-    return this.api.getRaw('getAllUsers.php');
+    return this.api.get('api/v1/users').pipe(map((r) => r.data ?? r));
   }
 
   getUser(username_system: string, password_system: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/getUser.php`, { username_system, password_system });
+    return this.http.post(`${this.baseUrl}/api/v1/auth/login`, { username_system, password_system });
   }
 
   getUserById(user_id: number): Observable<any> {
-    return this.api.getRaw('getUserById.php', { user_id });
+    return this.api.get(`api/v1/users/${user_id}`).pipe(map((r) => r.data ?? r));
   }
 
   setUsr(user: User): void {
@@ -44,39 +45,39 @@ export class UsersService {
   }
 
   getUserByDocNumber(doc_number: string): Observable<any> {
-    return this.api.getRaw('getUserByDocNumber.php', { doc_number });
+    return this.api.getRaw('api/v1/users/by-doc-number', { doc_number }).pipe(map((r) => r?.data ?? r));
   }
 
   getUsersByBirthday(fecha_cumple: string): Observable<any> {
-    return this.api.getRaw('getUsersByBirthday.php', { fecha_cumple });
+    return this.api.getRaw('api/v1/users/by-birthday', { fecha_cumple }).pipe(map((r) => r?.data ?? r));
   }
 
   getCollaboratorByUserId(user_id: number): Observable<any> {
-    return this.api.getRaw('getCollaboratorByUserId.php', { user_id });
+    return this.api.getRaw('api/v1/catalog/collaborator', { user_id });
   }
 
   getPersonal(area_id: number): Observable<any> {
-    return this.api.getRaw('getPersonal.php', { area_id });
+    return this.api.getRaw('api/v1/catalog/personal', { area_id });
   }
 
   addUser(u: User): Observable<any> {
-    return this.api.post('postUser.php', u);
+    return this.api.post('api/v1/users', u);
   }
 
   updateUser(u: User): Observable<any> {
-    return this.api.put('updateUser.php', u);
+    return this.api.put(`api/v1/users/${(u as any).user_id}`, u);
   }
 
   getAreas(): Observable<any> {
-    return this.api.getRaw('getAreas.php');
+    return this.api.getRaw('api/v1/catalog/areas');
   }
 
   getSalas(): Observable<any> {
-    return this.api.getRaw('getSalas.php');
+    return this.api.getRaw('api/v1/catalog/salas');
   }
 
   getPrioridad(): Observable<any> {
-    return this.api.getRaw('getPrioridad.php');
+    return this.api.getRaw('api/v1/catalog/prioridad');
   }
 
   // ==================== PERSONS UNIFICADO ====================
@@ -164,39 +165,39 @@ export class UsersService {
   // Métodos que serán eliminados después de la refactorización
 
   getClientes(fecha_cumple: string): Observable<any> {
-    return this.api.getRaw('getAll.php', { fecha_cumple });
+    return this.api.getRaw('api/v1/persons', { fecha_cumple }).pipe(map((r) => r?.data ?? r));
   }
 
   getClientsHB(fecha_cumple: string): Observable<any> {
-    return this.api.getRaw('getClientsHB.php', { fecha_cumple });
+    return this.api.getRaw('api/v1/users/by-birthday', { fecha_cumple }).pipe(map((r) => r?.data ?? r));
   }
 
   getHistoryByDate(fecha: string, sala: string): Observable<any> {
-    return this.api.getRaw('getHistoryByDate.php', { fecha, sala });
+    return this.api.getRaw('api/v1/access-logs/history-by-date', { fecha, sala });
   }
 
   getHistoryByClient(fecha: string, sala: string, doc: string): Observable<any> {
-    return this.api.getRaw('getHistoryByClient.php', { fecha, sala, doc });
+    return this.api.getRaw('api/v1/access-logs/history-by-client', { fecha, sala, doc });
   }
 
   getDestacados(): Observable<any> {
-    return this.api.getRaw('getDestacados.php');
+    return this.api.getRaw('api/v1/persons/destacados');
   }
 
   getClient(doc_number: string): Observable<any> {
-    return this.api.getRaw('getClient.php', { doc_number });
+    return this.api.getRaw('api/v1/persons/by-doc-number', { doc_number }).pipe(map((r) => r?.data ?? r));
   }
 
   addCliente(cliente: any): Observable<any> {
-    return this.api.post('postClient.php', cliente);
+    return this.api.post('api/v1/persons', cliente);
   }
 
   deleteCliente(cliente: any): Observable<any> {
-    return this.api.put('deleteClient.php', cliente);
+    return this.api.delete(`api/v1/persons/${cliente?.id ?? cliente?.person_id}`);
   }
 
   updateClient(cliente: any): Observable<any> {
-    return this.api.put('updateClient.php', cliente);
+    return this.api.put(`api/v1/persons/${cliente?.id ?? cliente?.person_id}`, cliente);
   }
 
   // ==================== RENIEC ====================
@@ -213,6 +214,6 @@ export class UsersService {
   // ==================== PAYMENTS ====================
 
   getPaymentByClientId(client_id: number): Observable<any> {
-    return this.api.getRaw('getPaymentByClientId.php', { client_id });
+    return this.api.getRaw('api/v1/catalog/payment-by-client', { client_id });
   }
 }

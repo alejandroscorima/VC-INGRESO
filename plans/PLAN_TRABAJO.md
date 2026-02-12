@@ -4,12 +4,10 @@
 
 **VC-INGRESO** es un sistema de control de acceso residencial con:
 
-- **Entorno**: Desarrollo y pruebas con **docker-compose** (Node, PHP, MySQL). Ver README para `docker compose up --build`.
+- **Entorno**: Desarrollo (docker-compose.dev.yml), Stage (docker-compose.stage.yml), Producción (docker-compose.prod.yml o docker-compose.prod-rds.yml). Ver [DEPLOY.md](../DEPLOY.md).
 - **Frontend**: Angular 18 + Angular Material + Tailwind CSS
 - **Backend**: PHP 8.2 + MySQL, API REST en `server/index.php`, controladores en `server/controllers/`
 - **Autenticación**: JWT
-
-Refactor frontend: [REFACTORIZACION_FRONTEND.md](REFACTORIZACION_FRONTEND.md).
 
 ---
 
@@ -17,26 +15,13 @@ Refactor frontend: [REFACTORIZACION_FRONTEND.md](REFACTORIZACION_FRONTEND.md).
 
 ### Base de datos
 
-- **Un solo script de esquema**: `database/vc_create_database.sql` crea la BD **vc_db**, todas las tablas (houses, users, access_points, persons, vehicles, temporary_visits, access_logs, temporary_access_logs, **pets**, **reservations**) y **todas las claves foráneas**. No existe ya `vc_foreign_keys.sql` por separado; está unificado.
-- **Datos de prueba**: `database/vc_dev_data.sql` (ejecutar después de `vc_create_database.sql`).
-- **Licencias**: `database/crearttech_clientes_schema.sql` para la BD de clientes Crearttech.
-- **Migraciones eliminadas**: Se eliminaron `access_logs_migration.sql`, `pets_migration.sql`, `reservations_migration.sql`, `vc_rename_sala_to_puerta.sql`, `vc_pets_add_house_id.sql`. El esquema actual está solo en `vc_create_database.sql`.
-- **Pets**: Tabla con **house_id** obligatorio y **owner_id** opcional; la gestión de mascotas es por casa. Ver [BASES_DE_DATOS.md](BASES_DE_DATOS.md).
+- **Un solo script de esquema**: `database/vc_create_database.sql` crea la BD **vc_db**, tablas (houses, users, access_points, persons, vehicles, temporary_visits, access_logs, temporary_access_logs, pets, reservations) y claves foráneas. Init Docker: root@'%' y esquema vía `database/init-docker.sh`.
+- **Datos de prueba**: `database/vc_dev_data.sql`. **Licencias**: `database/crearttech_clientes_schema.sql` (BD crearttech_clientes).
+- Ver [BASES_DE_DATOS.md](BASES_DE_DATOS.md).
 
 ### Backend (API v1)
 
-- **Controladores** en `server/controllers/`: UserController, HouseController, VehicleController, PersonController, ExternalVehicleController, **PetController**, **AccessLogController**, **ReservationController**. Todos con `requireAuth()` donde corresponde.
-- **Rutas** en `server/index.php`: users (CRUD + by-birthday), houses, vehicles (CRUD + by-house), persons (CRUD + by-doc-number, observed, restricted, validate), external-vehicles, **pets** (CRUD + person/:id, validate, photo), **access-logs** (index, show, store, access-points, stats/daily), **reservations** (CRUD + areas, availability, status).
-- **PetController**: Lee body JSON en POST/PUT/validate con `getInput()`; creación de mascota exige `name`, `species`, `house_id`.
-- **Conexión**: `server/db_connection.php` con `getDbConnection()`; controladores que no extienden `Controller` (PetController, AccessLogController, ReservationController) reciben PDO o lo obtienen vía `getDbConnection()`.
-- **CORS y OPTIONS**: Enviados desde `server/index.php`; no depender de .htaccess para CORS.
-- **Documentación API**: `server/API.md` con todos los endpoints y nota para crear nuevos CRUD.
-
-### Coherencia y listo para producción (revisión)
-
-- **Base de datos**: Un solo script de creación con FKs; sin migraciones dispersas. **Coherente.**
-- **API**: CRUD homogéneos; pets y reservations con body JSON; by-birthday devuelve domicilio (block_house, lot). **Funcional.**
-- **Pendiente para producción** (no bloquea el hito): CSRF, rate limiting, HTTPS, tests automatizados, OpenAPI/Swagger.
+- Controladores: UserController, HouseController, VehicleController, PersonController, ExternalVehicleController, PetController, AccessLogController, ReservationController. Rutas en `server/index.php`; access-logs (access-points, stats/daily). Documentación: `server/API.md`.
 
 ---
 
@@ -45,23 +30,28 @@ Refactor frontend: [REFACTORIZACION_FRONTEND.md](REFACTORIZACION_FRONTEND.md).
 ### Backend (PHP)
 
 - Controladores MVC para users, houses, vehicles, persons, external-vehicles, pets, access-logs, reservations.
-- Rutas centralizadas en `server/index.php`; mensaje 404 con lista de rutas disponibles.
-- Autenticación JWT con `requireAuth()` en los controladores nuevos.
-- PetController con `getInput()` para POST/PUT/validate.
-- UserController byBirthday con JOIN a houses (block_house, lot) y sin enviar password.
+- Rutas centralizadas en `server/index.php`; JWT con `requireAuth()`.
+- UserController byBirthday con JOIN a houses (block_house, lot).
 
-### Frontend (Angular)
+### Frontend (Angular) – Refactor integrado
 
-- Servicios: ApiService, AuthService, UsersService, PetsService, ReservationsService, AccessLogService, EntranceService.
-- Componentes: History, Birthday, Pets, Calendar, QrScanner, Webcam; eliminados listas/ y upload/.
-- Cumpleaños: fecha de nacimiento por fila y domicilio Mz/Lt desde API.
-- Mascotas: columna Casa (house_id), formulario con casa obligatoria; owner_id opcional en backend.
-- Rutas: /pets, /calendar, /scanner; menú lateral actualizado.
-- CookieService eliminado; uso de AuthService para token y estado.
+- **Servicios**: ApiService, AuthService, UsersService, PetsService, ReservationsService, AccessLogService, EntranceService. UsersService y AccessLogService consolidados con API v1; eliminados clientes.service, ludopatia.service, personal.service, systemClient.ts, person.ts (legacy).
+- **Componentes**: History (AccessLogService), Birthday (getPersonsByBirthday), Pets, Calendar, QrScanner, Webcam; rutas /pets, /calendar, /scanner; menú actualizado. CookieService eliminado; AuthService para token y estado.
+- **Formulario de registro público**: Definido en [REFACTORIZACION_FRONTEND.md](REFACTORIZACION_FRONTEND.md) (secciones propietarios, vehículos, mascotas; photo_url en vehículos y mascotas).
+
+### Correcciones UI realizadas
+
+- **Login**: Logo con fallback a `assets/logo_VC5.png`; modal de cambio de contraseña con botón visible (!bg-amber-600 !text-white).
+- **Side-nav y Nav-bar**: Avatar por género (`assets/user-female.png` / `assets/user-male.png`) cuando no hay photo_url; nombre, role_system y domicilio con fallbacks (getUserDisplayName, getUserDomicilio en AppComponent); logo header a `assets/logo_VC5wFondo.png`.
+- **Inicio (dashboard)**: Imágenes de puntos de acceso con fallback a `assets/logo_VC5.png`.
+
+### Dashboard (inicio) refactorizado
+
+- Dashboard sencillo con datos reales: accesos rápidos (Historial, Calendario, Cumpleaños, Mi casa), ingresos del día (access-logs), cumpleaños de hoy (by-birthday), próximas reservas (primeras 5). Carga vía AccessLogService, UsersService.getPersonsByBirthday, ReservationsService.getByDateRange.
 
 ### Base de datos (documentación)
 
-- [BASES_DE_DATOS.md](BASES_DE_DATOS.md) actualizado: solo vc_create_database.sql, vc_dev_data.sql, crearttech_clientes_schema.sql; orden de ejecución y descripción de tablas vc_db.
+- [BASES_DE_DATOS.md](BASES_DE_DATOS.md) con vc_create_database.sql, vc_dev_data.sql, crearttech_clientes_schema.sql; DB_LICENSE_NAME=crearttech_clientes.
 
 ---
 
@@ -69,16 +59,17 @@ Refactor frontend: [REFACTORIZACION_FRONTEND.md](REFACTORIZACION_FRONTEND.md).
 
 - [ ] **Controlador de pagos / licencias**: API y UI para gestionar clientes Crearttech y períodos de licencia (CRUD clients, payment).
 - [ ] Completar **UI de Calendario** (reservas Casa Club) y de **QR Scanner** (puertas).
-- [ ] **Dashboard Piscina** (aforo en tiempo real con access-logs/access-points).
+- [ ] **Dashboard Piscina / Aforo**: Pantalla de aforo en tiempo real (access-logs/access-points, current_capacity).
 
 ---
 
 ## Pendientes – Prioridad media
 
+- [ ] **Módulo de gestión de imágenes**: Upload de fotos (vehículos, mascotas en formulario de ingreso; foto de perfil). Almacenamiento: servidor (filesystem) primero; opción S3 después. Endpoints upload y actualización de photo_url en BD.
+- [ ] **UIs por mejorar**: Cumpleaños (presentación/filtros), Mascotas (listado y formularios; alinear con API v1 y subida de foto), Calendario, QR, Aforo-Piscina (crear).
 - [ ] Campo **qr_code** en tabla persons y endpoint generador de QR.
 - [ ] Formulario genérico para registros futuros.
-- [ ] Documentación OpenAPI/Swagger; tests unitarios backend.
-- [ ] Interfaces tipadas para todas las respuestas; loading states; retry en llamadas fallidas.
+- [ ] Documentación OpenAPI/Swagger; tests unitarios backend; interfaces tipadas; loading states; retry en fallos.
 - [ ] **Eliminar legacy**: bd.php, bdEntrance.php, bdData.php y get*.php que los usan; eliminar BDs vc_entrance y vc_data cuando el frontend no dependa de ellos.
 
 ---
@@ -93,7 +84,7 @@ Refactor frontend: [REFACTORIZACION_FRONTEND.md](REFACTORIZACION_FRONTEND.md).
 
 ## Referencia de endpoints API v1
 
-Ver **`server/API.md`** para la lista completa. Resumen por recurso:
+Ver **`server/API.md`**. Resumen:
 
 | Recurso            | CRUD | Endpoints especiales |
 |--------------------|------|------------------------|
@@ -143,13 +134,7 @@ stateDiagram-v2
 ## Notas
 
 - Mantener compatibilidad con endpoints legacy hasta que el frontend esté completamente migrado.
-- **PENDIENTES.md** queda sustituido por este documento; usar solo este archivo para estado y pendientes del proyecto.
-
---- Más adelante añadir 
--Panel de suscripción para Crearttech (para que vea sus clientes, licencias, suscripciones, pagos, etc) y para VC5 (para que vea la información de sus suscripción)
---
-Propietario (Esto se registra en la tabla Users no en la tabla persons):
-Problema de base de datos Persons vs Users 
-
----
-En el formulario, si alguien ya se registra como propietario en una house, esta casa ya no debería estar disponible en el desplegable. Es decir a medida que van habiendo registros, los desplegables disponibles deberían reducirse. 
+- **REFACTORIZACION_FRONTEND.md** queda integrado en este plan; se puede conservar como referencia histórica del refactor de servicios y componentes.
+- **Más adelante**: Panel de suscripción para Crearttech (clientes, licencias, pagos) y para VC5 (información de suscripción).
+- **Propietario**: Se registra en tabla Users, no en persons; revisar flujo Persons vs Users.
+- **Formulario de registro**: Si una casa ya tiene propietario registrado, no debería aparecer en el desplegable; ir reduciendo opciones según registros existentes.

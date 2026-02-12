@@ -78,6 +78,38 @@ $method = $_SERVER['REQUEST_METHOD'];
 if (str_starts_with($uri, '/api/v1/')) {
     $path = substr($uri, strlen('/api/v1/'));
 
+    // ==================== AUTH (login sin token) ====================
+    if (str_starts_with($path, 'auth/')) {
+        if ($path === 'auth/login' && $method === 'POST') {
+            require_once __DIR__ . '/controllers/AuthController.php';
+            \Controllers\AuthController::login();
+            exit;
+        }
+    }
+
+    // ==================== CATALOG (areas, salas, prioridad, stubs) ====================
+    if (str_starts_with($path, 'catalog/')) {
+        require_once __DIR__ . '/controllers/CatalogController.php';
+        if ($path === 'catalog/areas' && $method === 'GET') { \Controllers\CatalogController::areas(); exit; }
+        if ($path === 'catalog/salas' && $method === 'GET') { \Controllers\CatalogController::salas(); exit; }
+        if ($path === 'catalog/prioridad' && $method === 'GET') { \Controllers\CatalogController::prioridad(); exit; }
+        if ($path === 'catalog/collaborator' && $method === 'GET') { \Controllers\CatalogController::collaboratorByUserId(); exit; }
+        if ($path === 'catalog/personal' && $method === 'GET') { \Controllers\CatalogController::personal(); exit; }
+        if ($path === 'catalog/payment-by-client' && $method === 'GET') { \Controllers\CatalogController::paymentByClientId(); exit; }
+        if ($path === 'catalog/activities-by-user' && $method === 'GET') { \Controllers\CatalogController::activitiesByUser(); exit; }
+        if ($path === 'catalog/machines' && $method === 'GET') { \Controllers\CatalogController::machines(); exit; }
+        if ($path === 'catalog/machine-by-rmt' && $method === 'GET') { \Controllers\CatalogController::machineByRmt(); exit; }
+        if ($path === 'catalog/problems-by-type' && $method === 'GET') { \Controllers\CatalogController::problemsByType(); exit; }
+        if ($path === 'catalog/solutions-by-type' && $method === 'GET') { \Controllers\CatalogController::solutionsByType(); exit; }
+        if ($path === 'catalog/areas-by-zone' && $method === 'GET') { \Controllers\CatalogController::areasByZone(); exit; }
+        if ($path === 'catalog/campus-by-zone' && $method === 'GET') { \Controllers\CatalogController::campusByZone(); exit; }
+        if ($path === 'catalog/inc-pendientes' && $method === 'GET') { \Controllers\CatalogController::incPendientes(); exit; }
+        if ($path === 'catalog/inc-proceso' && $method === 'GET') { \Controllers\CatalogController::incProceso(); exit; }
+        if ($path === 'catalog/inc-fin' && $method === 'GET') { \Controllers\CatalogController::incFin(); exit; }
+        if ($path === 'catalog/campus-by-id' && $method === 'GET') { \Controllers\CatalogController::campusById(); exit; }
+        if ($path === 'catalog/campus-active-by-id' && $method === 'GET') { \Controllers\CatalogController::campusActiveById(); exit; }
+    }
+
     // ==================== REGISTRO PÚBLICO (sin login) ====================
     if (str_starts_with($path, 'public/')) {
         require_once __DIR__ . '/controllers/PublicRegistrationController.php';
@@ -99,6 +131,11 @@ if (str_starts_with($uri, '/api/v1/')) {
         
         if (str_contains($path, 'from-person') && $method === 'POST') {
             $controller->createFromPerson();
+            exit;
+        }
+        
+        if (str_contains($path, 'by-doc-number') && $method === 'GET') {
+            $controller->byDocNumber([]);
             exit;
         }
         
@@ -263,6 +300,22 @@ if (str_starts_with($uri, '/api/v1/')) {
             exit;
         }
         
+        // persons/destacados
+        if (str_contains($path, 'destacados')) {
+            if ($method === 'GET') {
+                $controller->destacados([]);
+            }
+            exit;
+        }
+        
+        // persons list by birthday (fecha_cumple)
+        if (str_contains($path, 'list-by-birthday') || (preg_match('#^persons$#', $path) && $method === 'GET' && isset($_GET['fecha_cumple']))) {
+            if ($method === 'GET') {
+                $controller->listByBirthday([]);
+            }
+            exit;
+        }
+        
         // observed (estado OBSERVADO)
         if (str_contains($path, 'observed')) {
             if ($method === 'GET') {
@@ -404,6 +457,20 @@ if (str_starts_with($uri, '/api/v1/')) {
             exit;
         }
         
+        // Reportes (reemplazo legacy)
+        if ($method === 'GET') {
+            if (str_contains($path, 'entrance-by-range')) { $controller->entranceByRange(); exit; }
+            if (str_contains($path, 'history-by-date')) { $controller->historyByDate(); exit; }
+            if (str_contains($path, 'history-by-range')) { $controller->historyByRange(); exit; }
+            if (str_contains($path, 'history-by-client')) { $controller->historyByClient(); exit; }
+            if ($path === 'access-logs/aforo') { $controller->reportAforo(); exit; }
+            if ($path === 'access-logs/address') { $controller->reportAddress(); exit; }
+            if ($path === 'access-logs/total-month') { $controller->reportTotalMonth(); exit; }
+            if ($path === 'access-logs/total-month-new') { $controller->reportTotalMonthNew(); exit; }
+            if ($path === 'access-logs/hours') { $controller->reportHours(); exit; }
+            if ($path === 'access-logs/age') { $controller->reportAge(); exit; }
+        }
+        
         // access-logs/:id
         if (preg_match('#^access-logs(?:/(\d+))?#', $path, $matches)) {
             $id = $matches[1] ?? null;
@@ -486,16 +553,13 @@ if (str_starts_with($uri, '/api/v1/')) {
     }
 }
 
-// Backward compatibility - endpoints legacy
-$file = __DIR__ . '/' . basename($uri) . '.php';
-if (file_exists($file)) {
-    require_once $file;
-} else {
-    http_response_code(404);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Ruta no encontrada',
-        'available_routes' => [
+// Ruta no encontrada (ya no se cargan archivos .php legacy)
+http_response_code(404);
+echo json_encode([
+    'success' => false,
+    'error' => 'Ruta no encontrada',
+    'documentation' => 'Todas las rutas están bajo /api/v1/. Ver API.md',
+    'available_routes' => [
             // Registro público (sin auth)
             'POST /api/v1/public/register' => 'Registro público: vivienda + propietarios + vehículos + mascotas',
             // Users
@@ -566,5 +630,4 @@ if (file_exists($file)) {
             'GET /api/v1/reservations/areas' => 'Listar áreas disponibles',
             'GET /api/v1/reservations/availability' => 'Consultar disponibilidad'
         ]
-    ]);
-}
+]);

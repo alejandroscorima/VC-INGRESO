@@ -25,6 +25,7 @@ import { EntranceService } from '../entrance.service';
 import { Console } from 'console';
 import { initFlowbite } from 'flowbite';
 import { AccessLogService } from '../access-log.service';
+import { ReservationsService } from '../reservations.service';
 
 
 @Component({
@@ -221,10 +222,18 @@ export class InicioComponent implements OnInit {
 
 
 
-  actualUser:User;
+  actualUser: User;
 
+  accessPoints: AccessPoint[] = [];
 
-  accessPoints: AccessPoint[]=[];
+  /** Dashboard: cumpleaños del día (API by-birthday) */
+  birthdaysToday: any[] = [];
+  loadingBirthdays = false;
+  /** Dashboard: cantidad de ingresos hoy (access-logs) */
+  accessLogsCountToday = 0;
+  loadingLogs = false;
+  /** Dashboard: próximas reservas (primeras 5) */
+  upcomingReservations: any[] = [];
 
   
 
@@ -481,9 +490,44 @@ export class InicioComponent implements OnInit {
     private userService: UsersService,
     private entranceService: EntranceService,
     private accessLogService: AccessLogService,
-    ) { }
+    private reservationsService: ReservationsService,
+  ) { }
 
+  private loadDashboardData(): void {
+    const today = new Date();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = today.getFullYear() + '-' + mm + '-' + dd;
+    const fechaCumple = mm + '-' + dd;
 
+    this.loadingBirthdays = true;
+    this.userService.getPersonsByBirthday(fechaCumple).subscribe({
+      next: (res: any) => {
+        this.birthdaysToday = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+        this.loadingBirthdays = false;
+      },
+      error: () => { this.loadingBirthdays = false; }
+    });
+
+    this.loadingLogs = true;
+    this.accessLogService.getAccessLogs({ start_date: todayStr, end_date: todayStr }).subscribe({
+      next: (res: any) => {
+        const list = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+        this.accessLogsCountToday = list.length;
+        this.loadingLogs = false;
+      },
+      error: () => { this.loadingLogs = false; }
+    });
+
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + 30);
+    const endStr = endDate.getFullYear() + '-' + String(endDate.getMonth() + 1).padStart(2, '0') + '-' + String(endDate.getDate()).padStart(2, '0');
+    this.reservationsService.getByDateRange(todayStr, endStr).subscribe({
+      next: (list: any[]) => {
+        this.upcomingReservations = (list || []).slice(0, 5);
+      }
+    });
+  }
 
   applyFilterCompra(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -525,49 +569,30 @@ export class InicioComponent implements OnInit {
     // Dashboard (inicio): cargar gráficos al final; por ahora no llamar para poder probar el resto
     // this.getEntrances();
 
-    if(this.auth.checkToken('user_id')){
-      this.salaDisabled=false;
-      this.mesDisabled=false;
-      this.diaDisabled=false;
-      this.fechaDisabled=false;
+    if (this.auth.checkToken('user_id')) {
+      this.salaDisabled = false;
+      this.mesDisabled = false;
+      this.diaDisabled = false;
+      this.fechaDisabled = false;
 
-      
-
-
-      this.userService.getUserById(Number(this.auth.getTokenItem('user_id'))).subscribe((user:User)=>{
-        
-        this.actualUser=user
-        console.log(this.actualUser)
-
-        this.entranceService.getAllAccessPoints().subscribe((campList:AccessPoint[])=>{
-          console.log(campList)
-          if(campList){
-            this.accessPoints=campList;
-            //this.defineSalas();
-            this.fechaCmbBoxStart= new Date();
-            this.fechaCmbBoxEnd= new Date();
-            this.diaCmbBox='SELECCIONAR';
-            this.mesCmbBox='SELECCIONAR';
-            this.salaCmbBox=this.accessPoints[0];
-        
-            this.logoSrc=this.salaCmbBox.image_url;
-            
-            this.fecha= new Date();
-        
+      this.userService.getUserById(Number(this.auth.getTokenItem('user_id'))).subscribe((user: User) => {
+        this.actualUser = user;
+        this.entranceService.getAllAccessPoints().subscribe((campList: AccessPoint[]) => {
+          if (campList && campList.length) {
+            this.accessPoints = campList;
+            this.fechaCmbBoxStart = new Date();
+            this.fechaCmbBoxEnd = new Date();
+            this.diaCmbBox = 'SELECCIONAR';
+            this.mesCmbBox = 'SELECCIONAR';
+            this.salaCmbBox = this.accessPoints[0];
+            this.logoSrc = this.salaCmbBox?.image_url;
+            this.fecha = new Date();
             this.dia = this.fecha.getDate();
-            this.mes = this.fecha.getMonth()+1;
+            this.mes = this.fecha.getMonth() + 1;
             this.anio = this.fecha.getFullYear();
-        
-            if(this.mes<10){
-              this.mes = '0'+this.mes;
-            }
-        
-            if(this.dia<10){
-              this.dia = '0'+this.dia;
-            }
-        
-            this.fecha_hoy = this.anio+'-'+this.mes+'-'+this.dia;
-        
+            if (this.mes < 10) this.mes = '0' + this.mes;
+            if (this.dia < 10) this.dia = '0' + this.dia;
+            this.fecha_hoy = this.anio + '-' + this.mes + '-' + this.dia;
             this.fecha1 = '';
             this.fecha2 = '';
             this.fecha3 = '';
@@ -575,12 +600,9 @@ export class InicioComponent implements OnInit {
             this.fecha5 = '';
             this.fechaInicio = this.fecha_hoy;
             this.fechaFin = this.fecha_hoy;
-            this.fechaMes = this.anio+'-'+this.mes+'-';
-        
+            this.fechaMes = this.anio + '-' + this.mes + '-';
             this.mesActual = this.meses[this.fecha.getMonth()];
             this.diaActual = String(this.fecha.getDate());
-        
-            // Dashboard stats desactivados temporalmente (reactivar al armar el dashboard)
             this.aforo = [];
             this.fechas = [];
             this.address = [];
@@ -589,8 +611,9 @@ export class InicioComponent implements OnInit {
             this.age = [];
           }
         });
-      });
 
+        this.loadDashboardData();
+      });
     }
     else{
       this.router.navigateByUrl('/login');

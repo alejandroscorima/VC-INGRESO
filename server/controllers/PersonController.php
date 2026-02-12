@@ -88,6 +88,35 @@ class PersonController extends Controller {
     }
     
     /**
+     * GET persons?fecha_cumple=MM-DD - Listar personas por cumpleaños (reemplazo getAll.php legacy)
+     */
+    public function listByBirthday($params = []) {
+        $fecha_cumple = $params['fecha_cumple'] ?? $_GET['fecha_cumple'] ?? '';
+        if ($fecha_cumple === '') {
+            Response::error('fecha_cumple requerido', 400);
+            return;
+        }
+        if (!preg_match('/^[0-9\-\/]{1,10}$/', $fecha_cumple)) {
+            Response::error('fecha_cumple inválido', 400);
+            return;
+        }
+        $sql = "SELECT p.*, h.block_house, h.lot, h.apartment FROM {$this->tableName} p LEFT JOIN houses h ON p.house_id = h.house_id WHERE p.birth_date LIKE ? ORDER BY p.paternal_surname";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(["%{$fecha_cumple}%"]);
+        $persons = $stmt->fetchAll(\PDO::FETCH_OBJ);
+        Response::success($persons);
+    }
+
+    /**
+     * GET persons/destacados - Stub / personas permitidas (reemplazo getDestacados legacy)
+     */
+    public function destacados($params = []) {
+        $sql = "SELECT p.*, h.block_house, h.lot FROM {$this->tableName} p LEFT JOIN houses h ON p.house_id = h.house_id WHERE p.status_validated = 'PERMITIDO' ORDER BY p.id DESC LIMIT 100";
+        $stmt = $this->db->query($sql);
+        Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
+    }
+
+    /**
      * Listar personas observadas (estado OBSERVADO)
      */
     public function observed($params = []) {

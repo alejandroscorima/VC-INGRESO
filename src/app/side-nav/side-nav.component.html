@@ -16,11 +16,11 @@
         </button>
       </div>
       <div class="flex flex-col items-center pb-10">
-        <img class="w-24 h-24 mb-3 rounded-full shadow-lg" [src]="user.photo_url" alt="Bonnie image"/>
-        <h5 class="mb-1 text-l font-medium text-center text-gray-900 dark:text-white">{{user.paternal_surname+' '+user.maternal_surname+', '+user.first_name}}</h5>
-        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user.role_system}}</span>
-        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user.property_category}}</span>
-        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{'Mz:'+user.block_house+' Lt:'+user.lot}}</span>
+        <img class="w-24 h-24 mb-3 rounded-full shadow-lg" [src]="getUserAvatarUrl(user)" alt="Usuario"/>
+        <h5 class="mb-1 text-l font-medium text-center text-gray-900 dark:text-white">{{getUserDisplayName(user)}}</h5>
+        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user?.role_system ?? '—'}}</span>
+        <span *ngIf="user?.property_category" class="text-sm text-center text-gray-500 dark:text-gray-400">{{user.property_category}}</span>
+        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{getUserDomicilio(user)}}</span>
       </div>
     </div>
 

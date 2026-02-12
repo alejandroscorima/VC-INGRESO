@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<User> {
-    return this.http.post<{ user: User; token: string } | { error: string }>(`${this.baseUrl}/getUser.php`, {
+    return this.http.post<{ user: User; token: string } | { error: string }>(`${this.baseUrl}/api/v1/auth/login`, {
       username_system: username,
       password_system: password,
     }).pipe(

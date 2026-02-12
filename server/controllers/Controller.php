@@ -20,33 +20,11 @@ class Controller {
     }
     
     /**
-     * Obtener conexión a la base de datos
+     * Obtener conexión a la base de datos (única fuente: db_connection.php)
      */
     protected function getDatabase() {
-        static $pdo = null;
-        
-        if ($pdo === null) {
-            $host = getenv('DB_HOST') ?: 'localhost';
-            $port = getenv('DB_PORT') ?: '3306';
-            $dbname = getenv('DB_NAME') ?: 'vc_db';
-            $user = getenv('DB_USER') ?: 'root';
-            $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
-            $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
-            
-            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=$charset";
-            
-            try {
-                $pdo = new PDO($dsn, $user, $pass, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-                    PDO::ATTR_EMULATE_PREPARES => false
-                ]);
-            } catch (PDOException $e) {
-                Response::error('Error de conexión a la base de datos', 500, $e->getMessage());
-            }
-        }
-        
-        return $pdo;
+        require_once __DIR__ . '/../db_connection.php';
+        return getDbConnection();
     }
     
     /**

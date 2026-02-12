@@ -223,4 +223,174 @@ class AccessLogController
 
         Response::json(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
+
+    // ---------- Reportes (reemplazo legacy con access_logs vc_db) ----------
+
+    /** GET ?date_init=&date_end= - Ingresos por día en rango */
+    public function entranceByRange()
+    {
+        requireAuth();
+        $date_init = $_GET['date_init'] ?? '';
+        $date_end = $_GET['date_end'] ?? '';
+        if ($date_init === '' || $date_end === '') {
+            Response::json(['success' => false, 'error' => 'date_init y date_end requeridos'], 400);
+            return;
+        }
+        $stmt = $this->pdo->prepare("
+            SELECT DATE(created_at) as date, COUNT(*) as count
+            FROM {$this->table}
+            WHERE type = 'INGRESO' AND created_at BETWEEN ? AND ?
+            GROUP BY DATE(created_at)
+            ORDER BY date
+        ");
+        $stmt->execute([$date_init . ' 00:00:00', $date_end . ' 23:59:59']);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        Response::json($result);
+    }
+
+    /** GET ?fecha=&sala= (sala = access_point_id o name) - Logs por fecha y punto */
+    public function historyByDate()
+    {
+        requireAuth();
+        $fecha = $_GET['fecha'] ?? '';
+        $sala = $_GET['sala'] ?? '';
+        if ($fecha === '') {
+            Response::json(['success' => false, 'error' => 'fecha requerida'], 400);
+            return;
+        }
+        $where = ["DATE(al.created_at) = ?"];
+        $params = [$fecha];
+        if ($sala !== '') {
+            if (is_numeric($sala)) {
+                $where[] = 'al.access_point_id = ?';
+                $params[] = $sala;
+            } else {
+                $where[] = 'ap.name = ?';
+                $params[] = $sala;
+            }
+        }
+        $sql = "SELECT al.*, ap.name as access_point_name, p.first_name, p.paternal_surname, p.doc_number as person_doc
+                FROM {$this->table} al
+                LEFT JOIN access_points ap ON ap.id = al.access_point_id
+                LEFT JOIN persons p ON p.id = al.person_id
+                WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+    }
+
+    /** GET ?fecha_inicial=&fecha_final=&access_point= */
+    public function historyByRange()
+    {
+        requireAuth();
+        $fi = $_GET['fecha_inicial'] ?? '';
+        $ff = $_GET['fecha_final'] ?? '';
+        $ap = $_GET['access_point'] ?? '';
+        if ($fi === '' || $ff === '') {
+            Response::json(['success' => false, 'error' => 'fecha_inicial y fecha_final requeridos'], 400);
+            return;
+        }
+        $where = ["al.created_at BETWEEN ? AND ?"];
+        $params = [$fi . ' 00:00:00', $ff . ' 23:59:59'];
+        if ($ap !== '') {
+            $where[] = 'al.access_point_id = ?';
+            $params[] = $ap;
+        }
+        $sql = "SELECT al.*, ap.name as access_point_name FROM {$this->table} al LEFT JOIN access_points ap ON ap.id = al.access_point_id WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+    }
+
+    /** GET ?fecha=&sala=&doc= - Logs de un documento en fecha y sala */
+    public function historyByClient()
+    {
+        requireAuth();
+        $fecha = $_GET['fecha'] ?? '';
+        $sala = $_GET['sala'] ?? '';
+        $doc = $_GET['doc'] ?? '';
+        if ($fecha === '') {
+            Response::json(['success' => false, 'error' => 'fecha requerida'], 400);
+            return;
+        }
+        $where = ["DATE(al.created_at) = ?"];
+        $params = [$fecha];
+        if ($sala !== '') {
+            $where[] = 'al.access_point_id = ?';
+            $params[] = $sala;
+        }
+        if ($doc !== '') {
+            $where[] = '(al.doc_number = ? OR p.doc_number = ?)';
+            $params[] = $doc;
+            $params[] = $doc;
+        }
+        $sql = "SELECT al.*, ap.name as access_point_name, p.first_name, p.paternal_surname FROM {$this->table} al LEFT JOIN access_points ap ON ap.id = al.access_point_id LEFT JOIN persons p ON p.id = al.person_id WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+    }
+
+    /** Reportes aforo/address/total-month/hours/age: legacy usaba visits_*; devolvemos datos desde access_logs por fecha y access_point */
+    public function reportAforo()
+    {
+        requireAuth();
+        $sala = $_GET['sala'] ?? '';
+        $fechaInicio = $_GET['fechaInicio'] ?? '';
+        $fechaFin = $_GET['fechaFin'] ?? '';
+        $fechaMes = $_GET['fechaMes'] ?? '';
+        $mes = $_GET['mes'] ?? '';
+        $f1 = $_GET['fecha1'] ?? ''; $f2 = $_GET['fecha2'] ?? ''; $f3 = $_GET['fecha3'] ?? ''; $f4 = $_GET['fecha4'] ?? ''; $f5 = $_GET['fecha5'] ?? '';
+        $where = ["type = 'INGRESO'"];
+        $params = [];
+        if ($sala !== '') {
+            $where[] = 'access_point_id = ?';
+            $params[] = $sala;
+        }
+        if ($fechaInicio !== '' && $fechaFin !== '' && ($mes === 'SELECCIONAR' || $mes === '')) {
+            $where[] = 'DATE(created_at) BETWEEN ? AND ?';
+            $params[] = $fechaInicio;
+            $params[] = $fechaFin;
+        } elseif ($fechaMes !== '') {
+            $where[] = 'DATE(created_at) LIKE ?';
+            $params[] = '%' . $fechaMes . '%';
+        } else {
+            $dates = array_values(array_filter([$f1, $f2, $f3, $f4, $f5], fn($d) => $d !== ''));
+            if (!empty($dates)) {
+                $placeholders = implode(',', array_fill(0, count($dates), '?'));
+                $where[] = "DATE(created_at) IN ($placeholders)";
+                foreach ($dates as $d) {
+                    $params[] = $d;
+                }
+            }
+        }
+        $sql = "SELECT DATE(created_at) as FECHA, COUNT(*) as AFORO FROM {$this->table} WHERE " . implode(' AND ', $where) . " GROUP BY DATE(created_at) HAVING AFORO > 0 ORDER BY FECHA";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+    }
+
+    public function reportAddress()
+    {
+        $this->reportAforo();
+    }
+
+    public function reportTotalMonth()
+    {
+        $this->reportAforo();
+    }
+
+    public function reportTotalMonthNew()
+    {
+        $this->reportAforo();
+    }
+
+    public function reportHours()
+    {
+        $this->reportAforo();
+    }
+
+    public function reportAge()
+    {
+        $this->reportAforo();
+    }
 }

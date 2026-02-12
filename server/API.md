@@ -1,8 +1,18 @@
 # API REST v1 – VC-INGRESO
 
-Base URL: `/api/v1/`. Autenticación: cabecera `Authorization: Bearer <token>` (JWT) en endpoints que usan `requireAuth()`. **Excepción:** `POST /api/v1/public/register` no requiere auth.
+Base URL: `/api/v1/`. **Punto de entrada único:** `index.php` + `db_connection.php`. Ya no se usan archivos `.php` sueltos (legacy eliminado).
+
+Autenticación: cabecera `Authorization: Bearer <token>` (JWT) en endpoints que usan `requireAuth()`. **Excepciones (sin auth):** `POST /api/v1/public/register`, `POST /api/v1/auth/login`.
 
 Patrón común para CRUD: `GET` listar, `GET /:id` obtener uno, `POST` crear (body JSON), `PUT /:id` actualizar (body JSON), `DELETE /:id` eliminar.
+
+---
+
+## Auth
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | /api/v1/auth/login | No | Login. Body: `{ "username_system", "password_system" }`. Retorna `{ user, person, my_houses, token }`. |
 
 ---
 
@@ -211,6 +221,34 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 | POST | /api/v1/access-logs | Crear registro (body JSON) |
 | GET | /api/v1/access-logs/access-points | Listar puntos de acceso |
 | GET | /api/v1/access-logs/stats/daily | Estadísticas diarias |
+| GET | /api/v1/access-logs/entrance-by-range | Reporte ingresos por día (query: date_init, date_end) |
+| GET | /api/v1/access-logs/history-by-date | Por fecha y sala (query: fecha, sala) |
+| GET | /api/v1/access-logs/history-by-range | Por rango (query: fecha_inicial, fecha_final, access_point) |
+| GET | /api/v1/access-logs/history-by-client | Por cliente (query: fecha, sala, doc) |
+| GET | /api/v1/access-logs/aforo | Reporte aforo (query: sala, fechaInicio, fechaFin, etc.) |
+| GET | /api/v1/access-logs/address | Idem (alias) |
+| GET | /api/v1/access-logs/total-month | Total mensual |
+| GET | /api/v1/access-logs/total-month-new | Total mensual (nuevo) |
+| GET | /api/v1/access-logs/hours | Por hora |
+| GET | /api/v1/access-logs/age | Por edad |
+
+---
+
+## Catalog (áreas, salas, stubs)
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | /api/v1/catalog/areas | Lista de áreas (access_points) |
+| GET | /api/v1/catalog/salas | Lista de salas (access_points activos) |
+| GET | /api/v1/catalog/prioridad | Prioridades (stub: []) |
+| GET | /api/v1/catalog/collaborator | Por user_id (stub) |
+| GET | /api/v1/catalog/personal | Por area_id (stub: []) |
+| GET | /api/v1/catalog/payment-by-client | Por client_id (stub) |
+| GET | /api/v1/catalog/activities-by-user | Stub [] |
+| GET | /api/v1/catalog/machines | Stub [] |
+| GET | /api/v1/catalog/inc-pendientes | Stub [] |
+| GET | /api/v1/catalog/inc-proceso | Stub [] |
+| GET | /api/v1/catalog/inc-fin | Stub [] |
 
 ---
 
