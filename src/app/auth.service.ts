@@ -68,6 +68,12 @@ export class AuthService {
     }
   }
 
+  /** Actualiza el usuario actual en sesión (p. ej. tras cambiar foto de perfil). */
+  updateCurrentUser(user: User): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    this.userSubject.next(user);
+  }
+
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }

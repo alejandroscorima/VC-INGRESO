@@ -58,6 +58,24 @@ class PublicRegistrationController
     }
 
     /**
+     * GET /api/v1/public/check-doc?doc_number=
+     * Comprueba si un DNI/documento ya está registrado. Siempre 200; evita 404 en el formulario de registro.
+     * Respuesta: { "success": true, "registered": true|false }
+     */
+    public function checkDoc(): void
+    {
+        $doc = trim($_GET['doc_number'] ?? '');
+        if ($doc === '') {
+            Response::json(['success' => true, 'registered' => false]);
+            return;
+        }
+        $stmt = $this->pdo->prepare("SELECT 1 FROM persons WHERE doc_number = ? LIMIT 1");
+        $stmt->execute([$doc]);
+        $registered = $stmt->fetch() !== false;
+        Response::json(['success' => true, 'registered' => $registered]);
+    }
+
+    /**
      * POST /api/v1/public/register
      * Body: {
      *   house: { house_type, block_house, lot, apartment? },
@@ -105,6 +123,35 @@ class PublicRegistrationController
                 Response::json(['success' => false, 'error' => "Propietario " . ($i + 1) . ": se requieren doc_number, first_name y paternal_surname"], 400);
                 return;
             }
+        }
+
+        // Propietarios duplicados en el mismo envío (mismo doc_number en más de un titular)
+        $ownerDocs = array_map(function ($o) {
+            return trim((string) ($o['doc_number'] ?? ''));
+        }, $owners);
+        $uniqueDocs = array_unique(array_filter($ownerDocs));
+        if (count($uniqueDocs) < count($ownerDocs)) {
+            Response::json(['success' => false, 'error' => 'Propietario duplicado: no puede registrar el mismo DNI en más de un titular.'], 400);
+            return;
+        }
+
+        // Vehículos duplicados en el mismo envío (misma placa más de una vez)
+        $plates = array_map(function ($v) {
+            return strtoupper(trim((string) ($v['license_plate'] ?? '')));
+        }, $vehicles);
+        $uniquePlates = array_unique(array_filter($plates));
+        if (count($uniquePlates) < count($plates)) {
+            Response::json(['success' => false, 'error' => 'Vehículo duplicado: no puede registrar la misma placa más de una vez.'], 400);
+            return;
+        }
+
+        // Mascotas duplicadas en el mismo envío (misma especie + nombre)
+        $petKeys = array_map(function ($p) {
+            return strtoupper(trim((string) ($p['species'] ?? ''))) . '|' . strtoupper(trim((string) ($p['name'] ?? '')));
+        }, $pets);
+        if (count(array_unique($petKeys)) < count($petKeys)) {
+            Response::json(['success' => false, 'error' => 'Mascota duplicada: no puede registrar la misma mascota (especie y nombre) más de una vez.'], 400);
+            return;
         }
 
         foreach ($vehicles as $i => $v) {
@@ -315,5 +362,37 @@ class PublicRegistrationController
             }
             Response::json(['success' => false, 'error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * POST /api/v1/public/upload/vehicle-photo
+     * Sube una foto de vehículo (registro público, sin auth). Multipart: campo "photo".
+     * Devuelve { "success": true, "photo_url": "/uploads/public/vehicles/xxx.jpg" }.
+     */
+    public function uploadVehiclePhoto(): void
+    {
+        require_once __DIR__ . '/../helpers/upload_storage.php';
+        $result = storePublicPhoto($_FILES['photo'] ?? null, 'vehicles');
+        if (!$result['success']) {
+            Response::json(['success' => false, 'error' => $result['error']], 400);
+            return;
+        }
+        Response::json(['success' => true, 'photo_url' => $result['photo_url']]);
+    }
+
+    /**
+     * POST /api/v1/public/upload/pet-photo
+     * Sube una foto de mascota (registro público, sin auth). Multipart: campo "photo".
+     * Devuelve { "success": true, "photo_url": "/uploads/public/pets/xxx.jpg" }.
+     */
+    public function uploadPetPhoto(): void
+    {
+        require_once __DIR__ . '/../helpers/upload_storage.php';
+        $result = storePublicPhoto($_FILES['photo'] ?? null, 'pets');
+        if (!$result['success']) {
+            Response::json(['success' => false, 'error' => $result['error']], 400);
+            return;
+        }
+        Response::json(['success' => true, 'photo_url' => $result['photo_url']]);
     }
 }

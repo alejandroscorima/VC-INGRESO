@@ -12,6 +12,7 @@ export class Vehicle {
     public lot?: string,
     public apartment?: string,
     public vehicle_id?: number,
+    public photo_url?: string,
   ) { }
 
 }

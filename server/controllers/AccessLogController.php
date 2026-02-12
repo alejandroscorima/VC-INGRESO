@@ -83,7 +83,7 @@ class AccessLogController
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($values);
-        $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $logs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Get total count
         $countSql = "SELECT COUNT(*) FROM {$this->table}";
@@ -116,7 +116,7 @@ class AccessLogController
 
         $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
-        $log = $stmt->fetch(PDO::FETCH_ASSOC);
+        $log = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$log) {
             Response::json(['success' => false, 'error' => 'Log no encontrado'], 404);
@@ -183,7 +183,7 @@ class AccessLogController
                 'success' => true,
                 'data' => ['id' => $id, 'message' => 'Log registrado correctamente']
             ], 201);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al registrar: ' . $e->getMessage()], 500);
         }
     }
@@ -197,7 +197,7 @@ class AccessLogController
         requireAuth();
 
         $stmt = $this->pdo->query("SELECT * FROM access_points ORDER BY name");
-        $points = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $points = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         Response::json(['success' => true, 'data' => $points]);
     }
@@ -221,7 +221,7 @@ class AccessLogController
             ORDER BY date DESC
         ");
 
-        Response::json(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+        Response::json(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
     }
 
     // ---------- Reportes (reemplazo legacy con access_logs vc_db) ----------
@@ -244,7 +244,7 @@ class AccessLogController
             ORDER BY date
         ");
         $stmt->execute([$date_init . ' 00:00:00', $date_end . ' 23:59:59']);
-        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
         Response::json($result);
     }
 
@@ -276,7 +276,7 @@ class AccessLogController
                 WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+        Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
     /** GET ?fecha_inicial=&fecha_final=&access_point= */
@@ -299,7 +299,7 @@ class AccessLogController
         $sql = "SELECT al.*, ap.name as access_point_name FROM {$this->table} al LEFT JOIN access_points ap ON ap.id = al.access_point_id WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+        Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
     /** GET ?fecha=&sala=&doc= - Logs de un documento en fecha y sala */
@@ -327,7 +327,7 @@ class AccessLogController
         $sql = "SELECT al.*, ap.name as access_point_name, p.first_name, p.paternal_surname FROM {$this->table} al LEFT JOIN access_points ap ON ap.id = al.access_point_id LEFT JOIN persons p ON p.id = al.person_id WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+        Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
     /** Reportes aforo/address/total-month/hours/age: legacy usaba visits_*; devolvemos datos desde access_logs por fecha y access_point */
@@ -366,7 +366,7 @@ class AccessLogController
         $sql = "SELECT DATE(created_at) as FECHA, COUNT(*) as AFORO FROM {$this->table} WHERE " . implode(' AND ', $where) . " GROUP BY DATE(created_at) HAVING AFORO > 0 ORDER BY FECHA";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        Response::json($stmt->fetchAll(PDO::FETCH_OBJ));
+        Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
     public function reportAddress()

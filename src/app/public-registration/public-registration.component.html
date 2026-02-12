@@ -221,11 +221,11 @@
                   <input *ngIf="v.get('type_vehicle')?.value === 'OTRO'" type="text" formControlName="type_vehicle_other" class="input-field mt-2" placeholder="Escriba el tipo de vehículo" />
                 </div>
                 <div class="form-group"><label class="required">Placa</label>
-                  <input type="text" formControlName="license_plate" class="input-field" placeholder="ABC-123" /></div>
+                  <input type="text" formControlName="license_plate" class="input-field uppercase-input" placeholder="ABC-123" (input)="toUpperCaseField(v.get('license_plate'))" /></div>
                 <div class="form-group"><label class="required">Marca</label>
-                  <input type="text" formControlName="brand" class="input-field" /></div>
+                  <input type="text" formControlName="brand" class="input-field uppercase-input" (input)="toUpperCaseField(v.get('brand'))" /></div>
                 <div class="form-group"><label>Modelo</label>
-                  <input type="text" formControlName="model" class="input-field" /></div>
+                  <input type="text" formControlName="model" class="input-field uppercase-input" (input)="toUpperCaseField(v.get('model'))" /></div>
                 <div class="form-group full-width">
                   <label class="required">Color</label>
                   <div class="color-dots">
@@ -236,7 +236,14 @@
                 </div>
                 <div class="form-group full-width">
                   <label>Foto del vehículo</label>
-                  <button type="button" class="btn-photo-placeholder" disabled><span class="photo-icon">📷</span> Subir o tomar foto (próximamente)</button>
+                  <input type="file" #vehiclePhotoInput accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(i, $event)" [attr.id]="'vehicle-photo-' + i" class="hidden" />
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <label [attr.for]="'vehicle-photo-' + i" class="btn-photo-placeholder cursor-pointer inline-flex items-center gap-2" [class.opacity-50]="uploadingVehicleIndex === i">
+                      <span class="photo-icon">📷</span>
+                      <span>{{ uploadingVehicleIndex === i ? 'Subiendo...' : (v.get('photo_url')?.value ? 'Foto cargada' : 'Subir o tomar foto') }}</span>
+                    </label>
+                    <button *ngIf="v.get('photo_url')?.value" type="button" class="text-sm text-red-600 hover:text-red-800" (click)="clearVehiclePhoto(i)">Quitar foto</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -282,9 +289,9 @@
                   <input *ngIf="p.get('species')?.value === 'OTRO'" type="text" formControlName="species_other" class="input-field mt-2" placeholder="Escriba la especie" />
                 </div>
                 <div class="form-group"><label class="required">Nombre</label>
-                  <input type="text" formControlName="name" class="input-field" /></div>
+                  <input type="text" formControlName="name" class="input-field uppercase-input" (input)="toUpperCaseField(p.get('name'))" /></div>
                 <div class="form-group"><label>Raza</label>
-                  <input type="text" formControlName="breed" class="input-field" /></div>
+                  <input type="text" formControlName="breed" class="input-field uppercase-input" (input)="toUpperCaseField(p.get('breed'))" /></div>
                 <div class="form-group full-width">
                   <label class="required">Color</label>
                   <div class="color-dots">
@@ -297,7 +304,14 @@
                   <input type="number" formControlName="age_years" min="0" class="input-field" /></div>
                 <div class="form-group full-width">
                   <label>Foto de la mascota</label>
-                  <button type="button" class="btn-photo-placeholder" disabled><span class="photo-icon">📷</span> Subir o tomar foto (próximamente)</button>
+                  <input type="file" #petPhotoInput accept="image/jpeg,image/png,image/gif" (change)="onPetPhotoSelect(i, $event)" [attr.id]="'pet-photo-' + i" class="hidden" />
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <label [attr.for]="'pet-photo-' + i" class="btn-photo-placeholder cursor-pointer inline-flex items-center gap-2" [class.opacity-50]="uploadingPetIndex === i">
+                      <span class="photo-icon">📷</span>
+                      <span>{{ uploadingPetIndex === i ? 'Subiendo...' : (p.get('photo_url')?.value ? 'Foto cargada' : 'Subir o tomar foto') }}</span>
+                    </label>
+                    <button *ngIf="p.get('photo_url')?.value" type="button" class="text-sm text-red-600 hover:text-red-800" (click)="clearPetPhoto(i)">Quitar foto</button>
+                  </div>
                 </div>
               </div>
             </div>

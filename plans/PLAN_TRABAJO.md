@@ -27,10 +27,20 @@
 
 ## Estado actual – Completado
 
-### Backend (PHP)
+### Migración backend (hecha)
 
-- Controladores MVC para users, houses, vehicles, persons, external-vehicles, pets, access-logs, reservations.
-- Rutas centralizadas en `server/index.php`; JWT con `requireAuth()`.
+- **Conexión única**: `server/db_connection.php` (getDbConnection()); `Controller.php` ya no define su propia conexión.
+- **Auth**: AuthController – POST /api/v1/auth/login (sustituye getUser.php).
+- **Catálogos**: CatalogController – GET catalog/areas, catalog/salas, catalog/prioridad (desde access_points); stubs para collaborator, personal, payment-by-client, activities-by-user, machines, inc-pendientes, etc., que devuelven [] o null hasta tener datos en vc_db.
+- **Reportes en AccessLogController**: entrance-by-range, history-by-date, history-by-range, history-by-client; aforo, address, total-month, total-month-new, hours, age (sobre access_logs).
+- **Users/Persons**: UserController byDocNumber (GET users/by-doc-number); PersonController listByBirthday, destacados.
+- **Frontend**: auth.service → POST /api/v1/auth/login; users.service y access-log.service → api/v1/...; entrance.service → houses, vehicles, persons por casa a api/v1; resto a catalog/...
+- **Legacy eliminado**: ya no se cargan .php por nombre en index.php; eliminados get*.php, post*.php, update*.php, delete*.php, vc_db.php (56 archivos). Estructura: index.php + router.php, db_connection.php, controllers/, utils/, auth_middleware, token, sanitize, error-handler.
+
+### Backend (PHP) – estado actual
+
+- Controladores: Auth, User, Person, House, Vehicle, ExternalVehicle, Pet, AccessLog, Reservation, PublicRegistration, Catalog.
+- Rutas en `server/index.php`; JWT con `requireAuth()`; registro público sin auth.
 - UserController byBirthday con JOIN a houses (block_house, lot).
 
 ### Frontend (Angular) – Refactor integrado
@@ -52,6 +62,56 @@
 ### Base de datos (documentación)
 
 - [BASES_DE_DATOS.md](BASES_DE_DATOS.md) con vc_create_database.sql, vc_dev_data.sql, crearttech_clientes_schema.sql; DB_LICENSE_NAME=crearttech_clientes.
+
+---
+
+## Cómo seguimos con el proyecto
+
+Orden sugerido para los próximos sprints:
+
+### Fase 1 – Cerrar flujos clave (prioridad inmediata)
+
+1. **Formulario de registro público (sin login)**  
+   - UI completa por secciones (vivienda → propietario 1 → propietario 2 opcional → vehículos 1–3 → mascotas 1–2).  
+   - Llamada a RENIEC por DNI para autocompletar; envío final a `POST /api/v1/public/register`.  
+   - Ruta pública (ej. `/registro` o `/registro-propietario`) sin pasar por login.
+
+2. **Calendario y reservas**  
+   - Completar UI de reservas (Casa Club / Piscina): listado, creación, edición, estados.  
+   - Consumir `api/v1/reservations` (areas, availability, CRUD).
+
+3. **Mi Casa**  
+   - Dejar operativos residentes, inquilinos, visitas, vehículos, mascotas, vehículos externos por casa (datos desde api/v1).  
+   - Opcional: pestaña “Casa Club” en Mi Casa que enlace al calendario de reservas.
+
+4. **Dashboard Piscina / Aforo**  
+   - Pantalla de aforo en tiempo real usando access-logs y access-points (current_capacity, max_capacity).
+
+### Fase 2 – Pulir y datos
+
+5. **Subida de fotos**  
+   - Módulo de imágenes: vehículos, mascotas, foto de perfil.  
+   - Endpoints de upload y actualización de `photo_url` en BD (ya existen en pets; extender a vehicles y users).
+
+6. **Sustituir stubs del Catalog**  
+   - Cuando existan tablas o datos en vc_db para collaborator, payment-by-client, activities-by-user, etc., reemplazar en CatalogController la respuesta []/null por la lógica real.
+
+7. **Licencias / Pagos (Crearttech)**  
+   - API y UI para CRUD de clientes y períodos de licencia (tablas clients, payment en crearttech_clientes).  
+   - Opcional: quitar dependencia de bdLicense.php usando solo api/v1.
+
+### Fase 3 – Producción y seguridad
+
+8. **Seguridad**  
+   - CSRF en acciones sensibles; rate limiting en login y registro público; HTTPS en despliegue.
+
+9. **Calidad y documentación**  
+   - OpenAPI/Swagger; tests unitarios backend; loading states y retry en frontend; interfaces tipadas para respuestas.
+
+10. **Limpieza final**  
+    - Eliminar bd.php, bdEntrance.php, bdData.php y cualquier referencia a vc_entrance / vc_data cuando el frontend ya no los use.
+
+**Siguiente paso concreto:** Implementar la UI del formulario de registro público (Fase 1.1) y conectar RENIEC + `POST /api/v1/public/register`. El backend para ese flujo ya está listo.
 
 ---
 
@@ -138,3 +198,33 @@ stateDiagram-v2
 - **Más adelante**: Panel de suscripción para Crearttech (clientes, licencias, pagos) y para VC5 (información de suscripción).
 - **Propietario**: Se registra en tabla Users, no en persons; revisar flujo Persons vs Users.
 - **Formulario de registro**: Si una casa ya tiene propietario registrado, no debería aparecer en el desplegable; ir reduciendo opciones según registros existentes.
+- **Escaner QR**: PROMPT:
+Me lo estoy planteando así para la Versión 1 (MVP):
+
+Módulo de ingreso unificado (Scanner): será el “módulo central” que captura lecturas desde distintas fuentes y las envía al backend para detectar el tipo, validar, resolver la identidad y registrar el evento.
+
+Debe soportar:
+
+Lector USB tipo HID/keyboard wedge (principal): lectura confiable de código de barras y QR (según soporte del lector).
+
+Cámara del equipo host (secundaria): lectura solo de QR (en V1 no se incluye lectura de barras por cámara).
+
+Ingreso manual (fallback obligatorio): ingreso de documento o placa cuando el escaneo falle o no exista lector/cámara.
+
+Qué puede ingresar/identificar en V1:
+
+Documento (DNI u otro): puede corresponder a personas registradas o no registradas; si no existe en el sistema, debe permitir flujo de registro/validación según estatus.
+
+Placa de vehículo: si está registrada, se resuelve; si no está registrada, se permite registro rápido manual (sin OCR/LPR en V1).
+
+QR generado por el sistema: credenciales internas sin PII, basadas en token firmado, con dos modalidades:
+
+Permanente (credencial fija asociada a usuario/vehículo).
+
+Temporal/regenerable (con expiración y posibilidad de revocación; opcional “one-time use”).
+
+Generación de credenciales en la UI:
+
+Desde la vista del usuario/visita, el sistema debe permitir generar y mostrar un QR (y opcionalmente un código de barras si aplica), ya sea permanente o temporal/regenerable.
+
+Con esto busco un MVP confiable para portería: HID como entrada principal, cámara solo para QR y manual como respaldo, dejando OCR/LPR para una versión posterior.

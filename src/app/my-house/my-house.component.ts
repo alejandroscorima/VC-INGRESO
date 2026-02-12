@@ -102,9 +102,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
           },
         });
         this.entranceService.getAllExternalVehicles().subscribe({
-          next:( ev:ExternalVehicle[])=>{
-            this.externalVehicles=ev;
-          }
+          next: (res: unknown) => {
+            this.externalVehicles = Array.isArray(res) ? res : (res && (res as any).data ? (res as any).data : []);
+          },
+          error: () => { this.externalVehicles = []; }
         });
       },
       error:()=>{}

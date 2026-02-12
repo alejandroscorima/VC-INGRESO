@@ -9,6 +9,9 @@ vendor/
 .env
 .env.local
 
+# Archivos subidos (fotos vehículos/mascotas)
+uploads/
+
 # Angular build output
 /dist
 /dist*/

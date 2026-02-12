@@ -16,7 +16,7 @@ class ExternalVehicleController extends Controller {
      * Listar todos los vehículos externos
      */
     public function index($params = []) {
-        $visits = $this->getAll([], 'id DESC');
+        $visits = $this->getAll([], 'temp_visit_id DESC');
         Response::success($visits, 'Vehículos externos obtenidos correctamente');
     }
     
@@ -30,7 +30,7 @@ class ExternalVehicleController extends Controller {
             Response::error('ID requerido', 400);
         }
         
-        $visit = $this->findById($id, 'id');
+        $visit = $this->findById($id, 'temp_visit_id');
         
         if (!$visit) {
             Response::notFound('Vehículo externo no encontrado');
@@ -64,7 +64,7 @@ class ExternalVehicleController extends Controller {
         }
         
         $id = $this->create($filtered);
-        $visit = $this->findById($id, 'id');
+        $visit = $this->findById($id, 'temp_visit_id');
         
         Response::created($visit, 'Vehículo externo creado correctamente');
     }
@@ -79,7 +79,7 @@ class ExternalVehicleController extends Controller {
             Response::error('ID requerido', 400);
         }
         
-        $visit = $this->findById($id, 'id');
+        $visit = $this->findById($id, 'temp_visit_id');
         if (!$visit) {
             Response::notFound('Vehículo externo no encontrado');
         }
@@ -100,8 +100,8 @@ class ExternalVehicleController extends Controller {
             Response::error('No hay datos para actualizar', 400);
         }
         
-        parent::update($id, $filtered, 'id');
-        $visit = $this->findById($id, 'id');
+        parent::update($id, $filtered, 'temp_visit_id');
+        $visit = $this->findById($id, 'temp_visit_id');
         
         Response::success($visit, 'Vehículo externo actualizado correctamente');
     }
@@ -116,12 +116,12 @@ class ExternalVehicleController extends Controller {
             Response::error('ID requerido', 400);
         }
         
-        $visit = $this->findById($id, 'id');
+        $visit = $this->findById($id, 'temp_visit_id');
         if (!$visit) {
             Response::notFound('Vehículo externo no encontrado');
         }
         
-        $this->delete($id, 'id');
+        $this->delete($id, 'temp_visit_id');
         
         Response::success(null, 'Vehículo externo eliminado correctamente');
     }

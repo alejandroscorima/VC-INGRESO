@@ -5,6 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { EntranceService } from '../entrance.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { ToastrService } from 'ngx-toastr';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-vehicles',
@@ -27,22 +28,33 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   externalVehicleToEdit: ExternalVehicle = new ExternalVehicle('','','','','','','','');
   temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
 
+  showViewPhotoDialog = false;
+  viewPhotoUrl: string | null = null;
+  viewPhotoTitle = '';
+
   constructor(
     private entranceService: EntranceService,
     private toastr: ToastrService,
+    private api: ApiService,
   ){}
 
   ngOnInit(): void {
     this.entranceService.getAllVehicles().subscribe({
-      next: (res: any[]) => { this.vehicles = res; },
+      next: (res: any) => {
+        this.vehicles = Array.isArray(res) ? res : (res?.data ?? []);
+      },
       error: (err) => { console.error('Error obteniendo vehículos:', err); }
     });
     this.entranceService.getAllHouses().subscribe({
-      next: (res: any[]) => { this.houses = res; },
+      next: (res: any) => {
+        this.houses = Array.isArray(res) ? res : (res?.data ?? []);
+      },
       error: (err) => { console.error('Error obteniendo casas:', err); }
     });
     this.entranceService.getAllExternalVehicles().subscribe({
-      next: (res: any[]) => { this.externalVehicles = res; },
+      next: (res: any) => {
+        this.externalVehicles = Array.isArray(res) ? res : (res?.data ?? []);
+      },
       error: (err) => { console.error('Error obteniendo vehículos externos:', err); }
     });
   }
@@ -64,6 +76,17 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   editVehicle(vehicle:Vehicle){
     this.vehicleToEdit = vehicle;
     document.getElementById('edit-vehicle-button')?.click();
+  }
+
+  openViewPhoto(vehicle: Vehicle): void {
+    this.viewPhotoUrl = this.api.getPhotoUrl(vehicle.photo_url!);
+    this.viewPhotoTitle = vehicle.license_plate ? `Vehículo ${vehicle.license_plate}` : 'Foto';
+    this.showViewPhotoDialog = true;
+  }
+
+  closeViewPhoto(): void {
+    this.showViewPhotoDialog = false;
+    this.viewPhotoUrl = null;
   }
 
   saveEditVehicle(){

@@ -62,6 +62,25 @@ class UserController extends Controller {
         if (!$user) {
             Response::notFound('Usuario no encontrado');
         }
+
+        // Añadir block_house, lot, apartment de la vivienda principal (side-nav / nav-bar).
+        $houseId = !empty($user->house_id) ? (int) $user->house_id : null;
+        if (!$houseId && !empty($user->person_id)) {
+            $stmtHm = $this->db->prepare("SELECT house_id FROM house_members WHERE person_id = ? AND COALESCE(is_active, 1) = 1 ORDER BY is_primary DESC, id ASC LIMIT 1");
+            $stmtHm->execute([$user->person_id]);
+            $row = $stmtHm->fetch(\PDO::FETCH_OBJ);
+            $houseId = $row ? (int) $row->house_id : null;
+        }
+        if ($houseId) {
+            $stmtH = $this->db->prepare("SELECT block_house, lot, apartment FROM houses WHERE house_id = ? LIMIT 1");
+            $stmtH->execute([$houseId]);
+            $h = $stmtH->fetch(\PDO::FETCH_OBJ);
+            if ($h) {
+                $user->block_house = $h->block_house;
+                $user->lot = $h->lot;
+                $user->apartment = $h->apartment;
+            }
+        }
         
         Response::success($user);
     }
@@ -323,6 +342,37 @@ class UserController extends Controller {
         
         $users = $stmt->fetchAll(\PDO::FETCH_OBJ);
         Response::success($users);
+    }
+
+    /**
+     * POST /api/v1/users/me/photo
+     * Subir foto de perfil del usuario autenticado. Body: multipart/form-data con campo "photo".
+     * Actualiza persons.photo_url y devuelve el usuario con la nueva photo_url.
+     */
+    public function uploadProfilePhoto($params = []) {
+        $payload = requireAuth();
+        $userId = isset($payload['user_id']) ? (int) $payload['user_id'] : null;
+        if (!$userId) {
+            Response::error('Usuario no identificado', 401);
+        }
+        $user = $this->findById($userId, 'user_id');
+        if (!$user || empty($user->person_id)) {
+            Response::error('Usuario o persona no encontrada', 404);
+        }
+        require_once __DIR__ . '/../helpers/upload_storage.php';
+        $result = storePublicPhoto($_FILES['photo'] ?? null, 'profiles');
+        if (!$result['success']) {
+            Response::error($result['error'] ?? 'Error al subir la imagen', 400);
+        }
+        $stmt = $this->db->prepare("UPDATE persons SET photo_url = ? WHERE id = ?");
+        $stmt->execute([$result['photo_url'], $user->person_id]);
+        $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id, u.status_validated, u.status_reason, u.status_system, u.is_active,
+                       p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname, p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status, p.address, p.district, p.province, p.region
+                FROM users u LEFT JOIN persons p ON u.person_id = p.id WHERE u.user_id = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId]);
+        $updated = $stmt->fetch(\PDO::FETCH_OBJ);
+        Response::success($updated, 'Foto de perfil actualizada');
     }
 }
 

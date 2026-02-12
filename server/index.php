@@ -74,6 +74,20 @@ require_once __DIR__ . '/sanitize.php';
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Servir archivos subidos (fotos) en GET /uploads/... (desde server/uploads/)
+if ($method === 'GET' && str_starts_with($uri, '/uploads/')) {
+    $filePath = __DIR__ . $uri;
+    if (is_file($filePath) && is_readable($filePath)) {
+        $mime = mime_content_type($filePath);
+        if (str_starts_with($mime, 'image/')) {
+            header('Content-Type: ' . $mime);
+            header('Cache-Control: public, max-age=86400');
+            readfile($filePath);
+            exit;
+        }
+    }
+}
+
 // API v1 Routes
 if (str_starts_with($uri, '/api/v1/')) {
     $path = substr($uri, strlen('/api/v1/'));
@@ -122,12 +136,29 @@ if (str_starts_with($uri, '/api/v1/')) {
             $controller->listHouses();
             exit;
         }
+        if ($path === 'public/check-doc' && $method === 'GET') {
+            $controller->checkDoc();
+            exit;
+        }
+        if ($path === 'public/upload/vehicle-photo' && $method === 'POST') {
+            $controller->uploadVehiclePhoto();
+            exit;
+        }
+        if ($path === 'public/upload/pet-photo' && $method === 'POST') {
+            $controller->uploadPetPhoto();
+            exit;
+        }
     }
 
     // ==================== USERS ====================
     if (str_starts_with($path, 'users')) {
         require_once __DIR__ . '/controllers/UserController.php';
         $controller = new \Controllers\UserController();
+        
+        if ($path === 'users/me/photo' && $method === 'POST') {
+            $controller->uploadProfilePhoto();
+            exit;
+        }
         
         if (str_contains($path, 'from-person') && $method === 'POST') {
             $controller->createFromPerson();
@@ -562,12 +593,16 @@ echo json_encode([
     'available_routes' => [
             // Registro público (sin auth)
             'POST /api/v1/public/register' => 'Registro público: vivienda + propietarios + vehículos + mascotas',
+            'GET /api/v1/public/houses' => 'Listar casas sin propietario (desplegables)',
+            'POST /api/v1/public/upload/vehicle-photo' => 'Subir foto de vehículo (multipart)',
+            'POST /api/v1/public/upload/pet-photo' => 'Subir foto de mascota (multipart)',
             // Users
             'GET /api/v1/users' => 'Listar todos los usuarios',
             'GET /api/v1/users/:id' => 'Obtener usuario por ID',
             'POST /api/v1/users' => 'Crear usuario',
             'PUT /api/v1/users/:id' => 'Actualizar usuario',
             'DELETE /api/v1/users/:id' => 'Eliminar usuario',
+            'POST /api/v1/users/me/photo' => 'Subir foto de perfil (auth, multipart)',
             'GET /api/v1/users/by-birthday?fecha_cumple=MM-DD' => 'Usuarios por cumpleaños',
             
             // Houses

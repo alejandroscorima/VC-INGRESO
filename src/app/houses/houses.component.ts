@@ -23,11 +23,10 @@ export class HousesComponent implements OnInit, AfterViewInit{
 
   ngOnInit(){
 
-    this.entranceService.getAllHouses().subscribe((res:any[])=>{
-      if(res){
-        this.houses=res;
-      }
-    })
+    this.entranceService.getAllHouses().subscribe((res: any) => {
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      this.houses = list;
+    });
 
   }
 

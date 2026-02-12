@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Pet, PET_SPECIES, PET_STATUS } from '../pet';
+import { ApiService } from '../api.service';
 import { PetsService } from '../pets.service';
 import { UsersService } from '../users.service';
 import { User } from '../user';
@@ -35,13 +36,17 @@ export class PetsComponent implements OnInit {
   showAddDialog = false;
   showEditDialog = false;
   showPhotoDialog = false;
-  
+  showViewPhotoDialog = false;
+  viewPhotoUrl: string | null = null;
+  viewPhotoTitle = '';
+
   newPet: Partial<Pet> = { status_validated: 'PERMITIDO' };
   editPet: Pet | null = null;
   selectedPet: Pet | null = null;
   currentPhotoPet: Pet | null = null;
 
   constructor(
+    private api: ApiService,
     private petsService: PetsService,
     private usersService: UsersService,
     private entranceService: EntranceService,
@@ -55,6 +60,11 @@ export class PetsComponent implements OnInit {
     this.loadPets();
     this.loadHouses();
     this.loadOwners();
+  }
+
+  /** URL completa para mostrar la foto de la mascota (desde el servidor o API). */
+  getPhotoUrl(url: string | null | undefined): string | null {
+    return this.api.getPhotoUrl(url);
   }
 
   loadHouses(): void {
@@ -123,6 +133,17 @@ export class PetsComponent implements OnInit {
   openPhotoDialog(pet: Pet): void {
     this.currentPhotoPet = pet;
     this.showPhotoDialog = true;
+  }
+
+  openViewPhoto(pet: Pet): void {
+    this.viewPhotoUrl = this.api.getPhotoUrl(pet.photo_url);
+    this.viewPhotoTitle = pet.name || 'Foto';
+    this.showViewPhotoDialog = true;
+  }
+
+  closeViewPhoto(): void {
+    this.showViewPhotoDialog = false;
+    this.viewPhotoUrl = null;
   }
 
   createPet(): void {

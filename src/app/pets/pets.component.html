@@ -20,7 +20,7 @@
         <th mat-header-cell *matHeaderCellDef>Foto</th>
         <td mat-cell *matCellDef="let pet">
           <div class="pet-photo">
-            <img *ngIf="pet.photo_url" [src]="pet.photo_url" [alt]="pet.name">
+            <img *ngIf="getPhotoUrl(pet.photo_url) as photoUrl" [src]="photoUrl" [alt]="pet.name">
             <mat-icon *ngIf="!pet.photo_url">pets</mat-icon>
           </div>
         </td>
@@ -78,6 +78,9 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Acciones</th>
         <td mat-cell *matCellDef="let pet">
+          <button *ngIf="pet.photo_url" mat-icon-button (click)="openViewPhoto(pet)" matTooltip="Ver foto">
+            <mat-icon>visibility</mat-icon>
+          </button>
           <button mat-icon-button color="primary" (click)="openPhotoDialog(pet)" matTooltip="Tomar foto">
             <mat-icon>photo_camera</mat-icon>
           </button>
@@ -216,3 +219,14 @@
     <button mat-button mat-dialog-close>Cerrar</button>
   </mat-dialog-actions>
 </ng-template>
+
+<!-- Modal ver foto -->
+<div *ngIf="showViewPhotoDialog" class="photo-view-overlay" (click)="closeViewPhoto()">
+  <div class="photo-view-modal" (click)="$event.stopPropagation()">
+    <div class="photo-view-header">
+      <h3>{{ viewPhotoTitle }}</h3>
+      <button mat-icon-button (click)="closeViewPhoto()"><mat-icon>close</mat-icon></button>
+    </div>
+    <img *ngIf="viewPhotoUrl" [src]="viewPhotoUrl" [alt]="viewPhotoTitle" class="photo-view-img" />
+  </div>
+</div>

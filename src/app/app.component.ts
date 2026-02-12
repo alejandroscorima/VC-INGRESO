@@ -10,6 +10,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Payment } from './payment';
 import { ToastrService } from 'ngx-toastr';
 import { Collaborator } from './collaborator';
+import { ApiService } from './api.service';
 
 import { initFlowbite } from 'flowbite';
 
@@ -42,11 +43,13 @@ export class AppComponent implements OnInit {
   @ViewChild("table1") table: ElementRef;
 
 
-  constructor(private router: Router,
-    private auth: AuthService,
+  constructor(
+    private router: Router,
+    protected auth: AuthService,
     private usersService: UsersService,
     private entranceService: EntranceService,
-    private toastr: ToastrService,
+    protected toastr: ToastrService,
+    protected api: ApiService,
   ){}
 
   logout(){
@@ -80,7 +83,7 @@ export class AppComponent implements OnInit {
     }
 
     this.usersService.getPaymentByClientId(1).subscribe((resPay: Payment) => {
-      if (resPay.error) {
+      if (resPay?.error) {
         this.handleLicenseError(resPay.error);
       } else {
         const existing = this.auth.getUser();
@@ -131,11 +134,14 @@ export class AppComponent implements OnInit {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  /** URL del avatar del usuario: photo_url si existe y es válida, o asset por género. */
+  /** URL del avatar del usuario: photo_url (con baseUrl si es ruta) si existe, o asset por género. */
   getUserAvatarUrl(user: User | null): string {
     if (!user) return 'assets/user-male.png';
     const url = (user as any).photo_url;
-    if (url && typeof url === 'string' && url.trim().length > 0) return url;
+    if (url && typeof url === 'string' && url.trim().length > 0) {
+      const full = this.api.getPhotoUrl(url);
+      return full || 'assets/user-male.png';
+    }
     const g = ((user as any).gender || '').toString().toUpperCase();
     return (g === 'FEMENINO' || g === 'F') ? 'assets/user-female.png' : 'assets/user-male.png';
   }
@@ -150,11 +156,13 @@ export class AppComponent implements OnInit {
     return parts.length ? parts.join(' ') : '—';
   }
 
-  /** Domicilio Mz/Lt para mostrar (maneja undefined). */
+  /** Domicilio Mz/Lt (y Dpto si aplica) para mostrar en side-nav y nav-bar. */
   getUserDomicilio(user: User | null): string {
     if (!user) return '—';
     const mz = (user as any).block_house ?? '—';
     const lt = (user as any).lot ?? '—';
-    return `Mz:${mz} Lt:${lt}`;
+    const apt = (user as any).apartment;
+    const base = `Mz:${mz} Lt:${lt}`;
+    return apt != null && String(apt).trim() !== '' ? `${base} Dpto:${apt}` : base;
   }
 }

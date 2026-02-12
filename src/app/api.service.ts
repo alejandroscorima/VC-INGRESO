@@ -90,6 +90,30 @@ export class ApiService {
   }
 
   /**
+   * Subir foto de perfil del usuario autenticado (POST multipart).
+   * Requiere token. Devuelve { success, data: usuario actualizado }.
+   */
+  uploadProfilePhoto(file: File): Observable<ApiResponse<any>> {
+    const form = new FormData();
+    form.append('photo', file);
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/v1/users/me/photo`, form).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Devuelve la URL completa para mostrar una foto (vehículo, mascota, perfil, etc.).
+   * Si la URL ya es absoluta (http/https), la devuelve tal cual; si es ruta relativa (ej. /uploads/...), le antepone la baseUrl del API.
+   */
+  getPhotoUrl(url: string | null | undefined): string | null {
+    if (!url || typeof url !== 'string') return null;
+    const u = url.trim();
+    if (u.startsWith('http://') || u.startsWith('https://')) return u;
+    const base = this.baseUrl.replace(/\/$/, '');
+    return u.startsWith('/') ? `${base}${u}` : `${base}/${u}`;
+  }
+
+  /**
    * Manejo centralizado de errores
    */
   private handleError(error: any): Observable<never> {

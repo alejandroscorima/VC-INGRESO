@@ -37,8 +37,13 @@ RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/Allo
 WORKDIR /var/www/html
 COPY server/ ./
 
+# Entrypoint: crea uploads/public/{vehicles,pets} y asigna permisos (para volumen en Docker)
+COPY server/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Permissions
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["apache2-foreground"]

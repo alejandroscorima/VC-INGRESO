@@ -45,15 +45,14 @@ export class UsersComponent implements OnInit, AfterViewInit{
   ){}
 
   ngOnInit(){
-    this.usersService.getAllUsers().subscribe(
-      (res:any[])=>{
-        this.users=res;
-    },)
-    this.entranceService.getAllHouses().subscribe((resHouses:any[])=>{
-      if(resHouses){
-        this.houses=resHouses;
-      }
-    })
+    this.usersService.getAllUsers().subscribe((res: any) => {
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      this.users = list;
+    });
+    this.entranceService.getAllHouses().subscribe((resHouses: any) => {
+      const list = Array.isArray(resHouses) ? resHouses : (resHouses?.data ?? []);
+      this.houses = list;
+    });
   }
 
   ngAfterViewInit(){

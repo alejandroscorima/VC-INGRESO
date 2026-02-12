@@ -1,9 +1,10 @@
-
 <app-nav-bar *ngIf=logged></app-nav-bar>
 
 <app-side-nav *ngIf=logged></app-side-nav>
 
-<router-outlet *ngIf=true>  </router-outlet>
+<main [ngClass]="logged ? 'pt-14 sm:ml-64 min-h-screen bg-gray-50 dark:bg-gray-900' : 'min-h-screen'" aria-label="Contenido principal">
+  <router-outlet></router-outlet>
+</main>
 
 <!--CONTENIDO DEL DROPDOWN DE FLOWBITE-->
 <button id="dropdownToggle" data-dropdown-toggle="dropdown" aria-expanded="false">

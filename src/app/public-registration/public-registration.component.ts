@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import {
@@ -13,6 +13,7 @@ import {
   ReniecDniData,
   HouseFromApi
 } from './public-registration.service';
+import { switchMap, of } from 'rxjs';
 
 const DOC_TYPES = ['DNI', 'CE', 'Otros'];
 /** Estado civil (guardado en mayúsculas en BD, alineado con apidev/Nuevo Residente) */
@@ -87,6 +88,10 @@ export class PublicRegistrationComponent implements OnInit {
   mainForm: FormGroup;
   loadingDni = false;
   submitting = false;
+  /** Índice del vehículo cuya foto se está subiendo (-1 = ninguno) */
+  uploadingVehicleIndex: number = -1;
+  /** Índice de la mascota cuya foto se está subiendo (-1 = ninguna) */
+  uploadingPetIndex: number = -1;
 
   constructor(
     private fb: FormBuilder,
@@ -351,6 +356,85 @@ export class PublicRegistrationComponent implements OnInit {
     this.pets.removeAt(i);
   }
 
+  /** Sube la foto del vehículo en el índice i y asigna la URL al formulario. */
+  onVehiclePhotoSelect(vehicleIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+    this.uploadingVehicleIndex = vehicleIndex;
+    this.publicReg.uploadVehiclePhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingVehicleIndex = -1;
+        if (res.success && res.photo_url) {
+          const g = this.vehicles.at(vehicleIndex) as FormGroup;
+          g.patchValue({ photo_url: res.photo_url });
+          this.toastr.success('Foto del vehículo cargada.');
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingVehicleIndex = -1;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
+
+  /** Sube la foto de la mascota en el índice i y asigna la URL al formulario. */
+  onPetPhotoSelect(petIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+    this.uploadingPetIndex = petIndex;
+    this.publicReg.uploadPetPhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingPetIndex = -1;
+        if (res.success && res.photo_url) {
+          const g = this.pets.at(petIndex) as FormGroup;
+          g.patchValue({ photo_url: res.photo_url });
+          this.toastr.success('Foto de la mascota cargada.');
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingPetIndex = -1;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
+
+  /** Quita la foto del vehículo en el índice i. */
+  clearVehiclePhoto(vehicleIndex: number): void {
+    const g = this.vehicles.at(vehicleIndex) as FormGroup;
+    g.patchValue({ photo_url: null });
+  }
+
+  /** Quita la foto de la mascota en el índice i. */
+  clearPetPhoto(petIndex: number): void {
+    const g = this.pets.at(petIndex) as FormGroup;
+    g.patchValue({ photo_url: null });
+  }
+
+  /** Convierte el valor del control a mayúsculas (para placa, marca, modelo, nombre mascota, raza). */
+  toUpperCaseField(control: AbstractControl | null): void {
+    if (!control) return;
+    const v = control.value;
+    if (v != null && typeof v === 'string') {
+      control.setValue(v.toUpperCase(), { emitEvent: false });
+    }
+  }
+
   /** Consulta DNI y rellena el owner en el índice indicado (0 o 1). */
   fetchDni(ownerIndex: number): void {
     const group = this.owners.at(ownerIndex) as FormGroup;
@@ -364,8 +448,18 @@ export class PublicRegistrationComponent implements OnInit {
       return;
     }
     this.loadingDni = true;
-    this.publicReg.getDniData(doc).subscribe({
+    this.publicReg.checkDocRegistered(doc).pipe(
+      switchMap(registered => {
+        if (registered) {
+          this.loadingDni = false;
+          this.toastr.warning('Este DNI ya está registrado.');
+          return of(null);
+        }
+        return this.publicReg.getDniData(doc);
+      })
+    ).subscribe({
       next: (data: ReniecDniData | null) => {
+        if (data == null) return;
         this.loadingDni = false;
         if (data) {
           const sexToGender = (s: string) => (s === 'M' || s === 'F' ? s : (s === 'MASCULINO' ? 'M' : s === 'FEMENINO' ? 'F' : s || null));
@@ -513,17 +607,77 @@ export class PublicRegistrationComponent implements OnInit {
     };
   }
 
+  /** Normaliza documento para comparar (trim, sin espacios extra). */
+  private normalizedDoc(g: FormGroup): string {
+    const v = g.value;
+    return String(v?.doc_number ?? '').trim();
+  }
+
+  /** Detecta si hay propietarios duplicados (mismo DNI en 1 y 2). */
+  private hasDuplicateOwners(): boolean {
+    if (!this.hasSecondOwner) return false;
+    const d1 = this.normalizedDoc(this.owner1);
+    const d2 = this.normalizedDoc(this.owner2);
+    return d1 !== '' && d2 !== '' && d1 === d2;
+  }
+
+  /** Detecta si hay vehículos duplicados (misma placa en la lista). */
+  private hasDuplicateVehicles(): boolean {
+    if (!this.wantVehicles || this.vehicles.length < 2) return false;
+    const plates = this.vehicles.controls.map(c => {
+      const v = (c as FormGroup).value;
+      return String(v?.license_plate ?? '').trim().toUpperCase();
+    });
+    const seen = new Set<string>();
+    for (const p of plates) {
+      if (p === '') continue;
+      if (seen.has(p)) return true;
+      seen.add(p);
+    }
+    return false;
+  }
+
+  /** Detecta si hay mascotas duplicadas (misma especie + nombre). */
+  private hasDuplicatePets(): boolean {
+    if (!this.wantPets || this.pets.length < 2) return false;
+    const keys = this.pets.controls.map(c => {
+      const v = (c as FormGroup).value;
+      const species = String(v?.species ?? '').trim().toUpperCase();
+      const name = String(v?.name ?? '').trim().toUpperCase();
+      return species + '|' + name;
+    });
+    const seen = new Set<string>();
+    for (const k of keys) {
+      if (k === '|') continue;
+      if (seen.has(k)) return true;
+      seen.add(k);
+    }
+    return false;
+  }
+
   submit(): void {
     if (!this.canProceedSection1() || (this.hasSecondOwner && !this.canProceedSection2())) {
       this.toastr.error('Complete los datos obligatorios de propietarios y vivienda.');
+      return;
+    }
+    if (this.hasDuplicateOwners()) {
+      this.toastr.error('No puede registrar el mismo propietario dos veces. Los dos titulares deben tener DNI diferente.');
       return;
     }
     if (this.wantVehicles && this.vehicles.length === 0) {
       this.toastr.error('Agregue al menos un vehículo o seleccione "No" en registrar vehículos.');
       return;
     }
+    if (this.hasDuplicateVehicles()) {
+      this.toastr.error('Hay vehículos duplicados. Cada vehículo debe tener una placa distinta.');
+      return;
+    }
     if (this.wantPets && this.pets.length === 0) {
       this.toastr.error('Agregue al menos una mascota o seleccione "No" en registrar mascotas.');
+      return;
+    }
+    if (this.hasDuplicatePets()) {
+      this.toastr.error('Hay mascotas duplicadas. Cada mascota debe tener especie y nombre distintos.');
       return;
     }
     const payload = this.buildPayload();
@@ -547,8 +701,31 @@ export class PublicRegistrationComponent implements OnInit {
       },
       error: err => {
         this.submitting = false;
-        this.toastr.error(err?.error?.error || err?.message || 'Error al enviar el registro');
+        const msg = this.getRegisterErrorMessage(err);
+        this.toastr.error(msg);
       }
     });
+  }
+
+  /** Mensaje corto y claro según el error del backend. */
+  private getRegisterErrorMessage(err: any): string {
+    const body = err?.error;
+    const text = (body?.error ?? body?.message ?? err?.message ?? '').toString();
+    const status = err?.status;
+    if (status === 409 || /ya existe.*persona|persona con documento|documento.*registrado/i.test(text)) {
+      return 'Este DNI ya está registrado. No se puede registrar al mismo propietario dos veces.';
+    }
+    if (/ya existe.*vehículo|vehículo con la placa/i.test(text)) {
+      return 'Ya existe un vehículo con esa placa. Use otra placa o verifique en el sistema.';
+    }
+    if (status === 400 && text) {
+      if (/propietario duplicado|mismo DNI.*titular/i.test(text)) return 'No puede registrar el mismo propietario dos veces. Los dos titulares deben tener DNI diferente.';
+      if (/vehículo duplicado|misma placa/i.test(text)) return 'Hay vehículos duplicados. Cada vehículo debe tener una placa distinta.';
+      if (/mascota duplicada|misma mascota/i.test(text)) return 'Hay mascotas duplicadas. Cada mascota debe tener especie y nombre distintos.';
+      if (/propietario|doc_number|first_name|obligatorio/i.test(text)) return 'Faltan datos obligatorios. Revise el formulario.';
+      return text.length > 60 ? 'Datos incorrectos. Revise el formulario.' : text;
+    }
+    if (status === 404) return 'No se encontró la vivienda seleccionada.';
+    return 'Error desconocido. Intente de nuevo o contacte soporte.';
   }
 }

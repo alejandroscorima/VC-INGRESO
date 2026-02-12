@@ -128,6 +128,45 @@ export class PublicRegistrationService {
   }
 
   /**
+   * Sube una foto de vehículo. POST multipart/form-data, campo "photo".
+   * Devuelve la URL que debe enviarse en photo_url del vehículo en el registro.
+   */
+  uploadVehiclePhoto(file: File): Observable<{ success: boolean; photo_url?: string; error?: string }> {
+    const formData = new FormData();
+    formData.append('photo', file, file.name);
+    return this.http.post<{ success: boolean; photo_url?: string; error?: string }>(
+      `${this.apiBase}/api/v1/public/upload/vehicle-photo`,
+      formData
+    );
+  }
+
+  /**
+   * Sube una foto de mascota. POST multipart/form-data, campo "photo".
+   * Devuelve la URL que debe enviarse en photo_url de la mascota en el registro.
+   */
+  uploadPetPhoto(file: File): Observable<{ success: boolean; photo_url?: string; error?: string }> {
+    const formData = new FormData();
+    formData.append('photo', file, file.name);
+    return this.http.post<{ success: boolean; photo_url?: string; error?: string }>(
+      `${this.apiBase}/api/v1/public/upload/pet-photo`,
+      formData
+    );
+  }
+
+  /**
+   * Comprueba si un DNI ya está registrado en el sistema (evita consultas repetidas a apidev y detecta duplicados).
+   * GET /api/v1/public/check-doc (siempre 200, sin 404).
+   */
+  checkDocRegistered(docNumber: string): Observable<boolean> {
+    const num = (docNumber || '').trim();
+    if (!num) return of(false);
+    return this.api.getRaw('api/v1/public/check-doc', { doc_number: num }).pipe(
+      map((res: any) => res?.registered === true),
+      catchError(() => of(false))
+    );
+  }
+
+  /**
    * Consulta datos por DNI en la API externa.
    * Rellena first_name, paternal_surname, maternal_surname (y doc_number).
    */

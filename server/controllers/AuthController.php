@@ -94,6 +94,23 @@ class AuthController
 
         unset($user->password_system);
 
+        // Fusionar datos de person en user para que el frontend tenga photo_url, first_name, etc. en un solo objeto (persistencia de foto de perfil al re-login).
+        if ($person) {
+            foreach (get_object_vars($person) as $key => $value) {
+                if (!isset($user->{$key})) {
+                    $user->{$key} = $value;
+                }
+            }
+        }
+
+        // Añadir manzana, lote y departamento de la vivienda principal para side-nav y nav-bar (getUserDomicilio).
+        $primaryHouse = $my_houses[0] ?? null;
+        if ($primaryHouse) {
+            $user->block_house = $primaryHouse->block_house ?? null;
+            $user->lot = $primaryHouse->lot ?? null;
+            $user->apartment = $primaryHouse->apartment ?? null;
+        }
+
         $tokenPayload = [
             'user_id' => $user->user_id,
             'role_system' => $user->role_system,

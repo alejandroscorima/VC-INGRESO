@@ -72,7 +72,19 @@ Para el formulario de registro de propietarios (sin pasar por login).
 - **vehicles**: array opcional. Cada item requiere `license_plate`; opcionales: `type_vehicle`, `brand`, `color`, `photo_url`.
 - **pets**: array opcional. Cada item requiere `name` y `species` (PERRO | GATO | AVE | OTRO); opcionales: `breed`, `color`, `age_years`, `photo_url`.
 
-**Respuesta 201:** `{ "success": true, "data": { "house_id", "person_ids", "vehicle_ids", "pet_ids" }, "message": "..." }`.
+**Respuesta 201:** `{ "success": true, "data": { "house_id", "person_ids", "vehicle_ids", "pet_ids", "created_users" }, "message": "..." }`.
+
+**Subida de fotos (registro público):** Para incluir `photo_url` en vehículos o mascotas, primero subir la imagen con los endpoints siguientes y luego enviar la URL devuelta en el payload de `POST /api/v1/public/register`.
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | /api/v1/public/upload/vehicle-photo | No | Sube una foto de vehículo. Body: `multipart/form-data`, campo **photo** (archivo). Máx. 5 MB; formatos: JPG, PNG, GIF. |
+| POST | /api/v1/public/upload/pet-photo | No | Sube una foto de mascota. Mismo formato que vehicle-photo. |
+
+**Respuesta 200:** `{ "success": true, "photo_url": "/uploads/public/vehicles/xxx.jpg" }` (o `.../pets/xxx.jpg`).  
+**Errores 400:** `{ "success": false, "error": "No se ha subido ninguna imagen" }`, `"Formato no permitido..."`, `"El archivo no debe superar 5 MB."`, etc.
+
+Las URLs devueltas deben servirse como estáticos (proxy o alias `/uploads` en el servidor) para poder mostrar las imágenes en el sistema tras el login.
 
 **RENIEC:** La consulta por DNI para autocompletar (nombre, apellidos, etc.) se hace desde el frontend a la API externa; el endpoint de registro solo recibe los datos ya completos. Ver sección [API RENIEC (consulta por DNI)](#api-reniec-consulta-por-dni) más abajo.
 
@@ -140,6 +152,7 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 | POST | /api/v1/users | Crear usuario (body JSON) |
 | PUT | /api/v1/users/:id | Actualizar usuario |
 | DELETE | /api/v1/users/:id | Eliminar usuario |
+| POST | /api/v1/users/me/photo | **Auth.** Subir foto de perfil. Body: `multipart/form-data`, campo **photo**. Respuesta: usuario actualizado con `photo_url`. |
 | GET | /api/v1/users/by-birthday?fecha_cumple=MM-DD | Usuarios con cumpleaños ese día (incl. block_house, lot) |
 
 ---

@@ -1,23 +1,25 @@
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full border-r border-y-white sm:translate-x-0
- bg-white dark:bg-gray-800 dark:border-blue-500 overflow-y-scroll" aria-label="Sidebar">
-  <div class="h-full px-3 pb-4  dark:bg-gray-800 ">
+<input type="file" id="profile-photo-input" accept="image/jpeg,image/png,image/gif" (change)="onProfilePhotoChange($event)" class="hidden" />
 
-    <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-blue-500">
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-30 w-64 h-screen pt-20 transition-transform -translate-x-full border-r border-gray-200 sm:translate-x-0
+ bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-auto" aria-label="Sidebar" tabindex="-1">
+  <div class="h-full px-3 pb-4 dark:bg-gray-800">
+
+    <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <div class="flex justify-end px-4 pt-4">
         <button id="dropdownButton" data-dropdown-toggle="dropdown" 
-        class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100
-        dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200
-        dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button">
+        class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button" aria-expanded="false">
             <span class="sr-only">Open dropdown</span>
             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
-                <path
-                d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
             </svg>
         </button>
       </div>
       <div class="flex flex-col items-center pb-10">
-        <img class="w-24 h-24 mb-3 rounded-full shadow-lg" [src]="getUserAvatarUrl(user)" alt="Usuario"/>
-        <h5 class="mb-1 text-l font-medium text-center text-gray-900 dark:text-white">{{getUserDisplayName(user)}}</h5>
+        <button type="button" (click)="onProfilePhotoClick()" [disabled]="uploadingPhoto" class="relative rounded-full focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" title="Cambiar foto de perfil">
+          <img class="w-24 h-24 rounded-full shadow-lg object-cover" [src]="getUserAvatarUrl(user)" alt="Usuario"/>
+          <span *ngIf="uploadingPhoto" class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 text-white text-xs">...</span>
+        </button>
+        <h5 class="mb-1 text-l font-medium text-center text-gray-900 dark:text-white mt-2">{{getUserDisplayName(user)}}</h5>
         <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user?.role_system ?? '—'}}</span>
         <span *ngIf="user?.property_category" class="text-sm text-center text-gray-500 dark:text-gray-400">{{user.property_category}}</span>
         <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{getUserDomicilio(user)}}</span>
