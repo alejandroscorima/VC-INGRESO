@@ -1,65 +1,292 @@
-<div class="p-4 dark:bg-gray-900 min-h-screen">
-  <div class="p-4 mt-14 border border-gray-200 rounded-lg dark:border-gray-700">
-    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Dashboard</h1>
-
-    <!-- Accesos rápidos -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <a routerLink="/history" class="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700">
-        <mat-icon class="text-3xl mr-3 text-amber-600">history</mat-icon>
-        <div>
-          <span class="font-medium text-gray-900 dark:text-white">Historial</span>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Ver ingresos y egresos</p>
-        </div>
-      </a>
-      <a routerLink="/calendar" class="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700">
-        <mat-icon class="text-3xl mr-3 text-amber-600">event</mat-icon>
-        <div>
-          <span class="font-medium text-gray-900 dark:text-white">Calendario</span>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Reservas Casa Club</p>
-        </div>
-      </a>
-      <a routerLink="/hb" class="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700">
-        <mat-icon class="text-3xl mr-3 text-amber-600">cake</mat-icon>
-        <div>
-          <span class="font-medium text-gray-900 dark:text-white">Cumpleaños</span>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Ver por fecha</p>
-        </div>
-      </a>
-      <a routerLink="/my-house" class="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700">
-        <mat-icon class="text-3xl mr-3 text-amber-600">home</mat-icon>
-        <div>
-          <span class="font-medium text-gray-900 dark:text-white">Mi casa</span>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Residentes y visitas</p>
-        </div>
-      </a>
+<div class="dashboard-wrap p-4 dark:bg-gray-900 min-h-screen">
+  <div class="p-4 mt-14">
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">Dashboard</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Resumen general del sistema</p>
     </div>
 
-    <!-- Resumen del día -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ingresos hoy</h2>
-        <p class="text-3xl font-bold text-amber-600" *ngIf="!loadingLogs">{{ accessLogsCountToday }}</p>
-        <p class="text-gray-500 dark:text-gray-400" *ngIf="loadingLogs">Cargando...</p>
-        <a routerLink="/history" class="text-sm text-amber-600 hover:underline mt-2 inline-block">Ver historial</a>
+    <!-- Tarjetas de resumen (4 KPI) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <div class="dashboard-icon gradient-primary w-12 h-12 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-white">login</mat-icon>
+          </div>
+          <span class="text-2xl font-bold text-amber-600 dark:text-amber-400" *ngIf="!loadingLogs">{{ accessLogsCountToday }}</span>
+          <span class="text-gray-400" *ngIf="loadingLogs">...</span>
+        </div>
+        <h3 class="font-bold text-gray-800 dark:text-white mb-1">Ingresos Hoy</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Personas y vehículos registrados</p>
+        <div class="mt-3 flex items-center text-sm" *ngIf="!loadingLogs && accessLogsCountToday > 0">
+          <a routerLink="/history" class="text-amber-600 hover:underline">Ver historial</a>
+        </div>
       </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cumpleaños de hoy</h2>
-        <p class="text-gray-500 dark:text-gray-400" *ngIf="loadingBirthdays">Cargando...</p>
-        <ul *ngIf="!loadingBirthdays && birthdaysToday.length === 0" class="text-gray-500 dark:text-gray-400">Ninguno registrado.</ul>
-        <ul *ngIf="!loadingBirthdays && birthdaysToday.length > 0" class="space-y-2">
-          <li *ngFor="let p of birthdaysToday" class="text-gray-900 dark:text-white">
-            {{ p.first_name }} {{ p.paternal_surname }}<span class="text-gray-500 dark:text-gray-400 text-sm" *ngIf="p.block_house || p.lot"> — Mz:{{ p.block_house ?? '—' }} Lt:{{ p.lot ?? '—' }}</span>
-          </li>
-        </ul>
+
+      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <div class="dashboard-icon gradient-success w-12 h-12 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-white">groups</mat-icon>
+          </div>
+          <span class="text-2xl font-bold text-gray-400 dark:text-gray-500">—</span>
+        </div>
+        <h3 class="font-bold text-gray-800 dark:text-white mb-1">Visitantes Activos</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">En el complejo actualmente</p>
+        <div class="mt-3">
+          <span class="status-badge status-pending">No data</span>
+          <p class="text-xs text-gray-400 mt-1">Endpoint pendiente</p>
+        </div>
+      </div>
+
+      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <div class="dashboard-icon gradient-warning w-12 h-12 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-white">directions_car</mat-icon>
+          </div>
+          <span class="text-2xl font-bold text-amber-600 dark:text-amber-400" *ngIf="vehiclesCountToday !== null">{{ vehiclesCountToday }}</span>
+          <span class="text-2xl font-bold text-gray-400" *ngIf="vehiclesCountToday === null">—</span>
+        </div>
+        <h3 class="font-bold text-gray-800 dark:text-white mb-1">Vehículos Ingresados</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Hoy (si el API devuelve tipo)</p>
+        <div class="mt-3" *ngIf="vehiclesCountToday === null">
+          <span class="text-xs text-gray-400">No data</span>
+        </div>
+      </div>
+
+      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <div class="dashboard-icon gradient-accent w-12 h-12 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-white">home</mat-icon>
+          </div>
+          <span class="text-2xl font-bold text-purple-600 dark:text-purple-400" *ngIf="housesCount !== null">{{ housesCount }}</span>
+          <span class="text-2xl font-bold text-gray-400" *ngIf="housesCount === null">—</span>
+        </div>
+        <h3 class="font-bold text-gray-800 dark:text-white mb-1">Casas Registradas</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total en el sistema</p>
+        <div class="mt-3">
+          <a routerLink="/houses" class="text-sm text-purple-600 hover:underline" *ngIf="housesCount !== null">Ver viviendas</a>
+          <span class="text-xs text-gray-400" *ngIf="housesCount === null">Cargando...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos y tablas (2 columnas) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Ingresos por hora -->
+      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="font-bold text-lg text-gray-800 dark:text-white">Ingresos por Hora</h3>
+          <select class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-amber-500">
+            <option>Hoy</option>
+            <option>Ayer</option>
+            <option>Esta semana</option>
+          </select>
+        </div>
+        <div class="chart-container flex items-end h-48 gap-2 pt-4" *ngIf="chartIngresosPorHora.length > 0">
+          <div *ngFor="let bar of chartIngresosPorHora" class="flex-1 flex flex-col items-center">
+            <div class="w-full bg-gradient-to-t from-amber-300 to-amber-500 rounded-t-lg" [style.height.%]="bar.value"></div>
+            <span class="text-xs text-gray-500 mt-2">{{ bar.label }}</span>
+          </div>
+        </div>
+        <div *ngIf="chartIngresosPorHora.length === 0" class="flex items-center justify-center h-48 text-gray-400 dark:text-gray-500 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+          <div class="text-center">
+            <mat-icon class="text-4xl mb-2">bar_chart</mat-icon>
+            <p>No data</p>
+            <p class="text-xs">Conectar estadísticas por hora (getHourStat) al dashboard</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribución de visitantes -->
+      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <h3 class="font-bold text-lg text-gray-800 dark:text-white mb-6">Distribución de Visitantes</h3>
+        <div class="grid grid-cols-2 gap-4" *ngIf="distributionVisitors.length > 0">
+          <div class="flex flex-col items-center">
+            <div class="relative w-40 h-40 rounded-full flex items-center justify-center mb-4 bg-gray-100 dark:bg-gray-700">
+              <div class="relative z-10 text-center">
+                <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ distributionVisitorsTotal }}</span>
+                <p class="text-xs text-gray-500">Total</p>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div *ngFor="let d of distributionVisitors" class="flex items-center">
+              <div class="w-4 h-4 rounded mr-3" [ngClass]="d.colorClass"></div>
+              <div class="flex-1">
+                <p class="font-medium dark:text-white">{{ d.label }}</p>
+                <p class="text-sm text-gray-500">{{ d.percent }}% ({{ d.count }} personas)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="distributionVisitors.length === 0" class="flex items-center justify-center h-48 text-gray-400 dark:text-gray-500 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+          <div class="text-center">
+            <mat-icon class="text-4xl mb-2">pie_chart</mat-icon>
+            <p>No data</p>
+            <p class="text-xs">Endpoint por tipo (Residente/Visitante/Proveedor) pendiente</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimos ingresos (tabla) -->
+    <div class="glass-effect rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+      <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-lg text-gray-800 dark:text-white">Últimos Ingresos</h3>
+          <a routerLink="/history" class="text-amber-600 font-medium flex items-center gap-1 hover:underline">
+            <span>Ver todo</span>
+            <mat-icon class="text-sm">chevron_right</mat-icon>
+          </a>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nombre</th>
+              <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Documento</th>
+              <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</th>
+              <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vivienda</th>
+              <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Hora</th>
+              <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            <tr *ngFor="let log of lastAccessLogs" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+              <td class="py-4 px-6">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-full flex items-center justify-center mr-3">
+                    <mat-icon class="text-sm">{{ (log.type || log.access_type || '').toString().toUpperCase().includes('VEH') ? 'directions_car' : 'person' }}</mat-icon>
+                  </div>
+                  <div>
+                    <p class="font-medium dark:text-white">{{ log.name || log.person_name || log.doc_number || '—' }}</p>
+                    <p class="text-sm text-gray-500">{{ log.type || log.access_type || '—' }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-6 font-mono dark:text-gray-300">{{ log.doc_number || '—' }}</td>
+              <td class="py-4 px-6">
+                <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="(log.type || log.access_type || '').toString().toUpperCase().includes('VEH') ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'">{{ log.type || log.access_type || '—' }}</span>
+              </td>
+              <td class="py-4 px-6 font-medium dark:text-gray-300">{{ log.house_address || log.house || '—' }}</td>
+              <td class="py-4 px-6 dark:text-gray-300">
+                <p *ngIf="log.date_entry || log.entry_date || log.created_at">{{ (log.date_entry || log.entry_date || log.created_at) | date:'shortTime' }}</p>
+                <p *ngIf="!(log.date_entry || log.entry_date || log.created_at)">—</p>
+                <p class="text-sm text-gray-500">{{ log.date_entry || log.entry_date || '—' }}</p>
+              </td>
+              <td class="py-4 px-6">
+                <span class="status-badge" [ngClass]="(log.obs || log.status || '').toString().toUpperCase() === 'PERMITIDO' ? 'status-active' : ((log.obs || log.status || '').toString().toUpperCase() === 'DENEGADO' || (log.obs || log.status || '').toString().toUpperCase() === 'RESTRINGIDO') ? 'status-inactive' : 'status-pending'">{{ log.obs || log.status || '—' }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="lastAccessLogs.length === 0 && !loadingLogs">
+              <td colspan="6" class="py-8 px-6 text-center text-gray-500 dark:text-gray-400">
+                No hay ingresos registrados hoy.
+              </td>
+            </tr>
+            <tr *ngIf="loadingLogs">
+              <td colspan="6" class="py-8 px-6 text-center text-gray-500">Cargando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tres cards inferiores: Alertas, Cumpleaños, Acciones rápidas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Alertas activas -->
+      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-red-600 dark:text-red-400">warning</mat-icon>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-800 dark:text-white">Alertas Activas</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Personas observadas/restringidas</p>
+          </div>
+        </div>
+        <div class="space-y-3" *ngIf="activeAlerts.length > 0">
+          <div *ngFor="let a of activeAlerts" class="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <div>
+              <p class="font-medium dark:text-white">{{ a.name }}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">DNI: {{ a.doc_number }}</p>
+            </div>
+            <span class="status-badge status-inactive">{{ a.status }}</span>
+          </div>
+        </div>
+        <div *ngIf="activeAlerts.length === 0" class="flex items-center justify-center py-6 text-gray-400 dark:text-gray-500 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+          <div class="text-center">
+            <p>No data</p>
+            <p class="text-xs">Endpoint de alertas/restringidos pendiente</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximos cumpleaños -->
+      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-blue-600 dark:text-blue-400">cake</mat-icon>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-800 dark:text-white">Próximos Cumpleaños</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Cumpleaños de hoy</p>
+          </div>
+        </div>
+        <div class="space-y-3" *ngIf="!loadingBirthdays && upcomingBirthdays.length > 0">
+          <div *ngFor="let p of upcomingBirthdays" class="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white">
+                <mat-icon class="text-sm">cake</mat-icon>
+              </div>
+              <div>
+                <p class="font-medium dark:text-white">{{ p.first_name }} {{ p.paternal_surname || '' }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Hoy</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="loadingBirthdays" class="py-6 text-center text-gray-500">Cargando...</div>
+        <div *ngIf="!loadingBirthdays && upcomingBirthdays.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">Ninguno hoy.</div>
         <a routerLink="/hb" class="text-sm text-amber-600 hover:underline mt-2 inline-block">Ver todos los cumpleaños</a>
       </div>
+
+      <!-- Acciones rápidas -->
+      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-green-600 dark:text-green-400">speed</mat-icon>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-800 dark:text-white">Acciones Rápidas</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Accesos frecuentes</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <a routerLink="/history" class="dashboard-quick-btn p-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex flex-col items-center justify-center transition-all">
+            <mat-icon class="mb-2">history</mat-icon>
+            <span class="text-sm font-medium">Historial</span>
+          </a>
+          <a routerLink="/calendar" class="dashboard-quick-btn p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg flex flex-col items-center justify-center transition-all">
+            <mat-icon class="mb-2">event</mat-icon>
+            <span class="text-sm font-medium">Calendario</span>
+          </a>
+          <a routerLink="/hb" class="dashboard-quick-btn p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex flex-col items-center justify-center transition-all">
+            <mat-icon class="mb-2">cake</mat-icon>
+            <span class="text-sm font-medium">Cumpleaños</span>
+          </a>
+          <a routerLink="/settings" class="dashboard-quick-btn p-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg flex flex-col items-center justify-center transition-all">
+            <mat-icon class="mb-2">settings</mat-icon>
+            <span class="text-sm font-medium">Configuración</span>
+          </a>
+        </div>
+      </div>
     </div>
 
-    <!-- Próximas reservas (opcional) -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6" *ngIf="upcomingReservations.length > 0">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Próximas reservas</h2>
+    <!-- Próximas reservas (opcional, ya existía) -->
+    <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700" *ngIf="upcomingReservations.length > 0">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Próximas reservas</h2>
       <ul class="space-y-2">
-        <li *ngFor="let r of upcomingReservations" class="text-gray-900 dark:text-white flex justify-between items-center">
+        <li *ngFor="let r of upcomingReservations" class="text-gray-800 dark:text-white flex justify-between items-center">
           <span>{{ r.reservation_date }} — {{ r.area_name ?? 'Área' }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ r.status }}</span>
         </li>

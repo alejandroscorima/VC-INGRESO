@@ -1,3 +1,86 @@
+/* Dashboard: estilos de la nueva interfaz */
+.dashboard-wrap {
+  background-color: #f1f5f9;
+}
+
+.dark .dashboard-wrap {
+  background-color: #111827;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.dark .glass-effect {
+  background: rgba(31, 41, 55, 0.9);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-icon.gradient-primary {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.dashboard-icon.gradient-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.dashboard-icon.gradient-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.dashboard-icon.gradient-accent {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.status-badge {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #059669;
+}
+
+.dark .status-active {
+  color: #34d399;
+}
+
+.status-inactive {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.dark .status-inactive {
+  color: #f87171;
+}
+
+.status-pending {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.dark .status-pending {
+  color: #fbbf24;
+}
+
+.dashboard-quick-btn {
+  text-decoration: none;
+}
+
 .box{
     cursor:pointer;
     border-radius: 0%;

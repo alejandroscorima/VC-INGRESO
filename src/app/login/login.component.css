@@ -1,0 +1,134 @@
+/* El componente ocupa toda la vista y no permite scroll */
+:host {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Contenedor principal: fondo a pantalla completa y contenido centrado */
+.login-section {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.login-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: grayscale(0.15);
+}
+
+.login-bg:hover {
+  filter: grayscale(0);
+}
+
+/* Card con efecto glass: nunca excede la altura de la vista */
+.login-card {
+  z-index: 1;
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form-inner {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: loginSlideUp 0.4s ease-out;
+  max-height: inherit;
+  overflow: hidden;
+}
+
+@keyframes loginSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cabecera del login */
+.login-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Iconos dentro de los inputs */
+.login-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Botón de login: normal = naranja + texto blanco; hover = blanco + texto naranja */
+.login-btn {
+  background-color: #d97706 !important; /* amber-600 */
+  color: #fff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.login-btn mat-icon {
+  color: #fff !important;
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #fff !important;
+  color: #d97706 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+  border: 2px solid #d97706;
+}
+
+.login-btn:hover:not(:disabled) mat-icon {
+  color: #d97706 !important;
+}
+
+.login-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Responsive: márgenes y tamaños en móvil */
+@media (max-width: 640px) {
+  .login-section {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .login-form-inner {
+    border-radius: 1rem;
+  }
+
+  .login-body,
+  .login-header {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}

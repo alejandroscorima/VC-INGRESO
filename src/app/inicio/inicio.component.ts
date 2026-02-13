@@ -232,6 +232,20 @@ export class InicioComponent implements OnInit {
   /** Dashboard: cantidad de ingresos hoy (access-logs) */
   accessLogsCountToday = 0;
   loadingLogs = false;
+  /** Dashboard: últimos ingresos (lista para tabla) */
+  lastAccessLogs: any[] = [];
+  /** Dashboard: total casas registradas */
+  housesCount: number | null = null;
+  /** Dashboard: vehículos ingresados hoy (si el API lo permite; si no, null = "No data") */
+  vehiclesCountToday: number | null = null;
+  /** Dashboard: alertas activas (restringidos/observados); sin endpoint por ahora */
+  activeAlerts: any[] = [];
+  /** Dashboard: ingresos por hora para gráfico (opcional) */
+  chartIngresosPorHora: { label: string; value: number }[] = [];
+  /** Dashboard: distribución visitantes (Residentes/Visitantes/Proveedores); sin endpoint por ahora */
+  distributionVisitors: { label: string; percent: number; count: number }[] = [];
+  /** Dashboard: próximos cumpleaños (este mes); usamos birthdaysToday + lugar para ampliar */
+  upcomingBirthdays: any[] = [];
   /** Dashboard: próximas reservas (primeras 5) */
   upcomingReservations: any[] = [];
 
@@ -493,6 +507,10 @@ export class InicioComponent implements OnInit {
     private reservationsService: ReservationsService,
   ) { }
 
+  get distributionVisitorsTotal(): number {
+    return (this.distributionVisitors || []).reduce((s, d) => s + (d.count || 0), 0);
+  }
+
   private loadDashboardData(): void {
     const today = new Date();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -503,7 +521,9 @@ export class InicioComponent implements OnInit {
     this.loadingBirthdays = true;
     this.userService.getPersonsByBirthday(fechaCumple).subscribe({
       next: (res: any) => {
-        this.birthdaysToday = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+        const list = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+        this.birthdaysToday = list;
+        this.upcomingBirthdays = list.slice(0, 5);
         this.loadingBirthdays = false;
       },
       error: () => { this.loadingBirthdays = false; }
@@ -514,9 +534,23 @@ export class InicioComponent implements OnInit {
       next: (res: any) => {
         const list = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
         this.accessLogsCountToday = list.length;
+        this.lastAccessLogs = (list || []).slice(0, 5);
+        const withType = list && list.some((x: any) => x.type != null || x.access_type != null);
+        if (withType && list.length) {
+          this.vehiclesCountToday = list.filter((x: any) => (x.type || x.access_type || '').toString().toUpperCase().includes('VEHÍCULO') || (x.type || x.access_type || '').toString().toUpperCase().includes('VEHICULO')).length;
+        } else {
+          this.vehiclesCountToday = null;
+        }
         this.loadingLogs = false;
       },
       error: () => { this.loadingLogs = false; }
+    });
+
+    this.entranceService.getAllHouses().subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        this.housesCount = list.length;
+      }
     });
 
     const endDate = new Date(today);

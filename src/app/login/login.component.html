@@ -1,54 +1,89 @@
-<section class="min-h-screen w-full">
-  <div class="flex items-center justify-center min-h-screen w-full bg-cover bg-center bg-no-repeat bg-fixed transition-all duration-300 cursor-pointer filter grayscale hover:grayscale-0" style="background-image: url('http://52.5.47.64/VC/Media/Backgrounds/BG-INGRESO-VC5.png')">
-  <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto w-full min-h-screen lg:py-0">
-      <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-          <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-            <img class="w-8 h-8 mr-2" [src]="systemClient?.client_logo || 'assets/logo_VC5.png'" alt="logo">
-            CONTROL DE INGRESO    
-          </a>
-          <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Iniciar Sesión
-          </h1>
-          <form class="space-y-4 md:space-y-6" action="#">
-              <div>
-                  <label for="username_system" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Nombre de usuario
-                  </label>
-                  <input matInput type="username_system" name="username_system" id="username_system" 
-                    [(ngModel)]="username_system" required
-                  class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-amber-500 focus:border-amber-600 
-                  block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-amber-500
-                  dark:focus:border-focus"  placeholder="nombre de usuario" required="">
-              </div>
-              <div>
-                  <label for="password_system" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Contraseña
-                  </label>
-                  <div class="relative">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    </div>
-                    <input matInput type="password_system" name="password_system" id="password_system" placeholder="••••••••"
-                    [(ngModel)]="password_system" [type]="hide ? 'password_system' : 'text'" required (keyup.enter)="log.click()"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-amber-500 focus:border-amber-600 
-                    block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-amber-500
-                    dark:focus:border-focus" required="">
-                      <mat-icon class="text-black absolute end-2.5 bottom-2.5 focus:ring-4 focus:outline-none font-normal rounded-lg text-balance px-0.1 py-1 " matSuffix (click)="hide = !hide"> {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                    </div>
-                  </div>
+<section class="login-section">
+  <div class="login-bg"
+       style="background-image: url('http://52.5.47.64/VC/Media/Backgrounds/BG-INGRESO-VC5.png')"></div>
 
-              <button type="submit" [disabled]="isloading" #log (click)="login()" 
-              class="!bg-amber-600 w-full text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-bg-amber-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-              {{ isloading ? 'Cargando...' : 'Ingresar' }}
-              </button>
-              <p class="text-sm text-center text-gray-500 dark:text-gray-400">
-                <a routerLink="/registro" class="text-amber-600 hover:underline">¿Nuevo propietario? Regístrese aquí</a>
-              </p>
-          </form>
-          </div>
+  <div class="login-card relative w-full max-w-md">
+    <div class="login-form-inner rounded-2xl shadow-2xl overflow-hidden">
+      <!-- Cabecera con logo -->
+      <div class="login-header px-6 pt-6 pb-1 sm:pt-8 sm:pb-2 text-center">
+        <div class="flex items-center justify-center gap-3 mb-0">
+          <img class="w-20 h-20 sm:w-12 sm:h-12 object-contain rounded-lg flex-shrink-0"
+               [src]="systemClient?.client_logo || 'assets/logo_VC5.png'" alt="Logo">
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900">CONTROL DE ACCESOS</h1>
+        </div>
       </div>
+
+      <!-- Formulario -->
+      <div class="login-body px-6 pt-2 pb-6 sm:px-8 sm:pt-3 sm:pb-8">
+        <p class="text-gray-600 text-sm sm:text-base mb-6">Ingresa tus credenciales para acceder al sistema.</p>
+
+        <form class="space-y-5" (ngSubmit)="login()" #loginForm="ngForm">
+          <!-- Usuario -->
+          <div>
+            <label for="username_system" class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+            <div class="relative">
+              <mat-icon class="login-input-icon">person</mat-icon>
+              <input type="text"
+                     name="username_system"
+                     id="username_system"
+                     [(ngModel)]="username_system"
+                     required
+                     placeholder="Ingresa tu usuario"
+                     (keyup.enter)="log.click()"
+                     class="login-input pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition bg-gray-50 text-gray-900 placeholder-gray-400">
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div>
+            <label for="password_system" class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+            <div class="relative">
+              <mat-icon class="login-input-icon">lock</mat-icon>
+              <input [type]="hide ? 'password' : 'text'"
+                     name="password_system"
+                     id="password_system"
+                     [(ngModel)]="password_system"
+                     required
+                     placeholder="Ingresa tu contraseña"
+                     (keyup.enter)="log.click()"
+                     class="login-input pl-10 pr-12 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition bg-gray-50 text-gray-900 placeholder-gray-400">
+              <button type="button"
+                      (click)="hide = !hide"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none p-1"
+                      [attr.aria-label]="hide ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+                <mat-icon class="align-middle">{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recordar usuario + link registro -->
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <label class="flex items-center cursor-pointer select-none">
+              <input type="checkbox" class="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
+              <span class="ml-2 text-sm text-gray-600">Recordar usuario</span>
+            </label>
+            <a routerLink="/registro" class="text-sm text-amber-600 hover:text-amber-700 hover:underline">¿Nuevo propietario? Regístrese aquí</a>
+          </div>
+
+          <!-- Botón iniciar sesión -->
+          <button type="submit"
+                  [disabled]="isloading"
+                  #log
+                  class="login-btn w-full font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+            <mat-icon>login</mat-icon>
+            <span>{{ isloading ? 'Cargando...' : 'Iniciar Sesión' }}</span>
+          </button>
+        </form>
+
+        <!-- Versión y copyright -->
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+          <p class="text-sm text-gray-500">Versión 1.0</p>
+          <p class="text-xs text-gray-400 mt-1">© Crearttech Solutions S.A.C.</p>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
 <!-- Modal: cambiar contraseña temporal (primer acceso) -->
 <div *ngIf="showChangePasswordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -73,4 +108,3 @@
     </div>
   </div>
 </div>
-</section>
