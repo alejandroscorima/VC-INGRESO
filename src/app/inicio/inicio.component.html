@@ -229,7 +229,7 @@
           </div>
           <div>
             <h4 class="font-bold text-gray-800 dark:text-white">Próximos Cumpleaños</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Cumpleaños de hoy</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Cumpleaños de hoy y mañana</p>
           </div>
         </div>
         <div class="space-y-3" *ngIf="!loadingBirthdays && upcomingBirthdays.length > 0">
@@ -239,14 +239,14 @@
                 <mat-icon class="text-sm">cake</mat-icon>
               </div>
               <div>
-                <p class="font-medium dark:text-white">{{ p.first_name }} {{ p.paternal_surname || '' }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Hoy</p>
+                <p class="text-gray-800 dark:text-gray-200">{{ p.first_name }} {{ p.paternal_surname || '' }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ p.dayLabel || 'Hoy' }}</p>
               </div>
             </div>
           </div>
         </div>
         <div *ngIf="loadingBirthdays" class="py-6 text-center text-gray-500">Cargando...</div>
-        <div *ngIf="!loadingBirthdays && upcomingBirthdays.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">Ninguno hoy.</div>
+        <div *ngIf="!loadingBirthdays && upcomingBirthdays.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">Ninguno hoy ni mañana.</div>
         <a routerLink="/hb" class="text-sm text-amber-600 hover:underline mt-2 inline-block">Ver todos los cumpleaños</a>
       </div>
 

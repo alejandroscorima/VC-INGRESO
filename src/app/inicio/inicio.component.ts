@@ -519,12 +519,29 @@ export class InicioComponent implements OnInit {
     const fechaCumple = mm + '-' + dd;
 
     this.loadingBirthdays = true;
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const mmTomorrow = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const ddTomorrow = String(tomorrow.getDate()).padStart(2, '0');
+    const fechaCumpleTomorrow = mmTomorrow + '-' + ddTomorrow;
+
     this.userService.getPersonsByBirthday(fechaCumple).subscribe({
-      next: (res: any) => {
-        const list = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
-        this.birthdaysToday = list;
-        this.upcomingBirthdays = list.slice(0, 5);
-        this.loadingBirthdays = false;
+      next: (resHoy: any) => {
+        const listHoy = (resHoy?.data && Array.isArray(resHoy.data)) ? resHoy.data : (Array.isArray(resHoy) ? resHoy : []);
+        this.birthdaysToday = listHoy;
+        this.userService.getPersonsByBirthday(fechaCumpleTomorrow).subscribe({
+          next: (resManana: any) => {
+            const listManana = (resManana?.data && Array.isArray(resManana.data)) ? resManana.data : (Array.isArray(resManana) ? resManana : []);
+            const withLabelHoy = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const }));
+            const withLabelManana = (listManana || []).map((p: any) => ({ ...p, dayLabel: 'Mañana' as const }));
+            this.upcomingBirthdays = [...withLabelHoy, ...withLabelManana].slice(0, 8);
+            this.loadingBirthdays = false;
+          },
+          error: () => {
+            this.upcomingBirthdays = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const })).slice(0, 5);
+            this.loadingBirthdays = false;
+          }
+        });
       },
       error: () => { this.loadingBirthdays = false; }
     });

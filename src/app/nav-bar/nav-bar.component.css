@@ -1,0 +1,4 @@
+/* Navbar: asegurar que el dropdown de Flowbite se vea por encima del contenido */
+#dropdown-user {
+  min-width: 14rem;
+}

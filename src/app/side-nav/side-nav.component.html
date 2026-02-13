@@ -1,110 +1,128 @@
 <input type="file" id="profile-photo-input" accept="image/jpeg,image/png,image/gif" (change)="onProfilePhotoChange($event)" class="hidden" />
 
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-30 w-64 h-screen pt-20 transition-transform -translate-x-full border-r border-gray-200 sm:translate-x-0
- bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-auto" aria-label="Sidebar" tabindex="-1">
-  <div class="h-full px-3 pb-4 dark:bg-gray-800">
+<!-- Posición y altura se fuerzan en side-nav.component.css (#logo-sidebar) para que quede debajo del navbar -->
+<aside id="logo-sidebar" class="sidebar-aside fixed left-0 z-30 flex w-64 flex-col -translate-x-full border-r border-gray-200 bg-white pt-6 transition-transform dark:border-gray-700 dark:bg-gray-800 sm:translate-x-0"
+  aria-label="Sidebar" tabindex="-1">
+  <div class="flex min-h-0 flex-1 flex-col px-3 pb-4">
 
-    <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-      <div class="flex justify-end px-4 pt-4">
-        <button id="dropdownButton" data-dropdown-toggle="dropdown" 
-        class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button" aria-expanded="false">
-            <span class="sr-only">Open dropdown</span>
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
-                <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
-            </svg>
-        </button>
-      </div>
-      <div class="flex flex-col items-center pb-10">
-        <button type="button" (click)="onProfilePhotoClick()" [disabled]="uploadingPhoto" class="relative rounded-full focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" title="Cambiar foto de perfil">
-          <img class="w-24 h-24 rounded-full shadow-lg object-cover" [src]="getUserAvatarUrl(user)" alt="Usuario"/>
+    <!-- Usuario (arriba del sidebar, sobre las pestañas) -->
+    <div class="shrink-0 pb-4">
+      <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+        <button type="button" (click)="onProfilePhotoClick()" [disabled]="uploadingPhoto"
+          class="relative shrink-0 rounded-full focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+          title="Cambiar foto de perfil">
+          <img class="h-10 w-10 rounded-full object-cover shadow" [src]="getUserAvatarUrl(user)" alt="Usuario" />
           <span *ngIf="uploadingPhoto" class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 text-white text-xs">...</span>
         </button>
-        <h5 class="mb-1 text-l font-medium text-center text-gray-900 dark:text-white mt-2">{{getUserDisplayName(user)}}</h5>
-        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{user?.role_system ?? '—'}}</span>
-        <span *ngIf="user?.property_category" class="text-sm text-center text-gray-500 dark:text-gray-400">{{user.property_category}}</span>
-        <span class="text-sm text-center text-gray-500 dark:text-gray-400">{{getUserDomicilio(user)}}</span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ getUserDisplayName(user) }}</p>
+          <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ user?.role_system ?? '—' }}</p>
+          <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ getUserDomicilio(user) }}</p>
+        </div>
       </div>
     </div>
 
+    <!-- Navegación: scroll solo aquí -->
+    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto">
+      <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Principal</p>
+      <ul class="space-y-0.5">
+        <li>
+          <a routerLink="/" routerLinkActive="nav-item-active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">dashboard</mat-icon>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/history" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">history</mat-icon>
+            <span>Historial</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/hb" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">cake</mat-icon>
+            <span>Cumpleaños</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/my-house" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">home</mat-icon>
+            <span>Mi casa</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/calendar" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">event</mat-icon>
+            <span>Calendario</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/scanner" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">qr_code_scanner</mat-icon>
+            <span>Escáner QR</span>
+          </a>
+        </li>
+      </ul>
 
-    <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-">
+      <div class="my-4 border-t border-gray-200 dark:border-gray-700"></div>
 
-      <li>
-        
-        <a class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-purple-500 dark:hover:bg-gray-700 group" routerLink="/" >
-          <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M5 0H1a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1Zm14 0h-4a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1ZM5 14H1a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1Zm14 0h-4a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1ZM12 2H8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2Zm0 14H8a1 1 0 0 0 0 2h4a1 1 0 0 0 0-2Zm-8-4V8a1 1 0 0 0-2 0v4a1 1 0 1 0 2 0Zm14 0V8a1 1 0 0 0-2 0v4a1 1 0 0 0 2 0Z"/>
-          </svg>
-          <p class="pl-7 text-base  text-gray-900 dark:text-white">Dashboard</p>
-        </a>
+      <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Gestión</p>
+      <ul class="space-y-0.5" *ngIf="user?.role_system === 'ADMINISTRADOR' || user?.role_system === 'ADMIN'">
+        <li>
+          <a routerLink="/users" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">person</mat-icon>
+            <span>Usuarios</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/houses" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">apartment</mat-icon>
+            <span>Viviendas</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/vehicles" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">directions_car</mat-icon>
+            <span>Vehículos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/pets" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">pets</mat-icon>
+            <span>Mascotas</span>
+          </a>
+        </li>
+      </ul>
 
-      </li>
-      <li>
-        <a class="flex items-center p-2 text-black rounded-lg
-        dark:text-white hover:bg-purple-500 dark:hover:bg-gray-700 group" routerLink="/hb">
-          <mat-icon class="icon2" >cake</mat-icon>
-          <p class="pl-7 text-base  text-gray-900 dark:text-white">Cumpleaños</p>
-        </a>
-      </li>
-      <li>
-        <a class="flex items-center p-2 text-gray-900 rounded-lg
-        dark:text-white hover:bg-purple-500 dark:hover:bg-gray-700 group" routerLink="/history">
-          <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 6v4l3.276 3.276M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-          </svg>
-          <p class="pl-7 text-base  text-gray-900 dark:text-white"> Historial</p>
-        </a>
-      </li>
-      <li *ngIf="user?.role_system === 'ADMINISTRADOR' || user?.role_system === 'ADMIN'">
-        <button type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-purple-500 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example" (click)="toggleDropdown()">
-          <svg class="w-6 h-6 text-gray-900" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M14.2788 2.15224C13.9085 2 13.439 2 12.5 2C11.561 2 11.0915 2 10.7212 2.15224C10.2274 2.35523 9.83509 2.74458 9.63056 3.23463C9.53719 3.45834 9.50065 3.7185 9.48635 4.09799C9.46534 4.65568 9.17716 5.17189 8.69017 5.45093C8.20318 5.72996 7.60864 5.71954 7.11149 5.45876C6.77318 5.2813 6.52789 5.18262 6.28599 5.15102C5.75609 5.08178 5.22018 5.22429 4.79616 5.5472C4.47814 5.78938 4.24339 6.1929 3.7739 6.99993C3.30441 7.80697 3.06967 8.21048 3.01735 8.60491C2.94758 9.1308 3.09118 9.66266 3.41655 10.0835C3.56506 10.2756 3.77377 10.437 4.0977 10.639C4.57391 10.936 4.88032 11.4419 4.88029 12C4.88026 12.5581 4.57386 13.0639 4.0977 13.3608C3.77372 13.5629 3.56497 13.7244 3.41645 13.9165C3.09108 14.3373 2.94749 14.8691 3.01725 15.395C3.06957 15.7894 3.30432 16.193 3.7738 17C4.24329 17.807 4.47804 18.2106 4.79606 18.4527C5.22008 18.7756 5.75599 18.9181 6.28589 18.8489C6.52778 18.8173 6.77305 18.7186 7.11133 18.5412C7.60852 18.2804 8.2031 18.27 8.69012 18.549C9.17714 18.8281 9.46533 19.3443 9.48635 19.9021C9.50065 20.2815 9.53719 20.5417 9.63056 20.7654C9.83509 21.2554 10.2274 21.6448 10.7212 21.8478C11.0915 22 11.561 22 12.5 22C13.439 22 13.9085 22 14.2788 21.8478C14.7726 21.6448 15.1649 21.2554 15.3694 20.7654C15.4628 20.5417 15.4994 20.2815 15.5137 19.902C15.5347 19.3443 15.8228 18.8281 16.3098 18.549C16.7968 18.2699 17.3914 18.2804 17.8886 18.5412C18.2269 18.7186 18.4721 18.8172 18.714 18.8488C19.2439 18.9181 19.7798 18.7756 20.2038 18.4527C20.5219 18.2105 20.7566 17.807 21.2261 16.9999C21.6956 16.1929 21.9303 15.7894 21.9827 15.395C22.0524 14.8691 21.9088 14.3372 21.5835 13.9164C21.4349 13.7243 21.2262 13.5628 20.9022 13.3608C20.4261 13.0639 20.1197 12.558 20.1197 11.9999C20.1197 11.4418 20.4261 10.9361 20.9022 10.6392C21.2263 10.4371 21.435 10.2757 21.5836 10.0835C21.9089 9.66273 22.0525 9.13087 21.9828 8.60497C21.9304 8.21055 21.6957 7.80703 21.2262 7C20.7567 6.19297 20.522 5.78945 20.2039 5.54727C19.7799 5.22436 19.244 5.08185 18.7141 5.15109C18.4722 5.18269 18.2269 5.28136 17.8887 5.4588C17.3915 5.71959 16.7969 5.73002 16.3099 5.45096C15.8229 5.17191 15.5347 4.65566 15.5136 4.09794C15.4993 3.71848 15.4628 3.45833 15.3694 3.23463C15.1649 2.74458 14.7726 2.35523 14.2788 2.15224ZM12.5 15C14.1695 15 15.5228 13.6569 15.5228 12C15.5228 10.3431 14.1695 9 12.5 9C10.8305 9 9.47716 10.3431 9.47716 12C9.47716 13.6569 10.8305 15 12.5 15Z" fill="#1C274C"></path> </g></svg>              
-          <span class="flex-1 pl-7 text-left rtl:text-right whitespace-nowrap">Configuración</span>
-          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-          </svg>
-        </button>
-        <ul id="dropdown-example" [ngClass]="{'hidden': !dropdownOpen, 'block': dropdownOpen}">
-          <li>
-            <a routerLink="/users" class="flex items-center w-full p-2 text-gray-600 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Usuarios / Personas</a>
-          </li>
-          <li>
-            <a routerLink="/houses" class="flex items-center w-full p-2 text-gray-600 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Domicilios</a>
-          </li>
-          <li>
-            <a routerLink="/vehicles" class="flex items-center w-full p-2 text-gray-600 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Vehiculos</a>
-          </li>
-          <li>
-            <a routerLink="/pets" class="flex items-center w-full p-2 text-gray-600 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Mascotas</a>
-          </li>
-        </ul>
-      </li>
+      <div class="my-4 border-t border-gray-200 dark:border-gray-700"></div>
 
-      <li >
-        <a class="flex items-center p-2 text-gray-900 rounded-lg
-        dark:text-white hover:bg-purple-500 dark:hover:bg-gray-700 group" routerLink="/my-house">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M19 9.77806V16.2C19 17.8801 19 18.7202 18.673 19.3619C18.3854 19.9264 17.9265 20.3854 17.362 20.673C17.2111 20.7499 17.0492 20.8087 16.868 20.8537M5 9.7774V16.2C5 17.8801 5 18.7202 5.32698 19.3619C5.6146 19.9264 6.07354 20.3854 6.63803 20.673C6.78894 20.7499 6.95082 20.8087 7.13202 20.8537M21 12L15.5668 5.96393C14.3311 4.59116 13.7133 3.90478 12.9856 3.65138C12.3466 3.42882 11.651 3.42887 11.0119 3.65153C10.2843 3.90503 9.66661 4.59151 8.43114 5.96446L3 12M7.13202 20.8537C7.65017 18.6447 9.63301 17 12 17C14.367 17 16.3498 18.6447 16.868 20.8537M7.13202 20.8537C7.72133 21 8.51495 21 9.8 21H14.2C15.485 21 16.2787 21 16.868 20.8537M14 12C14 13.1045 13.1046 14 12 14C10.8954 14 10 13.1045 10 12C10 10.8954 10.8954 9.99996 12 9.99996C13.1046 9.99996 14 10.8954 14 12Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-          <p class="pl-7 text-base  text-gray-900 dark:text-white"> Mi casa</p>
-        </a>
-      </li>
-      <li>
-        <a class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-purple-500 dark:hover:bg-gray-700 group" routerLink="/calendar">
-          <mat-icon class="icon2">event</mat-icon>
-          <p class="pl-7 text-base text-gray-900 dark:text-white">Calendario</p>
-        </a>
-      </li>
-      <li>
-        <a class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-purple-500 dark:hover:bg-gray-700 group" routerLink="/scanner">
-          <mat-icon class="icon2">qr_code_scanner</mat-icon>
-          <p class="pl-7 text-base text-gray-900 dark:text-white">Escáner QR</p>
-        </a>
-      </li>
-      <li>
-        <a href="https://api.whatsapp.com/send/?phone=51982160981&text=Requiero+ayuda+con+la+aplicaci%C3%B3n+de+Villa+Club+5" target="_blank" style="align-content: center p-2 text rounded-lg">
-          <a mat-stroked-button color="bg-white">Crearttech Solutions</a>
-        </a>
-      </li>
-          
+      <ul class="space-y-0.5">
+        <li>
+          <a routerLink="/settings" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">settings</mat-icon>
+            <span>Configuración</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
 
-    </ul>
+    <!-- Pie del sidebar: enlace Crearttech -->
+    <div class="shrink-0 border-t border-gray-200 pt-3 dark:border-gray-700">
+      <a href="https://api.whatsapp.com/send/?phone=51982160981&text=Requiero+ayuda+con+la+aplicaci%C3%B3n" target="_blank" rel="noopener"
+        class="flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20">
+        Crearttech Solutions
+      </a>
+    </div>
   </div>
 </aside>

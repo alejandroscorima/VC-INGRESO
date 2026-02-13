@@ -1,7 +1,9 @@
-.box{
-  cursor:pointer;
-  border-radius: 0%;
-  width: 30%;
+/* Alineado con dashboard: formularios y tabla dentro de glass-effect */
+.birthday-form-field {
+  margin: 0;
+}
+:host ::ng-deep .birthday-form-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
 }
 
 .formRevalidar{

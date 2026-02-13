@@ -1,0 +1,40 @@
+/* Forzar que el sidebar empiece debajo del navbar (56px). Evita que Flowbite u otros lo pongan en top: 0 */
+/* z-index alto para que en móvil quede por encima del backdrop gris de Flowbite y se pueda tocar */
+#logo-sidebar {
+  top: 56px !important;
+  height: calc(100vh - 56px) !important;
+  z-index: 9998 !important;
+}
+
+/* Enlace del sidebar: transición y estado activo */
+.nav-item {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: rgba(217, 119, 6, 0.08);
+}
+
+.dark .nav-item:hover {
+  background-color: rgba(217, 119, 6, 0.15);
+}
+
+.nav-item-active {
+  background-color: rgba(217, 119, 6, 0.12);
+  color: rgb(180, 83, 9);
+  border-left: 3px solid rgb(217, 119, 6);
+  padding-left: 9px; /* 9 + 3 = 12 como px-3 */
+}
+
+.dark .nav-item-active {
+  background-color: rgba(217, 119, 6, 0.2);
+  color: rgb(251, 191, 36);
+}
+
+.nav-item-active .nav-item-icon {
+  color: rgb(217, 119, 6);
+}
+
+.dark .nav-item-active .nav-item-icon {
+  color: rgb(251, 191, 36);
+}

@@ -62,6 +62,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     initFlowbite();
+    const saved = localStorage.getItem('theme');
+    this.isDark = saved === 'dark';
+    this.applyTheme();
     // Reflect auth state changes (login/logout) without reload
     this.auth.user$.subscribe((user) => {
       this.logged = !!user;
@@ -132,6 +135,25 @@ export class AppComponent implements OnInit {
 
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  /** Tema claro/oscuro: se aplica con clase 'dark' en <html> para Tailwind dark: */
+  isDark = false;
+
+  toggleTheme(): void {
+    this.isDark = !this.isDark;
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    const html = document.documentElement;
+    if (this.isDark) {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   }
 
   /** URL del avatar del usuario: photo_url (con baseUrl si es ruta) si existe, o asset por género. */

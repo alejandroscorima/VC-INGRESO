@@ -16,6 +16,10 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { EntranceService } from '../entrance.service';
+import { House } from '../house';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-birthday',
@@ -35,21 +39,34 @@ export class BirthdayComponent implements OnInit {
 
   neighbor: User= new User('','','','','','','','','','','','','',0,'','','','','','','','','','',0,'',0);
   neighbors: User[] = [];
+  houses: House[] = [];
 
-  fecha;
-  fecha_cumple;
-  fechaString;
-  day;
-  month;
-  year;
+  fecha: Date;
+  fecha_cumple: string;
+  fechaString: string;
+  day: string;
+  month: string;
+  year: number;
 
-  dataSourceHB: MatTableDataSource<User>;
+  dataSourceHB = new MatTableDataSource<User>([]);
+
+  /** Si es true, se muestra la columna DNI (solo para rol ADMINISTRADOR). */
+  showDocColumn = false;
+
+  /** Columnas a mostrar en la tabla (con o sin doc según rol). */
+  get displayedColumns(): string[] {
+    return this.showDocColumn
+      ? ['doc', 'name', 'birth_date', 'house', 'accion']
+      : ['name', 'birth_date', 'house', 'accion'];
+  }
 
   @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort= new QueryList<MatSort>();
 
   constructor(
     private usersServices: UsersService,
+    private entranceService: EntranceService,
+    private auth: AuthService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -74,17 +91,64 @@ export class BirthdayComponent implements OnInit {
   }
 
 
-  change(a:any){
-    this.initializeDateFields();
-    this.loadBirthdays(this.fecha_cumple);
+  /** Actualiza la fecha seleccionada y recarga la lista de cumpleaños del día. */
+  onDateChange(event: MatDatepickerInputEvent<Date>) {
+    if (event.value) {
+      this.fecha = event.value;
+      this.initializeDateFields();
+      this.loadBirthdays(this.fecha_cumple);
+    }
   }
 
   ngOnInit() {
-
+    const currentUser = this.auth.getUser();
+    this.showDocColumn = currentUser?.role_system === 'ADMINISTRADOR' || currentUser?.role_system === 'ADMIN';
     this.fecha = new Date();
-    console.log(this.fecha)
     this.initializeDateFields();
+    this.loadHouses();
     this.loadBirthdays(this.fecha_cumple);
+  }
+
+  private loadHouses() {
+    this.entranceService.getAllHouses().subscribe((res: any) => {
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      this.houses = list;
+    });
+  }
+
+  /** Devuelve el texto de domicilio (Mz / Lt) para una persona, usando house si hace falta. */
+  getHouseDisplay(person: User | any): string {
+    const mz = person?.block_house ?? null;
+    const lt = person?.lot ?? null;
+    if (mz != null && mz !== '' && lt != null && lt !== '') {
+      return `Mz: ${mz}  Lt: ${lt}`;
+    }
+    const houseId = person?.house_id;
+    if (houseId != null && this.houses.length) {
+      const h = this.houses.find((x: any) => (x as any).house_id === houseId || x.house_id === houseId);
+      if (h) {
+        return `Mz: ${h.block_house ?? '-'}  Lt: ${h.lot != null ? h.lot : '-'}`;
+      }
+    }
+    return 'Mz: -  Lt: -';
+  }
+
+  /** Abre WhatsApp para enviar un mensaje de feliz cumpleaños a la persona. */
+  felicitar(person: User | any) {
+    const nombre = [person?.first_name].filter(Boolean).join(' ').trim() || 'Vecin@';
+    const genero = (person?.gender ?? '').toString().toUpperCase();
+    const tratamiento = genero.includes('FEMENINO') ? 'Vecina' : 'Vecino';
+    const msg = `¡Feliz cumpleaños ${tratamiento} ${nombre}! 🎂🎉 Que tengas un excelente día.`;
+    const textEnc = encodeURIComponent(msg);
+    const cel = (person?.cel_number ?? '').toString().replace(/\D/g, '');
+    let url: string;
+    if (cel.length >= 9) {
+      const num = cel.length === 9 && cel.startsWith('9') ? '51' + cel : cel.startsWith('51') ? cel : '51' + cel;
+      url = `https://wa.me/${num}?text=${textEnc}`;
+    } else {
+      url = `https://wa.me/?text=${textEnc}`;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
 
@@ -99,15 +163,43 @@ export class BirthdayComponent implements OnInit {
     this.fecha_cumple = `${this.month}-${this.day}`;
     this.fechaString = `${this.year}-${this.month}-${this.day}`;
     console.log(this.fecha_cumple);
-    const opciones = { day: '2-digit', month: 'long'};
+    const opciones: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'long' };
     this.fechaString = this.fecha.toLocaleDateString('es-ES', opciones);
     console.log(this.fechaString);
   }
 
+  /**
+   * Obtiene mes-día (MM-DD) desde una fecha, interpretando siempre como fecha local
+   * para evitar desfases por UTC (ej. "2000-04-06" debe ser 6 de abril en cualquier zona horaria).
+   */
+  private getMonthDayFromBirthDate(birthDate: string | Date | null | undefined): string | null {
+    if (birthDate == null) return null;
+    let d: Date;
+    if (typeof birthDate === 'string') {
+      const match = birthDate.trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (match) {
+        const [, y, m, day] = match;
+        d = new Date(parseInt(y!, 10), parseInt(m!, 10) - 1, parseInt(day!, 10));
+      } else {
+        d = new Date(birthDate);
+      }
+    } else {
+      d = birthDate;
+    }
+    if (isNaN(d.getTime())) return null;
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${m}-${day}`;
+  }
+
   private loadBirthdays(fecha_cumple: string) {
     this.usersServices.getPersonsByBirthday(fecha_cumple).subscribe((res: any) => {
-      const nList = Array.isArray(res) ? res : (res?.data ?? []);
-      this.neighbors = nList;
+      const rawList = Array.isArray(res) ? res : (res?.data ?? []);
+      // Filtrar solo quienes cumplen años el día seleccionado (por si el backend devuelve más)
+      this.neighbors = rawList.filter((p: any) => {
+        const md = this.getMonthDayFromBirthDate(p.birth_date);
+        return md === fecha_cumple;
+      });
       this.dataSourceHB = new MatTableDataSource(this.neighbors);
       this.dataSourceHB.paginator = this.paginator.toArray()[0];
       this.dataSourceHB.sort = this.sort.toArray()[0];
