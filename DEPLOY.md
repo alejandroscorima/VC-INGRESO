@@ -21,7 +21,34 @@
 
 ---
 
-## 2. Local (Docker)
+## 2. Actualizar código en el servidor (git pull)
+
+En el servidor (Stage o Producción), para traer los últimos cambios de la rama `main`:
+
+```bash
+cd ~/vc-ingreso   # o la ruta donde esté el proyecto en el servidor
+
+git fetch origin
+git checkout main
+git pull origin main
+```
+
+Después de actualizar el código:
+
+- **Stage:** recrear el frontend para que use el código nuevo (p. ej. si cambió `angular.json` o dependencias):
+  ```bash
+  docker compose -f docker-compose.stage.yml up -d --force-recreate frontend
+  ```
+- **Producción:** volver a construir la imagen del frontend (si usas build en el servidor) y levantar los servicios:
+  ```bash
+  docker compose -f docker-compose.prod.yml up -d --build
+  ```
+
+Si solo cambió el backend (PHP) o la API, a veces basta con reiniciar el servicio correspondiente en lugar de recrear todo.
+
+---
+
+## 3. Local (Docker)
 
 ```bash
 cp .env.example .env
@@ -47,7 +74,7 @@ Para crear esquema y datos iniciales (primera vez o tras borrar volumen), hay qu
 
 ---
 
-## 3. Stage (nube, previo a producción)
+## 4. Stage (nube, previo a producción)
 
 ```bash
 cp .env.example .env
@@ -58,12 +85,12 @@ docker compose -f docker-compose.stage.yml up -d
 
 - Contenedores: **frontend** (Node, live), **api**, **mysql**. MySQL sin puerto externo; API 8089, Frontend 8086.
 - El frontend en Stage usa el contenedor con `npm run start` (igual que dev). Para servir estáticos harías antes `ng build --configuration=stage` y usar nginx en otro paso si lo prefieres.
-- **Tras `git pull`** (p. ej. si cambió `angular.json`): forzar recreación del frontend para que use el código nuevo:  
+- Tras actualizar el código en el servidor (ver sección 2): forzar recreación del frontend para que use el código nuevo:  
   `docker compose -f docker-compose.stage.yml up -d --force-recreate frontend`
 
 ---
 
-## 4. Error "Access denied for user 'root'@'172.x.x.x'" (Stage/Local con Docker)
+## 5. Error "Access denied for user 'root'@'172.x.x.x'" (Stage/Local con Docker)
 
 La API corre en otro contenedor (IP tipo `172.x.x.x`). MySQL 8 por defecto solo permite `root@localhost`. Este proyecto incluye un script de init que crea `root@'%'` con la misma contraseña (`MYSQL_ROOT_PASSWORD` / `DB_PASS`), pero **solo se ejecuta cuando el volumen de MySQL se crea por primera vez**.
 
@@ -83,11 +110,11 @@ Esperar a que MySQL esté healthy y luego ejecutar de nuevo los SQL (sustituir `
 
 ---
 
-## 5. Producción
+## 6. Producción
 
 Hay **dos archivos** según dónde corra MySQL:
 
-### 5.1 Producción con MySQL en contenedor (frontend + api + mysql)
+### 6.1 Producción con MySQL en contenedor (frontend + api + mysql)
 
 - Contenedores: **frontend** (nginx sirve `dist/Ingreso`), **api**, **mysql**.
 - Antes: `ng build --configuration=production` (genera `dist/Ingreso`).
@@ -97,9 +124,9 @@ Hay **dos archivos** según dónde corra MySQL:
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-- API en puerto 80, frontend en 8080. Tras el primer arranque (o tras borrar volumen), ejecutar los SQL de datos si hace falta (con `sed` para el placeholder, ver sección 4).
+- API en puerto 80, frontend en 8080. Tras el primer arranque (o tras borrar volumen), ejecutar los SQL de datos si hace falta (con `sed` para el placeholder, ver sección 5).
 
-### 5.2 Producción con RDS (frontend + api, sin mysql)
+### 6.2 Producción con RDS (frontend + api, sin mysql)
 
 - Contenedores: **frontend** (nginx sirve `dist/Ingreso`), **api**. Sin servicio MySQL.
 - En `.env`: `DB_HOST=<rds-endpoint>`, `DB_PORT=3306`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_LICENSE_NAME`, `CORS_ALLOW_ORIGIN`.
