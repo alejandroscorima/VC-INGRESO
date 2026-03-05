@@ -23,7 +23,8 @@ services:
       retries: 10
       start_period: 15s
     restart: unless-stopped
-
+    networks:
+      - default
   api:
     build:
       context: .
@@ -51,6 +52,8 @@ services:
       mysql:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - default    
 
   frontend:
     image: nginx:alpine
@@ -62,6 +65,9 @@ services:
     depends_on:
       - api
     restart: unless-stopped
+    networks:
+      - default
+      - nginx-proxy-manager_default
 
 volumes:
   mysql_data:
@@ -70,3 +76,7 @@ volumes:
 networks:
   default:
     driver: bridge
+  nginx-proxy-manager_default: 
+    driver: bridge
+    external: true
+    name: nginx-proxy-manager_default
