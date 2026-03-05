@@ -329,6 +329,17 @@
           </div>
           <p class="section-desc">Revise que todos los datos sean correctos. Al enviar se registrará la vivienda, propietario(s), vehículos y mascotas indicados.</p>
           <p class="alert-info">Los campos opcionales que no complete ahora podrá actualizarlos más adelante en el sistema.</p>
+
+          <div class="consent-block">
+            <label class="consent-label">
+              <input type="checkbox" formControlName="acceptDataUse" class="consent-checkbox" />
+              <span class="consent-text">
+                He leído y acepto la
+                <a [href]="dataAuthDocUrl" target="_blank" rel="noopener noreferrer" class="consent-link">Autorización de uso de datos personales</a>.
+                <strong>Villaclub 5 utilizará los datos únicamente para el control interno de la urbanización, por la seguridad y el bienestar de los habitantes y trabajadores de la urbanización, y nunca para ningún otro fin.</strong>
+              </span>
+            </label>
+          </div>
         </section>
 
         <!-- Navegación -->
@@ -340,7 +351,7 @@
             class="btn btn-primary" [class.disabled]="(step === 1 && !canProceedSection1()) || (step === 2 && hasSecondOwner && !canProceedSection2())">
             Siguiente
           </button>
-          <button *ngIf="step === 5" type="button" (click)="submit()" [disabled]="submitting" class="btn btn-primary">
+          <button *ngIf="step === 5" type="button" (click)="submit()" [disabled]="submitting || !mainForm.get('acceptDataUse')?.value" class="btn btn-primary">
             {{ submitting ? 'Enviando...' : 'Enviar registro' }}
           </button>
         </div>

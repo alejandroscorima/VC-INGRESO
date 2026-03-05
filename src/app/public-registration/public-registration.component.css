@@ -150,6 +150,50 @@
   font-size: 14px;
 }
 
+/* Consentimiento uso de datos */
+.consent-block {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+}
+
+.consent-checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: #1a237e;
+  cursor: pointer;
+}
+
+.consent-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #212121;
+}
+
+.consent-link {
+  color: #1a237e;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.consent-link:hover {
+  color: #534bae;
+}
+
 /* Form grid */
 .form-grid {
   display: grid;

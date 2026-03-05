@@ -252,6 +252,9 @@ export class PublicRegistrationComponent implements OnInit {
     return this.mainForm.get('pets') as FormArray;
   }
 
+  /** URL del documento "Autorización de uso de datos personales" (HTML en assets). */
+  dataAuthDocUrl = '/assets/docs/autorizacion-uso-datos-personales.html';
+
   private buildForm(): FormGroup {
     return this.fb.group({
       house: this.fb.group({
@@ -265,7 +268,8 @@ export class PublicRegistrationComponent implements OnInit {
         this.buildOwnerGroup()
       ]),
       vehicles: this.fb.array([]),
-      pets: this.fb.array([])
+      pets: this.fb.array([]),
+      acceptDataUse: [false, Validators.requiredTrue]
     });
   }
 
@@ -656,6 +660,10 @@ export class PublicRegistrationComponent implements OnInit {
   }
 
   submit(): void {
+    if (!this.mainForm.get('acceptDataUse')?.value) {
+      this.toastr.error('Debe aceptar la autorización de uso de datos personales para enviar el registro.');
+      return;
+    }
     if (!this.canProceedSection1() || (this.hasSecondOwner && !this.canProceedSection2())) {
       this.toastr.error('Complete los datos obligatorios de propietarios y vivienda.');
       return;
