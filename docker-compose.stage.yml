@@ -59,7 +59,8 @@ services:
     volumes:
       - ./:/workspace
       - frontend_node_modules:/workspace/node_modules
-    command: sh -c "npm install --legacy-peer-deps && npm run start -- --configuration=stage --host 0.0.0.0 --port 4200"
+    # Vaciar node_modules al arrancar evita ENOTEMPTY con el volumen persistente (node-gyp-build rename).
+    command: sh -c "rm -rf node_modules && npm install --legacy-peer-deps && npm run start -- --configuration=stage --host 0.0.0.0 --port 4200"
     ports:
       - "8086:4200"
     environment:
