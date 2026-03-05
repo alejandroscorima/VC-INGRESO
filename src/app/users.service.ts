@@ -52,6 +52,31 @@ export class UsersService {
     return this.api.getRaw('api/v1/users/by-birthday', { fecha_cumple }).pipe(map((r) => r?.data ?? r));
   }
 
+  /**
+   * Cambiar contraseña del usuario autenticado. Requiere contraseña actual y nueva.
+   */
+  changeMyPassword(current_password: string, new_password: string): Observable<any> {
+    return this.api.put('api/v1/users/me/password', { current_password, new_password });
+  }
+
+  /**
+   * Actualizar datos personales del usuario autenticado (person).
+   * Solo campos permitidos: gender, birth_date, cel_number, email, address, district, province, region, civil_status.
+   */
+  updateMyPerson(data: Partial<{
+    gender: string;
+    birth_date: string | null;
+    cel_number: string;
+    email: string;
+    address: string;
+    district: string;
+    province: string;
+    region: string;
+    civil_status: string | null;
+  }>): Observable<any> {
+    return this.api.put('api/v1/users/me/person', data).pipe(map((r) => r?.data ?? r));
+  }
+
   getCollaboratorByUserId(user_id: number): Observable<any> {
     return this.api.getRaw('api/v1/catalog/collaborator', { user_id });
   }

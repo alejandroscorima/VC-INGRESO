@@ -3,6 +3,23 @@
   text-decoration: none;
 }
 
+/* Tarjeta Próximos Cumpleaños: centrar ícono de torta en el avatar */
+.birthday-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.birthday-avatar .birthday-avatar-icon,
+.birthday-avatar ::ng-deep .mat-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  line-height: 1;
+}
+
 .box{
     cursor:pointer;
     border-radius: 0%;

@@ -235,8 +235,8 @@
         <div class="space-y-3" *ngIf="!loadingBirthdays && upcomingBirthdays.length > 0">
           <div *ngFor="let p of upcomingBirthdays" class="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white">
-                <mat-icon class="text-sm">cake</mat-icon>
+              <div class="birthday-avatar w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white shrink-0">
+                <mat-icon class="birthday-avatar-icon text-[1.125rem] w-[1.125rem] h-[1.125rem]">cake</mat-icon>
               </div>
               <div>
                 <p class="text-gray-800 dark:text-gray-200">{{ p.first_name }} {{ p.paternal_surname || '' }}</p>

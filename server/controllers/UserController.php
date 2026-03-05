@@ -345,6 +345,96 @@ class UserController extends Controller {
     }
 
     /**
+     * PUT /api/v1/users/me/person
+     * Actualizar datos personales del usuario autenticado (solo campos permitidos de persons).
+     * Cualquier usuario puede modificar: gender, birth_date, cel_number, email, address, district, province, region, civil_status.
+     */
+    public function updateMyPerson($params = []) {
+        $payload = requireAuth();
+        $userId = isset($payload['user_id']) ? (int) $payload['user_id'] : null;
+        if (!$userId) {
+            Response::error('Usuario no identificado', 401);
+            return;
+        }
+        $user = $this->findById($userId, 'user_id');
+        if (!$user || empty($user->person_id)) {
+            Response::error('Usuario o persona no encontrada', 404);
+            return;
+        }
+        $data = $this->getInput();
+        if (!is_array($data)) {
+            Response::error('Cuerpo de petición inválido', 400);
+            return;
+        }
+        $allowed = ['gender', 'birth_date', 'cel_number', 'email', 'address', 'district', 'province', 'region', 'civil_status'];
+        $pData = [];
+        foreach ($allowed as $f) {
+            if (array_key_exists($f, $data)) {
+                $pData[$f] = $data[$f];
+            }
+        }
+        if (empty($pData)) {
+            Response::error('No hay datos permitidos para actualizar', 400);
+            return;
+        }
+        $set = implode(', ', array_map(fn($c) => "$c = ?", array_keys($pData)));
+        $params = array_values($pData);
+        $params[] = $user->person_id;
+        $this->db->prepare("UPDATE persons SET $set WHERE id = ?")->execute($params);
+        $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id, u.status_validated, u.status_reason, u.status_system, u.is_active,
+                       p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname, p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status, p.address, p.district, p.province, p.region
+                FROM users u LEFT JOIN persons p ON u.person_id = p.id WHERE u.user_id = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId]);
+        $updated = $stmt->fetch(\PDO::FETCH_OBJ);
+        Response::success($updated, 'Datos personales actualizados');
+    }
+
+    /**
+     * PUT /api/v1/users/me/password
+     * Cambiar contraseña del usuario autenticado. Body: { current_password, new_password }.
+     */
+    public function changeMyPassword($params = []) {
+        $payload = requireAuth();
+        $userId = isset($payload['user_id']) ? (int) $payload['user_id'] : null;
+        if (!$userId) {
+            Response::error('Usuario no identificado', 401);
+            return;
+        }
+        $data = $this->getInput();
+        if (!is_array($data)) {
+            Response::error('Cuerpo de petición inválido', 400);
+            return;
+        }
+        $current = trim($data['current_password'] ?? '');
+        $newPass = trim($data['new_password'] ?? '');
+        if ($current === '' || $newPass === '') {
+            Response::error('Se requieren contraseña actual y nueva contraseña', 400);
+            return;
+        }
+        if (strlen($newPass) < 6) {
+            Response::error('La nueva contraseña debe tener al menos 6 caracteres', 400);
+            return;
+        }
+        $user = $this->findById($userId, 'user_id');
+        if (!$user) {
+            Response::error('Usuario no encontrado', 404);
+            return;
+        }
+        $stored = (string) ($user->password_system ?? '');
+        $isHashed = (strlen($stored) >= 60 && (strpos($stored, '$2y$') === 0 || strpos($stored, '$2a$') === 0)) || strpos($stored, '$argon2') === 0;
+        $valid = $isHashed ? password_verify($current, $stored) : hash_equals($stored, $current);
+        if (!$valid) {
+            Response::error('Contraseña actual incorrecta', 400);
+            return;
+        }
+        $hash = password_hash($newPass, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare("UPDATE users SET password_system = ?, force_password_change = 0 WHERE user_id = ?");
+        $stmt->execute([$hash, $userId]);
+        Response::success(null, 'Contraseña actualizada correctamente');
+    }
+
+    /**
      * POST /api/v1/users/me/photo
      * Subir foto de perfil del usuario autenticado. Body: multipart/form-data con campo "photo".
      * Actualiza persons.photo_url y devuelve el usuario con la nueva photo_url.

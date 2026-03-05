@@ -53,6 +53,16 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
   externalVehicles: ExternalVehicle[] = [];
 
+  petToAdd: Partial<Pet> = { name: '', species: 'PERRO', breed: '', color: '', house_id: 0, status_validated: 'PERMITIDO' };
+  petToEdit: Partial<Pet> & { id?: number } = {};
+  petSpecies: { value: string; label: string }[] = [
+    { value: 'PERRO', label: 'Perro' },
+    { value: 'GATO', label: 'Gato' },
+    { value: 'AVE', label: 'Ave' },
+    { value: 'OTRO', label: 'Otro' }
+  ];
+  petStatusList = ['PERMITIDO', 'OBSERVADO', 'DENEGADO'];
+
   constructor(
     private entranceService: EntranceService,
     private auth: AuthService,
@@ -67,8 +77,9 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       next:(os:User)=>{
         this.userOnSes.house_id=os.house_id;
         this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe({
-          next: (resMyFamily: unknown) => {
-            const list = Array.isArray(resMyFamily) ? resMyFamily : [];
+          next: (resMyFamily: any) => {
+            const raw = (resMyFamily?.data != null && Array.isArray(resMyFamily.data)) ? resMyFamily.data : (Array.isArray(resMyFamily) ? resMyFamily : []);
+            const list = raw.map((u: any) => ({ ...u, property_category: u.property_category ?? u.person_type ?? u.relation_type }));
             this.myFamily = list.filter((u: any) =>
               ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category || u.person_type)
             );
@@ -76,7 +87,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
               ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category || u.person_type)
             );
             this.myTenants = list.filter((u: any) => (u.property_category || u.person_type) === 'INQUILINO');
-            this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(u.property_category || u.person_type));
+            this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(String(u.property_category || u.person_type || u.relation_type || '').toUpperCase()));
           },
           error: () => {
             this.myFamily = [];
@@ -88,22 +99,28 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         if (this.userOnSes.house_id) {
           this.petsService.getPets({ house_id: this.userOnSes.house_id }).subscribe({
             next: (res: any) => {
-              this.myPets = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+              this.myPets = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
             },
             error: () => { this.myPets = []; },
           });
         }
+        this.entranceService.getAllHouses().subscribe({
+          next: (res: any) => {
+            const list = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+            this.houses = list;
+          },
+        });
         this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe({
-          next: (mv: unknown) => {
-            this.myVehicles = Array.isArray(mv) ? mv : [];
+          next: (res: any) => {
+            this.myVehicles = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
           },
           error: () => {
             this.myVehicles = [];
           },
         });
         this.entranceService.getAllExternalVehicles().subscribe({
-          next: (res: unknown) => {
-            this.externalVehicles = Array.isArray(res) ? res : (res && (res as any).data ? (res as any).data : []);
+          next: (res: any) => {
+            this.externalVehicles = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
           },
           error: () => { this.externalVehicles = []; }
         });
@@ -167,6 +184,14 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   newUser(){
+    this.userToAdd.property_category = 'PROPIETARIO';
+    document.getElementById('new-user-button')?.click();
+  }
+
+  newTenant(){
+    this.userToAdd = User.empty();
+    this.userToAdd.property_category = 'INQUILINO';
+    this.userToAdd.house_id = this.userOnSes.house_id ?? 0;
     document.getElementById('new-user-button')?.click();
   }
 
@@ -192,6 +217,62 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     this.vehicleToEdit = new Vehicle('','',0,'','','','');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
     this.externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
+    this.petToAdd = { name: '', species: 'PERRO', breed: '', color: '', house_id: 0, status_validated: 'PERMITIDO' };
+    this.petToEdit = {};
+  }
+
+  newPet(){
+    this.petToAdd = {
+      name: '',
+      species: 'PERRO',
+      breed: '',
+      color: '',
+      house_id: this.userOnSes.house_id ?? 0,
+      status_validated: 'PERMITIDO'
+    };
+    document.getElementById('new-pet-button')?.click();
+  }
+
+  editPet(pet: Pet){
+    this.petToEdit = { ...pet };
+    document.getElementById('edit-pet-button')?.click();
+  }
+
+  saveNewPet(){
+    if (!this.petToAdd.name?.trim() || !this.petToAdd.species || !this.petToAdd.house_id) {
+      this.toastr.error('Nombre, especie y casa son obligatorios.');
+      return;
+    }
+    this.petsService.createPet(this.petToAdd).subscribe({
+      next: () => {
+        this.toastr.success('Mascota registrada correctamente.');
+        this.handleSuccess();
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.error || 'Error al guardar la mascota.');
+      }
+    });
+  }
+
+  saveEditPet(){
+    const id = this.petToEdit.id ?? (this.petToEdit as any).id;
+    if (!id) {
+      this.toastr.error('No se puede editar la mascota.');
+      return;
+    }
+    if (!this.petToEdit.name?.trim() || !this.petToEdit.species) {
+      this.toastr.error('Nombre y especie son obligatorios.');
+      return;
+    }
+    this.petsService.updatePet(id, this.petToEdit).subscribe({
+      next: () => {
+        this.toastr.success('Mascota actualizada correctamente.');
+        this.handleSuccess();
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.error || 'Error al actualizar la mascota.');
+      }
+    });
   }
 
   private handleSuccess() {
@@ -282,6 +363,14 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 // VEHÍCULOS DE RESIDENTES
 
 newVehicle(){
+  const houseId = this.userOnSes.house_id ?? 0;
+  this.vehicleToAdd.house_id = houseId;
+  if (!this.vehicleToAdd.type_vehicle) this.vehicleToAdd.type_vehicle = 'AUTOMOVIL';
+  if (!this.vehicleToAdd.category_entry) this.vehicleToAdd.category_entry = 'RESIDENTE';
+  if (!this.vehicleToAdd.status_validated) this.vehicleToAdd.status_validated = 'PERMITIDO';
+  if (this.houses.length === 0 && houseId) {
+    this.houses = [{ house_id: houseId, block_house: '—', lot: null, apartment: null } as House];
+  }
   document.getElementById('new-vehicle-button')?.click();
 }
 

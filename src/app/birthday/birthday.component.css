@@ -6,6 +6,109 @@
   display: none;
 }
 
+/* Tabla: colores base (light) */
+.birthday-header-row {
+  background-color: #f9fafb;
+}
+.birthday-data-row:hover {
+  background-color: rgba(249, 250, 251, 0.8);
+}
+.birthday-table-wrap {
+  background: #fff;
+}
+
+/* ========== Dark mode: selector de fecha, buscador, tabla y paginador ========== */
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-text-field-wrapper,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mdc-notched-outline__notch,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mdc-notched-outline__leading,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mdc-notched-outline__trailing {
+  background-color: transparent !important;
+  border-color: #4b5563 !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-form-field-focus-overlay {
+  background-color: rgba(75, 85, 99, 0.08) !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mdc-text-field--filled {
+  background-color: #374151 !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-input-element,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-floating-label,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mdc-floating-label {
+  color: #e5e7eb !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-input-element::placeholder {
+  color: #9ca3af !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-datepicker-toggle {
+  color: #e5e7eb !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-form-field-icon-prefix,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-form-field-icon-suffix {
+  color: #9ca3af !important;
+}
+/* Fill variant: fondo del contenedor */
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-form-field-focus-overlay,
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mdc-line-ripple::before {
+  border-bottom-color: #6b7280 !important;
+}
+:host-context(.dark) .birthday-toolbar ::ng-deep .birthday-form-field .mat-mdc-text-field-wrapper.mdc-text-field--filled {
+  background-color: #374151 !important;
+}
+
+.birthday-no-data-row td {
+  color: #6b7280;
+}
+:host-context(.dark) .birthday-no-data-row td {
+  color: #9ca3af !important;
+  background-color: #1f2937 !important;
+}
+
+:host-context(.dark) .birthday-table-wrap {
+  background: #1f2937 !important;
+}
+:host-context(.dark) .birthday-header-row {
+  background-color: #111827 !important;
+}
+:host-context(.dark) .birthday-header-row th {
+  color: #9ca3af !important;
+  border-bottom-color: #374151 !important;
+}
+:host-context(.dark) .birthday-data-row td {
+  color: #e5e7eb !important;
+  border-bottom-color: #374151 !important;
+  background-color: #1f2937 !important;
+}
+:host-context(.dark) .birthday-data-row:hover td {
+  background-color: #374151 !important;
+}
+:host-context(.dark) .birthday-table-wrap .mat-mdc-table {
+  background: transparent !important;
+}
+
+:host-context(.dark) .birthday-paginator {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+  border-top: 1px solid #374151 !important;
+}
+:host-context(.dark) .birthday-paginator .mat-mdc-paginator-container {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+:host-context(.dark) .birthday-paginator .mat-mdc-select-value,
+:host-context(.dark) .birthday-paginator .mat-mdc-paginator-page-size-label,
+:host-context(.dark) .birthday-paginator .mat-mdc-paginator-range-label {
+  color: #e5e7eb !important;
+}
+:host-context(.dark) .birthday-paginator .mat-mdc-icon-button {
+  color: #9ca3af !important;
+}
+:host-context(.dark) .birthday-paginator .mat-mdc-icon-button:hover:not([disabled]) {
+  color: #e5e7eb !important;
+}
+:host-context(.dark) .birthday-paginator .mat-mdc-select-arrow {
+  color: #9ca3af !important;
+}
+
 .formRevalidar{
 display: flex;
 flex-direction: column;
@@ -50,8 +153,11 @@ margin: 0px;
 text-align: center;
 }
 
-tr.mat-row:hover {
-background-color: rgba(137, 130, 130, 0.328);
+.birthday-table-wrap tr.mat-row:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+:host-context(.dark) .birthday-table-wrap tr.mat-row:hover {
+  background-color: transparent;
 }
 
 tr.example-detail-row {

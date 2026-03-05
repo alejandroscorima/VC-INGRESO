@@ -159,6 +159,14 @@ if (str_starts_with($uri, '/api/v1/')) {
             $controller->uploadProfilePhoto();
             exit;
         }
+        if ($path === 'users/me/person' && $method === 'PUT') {
+            $controller->updateMyPerson();
+            exit;
+        }
+        if ($path === 'users/me/password' && $method === 'PUT') {
+            $controller->changeMyPassword();
+            exit;
+        }
         
         if (str_contains($path, 'from-person') && $method === 'POST') {
             $controller->createFromPerson();
@@ -167,6 +175,11 @@ if (str_starts_with($uri, '/api/v1/')) {
         
         if (str_contains($path, 'by-doc-number') && $method === 'GET') {
             $controller->byDocNumber([]);
+            exit;
+        }
+        
+        if (str_contains($path, 'by-birthday') && $method === 'GET') {
+            $controller->byBirthday([]);
             exit;
         }
         
@@ -194,13 +207,6 @@ if (str_starts_with($uri, '/api/v1/')) {
                         $controller->destroy(['id' => $id]);
                     }
                     break;
-            }
-            exit;
-        }
-        
-        if (str_contains($path, 'by-birthday')) {
-            if ($method === 'GET') {
-                $controller->byBirthday([]);
             }
             exit;
         }
@@ -252,6 +258,12 @@ if (str_starts_with($uri, '/api/v1/')) {
         require_once __DIR__ . '/controllers/VehicleController.php';
         $controller = new \Controllers\VehicleController();
         
+        if (str_contains($path, 'by-house') && $method === 'GET') {
+            $houseId = $_GET['house_id'] ?? null;
+            $controller->byHouse(['house_id' => $houseId]);
+            exit;
+        }
+        
         if (preg_match('#^vehicles(?:/(\d+))?#', $path, $matches)) {
             $id = $matches[1] ?? null;
             
@@ -276,14 +288,6 @@ if (str_starts_with($uri, '/api/v1/')) {
                         $controller->destroy(['id' => $id]);
                     }
                     break;
-            }
-            exit;
-        }
-        
-        if (str_contains($path, 'by-house')) {
-            if ($method === 'GET') {
-                $houseId = $_GET['house_id'] ?? null;
-                $controller->byHouse(['house_id' => $houseId]);
             }
             exit;
         }

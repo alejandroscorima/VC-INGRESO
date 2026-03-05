@@ -2,6 +2,88 @@
   <div class="p-4 mt-14">
     <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Configuración</h1>
 
+    <!-- Mis datos personales: visible para todos los usuarios -->
+    <div *ngIf="user" class="mb-8">
+      <div class="p-6 bg-white border border-gray-200 rounded-xl shadow dark:bg-gray-800 dark:border-gray-700">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Mis datos personales</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Puedes modificar los siguientes datos de tu perfil (persona).</p>
+        <form (ngSubmit)="savePerson()" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <label for="person-gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Género</label>
+            <select id="person-gender" [(ngModel)]="personForm.gender" name="gender" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500">
+              <option value="">Seleccionar</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+              <option value="O">Otro</option>
+            </select>
+          </div>
+          <div>
+            <label for="person-birth_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de nacimiento</label>
+            <input id="person-birth_date" type="date" [(ngModel)]="personForm.birth_date" name="birth_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label for="person-civil_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado civil</label>
+            <input id="person-civil_status" type="text" [(ngModel)]="personForm.civil_status" name="civil_status" placeholder="Ej. Soltero, Casado" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="person-cel_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Celular</label>
+            <input id="person-cel_number" type="tel" [(ngModel)]="personForm.cel_number" name="cel_number" placeholder="Ej. 999888777" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="person-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Correo electrónico</label>
+            <input id="person-email" type="email" [(ngModel)]="personForm.email" name="email" placeholder="correo@ejemplo.com" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div class="sm:col-span-2 lg:col-span-3">
+            <label for="person-address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
+            <input id="person-address" type="text" [(ngModel)]="personForm.address" name="address" placeholder="Calle, número, referencia" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label for="person-district" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Distrito</label>
+            <input id="person-district" type="text" [(ngModel)]="personForm.district" name="district" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label for="person-province" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Provincia</label>
+            <input id="person-province" type="text" [(ngModel)]="personForm.province" name="province" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label for="person-region" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Región</label>
+            <input id="person-region" type="text" [(ngModel)]="personForm.region" name="region" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div class="sm:col-span-2 lg:col-span-3 flex justify-end">
+            <button type="submit" [disabled]="savingPerson" class="settings-btn-primary px-4 py-2 font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ savingPerson ? 'Guardando...' : 'Guardar datos personales' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Cambiar mi contraseña: visible para todos los usuarios -->
+    <div *ngIf="user" class="mb-8">
+      <div class="p-6 bg-white border border-gray-200 rounded-xl shadow dark:bg-gray-800 dark:border-gray-700">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Cambiar mi contraseña</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Indica tu contraseña actual y la nueva contraseña (mínimo 6 caracteres).</p>
+        <form (ngSubmit)="savePassword()" class="max-w-md space-y-4">
+          <div>
+            <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña actual</label>
+            <input id="current-password" type="password" [(ngModel)]="passwordForm.currentPassword" name="currentPassword" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" placeholder="Tu contraseña actual" />
+          </div>
+          <div>
+            <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nueva contraseña</label>
+            <input id="new-password" type="password" [(ngModel)]="passwordForm.newPassword" name="newPassword" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div>
+            <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar nueva contraseña</label>
+            <input id="confirm-password" type="password" [(ngModel)]="passwordForm.confirmPassword" name="confirmPassword" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-amber-500" placeholder="Repite la nueva contraseña" />
+          </div>
+          <button type="submit" [disabled]="savingPassword" class="settings-btn-primary px-4 py-2 font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ savingPassword ? 'Guardando...' : 'Cambiar contraseña' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Enlaces de administración: solo administradores -->
     <div *ngIf="isAdmin" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <a routerLink="/users" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
         <h2 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Usuarios / Personas</h2>
@@ -21,8 +103,8 @@
       </a>
     </div>
 
-    <div *ngIf="!isAdmin && user" class="p-6 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-      <p class="text-gray-600 dark:text-gray-400">No tienes acceso a la configuración. Solo administradores pueden gestionar usuarios, domicilios, vehículos y mascotas.</p>
+    <div *ngIf="!user" class="p-6 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+      <p class="text-gray-600 dark:text-gray-400">Inicia sesión para ver la configuración.</p>
     </div>
   </div>
 </div>

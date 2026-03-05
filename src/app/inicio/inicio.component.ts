@@ -511,6 +511,16 @@ export class InicioComponent implements OnInit {
     return (this.distributionVisitors || []).reduce((s, d) => s + (d.count || 0), 0);
   }
 
+  /** Obtiene mes-día (MM-DD) desde birth_date para filtrar cumpleaños. */
+  private getMonthDayFromBirthDate(birthDate: string | null | undefined): string | null {
+    if (!birthDate) return null;
+    const d = typeof birthDate === 'string' && birthDate.includes('T') ? new Date(birthDate) : new Date(birthDate + (birthDate.includes('-') && birthDate.length === 10 ? 'T12:00:00' : ''));
+    if (isNaN(d.getTime())) return null;
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${m}-${day}`;
+  }
+
   private loadDashboardData(): void {
     const today = new Date();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -527,18 +537,20 @@ export class InicioComponent implements OnInit {
 
     this.userService.getPersonsByBirthday(fechaCumple).subscribe({
       next: (resHoy: any) => {
-        const listHoy = (resHoy?.data && Array.isArray(resHoy.data)) ? resHoy.data : (Array.isArray(resHoy) ? resHoy : []);
+        const rawHoy = (resHoy?.data && Array.isArray(resHoy.data)) ? resHoy.data : (Array.isArray(resHoy) ? resHoy : []);
+        const listHoy = (rawHoy || []).filter((p: any) => this.getMonthDayFromBirthDate(p.birth_date) === fechaCumple);
         this.birthdaysToday = listHoy;
         this.userService.getPersonsByBirthday(fechaCumpleTomorrow).subscribe({
           next: (resManana: any) => {
-            const listManana = (resManana?.data && Array.isArray(resManana.data)) ? resManana.data : (Array.isArray(resManana) ? resManana : []);
+            const rawManana = (resManana?.data && Array.isArray(resManana.data)) ? resManana.data : (Array.isArray(resManana) ? resManana : []);
+            const listManana = (rawManana || []).filter((p: any) => this.getMonthDayFromBirthDate(p.birth_date) === fechaCumpleTomorrow);
             const withLabelHoy = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const }));
             const withLabelManana = (listManana || []).map((p: any) => ({ ...p, dayLabel: 'Mañana' as const }));
             this.upcomingBirthdays = [...withLabelHoy, ...withLabelManana].slice(0, 8);
             this.loadingBirthdays = false;
           },
           error: () => {
-            this.upcomingBirthdays = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const })).slice(0, 5);
+            this.upcomingBirthdays = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const })).slice(0, 8);
             this.loadingBirthdays = false;
           }
         });

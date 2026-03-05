@@ -1,12 +1,12 @@
-<div class="dashboard-wrap p-4 dark:bg-gray-900 min-h-screen">
+<div class="dashboard-wrap birthday-page p-4 dark:bg-gray-900 min-h-screen">
   <div class="p-4 mt-14">
     <div class="mb-6">
       <h2 class="text-xl font-bold text-gray-800 dark:text-white">Cumpleaños</h2>
       <p class="text-sm text-gray-500 dark:text-gray-400">Personas que cumplen años el día seleccionado</p>
     </div>
 
-    <div class="glass-effect rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
-      <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+    <div class="glass-effect rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700 birthday-toolbar">
         <div class="flex flex-wrap items-center gap-4">
           <mat-form-field appearance="fill" class="birthday-form-field min-w-[140px]">
             <mat-label>Fecha</mat-label>
@@ -20,8 +20,8 @@
           </mat-form-field>
         </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+      <div class="overflow-x-auto birthday-table-wrap">
+        <table class="birthday-table w-full text-sm text-left"
                mat-table [dataSource]="dataSourceHB" matSort multiTemplateDataRows>
 
           <ng-container matColumnDef="doc">
@@ -54,15 +54,15 @@
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-50 dark:bg-gray-800"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="hover:bg-gray-50 dark:hover:bg-gray-800/50"></tr>
-          <tr class="mat-row" *matNoDataRow>
-            <td class="py-8 px-6 text-center text-gray-500 dark:text-gray-400" [attr.colspan]="displayedColumns.length">
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="birthday-header-row"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="birthday-data-row"></tr>
+          <tr class="mat-row birthday-no-data-row" *matNoDataRow>
+            <td class="py-8 px-6 text-center" [attr.colspan]="displayedColumns.length">
               No hay cumpleaños el día seleccionado o no se encontró "{{ input1?.value }}"
             </td>
           </tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[10, 20, 50, 100]" aria-label="Página"></mat-paginator>
+        <mat-paginator class="birthday-paginator" [pageSizeOptions]="[10, 20, 50, 100]" aria-label="Página"></mat-paginator>
       </div>
     </div>
   </div>
