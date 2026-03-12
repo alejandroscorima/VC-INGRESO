@@ -1,6 +1,7 @@
 # Producción: frontend (nginx) + api + mysql (todo en contenedores).
 # Requiere: ng build --configuration=production (genera dist/Ingreso).
 # Uso: docker compose -f docker-compose.prod.yml up -d
+# Nota: pensado para ir detrás de Nginx Proxy Manager, sin publicar puertos.
 services:
   mysql:
     image: mysql:8.0
@@ -44,8 +45,6 @@ services:
       - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN}
       - PHP_OPCACHE_ENABLE=1
       - PHP_OPCACHE_VALIDATE_TIMESTAMPS=0
-    ports:
-      - "80:80"
     volumes:
       - uploads_data:/var/www/html/uploads
     depends_on:
@@ -60,11 +59,15 @@ services:
     container_name: vc-ingreso-frontend
     volumes:
       - ./dist/Ingreso:/usr/share/nginx/html:ro
-    ports:
-      - "8080:80"
     depends_on:
       - api
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - default
       - nginx-proxy-manager_default
