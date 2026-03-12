@@ -55,10 +55,11 @@ services:
       - default    
 
   frontend:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: vc-ingreso-frontend:prod
     container_name: vc-ingreso-frontend
-    volumes:
-      - ./dist/Ingreso:/usr/share/nginx/html:ro
     depends_on:
       - api
     restart: unless-stopped
