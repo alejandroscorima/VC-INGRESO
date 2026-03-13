@@ -221,7 +221,7 @@
                   <input *ngIf="v.get('type_vehicle')?.value === 'OTRO'" type="text" formControlName="type_vehicle_other" class="input-field mt-2" placeholder="Escriba el tipo de vehículo" />
                 </div>
                 <div class="form-group"><label class="required">Placa</label>
-                  <input type="text" formControlName="license_plate" class="input-field uppercase-input" placeholder="ABC-123" (input)="toUpperCaseField(v.get('license_plate'))" /></div>
+                  <input type="text" formControlName="license_plate" class="input-field uppercase-input" placeholder="ABC123" (input)="toUpperCaseField(v.get('license_plate'))" /></div>
                 <div class="form-group"><label class="required">Marca</label>
                   <input type="text" formControlName="brand" class="input-field uppercase-input" (input)="toUpperCaseField(v.get('brand'))" /></div>
                 <div class="form-group"><label>Modelo</label>
