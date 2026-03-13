@@ -67,7 +67,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- El frontend usa getPaymentByClientId(1) tras el login; debe existir este cliente y un pago vigente.
 -- -----------------------------------------------------------------------------
 INSERT INTO `clients` (`client_id`, `client_name`, `client_phone`, `client_email`, `client_ruc`, `doc_type`, `client_logo`, `is_active`) VALUES
-(1, 'Villa Club 5', '999888777', 'contacto@villaclub5.com', '20100000001', 'RUC', NULL, 1)
+(1, 'Villa Club 5', '999888777', 'contacto@villa-club5.com', '20100000001', 'RUC', NULL, 1)
 ON DUPLICATE KEY UPDATE `client_name` = VALUES(`client_name`), `client_email` = VALUES(`client_email`);
 
 INSERT INTO `payment` (`client_id`, `date_start`, `date_expire`, `payment_date`, `payment_frequency`, `status`) VALUES

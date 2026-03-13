@@ -52,7 +52,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - default    
+      - default
+      - nginx-proxy-manager_default
 
   frontend:
     build:
