@@ -15,6 +15,7 @@ use Utils\Response;
 
 class VehicleController extends Controller {
     protected $tableName = 'vehicles';
+    protected $primaryKey = 'vehicle_id';
     
     /**
      * Listar todos los vehículos (requiere auth; admin ve todos, resto según política)
@@ -59,7 +60,7 @@ class VehicleController extends Controller {
         if (!canAccessHouse($this->db, $auth, (int) $houseId)) {
             Response::error('Sin permiso para ver vehículos de esta casa', 403);
         }
-        $vehicles = $this->getAll(['house_id' => $houseId]);
+        $vehicles = $this->getAll(['house_id' => $houseId], 'vehicle_id DESC');
         Response::success($vehicles);
     }
     

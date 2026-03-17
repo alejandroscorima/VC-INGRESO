@@ -89,6 +89,18 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     this.viewPhotoUrl = null;
   }
 
+  getHouseLocation(v: Vehicle): string {
+    const house = this.houses.find(h => h.house_id === v.house_id);
+    const block = (house?.block_house ?? v.block_house ?? '-').toString().toUpperCase();
+    const lot = (house?.lot ?? v.lot ?? '-').toString().toUpperCase();
+    const apt = (house?.apartment ?? v.apartment ?? '').toString().trim();
+    let result = `MZ:${block} LT:${lot}`;
+    if (apt !== '') {
+      result += ` DPTO:${apt.toUpperCase()}`;
+    }
+    return result;
+  }
+
   saveEditVehicle(){
     if(!this.vehicleToEdit.license_plate || !this.vehicleToEdit.house_id||!this.vehicleToEdit.type_vehicle){
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');

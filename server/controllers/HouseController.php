@@ -52,10 +52,11 @@ class HouseController extends Controller {
         if (!$house) {
             Response::notFound('Casa no encontrada');
         }
+
         $stmt = $this->db->prepare("
             SELECT hm.id AS membership_id, hm.relation_type, hm.is_primary, hm.is_active, hm.start_date, hm.end_date,
                    p.id AS person_id, p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
-                   p.gender, p.birth_date, p.cel_number, p.email, p.person_type, p.status_validated, p.status_system
+                   p.gender, p.birth_date, p.cel_number, p.email, p.person_type, p.status_validated, p.status_system, p.photo_url
             FROM house_members hm
             JOIN persons p ON p.id = hm.person_id
             WHERE hm.house_id = ? AND hm.is_active = 1
@@ -63,6 +64,30 @@ class HouseController extends Controller {
         ");
         $stmt->execute([$houseId]);
         $members = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Añadir personas asignadas a la casa que no están en house_members
+        $memberIds = array_column($members, 'person_id');
+        $query = "SELECT NULL AS membership_id, p.person_type AS relation_type, 0 AS is_primary, 1 AS is_active, NULL AS start_date, NULL AS end_date,
+                         p.id AS person_id, p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
+                         p.gender, p.birth_date, p.cel_number, p.email, p.person_type, p.status_validated, p.status_system, p.photo_url
+                  FROM persons p
+                  WHERE p.house_id = ?";
+
+        $params = [$houseId];
+        if (!empty($memberIds)) {
+            $placeholders = implode(',', array_fill(0, count($memberIds), '?'));
+            $query .= " AND p.id NOT IN ($placeholders)";
+            $params = array_merge($params, $memberIds);
+        }
+
+        $query .= " ORDER BY p.paternal_surname, p.first_name";
+
+        $stmt2 = $this->db->prepare($query);
+        $stmt2->execute($params);
+        $extra = $stmt2->fetchAll(\PDO::FETCH_ASSOC);
+
+        $members = array_merge($members, $extra);
+
         Response::success($members, 'Miembros obtenidos correctamente');
     }
     

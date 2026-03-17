@@ -59,6 +59,18 @@ export class UsersComponent implements OnInit, AfterViewInit{
     initFlowbite();
   }
 
+  getHouseLocation(u: User): string {
+    const house = this.houses.find(h => h.house_id === u.house_id);
+    const mz = (house?.block_house ?? u.block_house ?? '-').toString().toUpperCase();
+    const lt = (house?.lot ?? u.lot ?? '-').toString().toUpperCase();
+    const apt = (house?.apartment ?? u.apartment ?? '').toString().trim();
+    let output = `MZ:${mz} LT:${lt}`;
+    if (apt !== '') {
+      output += ` DPTO:${apt.toUpperCase()}`;
+    }
+    return output;
+  }
+
   searchUser(doc_number: string){
     this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
       if(resExistentUser.user_id){

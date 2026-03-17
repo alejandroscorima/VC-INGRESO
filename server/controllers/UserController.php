@@ -24,9 +24,13 @@ class UserController extends Controller {
                        u.status_validated, u.status_reason, u.status_system, u.is_active,
                        p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
                        p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status,
-                       p.address, p.district, p.province, p.region
+                       p.address, p.district, p.province, p.region,
+                       h.block_house, h.lot, h.apartment
                 FROM users u
                 LEFT JOIN persons p ON u.person_id = p.id
+                LEFT JOIN houses h ON h.house_id = COALESCE(u.house_id, p.house_id,
+                    (SELECT house_id FROM house_members hm WHERE hm.person_id = p.id AND COALESCE(hm.is_active,1) = 1
+                     ORDER BY hm.is_primary DESC, hm.id ASC LIMIT 1))
                 ORDER BY u.user_id DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -51,9 +55,13 @@ class UserController extends Controller {
                        u.status_validated, u.status_reason, u.status_system, u.is_active,
                        p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
                        p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status,
-                       p.address, p.district, p.province, p.region
+                       p.address, p.district, p.province, p.region,
+                       h.block_house, h.lot, h.apartment
                 FROM users u
                 LEFT JOIN persons p ON u.person_id = p.id
+                LEFT JOIN houses h ON h.house_id = COALESCE(u.house_id, p.house_id,
+                    (SELECT house_id FROM house_members hm WHERE hm.person_id = p.id AND COALESCE(hm.is_active,1) = 1
+                     ORDER BY hm.is_primary DESC, hm.id ASC LIMIT 1))
                 WHERE u.user_id = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
@@ -70,6 +78,15 @@ class UserController extends Controller {
             $stmtHm->execute([$user->person_id]);
             $row = $stmtHm->fetch(\PDO::FETCH_OBJ);
             $houseId = $row ? (int) $row->house_id : null;
+
+            if (!$houseId) {
+                $stmtP = $this->db->prepare("SELECT house_id FROM persons WHERE id = ? LIMIT 1");
+                $stmtP->execute([$user->person_id]);
+                $personRow = $stmtP->fetch(\PDO::FETCH_ASSOC);
+                if ($personRow && !empty($personRow['house_id'])) {
+                    $houseId = (int) $personRow['house_id'];
+                }
+            }
         }
         if ($houseId) {
             $stmtH = $this->db->prepare("SELECT block_house, lot, apartment FROM houses WHERE house_id = ? LIMIT 1");
@@ -80,6 +97,8 @@ class UserController extends Controller {
                 $user->lot = $h->lot;
                 $user->apartment = $h->apartment;
             }
+            // Asegurar que el usuario devuelto tenga la casa principal correcta
+            $user->house_id = (int) $houseId;
         }
         
         Response::success($user);
@@ -408,8 +427,8 @@ class UserController extends Controller {
         }
         $current = trim($data['current_password'] ?? '');
         $newPass = trim($data['new_password'] ?? '');
-        if ($current === '' || $newPass === '') {
-            Response::error('Se requieren contraseña actual y nueva contraseña', 400);
+        if ($newPass === '') {
+            Response::error('Se requiere nueva contraseña', 400);
             return;
         }
         if (strlen($newPass) < 6) {
@@ -421,12 +440,22 @@ class UserController extends Controller {
             Response::error('Usuario no encontrado', 404);
             return;
         }
-        $stored = (string) ($user->password_system ?? '');
-        $isHashed = (strlen($stored) >= 60 && (strpos($stored, '$2y$') === 0 || strpos($stored, '$2a$') === 0)) || strpos($stored, '$argon2') === 0;
-        $valid = $isHashed ? password_verify($current, $stored) : hash_equals($stored, $current);
-        if (!$valid) {
-            Response::error('Contraseña actual incorrecta', 400);
+
+        $forcePasswordChange = isset($user->force_password_change) && (int)$user->force_password_change === 1;
+
+        if (!$forcePasswordChange && $current === '') {
+            Response::error('Se requiere contraseña actual', 400);
             return;
+        }
+
+        if ($current !== '') {
+            $stored = (string) ($user->password_system ?? '');
+            $isHashed = (strlen($stored) >= 60 && (strpos($stored, '$2y$') === 0 || strpos($stored, '$2a$') === 0)) || strpos($stored, '$argon2') === 0;
+            $valid = $isHashed ? password_verify($current, $stored) : hash_equals($stored, $current);
+            if (!$valid) {
+                Response::error('Contraseña actual incorrecta', 400);
+                return;
+            }
         }
         $hash = password_hash($newPass, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare("UPDATE users SET password_system = ?, force_password_change = 0 WHERE user_id = ?");

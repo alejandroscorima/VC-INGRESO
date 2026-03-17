@@ -14,6 +14,7 @@ use Utils\Response;
 class Controller {
     protected $db;
     protected $tableName = '';
+    protected $primaryKey = 'id';
     
     public function __construct() {
         $this->db = $this->getDatabase();
@@ -30,7 +31,7 @@ class Controller {
     /**
      * Obtener todos los registros
      */
-    protected function getAll($conditions = [], $orderBy = 'id DESC') {
+    protected function getAll($conditions = [], $orderBy = null) {
         $sql = "SELECT * FROM {$this->tableName}";
         $params = [];
         
@@ -42,7 +43,11 @@ class Controller {
             }
             $sql .= " WHERE " . implode(' AND ', $where);
         }
-        
+
+        if ($orderBy === null) {
+            $orderBy = $this->primaryKey . ' DESC';
+        }
+
         $sql .= " ORDER BY $orderBy";
         
         $stmt = $this->db->prepare($sql);

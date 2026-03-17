@@ -45,9 +45,10 @@ export class LoginComponent implements OnInit {
   newPassword = '';
   confirmPassword = '';
   changingPassword = false;
+  tempCurrentPassword = '';
 
   //user: User = new User(null,null,null,null,null,null,null,null,null,null,null);
-  user: User = new User('','','','','','','','','','','','','',0,'','','','','','','','','','',0,'',0);
+  user: User = new User('','','','','','','','','','','','','','',0,'','','','','','','','','','',0,'',0);
 
 
   listaReq: Item[]= [];
@@ -100,6 +101,7 @@ export class LoginComponent implements OnInit {
 
           if (this.user.force_password_change) {
             this.isloading = false;
+            this.tempCurrentPassword = this.password_system;
             this.showChangePasswordModal = true;
             return;
           }
@@ -174,19 +176,20 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.changingPassword = true;
-    this.usersService.updatePerson(uid, { password_system: this.newPassword }).subscribe({
+    this.usersService.changeMyPassword(this.tempCurrentPassword || '', this.newPassword).subscribe({
       next: () => {
         this.changingPassword = false;
         this.showChangePasswordModal = false;
         this.newPassword = '';
         this.confirmPassword = '';
+        this.tempCurrentPassword = '';
         this.auth.setForcePasswordChangeDone();
         this.toastr.success('Contraseña actualizada. Bienvenido.');
         this.proceedAfterLogin();
       },
-      error: () => {
+      error: (error) => {
         this.changingPassword = false;
-        this.toastr.error('No se pudo actualizar la contraseña');
+        this.toastr.error(error?.error?.message || 'No se pudo actualizar la contraseña');
       }
     });
   }

@@ -11,7 +11,7 @@ services:
       - MYSQL_DATABASE=${DB_NAME:-vc_db}
       - MYSQL_CHARSET=${DB_CHARSET:-utf8mb4}
     ports:
-      - "3306:3306"
+      - "3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/init-docker.sh:/docker-entrypoint-initdb.d/01-init-docker.sh:ro

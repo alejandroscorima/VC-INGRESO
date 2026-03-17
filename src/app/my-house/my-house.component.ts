@@ -5,6 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { EntranceService } from '../entrance.service';
 import { AuthService } from '../auth.service';
 import { UsersService } from '../users.service';
+import { ApiService } from '../api.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { Vehicle } from '../vehicle';
 import { ToastrService } from 'ngx-toastr';
@@ -33,6 +34,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   myVisits: User[] = [];
   myVehicles: Vehicle[] = [];
   myPets: Pet[] = [];
+
+  showViewPhotoDialog = false;
+  viewPhotoUrl: string | null = null;
+  viewPhotoTitle = '';
 
   user_id;
   userOnSes: User = User.empty();
@@ -67,73 +72,175 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     private entranceService: EntranceService,
     private auth: AuthService,
     private usersService: UsersService,
+    public api: ApiService,
     private toastr: ToastrService,
     private petsService: PetsService,
   ){}
 
   ngOnInit(): void {
-    const userId = this.auth.getTokenItem('user_id');
-    this.usersService.getUserById(Number(userId)).subscribe({
-      next:(os:User)=>{
-        this.userOnSes.house_id=os.house_id;
-        this.entranceService.getPersonsByHouseId(this.userOnSes.house_id).subscribe({
-          next: (resMyFamily: any) => {
-            const raw = (resMyFamily?.data != null && Array.isArray(resMyFamily.data)) ? resMyFamily.data : (Array.isArray(resMyFamily) ? resMyFamily : []);
-            const list = raw.map((u: any) => ({ ...u, property_category: u.property_category ?? u.person_type ?? u.relation_type }));
-            this.myFamily = list.filter((u: any) =>
-              ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category || u.person_type)
-            );
-            this.myResidents = list.filter((u: any) =>
-              ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category || u.person_type)
-            );
-            this.myTenants = list.filter((u: any) => (u.property_category || u.person_type) === 'INQUILINO');
-            this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(String(u.property_category || u.person_type || u.relation_type || '').toUpperCase()));
-          },
-          error: () => {
-            this.myFamily = [];
-            this.myResidents = [];
-            this.myTenants = [];
-            this.myVisits = [];
-          },
+    const userId = Number(this.auth.getTokenItem('user_id'));
+    if (!userId || userId <= 0) {
+      this.toastr.error('No se encontró usuario en sesión.');
+      return;
+    }
+
+    this.usersService.getUserById(userId).subscribe({
+      next: (os: User) => {
+        this.userOnSes = os;
+        const houseId = Number(os.house_id) || 0;
+
+        if (houseId <= 0) {
+          this.toastr.warning('El usuario no tiene casa asociada.');
+          return;
+        }
+
+        this.loadHouseMembers(houseId);
+        this.loadPets(houseId);
+        this.loadVehicles(houseId);
+        this.loadExternalVehicles();
+        this.loadAllHouses();
+      },
+      error: () => {
+        this.toastr.error('Error al cargar información del usuario.');
+      }
+    });
+  }
+
+  private normalizeCategory(value: any): string {
+    return (value || '').toString().trim().toUpperCase();
+  }
+
+  private safeDataArray(res: any): any[] {
+    if (!res) {
+      return [];
+    }
+    if (Array.isArray(res)) {
+      return res;
+    }
+    if (res.data && Array.isArray(res.data)) {
+      return res.data;
+    }
+    return [];
+  }
+
+  private loadHouseMembers(houseId: number): void {
+    this.entranceService.getPersonsByHouseId(houseId).subscribe({
+      next: (res: any) => {
+        const raw = this.safeDataArray(res);
+
+        const list = raw.map((u: any) => {
+          const property = this.normalizeCategory(u.property_category || u.person_type || u.relation_type);
+          return {
+            ...u,
+            property_category: property,
+            person_type: this.normalizeCategory(u.person_type),
+            relation_type: this.normalizeCategory(u.relation_type)
+          };
         });
-        if (this.userOnSes.house_id) {
-          this.petsService.getPets({ house_id: this.userOnSes.house_id }).subscribe({
-            next: (res: any) => {
-              this.myPets = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
+
+        this.myFamily = list.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'ADMINISTRADOR'].includes(u.property_category));
+        this.myResidents = list.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'ADMINISTRADOR'].includes(u.property_category));
+        this.myTenants = list.filter((u: any) => u.property_category === 'INQUILINO');
+        this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(this.normalizeCategory(u.property_category || u.person_type || u.relation_type)));
+
+        // fallback a persons?house_id=... si no hay datos en house_members
+        if (this.myFamily.length === 0) {
+          this.usersService.getPersonsByHouseId(houseId).subscribe({
+            next: (res2: any) => {
+              const raw2 = this.safeDataArray(res2);
+              const list2 = raw2.map((u: any) => {
+                const property = this.normalizeCategory(u.property_category || u.person_type || u.relation_type);
+                return {
+                  ...u,
+                  property_category: property,
+                  person_type: this.normalizeCategory(u.person_type),
+                  relation_type: this.normalizeCategory(u.relation_type)
+                };
+              });
+              this.myFamily = list2.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category));
+              this.myResidents = list2.filter((u: any) => ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category));
+              this.myTenants = list2.filter((u: any) => u.property_category === 'INQUILINO');
+              this.myVisits = list2.filter((u: any) => ['INVITADO', 'VISITA'].includes(this.normalizeCategory(u.property_category || u.person_type || u.relation_type)));
             },
-            error: () => { this.myPets = []; },
+            error: () => {
+              // no action
+            }
           });
         }
-        this.entranceService.getAllHouses().subscribe({
-          next: (res: any) => {
-            const list = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
-            this.houses = list;
-          },
-        });
-        this.entranceService.getVehiclesByHouseId(this.userOnSes.house_id).subscribe({
-          next: (res: any) => {
-            this.myVehicles = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
-          },
-          error: () => {
-            this.myVehicles = [];
-          },
-        });
-        this.entranceService.getAllExternalVehicles().subscribe({
-          next: (res: any) => {
-            this.externalVehicles = (res?.data != null && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
-          },
-          error: () => { this.externalVehicles = []; }
-        });
       },
-      error:()=>{}
-    })
-    
+      error: () => {
+        this.myFamily = [];
+        this.myResidents = [];
+        this.myTenants = [];
+        this.myVisits = [];
+      }
+    });
+  }
+
+  private loadPets(houseId: number): void {
+    this.petsService.getPets({ house_id: houseId }).subscribe({
+      next: (res: any) => {
+        this.myPets = this.safeDataArray(res);
+      },
+      error: () => {
+        this.myPets = [];
+      }
+    });
+  }
+
+  private loadVehicles(houseId: number): void {
+    this.entranceService.getVehiclesByHouseId(houseId).subscribe({
+      next: (res: any) => {
+        this.myVehicles = this.safeDataArray(res);
+      },
+      error: () => {
+        this.myVehicles = [];
+      }
+    });
+  }
+
+  private loadExternalVehicles(): void {
+    this.entranceService.getAllExternalVehicles().subscribe({
+      next: (res: any) => {
+        this.externalVehicles = this.safeDataArray(res);
+      },
+      error: () => {
+        this.externalVehicles = [];
+      }
+    });
+  }
+
+  private loadAllHouses(): void {
+    this.entranceService.getAllHouses().subscribe({
+      next: (res: any) => {
+        this.houses = this.safeDataArray(res);
+      },
+      error: () => {
+        this.houses = [];
+      }
+    });
   }
 
   ngAfterViewInit(): void {
     initFlowbite();
   }
 
+  openViewPhoto(item: { photo_url?: string }, title: string): void {
+    const photoUrl = this.api.getPhotoUrl(item.photo_url || '');
+    if (!photoUrl) {
+      this.toastr.warning('No hay imagen disponible para mostrar.');
+      return;
+    }
+    this.viewPhotoTitle = title;
+    this.viewPhotoUrl = photoUrl;
+    this.showViewPhotoDialog = true;
+  }
+
+  closeViewPhoto(): void {
+    this.showViewPhotoDialog = false;
+    this.viewPhotoUrl = null;
+    this.viewPhotoTitle = '';
+  }
 
   searchUser(doc_number: string){
     this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
@@ -286,60 +393,35 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       this.clean();
       return;
     }
-    // Configurar valores predeterminados
-    this.userToAdd.password_system = this.userToAdd.doc_number;
-    this.userToAdd.photo_url = ''; // Sin foto por el momento
-    this.userToAdd.status_system = 'ACTIVO';
-    this.userToAdd.house_id = this.userOnSes.house_id;
-    // Verificar existencia del usuario en la base de datos
-    this.usersService.getUserByDocNumber(this.userToAdd.doc_number).subscribe((resExistentUser: User) => {
-      if (resExistentUser) {
-        // Asignar el ID del usuario existente
-        this.userToAdd.user_id = resExistentUser.user_id;
-  
-        // Verificar si el usuario ya tiene un rol asignado
-        if (
-          resExistentUser.role_system &&
-          resExistentUser.role_system !== 'NINGUNO' &&
-          resExistentUser.role_system !== 'SN'
-        ) {
-          this.clean();
-          this.toastr.warning('El usuario ya existe');
-          return; // Salir si el usuario ya existe
+
+    const newPerson: any = {
+      type_doc: this.userToAdd.type_doc || 'DNI',
+      doc_number: this.userToAdd.doc_number,
+      first_name: this.userToAdd.first_name,
+      paternal_surname: this.userToAdd.paternal_surname,
+      maternal_surname: this.userToAdd.maternal_surname || '',
+      gender: this.userToAdd.gender || undefined,
+      birth_date: this.userToAdd.birth_date || undefined,
+      cel_number: this.userToAdd.cel_number || undefined,
+      email: this.userToAdd.email || undefined,
+      house_id: this.userOnSes.house_id,
+      person_type: ((this.userToAdd as any).property_category || (this.userToAdd as any).person_type || 'RESIDENTE').toUpperCase(),
+      status_system: 'ACTIVO',
+      status_validated: 'PERMITIDO'
+    };
+
+    this.usersService.createPerson(newPerson).subscribe({
+      next: () => {
+        this.toastr.success('Persona creada correctamente');
+        this.handleSuccess();
+      },
+      error: (error) => {
+        if (error?.error?.error && error.error.error.includes('documento')) {
+          this.toastr.warning('Ya existe una persona con este documento');
+        } else {
+          this.toastr.error(error?.error?.error || 'Error al crear la persona.');
         }
-      }
-  
-      // Decidir si es una actualización o un nuevo registro
-      if (this.userToAdd.user_id && this.userToAdd.user_id !== 0) {
-        // Actualizar usuario existente
-        this.usersService.updateUser(this.userToAdd).subscribe({
-          next: (resUpdateUser) =>{
-            if (resUpdateUser) {
-              this.toastr.success('Usuario guardado correctamente');
-              this.handleSuccess();
-            }
-          },
-          error: (error) =>{
-            this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
-            console.error(error);
-          },
-          complete: () => {}
-        })
-      }
-      else {
-        // Agregar nuevo usuario
-        this.usersService.addUser(this.userToAdd).subscribe({
-          next: (resAddUser) => {
-            if (resAddUser) {
-              this.handleSuccess();
-            }
-          },
-          error: (error) => {
-            this.toastr.error("Error al guardar el usuario. Inténtalo nuevamente.");
-            console.error(error);
-          },
-          complete: () => {}
-        });
+        console.error(error);
       }
     });
   }
@@ -352,7 +434,31 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   saveEditUser(){
-    this.userToEdit.house_id = this.userOnSes.house_id;
+    const personId = (this.userToEdit as any).person_id || (this.userToEdit as any).id;
+    if (personId) {
+      const updatePersonPayload: any = {
+        first_name: this.userToEdit.first_name,
+        paternal_surname: this.userToEdit.paternal_surname,
+        maternal_surname: this.userToEdit.maternal_surname,
+        cel_number: this.userToEdit.cel_number,
+        email: this.userToEdit.email,
+        person_type: ((this.userToEdit as any).property_category || (this.userToEdit as any).person_type || 'RESIDENTE').toUpperCase(),
+        house_id: this.userOnSes.house_id
+      };
+      this.usersService.updatePerson(personId, updatePersonPayload).subscribe({
+        next: () => {
+          this.toastr.success('Persona actualizada correctamente');
+          this.handleSuccess();
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastr.error('Error al actualizar la persona');
+        }
+      });
+      return;
+    }
+
+    // Fallback: actualizar usuario si no tiene person_id
     this.usersService.updateUser(this.userToEdit).subscribe(resUpdateUser=>{
       if(resUpdateUser){
         this.toastr.success('Usuario actualizado correctamente');

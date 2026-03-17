@@ -169,14 +169,14 @@ export class UsersService {
    * Crea una nueva persona
    */
   createPerson(person: Partial<User>): Observable<any> {
-    return this.api.post('api/v1/users', person);
+    return this.api.post('api/v1/persons', person);
   }
 
   /**
-   * Actualiza una persona
+   * Actualizar una persona
    */
-  updatePerson(user_id: number, person: Partial<User>): Observable<any> {
-    return this.api.put(`api/v1/users/${user_id}`, person);
+  updatePerson(person_id: number, person: Partial<User>): Observable<any> {
+    return this.api.put(`api/v1/persons/${person_id}`, person);
   }
 
   /**

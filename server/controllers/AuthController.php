@@ -109,12 +109,15 @@ class AuthController
             $user->block_house = $primaryHouse->block_house ?? null;
             $user->lot = $primaryHouse->lot ?? null;
             $user->apartment = $primaryHouse->apartment ?? null;
+            $user->house_id = (int)$primaryHouse->house_id;
+        } elseif (!empty($person->house_id)) {
+            $user->house_id = (int)$person->house_id;
         }
 
         $tokenPayload = [
             'user_id' => $user->user_id,
             'role_system' => $user->role_system,
-            'house_id' => $user->house_id,
+            'house_id' => !empty($user->house_id) ? (int)$user->house_id : null,
         ];
         if (!empty($user->person_id)) {
             $tokenPayload['person_id'] = (int) $user->person_id;

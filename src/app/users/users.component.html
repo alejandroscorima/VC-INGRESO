@@ -47,16 +47,16 @@
                 <tbody>
                     <tr *ngFor="let u of users" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{u.paternal_surname+' '+u.maternal_surname+' '+u.first_name}}
+                            {{ (u.paternal_surname+' '+u.maternal_surname+' '+u.first_name).toUpperCase() }}
                         </th>
                         <td class="px-6 py-4">
                             {{u.username_system.toUpperCase()}}
                         </td>
                         <td class="px-6 py-4">
-                            Mz:{{u.block_house || '-'}} Lt:{{u.lot ?? '-'}} Dpto:{{u.apartment ?? '-'}}
+                            {{ getHouseLocation(u) }}
                         </td>
                         <td class="px-6 py-4">
-                            {{(u.status_system || 'ACTIVO').toUpperCase()}}
+                            {{ (u.status_system || 'ACTIVO').toUpperCase() }}
                         </td>
                         <td class="px-6 py-4">
                             {{u.cel_number || '-'}}

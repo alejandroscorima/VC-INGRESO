@@ -13,6 +13,7 @@ export class User {
     public username_system: string,
     public password_system: string,
     public property_category: string,
+    public person_type: string,
     public house_id: number,
     public photo_url: string,
     public status_validated: string,
@@ -29,15 +30,15 @@ export class User {
     public apartment?: string,
     public user_id?: number, // Incluido según la lista
     public force_password_change?: number | boolean
-  ) {}
+  ) { }
 
   /** Crea un User vacío (todos los campos por defecto). Evita errores de conteo de argumentos. */
   static empty(): User {
     return new User(
-      '', '', '', '', '', '', '', '', '', '', '', '', '',
+      '', '', '', '', '', '', '', '', '', '', '', '', '','',
       0,
-      '', '', '', '', '', '', '', '', '',
-      '', 0, '', 0, 0
+      '', '', '', '', '', '', '', '', '', '', 
+      0, '', 0, 0
     );
   }
 }

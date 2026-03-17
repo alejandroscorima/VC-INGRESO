@@ -180,6 +180,15 @@ class PersonController extends Controller {
         
         $id = $this->create($filtered);
         $person = $this->findById($id, 'id');
+
+        // Sincronizar con house_members (source de verdad house-centric), si aplica.
+        if (!empty($filtered['house_id'])) {
+            $relation = isset($filtered['person_type']) && trim($filtered['person_type']) !== ''
+                ? strtoupper(trim($filtered['person_type']))
+                : 'RESIDENTE';
+            $stmt = $this->db->prepare("INSERT IGNORE INTO house_members (house_id, person_id, relation_type, is_active, is_primary, created_at, updated_at) VALUES (?, ?, ?, 1, 0, NOW(), NOW())");
+            $stmt->execute([(int)$filtered['house_id'], (int)$id, $relation]);
+        }
         
         Response::created($person, 'Persona creada correctamente');
     }
