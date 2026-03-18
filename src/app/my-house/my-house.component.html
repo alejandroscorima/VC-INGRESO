@@ -137,12 +137,24 @@
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Foto</th>
-                                <th scope="col" class="px-6 py-3">Nombre</th>
-                                <th scope="col" class="px-6 py-3">Especie</th>
-                                <th scope="col" class="px-6 py-3">Raza</th>
-                                <th scope="col" class="px-6 py-3">Estado</th>
-                                <th scope="col" class="px-6 py-3">Acciones</th>
+                                <th scope="col" class="px-6 py-3">
+                                    FOTO
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    NOMBRE
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    ESPECIE
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    RAZA
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    ESTADO
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    ACCIONES
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,6 +168,8 @@
                                 <td class="px-6 py-4">{{ pt?.breed || '-' }}</td>
                                 <td class="px-6 py-4 uppercase">{{ pt?.status_system || pt?.status_validated }}</td>
                                 <td class="px-6 py-4 text-right">
+                                    <input type="file" #petPhotoInput [attr.id]="'pet-photo-' + myPets.indexOf(pt)" accept="image/jpeg,image/png,image/gif" (change)="onPetPhotoSelect(myPets.indexOf(pt), $event)" class="hidden" />
+                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingPetIndex === myPets.indexOf(pt) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingPetIndex === myPets.indexOf(pt)" [attr.for]="'pet-photo-' + myPets.indexOf(pt)" (click)="document.getElementById('pet-photo-' + myPets.indexOf(pt))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingPetIndex === myPets.indexOf(pt) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="pt?.photo_url" type="button" (click)="openViewPhoto(pt, 'Mascota: '+pt?.name)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
                                     <button type="button" (click)="editPet(pt)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
@@ -176,7 +190,7 @@
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" class="px-6 py-3">
-                                    Foto
+                                    FOTO
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     TIPO
@@ -188,10 +202,10 @@
                                     CATEGORIA
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Estado
+                                    ESTADO
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    <span class="sr-only">Editar</span>
+                                    ACCIONES
                                 </th>
                             </tr>
                         </thead>
@@ -214,6 +228,8 @@
                                     {{ vh?.status_system || vh?.status_validated }}
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
+                                    <input type="file" [attr.id]="'vehicle-photo-' + myVehicles.indexOf(vh)" accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(myVehicles.indexOf(vh), $event)" class="hidden" />
+                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingVehicleIndex === myVehicles.indexOf(vh)" [attr.for]="'vehicle-photo-' + myVehicles.indexOf(vh)" (click)="document.getElementById('vehicle-photo-' + myVehicles.indexOf(vh))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="vh?.photo_url" type="button" (click)="openViewPhoto(vh, 'Vehículo: '+vh?.license_plate)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
                                     <button type="button" (click)="editVehicle(vh)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
@@ -345,7 +361,7 @@
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    Nuevo usuario
+                    Nueva Persona
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-user-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -498,11 +514,11 @@
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
-                    <input [(ngModel)]="userToEdit.birth_date" type="text" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                    <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="userToEdit.cel_number" type="date" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
@@ -563,7 +579,7 @@
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    Nuevo usuario
+                    Nueva Persona
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-visit-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -716,11 +732,11 @@
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
-                    <input [(ngModel)]="userToEdit.birth_date" type="text" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                       <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="userToEdit.cel_number" type="date" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                       <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
@@ -746,8 +762,8 @@
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
-                        <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
+                       <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                           <option *ngFor="let c of categories_visits" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
@@ -802,6 +818,21 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
                     <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="brandNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
+                    <input [(ngModel)]="vehicleToAdd.brand" type="text" name="brandNew" id="brandNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca (ej: Toyota)..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="modelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
+                    <input [(ngModel)]="vehicleToAdd.model" type="text" name="modelNew" id="modelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo (ej: Corolla)..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <select [(ngModel)]="vehicleToAdd.color" name="colorNew" id="colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color...">
+                        <option value="">Seleccione un color</option>
+                        <option *ngFor="let c of vehicleColors" [ngValue]="c">{{ c }}</option>
+                    </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
@@ -868,8 +899,23 @@
                     <label for="license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
                     <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
                 </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                   <div class="col-span-1 mb-2 mx-1">
+                       <label for="brandEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
+                       <input [(ngModel)]="vehicleToEdit.brand" type="text" name="brandEdit" id="brandEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca (ej: Toyota)..." />
+                   </div>
+                   <div class="col-span-1 mb-2 mx-1">
+                       <label for="modelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
+                       <input [(ngModel)]="vehicleToEdit.model" type="text" name="modelEdit" id="modelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo (ej: Corolla)..." />
+                   </div>
+                   <div class="col-span-1 mb-2 mx-1">
+                       <label for="colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                       <select [(ngModel)]="vehicleToEdit.color" name="colorEdit" id="colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color...">
+                           <option value="">Seleccione un color</option>
+                           <option *ngFor="let c of vehicleColors" [ngValue]="c">{{ c }}</option>
+                       </select>
+                   </div>
+                   <div class="col-span-1 mb-2 mx-1">
+                       <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
                     <select [(ngModel)]="vehicleToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
@@ -1064,7 +1110,14 @@
                 </div>
                 <div>
                     <label for="petColorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <input [(ngModel)]="petToAdd.color" type="text" name="petColorNew" id="petColorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Color (opcional)" />
+                    <select [(ngModel)]="petToAdd.color" name="petColorNew" id="petColorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Seleccione un color</option>
+                        <option *ngFor="let c of petColors" [ngValue]="c">{{ c }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="petAgeNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad (años)</label>
+                    <input [(ngModel)]="petToAdd.age_years" type="number" name="petAgeNew" id="petAgeNew" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
                 </div>
                 <div>
                     <label for="petStatusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
@@ -1124,7 +1177,14 @@
                 </div>
                 <div>
                     <label for="petColorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <input [(ngModel)]="petToEdit.color" type="text" name="petColorEdit" id="petColorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Color (opcional)" />
+                    <select [(ngModel)]="petToEdit.color" name="petColorEdit" id="petColorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Seleccione un color</option>
+                        <option *ngFor="let c of petColors" [ngValue]="c">{{ c }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="petAgeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad (años)</label>
+                    <input [(ngModel)]="petToEdit.age_years" type="number" name="petAgeEdit" id="petAgeEdit" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
                 </div>
                 <div>
                     <label for="petStatusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>

@@ -1,6 +1,11 @@
-# Mejoras implementadas (fecha: 2026-03-16)
+# Mejoras implementadas y actualizadas
 
-Este documento resume todas las mejoras y correcciones realizadas hoy en el repositorio `VC-INGRESO`.
+Este documento resume las mejoras y correcciones realizadas en el repositorio `VC-INGRESO`.
+
+## Registro de fechas
+
+- 2026-03-16: mejoras base (tablas, fotos, backend house members, domicilio en listados).
+- 2026-03-18: actualización de carga de fotos en mascotas/vehículos y estandarización de modales.
 
 ## 1. Mi Casa - Tablas (Residentes, Inquilinos, Mascotas, Vehículos)
 
@@ -72,6 +77,63 @@ Este documento resume todas las mejoras y correcciones realizadas hoy en el repo
 ## 8. Nuevo archivo generado
 
 - `Mejoras.md` (este documento) contiene el resumen de trabajo del día.
+
+## 9. Actualizacion 2026-03-18 - Mi Casa (Mascotas y Vehiculos)
+
+- Se agrego en la columna `Acciones` de las tablas de Mascotas y Vehiculos un boton de camara para subir/actualizar foto.
+- En `my-house.component.html`:
+  - Se incorporaron inputs de tipo `file` por fila para mascotas y vehiculos.
+  - Se enlazaron eventos `(change)` a metodos especificos para carga de imagen.
+  - Se mantuvo el flujo de acciones existente (`visibility`, `edit`) y se sumo la accion de camara.
+- En `my-house.component.ts`:
+  - Se inyecto `PublicRegistrationService` para reutilizar el mismo flujo de subida de `public-registration`.
+  - Se agregaron:
+    - `onVehiclePhotoSelect(vehicleIndex, event)`
+    - `onPetPhotoSelect(petIndex, event)`
+  - Se agrego estado de carga por fila:
+    - `uploadingVehicleIndex`
+    - `uploadingPetIndex`
+
+## 10. Actualizacion 2026-03-18 - Estandarizacion de modales
+
+- Revisados y ajustados modales de crear/editar en:
+  - Residentes
+  - Inquilinos
+  - Mascotas
+  - Vehiculos
+  - Visitas
+  - Vehiculos Externos
+
+- Correcciones principales:
+  - Tipos de input inconsistentes:
+    - `Celular` corregido a `type="text"` donde correspondia.
+    - `Fecha de nacimiento` corregida a `type="date"` en edicion de visitas.
+  - Titulo de modal corregido en `edit-user-modal` a "Editar usuario".
+  - En visitas se ajusto categoria para usar `categories_visits`.
+
+- Campos agregados/completados:
+  - Vehiculos (nuevo/edicion): `Marca`, `Modelo`, `Color`.
+  - Mascotas (nuevo/edicion): `Edad`, `Especie` (select), `Color` (select), `Estado`.
+  - Residentes/Inquilinos: se homogeneizaron campos de `Usuario`, `Rol`, `Estado de Rol`, `Domicilio`.
+
+- Listas de apoyo incorporadas en `my-house.component.ts`:
+  - `vehicleColors`
+  - `petColors`
+
+## 11. Actualizacion 2026-03-18 - Modelo Vehicle
+
+- Se actualizo `src/app/vehicle.ts` para incluir propiedades opcionales:
+  - `brand`
+  - `model`
+  - `color`
+- Se ajusto la inicializacion de `vehicleToAdd` y `vehicleToEdit` en `my-house.component.ts` para soportar estos campos.
+
+## 12. Estado de validacion
+
+- Verificacion de errores en:
+  - `src/app/my-house/my-house.component.ts`
+  - `src/app/my-house/my-house.component.html`
+- Resultado: sin errores de compilacion reportados tras los cambios.
 
 ---
 

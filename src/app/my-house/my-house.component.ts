@@ -11,6 +11,7 @@ import { Vehicle } from '../vehicle';
 import { ToastrService } from 'ngx-toastr';
 import { PetsService } from '../pets.service';
 import { Pet } from '../pet';
+import { PublicRegistrationService } from '../public-registration/public-registration.service';
 
 
 @Component({
@@ -19,6 +20,8 @@ import { Pet } from '../pet';
   styleUrls: ['./my-house.component.css']
 })
 export class MyHouseComponent implements OnInit, AfterViewInit {
+
+  document = document;
 
   users: User[] = [];
   userToAdd: User = User.empty();
@@ -51,22 +54,36 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
   temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
   
-  vehicleToAdd = new Vehicle('','',0,'','','','');
-  vehicleToEdit = new Vehicle('','',0,'','','','');
+  // Colores para vehículos
+  vehicleColors: string[] = ['Blanco', 'Negro', 'Plata', 'Gris', 'Rojo', 'Azul', 'Verde', 'Beige', 'Otro'];
+  
+  // Colores para mascotas
+  petColors: string[] = ['Blanco', 'Negro', 'Café', 'Gris', 'Crema', 'Atigrado', 'Otro'];
+  
+  vehicleToAdd = new Vehicle('','',0,'','','','','','','');
+  vehicleToEdit = new Vehicle('','',0,'','','','','','','');
   vehicles: Vehicle[] = [];
   externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
   externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
   externalVehicles: ExternalVehicle[] = [];
 
-  petToAdd: Partial<Pet> = { name: '', species: 'PERRO', breed: '', color: '', house_id: 0, status_validated: 'PERMITIDO' };
+  petToAdd: Partial<Pet> = { name: '', species: 'PERRO', breed: '', color: '', age_years: undefined, house_id: 0, status_validated: 'PERMITIDO' };
   petToEdit: Partial<Pet> & { id?: number } = {};
   petSpecies: { value: string; label: string }[] = [
     { value: 'PERRO', label: 'Perro' },
     { value: 'GATO', label: 'Gato' },
     { value: 'AVE', label: 'Ave' },
-    { value: 'OTRO', label: 'Otro' }
+    { value: 'PEQUEÑO MAMÍFERO', label: 'Pequeño mamífero' },
+    { value: 'ACUÁTICO', label: 'Acuático' },
+    { value: 'EXÓTICO', label: 'Exótico' },
+    { value: 'OTRO', label: 'Otros' }
   ];
   petStatusList = ['PERMITIDO', 'OBSERVADO', 'DENEGADO'];
+
+  /** Índice del vehículo cuya foto se está subiendo (-1 = ninguno) */
+  uploadingVehicleIndex: number = -1;
+  /** Índice de la mascota cuya foto se está subiendo (-1 = ninguna) */
+  uploadingPetIndex: number = -1;
 
   constructor(
     private entranceService: EntranceService,
@@ -75,6 +92,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     public api: ApiService,
     private toastr: ToastrService,
     private petsService: PetsService,
+    private publicReg: PublicRegistrationService
   ){}
 
   ngOnInit(): void {
@@ -627,6 +645,100 @@ saveNewVehicle(): void {
       }
     });
   }*/
-  
+
+  /** Sube la foto del vehículo y actualiza su foto_url en el servidor */
+  onVehiclePhotoSelect(vehicleIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+    
+    const vehicle = this.myVehicles[vehicleIndex];
+    if (!vehicle) {
+      this.toastr.error('Vehículo no encontrado.');
+      return;
+    }
+
+    this.uploadingVehicleIndex = vehicleIndex;
+    this.publicReg.uploadVehiclePhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingVehicleIndex = -1;
+        if (res.success && res.photo_url) {
+          // Actualizar la foto_url en el servidor
+          vehicle.photo_url = res.photo_url;
+          this.entranceService.updateVehicle(vehicle).subscribe({
+            next: (updateRes: any) => {
+              if (updateRes.success) {
+                this.toastr.success('Foto del vehículo cargada correctamente.');
+              } else {
+                this.toastr.warning('Foto subida pero error al guardar.');
+              }
+            },
+            error: () => {
+              this.toastr.warning('Foto subida pero error al guardar.');
+            }
+          });
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingVehicleIndex = -1;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
+
+  /** Sube la foto de la mascota y actualiza su photo_url en el servidor */
+  onPetPhotoSelect(petIndex: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+
+    const pet = this.myPets[petIndex];
+    if (!pet) {
+      this.toastr.error('Mascota no encontrada.');
+      return;
+    }
+
+    this.uploadingPetIndex = petIndex;
+    this.publicReg.uploadPetPhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingPetIndex = -1;
+        if (res.success && res.photo_url) {
+          // Actualizar la photo_url en el servidor
+          pet.photo_url = res.photo_url;
+          this.petsService.updatePet(pet.id || (pet as any).id, pet).subscribe({
+            next: (updateRes: any) => {
+              if (updateRes.success || updateRes.message) {
+                this.toastr.success('Foto de la mascota cargada correctamente.');
+              } else {
+                this.toastr.warning('Foto subida pero error al guardar.');
+              }
+            },
+            error: () => {
+              this.toastr.warning('Foto subida pero error al guardar.');
+            }
+          });
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingPetIndex = -1;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
 
 }
+
