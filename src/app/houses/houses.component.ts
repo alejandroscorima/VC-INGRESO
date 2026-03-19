@@ -15,6 +15,10 @@ export class HousesComponent implements OnInit, AfterViewInit{
 
   houseToAdd: House = new House('',0,null,'',0);
   houseToEdit: House = new House('',0,null,'',0);
+  
+  searchTerm: string = '';
+  selectedBlock: string = '';
+  selectedLot: string = '';
 
   constructor(
     private entranceService: EntranceService,
@@ -96,6 +100,35 @@ export class HousesComponent implements OnInit, AfterViewInit{
     this.entranceService.getAllHouses().subscribe((res: any[]) => {
       this.houses = res;
     });
+  }
+
+  get filteredHouses(): House[] {
+    if (!this.searchTerm.trim() && !this.selectedBlock && !this.selectedLot) {
+      return this.houses;
+    }
+    const search = this.searchTerm.toLowerCase();
+    return this.houses.filter(h => {
+      const matchesSearch = !this.searchTerm.trim() ||
+        h.block_house.toString().toLowerCase().includes(search) ||
+        h.lot.toString().toLowerCase().includes(search) ||
+        (h.apartment && h.apartment.toLowerCase().includes(search));
+      
+      const matchesBlock = !this.selectedBlock || h.block_house.toString() === this.selectedBlock;
+      const matchesLot = !this.selectedLot || h.lot.toString() === this.selectedLot;
+      
+      return matchesSearch && matchesBlock && matchesLot;
+    });
+  }
+
+  get uniqueBlocks(): string[] {
+    return [...new Set(this.houses.map(h => h.block_house.toString()))].sort();
+  }
+
+  get uniqueLots(): string[] {
+    const filtered = this.selectedBlock 
+      ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
+      : this.houses;
+    return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
   }
   
   clean(){

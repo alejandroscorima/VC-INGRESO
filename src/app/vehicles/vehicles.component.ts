@@ -45,6 +45,13 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   externalVehicleToEdit: ExternalVehicle = new ExternalVehicle('','','','','','','','');
   temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
 
+  searchTerm: string = '';
+  externalSearchTerm: string = '';
+  selectedBlock: string = '';
+  selectedLot: string = '';
+  externalSelectedBlock: string = '';
+  externalSelectedLot: string = '';
+
   showViewPhotoDialog = false;
   viewPhotoUrl: string | null = null;
   viewPhotoTitle = '';
@@ -93,6 +100,65 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   editVehicle(vehicle:Vehicle){
     this.vehicleToEdit = vehicle;
     document.getElementById('edit-vehicle-button')?.click();
+  }
+
+  get filteredVehicles(): Vehicle[] {
+    if (!this.searchTerm.trim() && !this.selectedBlock && !this.selectedLot) {
+      return this.vehicles;
+    }
+    const search = this.searchTerm.toLowerCase();
+    return this.vehicles.filter(v => {
+      const matchesSearch = !this.searchTerm.trim() ||
+        v.type_vehicle.toLowerCase().includes(search) ||
+        v.license_plate.toLowerCase().includes(search);
+      
+      const house = this.houses.find(h => h.house_id === v.house_id);
+      const blockVal = (house?.block_house ?? '').toString();
+      const lotVal = (house?.lot ?? '').toString();
+      
+      const matchesBlock = !this.selectedBlock || blockVal === this.selectedBlock;
+      const matchesLot = !this.selectedLot || lotVal === this.selectedLot;
+      
+      return matchesSearch && matchesBlock && matchesLot;
+    });
+  }
+
+  get filteredExternalVehicles(): ExternalVehicle[] {
+    if (!this.externalSearchTerm.trim() && !this.externalSelectedBlock && !this.externalSelectedLot) {
+      return this.externalVehicles;
+    }
+    const search = this.externalSearchTerm.toLowerCase();
+    return this.externalVehicles.filter(ev => {
+      const matchesSearch = !this.externalSearchTerm.trim() ||
+        ev.temp_visit_type.toLowerCase().includes(search) ||
+        ev.temp_visit_plate.toLowerCase().includes(search) ||
+        (ev.temp_visit_name && ev.temp_visit_name.toLowerCase().includes(search));
+      
+      // External vehicles no tienen house_id, así que no filtramos por manzana/lote
+      return matchesSearch;
+    });
+  }
+
+  get uniqueBlocks(): string[] {
+    return [...new Set(this.houses.map(h => h.block_house.toString()))].sort();
+  }
+
+  get uniqueLots(): string[] {
+    const filtered = this.selectedBlock 
+      ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
+      : this.houses;
+    return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
+  }
+
+  get uniqueExternalBlocks(): string[] {
+    return [...new Set(this.houses.map(h => h.block_house.toString()))].sort();
+  }
+
+  get uniqueExternalLots(): string[] {
+    const filtered = this.externalSelectedBlock 
+      ? this.houses.filter(h => h.block_house.toString() === this.externalSelectedBlock)
+      : this.houses;
+    return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
   }
 
   openViewPhoto(vehicle: Vehicle): void {

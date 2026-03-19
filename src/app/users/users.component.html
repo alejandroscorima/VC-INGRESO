@@ -19,6 +19,18 @@
             Nuevo
         </button>
 
+        <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center">
+            <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar por nombre, usuario o celular..." class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+            <select [(ngModel)]="selectedBlock" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto">
+                <option value="">Mz: Todas</option>
+                <option *ngFor="let block of uniqueBlocks" [value]="block">Mz: {{block}}</option>
+            </select>
+            <select [(ngModel)]="selectedLot" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto">
+                <option value="">Lt: Todos</option>
+                <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{lot}}</option>
+            </select>
+        </div>
+
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -47,7 +59,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let u of users" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <tr *ngFor="let u of filteredUsers" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <td class="px-4 py-4">
                             <div *ngIf="u.photo_url" class="w-10 h-10 rounded-full overflow-hidden">
                                 <img [src]="getPhotoUrl(u.photo_url)" alt="Foto" class="w-full h-full object-cover">
@@ -114,7 +126,7 @@
 </div>
 
 <!-- Modal toggle: Dar acceso a persona -->
-<button hidden id="give-access-button" data-modal-target="give-access-modal" data-modal-toggle="give-access-modal" type="button">Abrir dar acceso</button>
+<button *ngIf="false" id="give-access-button" data-modal-target="give-access-modal" data-modal-toggle="give-access-modal" type="button">Abrir dar acceso</button>
 
 <!-- Modal: Dar acceso (crear usuario desde persona) -->
 <div id="give-access-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -154,7 +166,7 @@
 </div>
 
 <!-- Modal toggle new user -->
-<button hidden id="new-user-button" data-modal-target="new-user-modal" data-modal-toggle="new-user-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+<button *ngIf="false" id="new-user-button" data-modal-target="new-user-modal" data-modal-toggle="new-user-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
     Toggle new user modal
 </button>
 
@@ -267,7 +279,7 @@
 
 
 <!-- Modal toggle edit user -->
-<button hidden id="edit-user-button" data-modal-target="edit-user-modal" data-modal-toggle="edit-user-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+<button *ngIf="false" id="edit-user-button" data-modal-target="edit-user-modal" data-modal-toggle="edit-user-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
     Toggle edit user modal
 </button>
 

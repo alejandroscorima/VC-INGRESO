@@ -38,6 +38,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
   houses: House[] = [];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
+  
+  searchTerm: string = '';
+  selectedBlock: string = '';
+  selectedLot: string = '';
 
   constructor(
     private usersService: UsersService,
@@ -80,6 +84,39 @@ export class UsersComponent implements OnInit, AfterViewInit{
     }
     // Si es URL absoluta, devolverla tal cual
     return photoUrl;
+  }
+
+  get filteredUsers(): User[] {
+    if (!this.searchTerm.trim() && !this.selectedBlock && !this.selectedLot) {
+      return this.users;
+    }
+    const search = this.searchTerm.toLowerCase();
+    return this.users.filter(u => {
+      const matchesSearch = !this.searchTerm.trim() || 
+        `${u.paternal_surname} ${u.maternal_surname} ${u.first_name}`.toLowerCase().includes(search) ||
+        u.username_system.toLowerCase().includes(search) ||
+        (u.cel_number && u.cel_number.toLowerCase().includes(search));
+      
+      const house = this.houses.find(h => h.house_id === u.house_id);
+      const blockVal = (house?.block_house ?? u.block_house ?? '').toString();
+      const lotVal = (house?.lot ?? u.lot ?? '').toString();
+      
+      const matchesBlock = !this.selectedBlock || blockVal === this.selectedBlock;
+      const matchesLot = !this.selectedLot || lotVal === this.selectedLot;
+      
+      return matchesSearch && matchesBlock && matchesLot;
+    });
+  }
+
+  get uniqueBlocks(): string[] {
+    return [...new Set(this.houses.map(h => h.block_house.toString()))].sort();
+  }
+
+  get uniqueLots(): string[] {
+    const filtered = this.selectedBlock 
+      ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
+      : this.houses;
+    return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
   }
 
   searchUser(doc_number: string){

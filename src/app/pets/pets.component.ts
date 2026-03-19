@@ -25,6 +25,10 @@ export class PetsComponent implements OnInit {
 
   petToAdd: Partial<Pet> = { status_validated: 'PERMITIDO' };
   petToEdit: Pet | null = null;
+  
+  searchTerm: string = '';
+  selectedBlock: string = '';
+  selectedLot: string = '';
 
   constructor(
     private api: ApiService,
@@ -94,6 +98,39 @@ export class PetsComponent implements OnInit {
   editPet(pet: Pet): void {
     this.petToEdit = { ...pet };
     document.getElementById('edit-pet-button')?.click();
+  }
+
+  get filteredPets(): Pet[] {
+    if (!this.searchTerm.trim() && !this.selectedBlock && !this.selectedLot) {
+      return this.pets;
+    }
+    const search = this.searchTerm.toLowerCase();
+    return this.pets.filter(p => {
+      const matchesSearch = !this.searchTerm.trim() ||
+        p.name.toLowerCase().includes(search) ||
+        p.species.toLowerCase().includes(search) ||
+        (p.breed && p.breed.toLowerCase().includes(search));
+      
+      const house = this.houses.find(h => h.house_id === p.house_id);
+      const blockVal = (house?.block_house ?? '').toString();
+      const lotVal = (house?.lot ?? '').toString();
+      
+      const matchesBlock = !this.selectedBlock || blockVal === this.selectedBlock;
+      const matchesLot = !this.selectedLot || lotVal === this.selectedLot;
+      
+      return matchesSearch && matchesBlock && matchesLot;
+    });
+  }
+
+  get uniqueBlocks(): string[] {
+    return [...new Set(this.houses.map(h => h.block_house.toString()))].sort();
+  }
+
+  get uniqueLots(): string[] {
+    const filtered = this.selectedBlock 
+      ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
+      : this.houses;
+    return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
   }
 
   openViewPhoto(pet: Pet): void {
