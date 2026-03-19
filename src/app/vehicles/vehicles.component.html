@@ -117,10 +117,6 @@
                 <div class="mb-4">
                     <input [(ngModel)]="externalSearchTerm" type="text" placeholder="Buscar por categoría, placa o responsable..." class="w-full px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
                 </div>
-                <!--cambiar newVehicle() por newExternalVehicle()-->
-                <button type="button" (click)="newExternalVehicle()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
-                    Nuevo
-                </button>
 
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -187,7 +183,7 @@
 
 <!-- Modal toggle new vehicle -->
 
-<button *ngIf="false" id="new-vehicle-button" data-modal-target="new-vehicle-modal" data-modal-toggle="new-vehicle-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+<button id="new-vehicle-button" data-modal-target="new-vehicle-modal" data-modal-toggle="new-vehicle-modal" class="hidden" type="button" aria-hidden="true">
     NUEVO VEHÍCULO
 </button> 
 
@@ -219,6 +215,18 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
                     <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="brandNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
+                    <input [(ngModel)]="vehicleToAdd.brand" type="text" name="brandNew" id="brandNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="modelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
+                    <input [(ngModel)]="vehicleToAdd.model" type="text" name="modelNew" id="modelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <input [(ngModel)]="vehicleToAdd.color" type="text" name="colorNew" id="colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Color..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
@@ -254,7 +262,7 @@
 
 
 <!-- Modal toggle edit vehicle -->
-<button *ngIf="false" id="edit-vehicle-button" data-modal-target="edit-vehicle-modal" data-modal-toggle="edit-vehicle-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+<button id="edit-vehicle-button" data-modal-target="edit-vehicle-modal" data-modal-toggle="edit-vehicle-modal" class="hidden" type="button" aria-hidden="true">
     EDITAR VEHÍCULO
 </button>
 
@@ -286,6 +294,18 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
                     <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="brandEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
+                    <input [(ngModel)]="vehicleToEdit.brand" type="text" name="brandEdit" id="brandEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="modelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
+                    <input [(ngModel)]="vehicleToEdit.model" type="text" name="modelEdit" id="modelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <input [(ngModel)]="vehicleToEdit.color" type="text" name="colorEdit" id="colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Color..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
@@ -323,7 +343,7 @@
 
 <!-- Modal toggle new vehicle -->
 
-<button *ngIf="false" id="new-external-vehicle-button" data-modal-target="new-external-vehicle-modal" data-modal-toggle="new-external-vehicle-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+<button id="new-external-vehicle-button" data-modal-target="new-external-vehicle-modal" data-modal-toggle="new-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">
     NUEVO VEHÍCULO EXTERNO
 </button> 
 
@@ -391,7 +411,7 @@
 
 
 <!-- Modal toggle edit vehicle -->
-<button *ngIf="false" id="edit-external-vehicle-button" data-modal-target="edit-external-vehicle-modal" data-modal-toggle="edit-external-vehicle-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+<button id="edit-external-vehicle-button" data-modal-target="edit-external-vehicle-modal" data-modal-toggle="edit-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">
     EDITAR VEHÍCULO EXTERNO
 </button>
 
