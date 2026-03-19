@@ -29,6 +29,9 @@ export class PetsComponent implements OnInit {
   searchTerm: string = '';
   selectedBlock: string = '';
   selectedLot: string = '';
+  currentPage: number = 1;
+  pageSize: number = 10;
+  pageSizeOptions: number[] = [10, 25, 50, 100];
 
   constructor(
     private api: ApiService,
@@ -131,6 +134,35 @@ export class PetsComponent implements OnInit {
       ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
       : this.houses;
     return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
+  }
+
+  get petsTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredPets.length / this.pageSize));
+  }
+
+  get paginatedPets(): Pet[] {
+    const safePage = Math.min(this.currentPage, this.petsTotalPages);
+    if (safePage !== this.currentPage) {
+      this.currentPage = safePage;
+    }
+    const start = (safePage - 1) * this.pageSize;
+    return this.filteredPets.slice(start, start + this.pageSize);
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage -= 1;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.petsTotalPages) {
+      this.currentPage += 1;
+    }
   }
 
   openViewPhoto(pet: Pet): void {

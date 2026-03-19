@@ -51,6 +51,11 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   selectedLot: string = '';
   externalSelectedBlock: string = '';
   externalSelectedLot: string = '';
+  residentCurrentPage: number = 1;
+  residentPageSize: number = 10;
+  externalCurrentPage: number = 1;
+  externalPageSize: number = 10;
+  pageSizeOptions: number[] = [10, 25, 50, 100];
 
   showViewPhotoDialog = false;
   viewPhotoUrl: string | null = null;
@@ -159,6 +164,64 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
       ? this.houses.filter(h => h.block_house.toString() === this.externalSelectedBlock)
       : this.houses;
     return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
+  }
+
+  get vehiclesTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredVehicles.length / this.residentPageSize));
+  }
+
+  get paginatedVehicles(): Vehicle[] {
+    const safePage = Math.min(this.residentCurrentPage, this.vehiclesTotalPages);
+    if (safePage !== this.residentCurrentPage) {
+      this.residentCurrentPage = safePage;
+    }
+    const start = (safePage - 1) * this.residentPageSize;
+    return this.filteredVehicles.slice(start, start + this.residentPageSize);
+  }
+
+  get externalVehiclesTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredExternalVehicles.length / this.externalPageSize));
+  }
+
+  get paginatedExternalVehicles(): ExternalVehicle[] {
+    const safePage = Math.min(this.externalCurrentPage, this.externalVehiclesTotalPages);
+    if (safePage !== this.externalCurrentPage) {
+      this.externalCurrentPage = safePage;
+    }
+    const start = (safePage - 1) * this.externalPageSize;
+    return this.filteredExternalVehicles.slice(start, start + this.externalPageSize);
+  }
+
+  onResidentPageSizeChange(): void {
+    this.residentCurrentPage = 1;
+  }
+
+  previousResidentPage(): void {
+    if (this.residentCurrentPage > 1) {
+      this.residentCurrentPage -= 1;
+    }
+  }
+
+  nextResidentPage(): void {
+    if (this.residentCurrentPage < this.vehiclesTotalPages) {
+      this.residentCurrentPage += 1;
+    }
+  }
+
+  onExternalPageSizeChange(): void {
+    this.externalCurrentPage = 1;
+  }
+
+  previousExternalPage(): void {
+    if (this.externalCurrentPage > 1) {
+      this.externalCurrentPage -= 1;
+    }
+  }
+
+  nextExternalPage(): void {
+    if (this.externalCurrentPage < this.externalVehiclesTotalPages) {
+      this.externalCurrentPage += 1;
+    }
   }
 
   openViewPhoto(vehicle: Vehicle): void {

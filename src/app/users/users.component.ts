@@ -42,6 +42,11 @@ export class UsersComponent implements OnInit, AfterViewInit{
   searchTerm: string = '';
   selectedBlock: string = '';
   selectedLot: string = '';
+  usersCurrentPage: number = 1;
+  usersPageSize: number = 10;
+  personsCurrentPage: number = 1;
+  personsPageSize: number = 10;
+  pageSizeOptions: number[] = [10, 25, 50, 100];
 
   constructor(
     private usersService: UsersService,
@@ -117,6 +122,64 @@ export class UsersComponent implements OnInit, AfterViewInit{
       ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
       : this.houses;
     return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
+  }
+
+  get usersTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.usersPageSize));
+  }
+
+  get paginatedUsers(): User[] {
+    const safePage = Math.min(this.usersCurrentPage, this.usersTotalPages);
+    if (safePage !== this.usersCurrentPage) {
+      this.usersCurrentPage = safePage;
+    }
+    const start = (safePage - 1) * this.usersPageSize;
+    return this.filteredUsers.slice(start, start + this.usersPageSize);
+  }
+
+  get personsTotalPages(): number {
+    return Math.max(1, Math.ceil(this.personsWithoutUser.length / this.personsPageSize));
+  }
+
+  get paginatedPersonsWithoutUser(): any[] {
+    const safePage = Math.min(this.personsCurrentPage, this.personsTotalPages);
+    if (safePage !== this.personsCurrentPage) {
+      this.personsCurrentPage = safePage;
+    }
+    const start = (safePage - 1) * this.personsPageSize;
+    return this.personsWithoutUser.slice(start, start + this.personsPageSize);
+  }
+
+  onUsersPageSizeChange(): void {
+    this.usersCurrentPage = 1;
+  }
+
+  previousUsersPage(): void {
+    if (this.usersCurrentPage > 1) {
+      this.usersCurrentPage -= 1;
+    }
+  }
+
+  nextUsersPage(): void {
+    if (this.usersCurrentPage < this.usersTotalPages) {
+      this.usersCurrentPage += 1;
+    }
+  }
+
+  onPersonsPageSizeChange(): void {
+    this.personsCurrentPage = 1;
+  }
+
+  previousPersonsPage(): void {
+    if (this.personsCurrentPage > 1) {
+      this.personsCurrentPage -= 1;
+    }
+  }
+
+  nextPersonsPage(): void {
+    if (this.personsCurrentPage < this.personsTotalPages) {
+      this.personsCurrentPage += 1;
+    }
   }
 
   searchUser(doc_number: string){
@@ -282,6 +345,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
         this.loadingPersonsWithoutUser = false;
         this.hasLoadedPersonsWithoutUser = true;
         this.personsWithoutUser = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        this.personsCurrentPage = 1;
       },
       error: () => {
         this.loadingPersonsWithoutUser = false;

@@ -19,6 +19,9 @@ export class HousesComponent implements OnInit, AfterViewInit{
   searchTerm: string = '';
   selectedBlock: string = '';
   selectedLot: string = '';
+  currentPage: number = 1;
+  pageSize: number = 10;
+  pageSizeOptions: number[] = [10, 25, 50, 100];
 
   constructor(
     private entranceService: EntranceService,
@@ -129,6 +132,35 @@ export class HousesComponent implements OnInit, AfterViewInit{
       ? this.houses.filter(h => h.block_house.toString() === this.selectedBlock)
       : this.houses;
     return [...new Set(filtered.map(h => h.lot.toString()))].sort((a, b) => parseInt(a) - parseInt(b));
+  }
+
+  get housesTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredHouses.length / this.pageSize));
+  }
+
+  get paginatedHouses(): House[] {
+    const safePage = Math.min(this.currentPage, this.housesTotalPages);
+    if (safePage !== this.currentPage) {
+      this.currentPage = safePage;
+    }
+    const start = (safePage - 1) * this.pageSize;
+    return this.filteredHouses.slice(start, start + this.pageSize);
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage -= 1;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.housesTotalPages) {
+      this.currentPage += 1;
+    }
   }
   
   clean(){

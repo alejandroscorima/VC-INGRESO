@@ -15,9 +15,12 @@
 
         <!-- Tab Usuarios -->
         <div *ngIf="activeTab === 'users'">
-        <button type="button" (click)="newUser()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
-            Nuevo
-        </button>
+        <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <button type="button" (click)="newUser()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2">
+                Nuevo
+            </button>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total usuarios: {{ users.length }}</span>
+        </div>
 
         <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center">
             <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar por nombre, usuario o celular..." class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
@@ -59,7 +62,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let u of filteredUsers" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <tr *ngFor="let u of paginatedUsers" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <td class="px-4 py-4">
                             <div *ngIf="u.photo_url" class="w-10 h-10 rounded-full overflow-hidden">
                                 <img [src]="getPhotoUrl(u.photo_url)" alt="Foto" class="w-full h-full object-cover">
@@ -90,14 +93,32 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <div class="flex items-center gap-2">
+                <span>Filas por pagina</span>
+                <select [(ngModel)]="usersPageSize" (ngModelChange)="onUsersPageSizeChange()" class="px-2 py-1 border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                    <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+                </select>
+                <span>Mostrando {{ filteredUsers.length }} resultados</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" (click)="previousUsersPage()" [disabled]="usersCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 dark:border-gray-500">Anterior</button>
+                <span>Pagina {{ usersCurrentPage }} de {{ usersTotalPages }}</span>
+                <button type="button" (click)="nextUsersPage()" [disabled]="usersCurrentPage >= usersTotalPages" class="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 dark:border-gray-500">Siguiente</button>
+            </div>
+        </div>
         </div>
 
         <!-- Tab Personas -->
         <div *ngIf="activeTab === 'persons'" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Personas registradas que aún no tienen usuario. Use «Dar acceso» para asignar usuario y contraseña.</p>
-            <button type="button" (click)="loadPersonsWithoutUser()" [disabled]="loadingPersonsWithoutUser" class="text-white bg-indigo-600 hover:bg-indigo-700 font-medium rounded-lg text-sm px-4 py-2 mb-3 disabled:opacity-50">
-                {{ loadingPersonsWithoutUser ? 'Cargando...' : 'Cargar personas sin acceso' }}
-            </button>
+            <div class="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <button type="button" (click)="loadPersonsWithoutUser()" [disabled]="loadingPersonsWithoutUser" class="text-white bg-indigo-600 hover:bg-indigo-700 font-medium rounded-lg text-sm px-4 py-2 disabled:opacity-50">
+                    {{ loadingPersonsWithoutUser ? 'Cargando...' : 'Cargar personas sin acceso' }}
+                </button>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total personas sin acceso: {{ personsWithoutUser.length }}</span>
+            </div>
             <div class="relative overflow-x-auto shadow rounded-lg" *ngIf="personsWithoutUser.length > 0">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700">
@@ -109,7 +130,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let p of personsWithoutUser" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <tr *ngFor="let p of paginatedPersonsWithoutUser" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                             <td class="px-4 py-2">{{ p.doc_number }}</td>
                             <td class="px-4 py-2">{{ p.paternal_surname }} {{ p.maternal_surname }} {{ p.first_name }}</td>
                             <td class="px-4 py-2">{{ p.cel_number || '-' }} / {{ p.email || '-' }}</td>
@@ -119,6 +140,20 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div *ngIf="personsWithoutUser.length > 0" class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <div class="flex items-center gap-2">
+                    <span>Filas por pagina</span>
+                    <select [(ngModel)]="personsPageSize" (ngModelChange)="onPersonsPageSizeChange()" class="px-2 py-1 border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+                    </select>
+                    <span>Mostrando {{ personsWithoutUser.length }} resultados</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" (click)="previousPersonsPage()" [disabled]="personsCurrentPage === 1" class="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 dark:border-gray-500">Anterior</button>
+                    <span>Pagina {{ personsCurrentPage }} de {{ personsTotalPages }}</span>
+                    <button type="button" (click)="nextPersonsPage()" [disabled]="personsCurrentPage >= personsTotalPages" class="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 dark:border-gray-500">Siguiente</button>
+                </div>
             </div>
             <p *ngIf="hasLoadedPersonsWithoutUser && !loadingPersonsWithoutUser && personsWithoutUser.length === 0" class="text-sm text-gray-500 mt-2">No hay personas sin acceso.</p>
         </div>
