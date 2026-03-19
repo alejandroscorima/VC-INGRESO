@@ -5,6 +5,38 @@
       <p class="text-sm text-gray-500 dark:text-gray-400">Resumen general del sistema</p>
     </div>
 
+    <!-- Boxes admin-only: registros globales -->
+    <div *ngIf="isAdmin" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios registrados</span>
+          <mat-icon class="text-sky-500">group</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ usersCount ?? '—' }}</p>
+      </div>
+      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Casas registradas</span>
+          <mat-icon class="text-violet-500">home</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ registeredHousesCount ?? '—' }}</p>
+      </div>
+      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Vehículos registrados</span>
+          <mat-icon class="text-amber-500">directions_car</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ registeredVehiclesCount ?? '—' }}</p>
+      </div>
+      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Mascotas registradas</span>
+          <mat-icon class="text-emerald-500">pets</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ petsCount ?? '—' }}</p>
+      </div>
+    </div>
+
     <!-- Tarjetas de resumen (4 KPI) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">

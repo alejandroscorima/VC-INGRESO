@@ -26,6 +26,7 @@ import { Console } from 'console';
 import { initFlowbite } from 'flowbite';
 import { AccessLogService } from '../access-log.service';
 import { ReservationsService } from '../reservations.service';
+import { PetsService } from '../pets.service';
 
 
 @Component({
@@ -248,6 +249,13 @@ export class InicioComponent implements OnInit {
   upcomingBirthdays: any[] = [];
   /** Dashboard: próximas reservas (primeras 5) */
   upcomingReservations: any[] = [];
+
+  /** Dashboard admin-only: boxes de registros globales */
+  isAdmin = false;
+  usersCount: number | null = null;
+  registeredHousesCount: number | null = null;
+  registeredVehiclesCount: number | null = null;
+  petsCount: number | null = null;
 
   
 
@@ -505,6 +513,7 @@ export class InicioComponent implements OnInit {
     private entranceService: EntranceService,
     private accessLogService: AccessLogService,
     private reservationsService: ReservationsService,
+    private petsService: PetsService,
   ) { }
 
   get distributionVisitorsTotal(): number {
@@ -592,6 +601,41 @@ export class InicioComponent implements OnInit {
     });
   }
 
+  /** Carga conteos globales para boxes visibles solo a rol administrador. */
+  private loadAdminCounts(): void {
+    this.userService.getAllUsers().subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        this.usersCount = list.length;
+      },
+      error: () => { this.usersCount = null; }
+    });
+
+    this.entranceService.getAllHouses().subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        this.registeredHousesCount = list.length;
+      },
+      error: () => { this.registeredHousesCount = null; }
+    });
+
+    this.entranceService.getAllVehicles().subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        this.registeredVehiclesCount = list.length;
+      },
+      error: () => { this.registeredVehiclesCount = null; }
+    });
+
+    this.petsService.getPets().subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        this.petsCount = list.length;
+      },
+      error: () => { this.petsCount = null; }
+    });
+  }
+
   applyFilterCompra(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSourceSale.filter = filterValue.trim().toLowerCase();
@@ -640,6 +684,7 @@ export class InicioComponent implements OnInit {
 
       this.userService.getUserById(Number(this.auth.getTokenItem('user_id'))).subscribe((user: User) => {
         this.actualUser = user;
+        this.isAdmin = (this.actualUser?.role_system || '').toUpperCase() === 'ADMINISTRADOR' || (this.actualUser?.role_system || '').toUpperCase() === 'ADMIN';
         this.entranceService.getAllAccessPoints().subscribe((campList: AccessPoint[]) => {
           if (campList && campList.length) {
             this.accessPoints = campList;
@@ -676,6 +721,9 @@ export class InicioComponent implements OnInit {
         });
 
         this.loadDashboardData();
+        if (this.isAdmin) {
+          this.loadAdminCounts();
+        }
       });
     }
     else{
