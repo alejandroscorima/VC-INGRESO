@@ -27,6 +27,7 @@ import { initFlowbite } from 'flowbite';
 import { AccessLogService } from '../access-log.service';
 import { ReservationsService } from '../reservations.service';
 import { PetsService } from '../pets.service';
+import { PublicRegistrationService } from '../public-registration/public-registration.service';
 
 
 @Component({
@@ -514,6 +515,7 @@ export class InicioComponent implements OnInit {
     private accessLogService: AccessLogService,
     private reservationsService: ReservationsService,
     private petsService: PetsService,
+    private publicRegistrationService: PublicRegistrationService,
   ) { }
 
   get distributionVisitorsTotal(): number {
@@ -613,8 +615,16 @@ export class InicioComponent implements OnInit {
 
     this.entranceService.getAllHouses().subscribe({
       next: (res: any) => {
-        const list = Array.isArray(res) ? res : (res?.data ?? []);
-        this.registeredHousesCount = list.length;
+        const allHouses = Array.isArray(res) ? res : (res?.data ?? []);
+        const totalHouses = allHouses.length;
+        this.publicRegistrationService.getHouses().subscribe({
+          next: (publicRes: any) => {
+            const availableInForm = Array.isArray(publicRes) ? publicRes : (publicRes?.data ?? []);
+            // Casas registradas en formulario = total casas - casas disponibles en listado público.
+            this.registeredHousesCount = Math.max(0, totalHouses - availableInForm.length);
+          },
+          error: () => { this.registeredHousesCount = null; }
+        });
       },
       error: () => { this.registeredHousesCount = null; }
     });
