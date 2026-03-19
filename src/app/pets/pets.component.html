@@ -1,231 +1,234 @@
-<div class="pets-container">
-  <div class="header">
-    <h1>Gestión de Mascotas</h1>
-    <button mat-raised-button color="primary" (click)="openAddDialog()">
-      <mat-icon>add</mat-icon>
-      Registrar Mascota
-    </button>
-  </div>
+<div *ngIf="true" class="p-4 dark:bg-gray-900">
+    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
+        <button type="button" (click)="newPet()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
+            Nuevo
+        </button>
 
-  <mat-form-field appearance="outline" class="filter-field">
-    <mat-label>Buscar</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Nombre, especie, raza...">
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
-
-  <div class="table-container mat-elevation-z8">
-    <table mat-table [dataSource]="dataSource" matSort>
-      <!-- Foto -->
-      <ng-container matColumnDef="photo">
-        <th mat-header-cell *matHeaderCellDef>Foto</th>
-        <td mat-cell *matCellDef="let pet">
-          <div class="pet-photo">
-            <img *ngIf="getPhotoUrl(pet.photo_url) as photoUrl" [src]="photoUrl" [alt]="pet.name">
-            <mat-icon *ngIf="!pet.photo_url">pets</mat-icon>
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Nombre -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
-        <td mat-cell *matCellDef="let pet">{{ pet.name }}</td>
-      </ng-container>
-
-      <!-- Especie -->
-      <ng-container matColumnDef="species">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Especie</th>
-        <td mat-cell *matCellDef="let pet">
-          <mat-chip-set>
-            <mat-chip [class]="'species-' + pet.species.toLowerCase()">
-              {{ pet.species }}
-            </mat-chip>
-          </mat-chip-set>
-        </td>
-      </ng-container>
-
-      <!-- Raza -->
-      <ng-container matColumnDef="breed">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Raza</th>
-        <td mat-cell *matCellDef="let pet">{{ pet.breed || '-' }}</td>
-      </ng-container>
-
-      <!-- Casa -->
-      <ng-container matColumnDef="house">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Casa</th>
-        <td mat-cell *matCellDef="let pet">{{ getHouseDisplay(pet) }}</td>
-      </ng-container>
-
-      <!-- Propietario -->
-      <ng-container matColumnDef="owner">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Propietario</th>
-        <td mat-cell *matCellDef="let pet">
-          {{ getOwnerName(pet.owner_id) }}
-        </td>
-      </ng-container>
-
-      <!-- Estado -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
-        <td mat-cell *matCellDef="let pet">
-          <mat-chip [style.background-color]="getStatusColor(pet.status_validated)">
-            {{ pet.status_validated }}
-          </mat-chip>
-        </td>
-      </ng-container>
-
-      <!-- Acciones -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let pet">
-          <button *ngIf="pet.photo_url" mat-icon-button (click)="openViewPhoto(pet)" matTooltip="Ver foto">
-            <mat-icon>visibility</mat-icon>
-          </button>
-          <button mat-icon-button color="primary" (click)="openPhotoDialog(pet)" matTooltip="Tomar foto">
-            <mat-icon>photo_camera</mat-icon>
-          </button>
-          <button mat-icon-button color="accent" (click)="openEditDialog(pet)" matTooltip="Editar">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deletePet(pet)" matTooltip="Eliminar">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-
-    <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
-  </div>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 w-12"></th>
+                        <th scope="col" class="px-6 py-3">
+                            Nombre
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Especie
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Raza
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Casa
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Propietario
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Estado
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Acciones
+                            <span class="sr-only">Edit</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of pets" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td class="px-4 py-4">
+                            <div *ngIf="p.photo_url" class="w-10 h-10 rounded-full overflow-hidden">
+                                <img [src]="getPhotoUrl(p.photo_url)" alt="Foto" class="w-full h-full object-cover">
+                            </div>
+                            <div *ngIf="!p.photo_url" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300">
+                                <mat-icon class="!text-lg !w-5 !h-5">{{ getPetIcon(p.species) }}</mat-icon>
+                            </div>
+                        </td>
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 uppercase whitespace-nowrap dark:text-white">
+                            {{p.name}}
+                        </th>
+                        <td class="px-6 py-4 uppercase">
+                            {{p.species}}
+                        </td>
+                        <td class="px-6 py-4 uppercase">
+                            {{p.breed || '-'}}
+                        </td>
+                        <td class="px-6 py-4 uppercase">
+                            {{ getHouseDisplay(p) }}
+                        </td>
+                        <td class="px-6 py-4 uppercase">
+                            {{ getOwnerName(p.owner_id) }}
+                        </td>
+                        <td class="px-6 py-4 uppercase">
+                            {{p.status_validated}}
+                        </td>
+                        <td class="px-6 py-4 text-right uppercase inline-flex items-center gap-2">
+                            <a *ngIf="p.photo_url" (click)="openViewPhoto(p)" class="font-medium text-blue-600 dark:text-blue-500 hover:text-blue-800 cursor-pointer inline-flex items-center" title="Ver foto">
+                                <mat-icon class="!text-base !w-5 !h-5">visibility</mat-icon>
+                            </a>
+                            <a (click)="editPet(p)" class="font-medium text-blue-600 dark:text-blue-500 hover:text-blue-800 cursor-pointer inline-flex items-center" title="Editar">
+                                <mat-icon class="!text-base !w-5 !h-5">edit</mat-icon>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- Dialogo Agregar Mascota -->
-<ng-template #addDialog>
-  <h2 mat-dialog-title>Registrar Mascota</h2>
-  <mat-dialog-content>
-    <form class="pet-form">
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="newPet.name" name="name" required>
-      </mat-form-field>
+<!-- Modal toggle new pet -->
+<button hidden id="new-pet-button" data-modal-target="new-pet-modal" data-modal-toggle="new-pet-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+    NUEVA MASCOTA
+</button>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Especie</mat-label>
-        <mat-select [(ngModel)]="newPet.species" name="species" required>
-          <mat-option *ngFor="let opt of speciesOptions" [value]="opt.value">
-            {{ opt.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+<!-- Main modal new pet -->
+<div id="new-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Nueva mascota
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-pet-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="nameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                    <input [(ngModel)]="petToAdd.name" type="text" name="nameNew" id="nameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombre..." required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="speciesNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
+                    <select [(ngModel)]="petToAdd.species" name="speciesNew" id="speciesNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="PERRO">Perro</option>
+                        <option value="GATO">Gato</option>
+                        <option value="AVE">Ave</option>
+                        <option value="PEQUEÑO MAMÍFERO">Pequeño Mamífero</option>
+                        <option value="ACUÁTICO">Acuático</option>
+                        <option value="EXÓTICO">Exótico</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="breedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
+                    <input [(ngModel)]="petToAdd.breed" type="text" name="breedNew" id="breedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Raza..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <input [(ngModel)]="petToAdd.color" type="text" name="colorNew" id="colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Color..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Casa</label>
+                    <select [(ngModel)]="petToAdd.house_id" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="">Seleccionar casa...</option>
+                        <option *ngFor="let h of houses" [value]="h.house_id">Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="statusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="petToAdd.status_validated" name="statusNew" id="statusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="PERMITIDO">Permitido</option>
+                        <option value="DENEGADO">Denegado</option>
+                        <option value="OBSERVADO">Observado</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                <button (click)="createPet()" data-modal-hide="new-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="new-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Raza</mat-label>
-        <input matInput [(ngModel)]="newPet.breed" name="breed">
-      </mat-form-field>
+<!-- Modal toggle edit pet -->
+<button hidden id="edit-pet-button" data-modal-target="edit-pet-modal" data-modal-toggle="edit-pet-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+    EDITAR MASCOTA
+</button>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Color</mat-label>
-        <input matInput [(ngModel)]="newPet.color" name="color">
-      </mat-form-field>
+<!-- Main modal edit pet -->
+<div id="edit-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Editar mascota
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-pet-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1" *ngIf="petToEdit">
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="nameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                    <input [(ngModel)]="petToEdit.name" type="text" name="nameEdit" id="nameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="speciesEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
+                    <select [(ngModel)]="petToEdit.species" name="speciesEdit" id="speciesEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="PERRO">Perro</option>
+                        <option value="GATO">Gato</option>
+                        <option value="AVE">Ave</option>
+                        <option value="PEQUEÑO MAMÍFERO">Pequeño Mamífero</option>
+                        <option value="ACUÁTICO">Acuático</option>
+                        <option value="EXÓTICO">Exótico</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="breedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
+                    <input [(ngModel)]="petToEdit.breed" type="text" name="breedEdit" id="breedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <input [(ngModel)]="petToEdit.color" type="text" name="colorEdit" id="colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Casa</label>
+                    <select [(ngModel)]="petToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option *ngFor="let h of houses" [value]="h.house_id">Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}</option>
+                    </select>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="statusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="petToEdit.status_validated" name="statusEdit" id="statusEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="PERMITIDO">Permitido</option>
+                        <option value="DENEGADO">Denegado</option>
+                        <option value="OBSERVADO">Observado</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                <button (click)="updatePet()" data-modal-hide="edit-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="edit-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Casa</mat-label>
-        <mat-select [(ngModel)]="newPet.house_id" name="house_id" required>
-          <mat-option *ngFor="let h of houses" [value]="h.house_id">
-            Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Estado</mat-label>
-        <mat-select [(ngModel)]="newPet.status_validated" name="status">
-          <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
-            {{ opt.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </form>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancelar</button>
-    <button mat-raised-button color="primary" (click)="createPet()">Guardar</button>
-  </mat-dialog-actions>
-</ng-template>
-
-<!-- Dialogo Editar Mascota -->
-<ng-template #editDialog>
-  <h2 mat-dialog-title>Editar Mascota</h2>
-  <mat-dialog-content>
-    <form class="pet-form" *ngIf="editPet">
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="editPet.name" name="name" required>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Especie</mat-label>
-        <mat-select [(ngModel)]="editPet.species" name="species" required>
-          <mat-option *ngFor="let opt of speciesOptions" [value]="opt.value">
-            {{ opt.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Raza</mat-label>
-        <input matInput [(ngModel)]="editPet.breed" name="breed">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Color</mat-label>
-        <input matInput [(ngModel)]="editPet.color" name="color">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Casa</mat-label>
-        <mat-select [(ngModel)]="editPet.house_id" name="house_id" required>
-          <mat-option *ngFor="let h of houses" [value]="h.house_id">
-            Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Estado</mat-label>
-        <mat-select [(ngModel)]="editPet.status_validated" name="status">
-          <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
-            {{ opt.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </form>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancelar</button>
-    <button mat-raised-button color="primary" (click)="updatePet()">Actualizar</button>
-  </mat-dialog-actions>
-</ng-template>
-
-<!-- Dialogo Tomar Foto -->
-<ng-template #photoDialog>
-  <h2 mat-dialog-title>Capturar Foto</h2>
-  <mat-dialog-content>
-    <app-webcam *ngIf="showPhotoDialog" (photoCaptured)="onPhotoCaptured($event)"></app-webcam>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cerrar</button>
-  </mat-dialog-actions>
-</ng-template>
-
-<!-- Modal ver foto -->
+<!-- Modal ver foto mascota -->
 <div *ngIf="showViewPhotoDialog" class="photo-view-overlay" (click)="closeViewPhoto()">
   <div class="photo-view-modal" (click)="$event.stopPropagation()">
     <div class="photo-view-header">
       <h3>{{ viewPhotoTitle }}</h3>
-      <button mat-icon-button (click)="closeViewPhoto()"><mat-icon>close</mat-icon></button>
+      <button type="button" (click)="closeViewPhoto()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
     </div>
     <img *ngIf="viewPhotoUrl" [src]="viewPhotoUrl" [alt]="viewPhotoTitle" class="photo-view-img" />
   </div>

@@ -21,7 +21,24 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
   status: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
+  
+  vehicleTypeIcons: { [key: string]: string } = {
+    'MOTOCICLETA': 'two_wheeler',
+    'MOTOTAXI': 'two_wheeler',
+    'AUTOMOVIL': 'directions_car',
+    'CAMIONETA': 'local_shipping',
+    'MINIVAN': 'directions_bus',
+    'BICICLETA': 'two_wheeler',
+    'FURGONETA': 'local_shipping'
+  };
+  
   houses: House[] = [];
+  
+  externalVehicleTypeIcons: { [key: string]: string } = {
+    'DELIVERY': 'local_shipping',
+    'COLECTIVO': 'directions_bus',
+    'TAXI': 'directions_car'
+  };
 
   externalVehicles: ExternalVehicle[] = [];
   externalVehicleToAdd: ExternalVehicle = new ExternalVehicle('','','','','','','','');
@@ -87,6 +104,18 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   closeViewPhoto(): void {
     this.showViewPhotoDialog = false;
     this.viewPhotoUrl = null;
+  }
+
+  getPhotoUrl(photoUrl: string): string {
+    return this.api.getPhotoUrl(photoUrl);
+  }
+
+  getVehicleIcon(vehicleType: string): string {
+    return this.vehicleTypeIcons[vehicleType] || '🚗';
+  }
+
+  getExternalVehicleIcon(vehicleType: string): string {
+    return this.externalVehicleTypeIcons[vehicleType] || '🚚';
   }
 
   getHouseLocation(v: Vehicle): string {

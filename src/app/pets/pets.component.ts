@@ -1,19 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Pet, PET_SPECIES, PET_STATUS } from '../pet';
+import { Pet } from '../pet';
 import { ApiService } from '../api.service';
 import { PetsService } from '../pets.service';
 import { UsersService } from '../users.service';
 import { User } from '../user';
 import { EntranceService } from '../entrance.service';
 import { House } from '../house';
-import { WebcamComponent } from '../webcam/webcam.component';
 
 @Component({
   selector: 'app-pets',
@@ -21,38 +14,23 @@ import { WebcamComponent } from '../webcam/webcam.component';
   styleUrls: ['./pets.component.css']
 })
 export class PetsComponent implements OnInit {
-  displayedColumns: string[] = ['photo', 'name', 'species', 'breed', 'house', 'owner', 'status', 'actions'];
-  dataSource: MatTableDataSource<Pet> = new MatTableDataSource<Pet>([]);
-  
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
 
   pets: Pet[] = [];
   houses: House[] = [];
   owners: User[] = [];
-  speciesOptions = PET_SPECIES;
-  statusOptions = PET_STATUS;
   
-  showAddDialog = false;
-  showEditDialog = false;
-  showPhotoDialog = false;
   showViewPhotoDialog = false;
   viewPhotoUrl: string | null = null;
   viewPhotoTitle = '';
 
-  newPet: Partial<Pet> = { status_validated: 'PERMITIDO' };
-  editPet: Pet | null = null;
-  selectedPet: Pet | null = null;
-  currentPhotoPet: Pet | null = null;
+  petToAdd: Partial<Pet> = { status_validated: 'PERMITIDO' };
+  petToEdit: Pet | null = null;
 
   constructor(
     private api: ApiService,
     private petsService: PetsService,
     private usersService: UsersService,
     private entranceService: EntranceService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private router: Router,
     private toastr: ToastrService
   ) {}
 
@@ -82,9 +60,6 @@ export class PetsComponent implements OnInit {
       next: (res) => {
         const pets = (res && (res as any).data) ? (res as any).data : (Array.isArray(res) ? res : []);
         this.pets = pets;
-        this.dataSource.data = pets;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
       },
       error: (err) => {
         this.toastr.error('Error al cargar mascotas: ' + err.message);
@@ -104,17 +79,8 @@ export class PetsComponent implements OnInit {
     });
   }
 
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  openAddDialog(): void {
-    this.newPet = { 
+  newPet(): void {
+    this.petToAdd = { 
       name: '', 
       species: 'PERRO', 
       breed: '', 
@@ -122,17 +88,12 @@ export class PetsComponent implements OnInit {
       house_id: 0,
       status_validated: 'PERMITIDO'
     };
-    this.showAddDialog = true;
+    document.getElementById('new-pet-button')?.click();
   }
 
-  openEditDialog(pet: Pet): void {
-    this.editPet = { ...pet };
-    this.showEditDialog = true;
-  }
-
-  openPhotoDialog(pet: Pet): void {
-    this.currentPhotoPet = pet;
-    this.showPhotoDialog = true;
+  editPet(pet: Pet): void {
+    this.petToEdit = { ...pet };
+    document.getElementById('edit-pet-button')?.click();
   }
 
   openViewPhoto(pet: Pet): void {
@@ -147,15 +108,15 @@ export class PetsComponent implements OnInit {
   }
 
   createPet(): void {
-    if (!this.validatePet(this.newPet)) {
+    if (!this.validatePet(this.petToAdd)) {
       this.toastr.warning('Por favor complete los campos requeridos');
       return;
     }
 
-    this.petsService.createPet(this.newPet).subscribe({
+    this.petsService.createPet(this.petToAdd).subscribe({
       next: (created) => {
         this.toastr.success('Mascota registrada exitosamente');
-        this.showAddDialog = false;
+        this.clean();
         this.loadPets();
       },
       error: (err) => {
@@ -165,17 +126,17 @@ export class PetsComponent implements OnInit {
   }
 
   updatePet(): void {
-    if (!this.editPet?.id) return;
+    if (!this.petToEdit?.id) return;
 
-    if (!this.validatePet(this.editPet)) {
+    if (!this.validatePet(this.petToEdit)) {
       this.toastr.warning('Por favor complete los campos requeridos');
       return;
     }
 
-    this.petsService.updatePet(this.editPet.id, this.editPet).subscribe({
+    this.petsService.updatePet(this.petToEdit.id, this.petToEdit).subscribe({
       next: () => {
         this.toastr.success('Mascota actualizada');
-        this.showEditDialog = false;
+        this.clean();
         this.loadPets();
       },
       error: (err) => {
@@ -202,41 +163,6 @@ export class PetsComponent implements OnInit {
     return !!(pet.name && pet.species && pet.house_id);
   }
 
-  onPhotoCaptured(event: { imageBase64: string, imageBlob: Blob }): void {
-    if (this.currentPhotoPet?.id) {
-      // Convertir base64 a archivo
-      const file = this.dataURLtoFile(event.imageBase64, `pet_${this.currentPhotoPet.id}.jpg`);
-      
-      this.petsService.uploadPetPhoto(this.currentPhotoPet.id, file).subscribe({
-        next: (result) => {
-          this.toastr.success('Foto actualizada');
-          this.showPhotoDialog = false;
-          this.loadPets();
-        },
-        error: (err) => {
-          this.toastr.error('Error al subir foto');
-        }
-      });
-    }
-  }
-
-  private dataURLtoFile(dataurl: string, filename: string): File {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)![1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  }
-
-  getStatusColor(status: string): string {
-    const statusObj = PET_STATUS.find(s => s.value === status);
-    return statusObj?.color || 'gray';
-  }
-
   getHouseDisplay(pet: Pet): string {
     if (pet.block_house != null && pet.lot != null) {
       return `Mz:${pet.block_house} Lt:${pet.lot}`;
@@ -250,5 +176,23 @@ export class PetsComponent implements OnInit {
     if (ownerId == null) return '-';
     const owner = this.owners.find(o => (o as any).id === ownerId || o.user_id === ownerId);
     return owner ? `${owner.first_name} ${owner.paternal_surname}` : 'Desconocido';
+  }
+
+  getPetIcon(species: string): string {
+    const icons: { [key: string]: string } = {
+      'PERRO': 'pets',
+      'GATO': 'pets',
+      'AVE': 'pets',
+      'PEQUEÑO MAMÍFERO': 'pets',
+      'ACUÁTICO': 'pets',
+      'EXÓTICO': 'pets',
+      'OTRO': 'pets'
+    };
+    return icons[species] || 'pets';
+  }
+
+  clean(): void {
+    this.petToAdd = { status_validated: 'PERMITIDO' };
+    this.petToEdit = null;
   }
 }

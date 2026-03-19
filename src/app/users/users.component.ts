@@ -5,6 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { House } from '../house';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-users',
@@ -69,6 +70,16 @@ export class UsersComponent implements OnInit, AfterViewInit{
       output += ` DPTO:${apt.toUpperCase()}`;
     }
     return output;
+  }
+
+  getPhotoUrl(photoUrl: string): string {
+    if (!photoUrl) return '';
+    // Si la URL es relativa (empieza con /), construir URL completa con baseUrl
+    if (photoUrl.startsWith('/')) {
+      return environment.baseUrl + photoUrl;
+    }
+    // Si es URL absoluta, devolverla tal cual
+    return photoUrl;
   }
 
   searchUser(doc_number: string){

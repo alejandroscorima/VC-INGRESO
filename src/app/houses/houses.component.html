@@ -22,6 +22,7 @@
                             Estado
                         </th>
                         <th scope="col" class="px-6 py-3">
+                            Acciones
                             <span class="sr-only">Edit</span>
                         </th>
                     </tr>
@@ -41,7 +42,7 @@
                             {{h.status_system.toUpperCase()}}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <a (click)="editHouse(h)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
+                            <a (click)="editHouse(h)" class="font-medium text-blue-600 dark:text-blue-500 hover:text-blue-800 cursor-pointer inline-flex items-center" title="Editar"><mat-icon class="!text-base !w-5 !h-5">edit</mat-icon></a>
                         </td>
                     </tr>
                 </tbody>

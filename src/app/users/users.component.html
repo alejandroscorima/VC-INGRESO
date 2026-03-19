@@ -23,6 +23,8 @@
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
+                        <th scope="col" class="px-4 py-3 w-12">
+                        </th>
                         <th scope="col" class="px-6 py-3">
                             Nombre
                         </th>
@@ -46,6 +48,14 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let u of users" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td class="px-4 py-4">
+                            <div *ngIf="u.photo_url" class="w-10 h-10 rounded-full overflow-hidden">
+                                <img [src]="getPhotoUrl(u.photo_url)" alt="Foto" class="w-full h-full object-cover">
+                            </div>
+                            <div *ngIf="!u.photo_url" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 leading-none">
+                                <mat-icon class="!text-lg !w-5 !h-5">person</mat-icon>
+                            </div>
+                        </td>
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{ (u.paternal_surname+' '+u.maternal_surname+' '+u.first_name).toUpperCase() }}
                         </th>
@@ -62,7 +72,7 @@
                             {{u.cel_number || '-'}}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <a (click)="editUser(u)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer">Edit</a>
+                            <a (click)="editUser(u)" class="font-medium text-blue-600 dark:text-blue-500 hover:text-blue-800 cursor-pointer inline-flex items-center" title="Editar"><mat-icon class="!text-base !w-5 !h-5">edit</mat-icon></a>
                         </td>
                     </tr>
                 </tbody>
