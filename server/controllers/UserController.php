@@ -330,7 +330,9 @@ class UserController extends Controller {
         $stmt->execute([$doc_number]);
         $user = $stmt->fetch(\PDO::FETCH_OBJ);
         if (!$user) {
-            Response::notFound('Usuario no encontrado');
+            // No encontrado es un caso esperado en búsquedas previas a RENIEC;
+            // devolvemos 200 con data vacía para evitar ruido en logs del frontend.
+            Response::success((object) [], 'Usuario no encontrado');
             return;
         }
         Response::success($user);

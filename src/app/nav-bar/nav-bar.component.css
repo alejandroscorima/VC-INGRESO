@@ -2,3 +2,12 @@
 #dropdown-user {
   min-width: 14rem;
 }
+
+@media (max-width: 639.98px) {
+  #mobile-sidebar-toggle {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}

@@ -6,6 +6,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: vc-ingreso-mysql
+    stop_grace_period: 30s
     env_file:
       - .env
     environment:

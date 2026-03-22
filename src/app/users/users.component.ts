@@ -235,12 +235,12 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   newUser(){
-    document.getElementById('new-user-button')?.click();
+    document.getElementById('users-new-user-button')?.click();
   }
 
   editUser(user:User){
     this.userToEdit = user;
-    document.getElementById('edit-user-button')?.click();
+    document.getElementById('users-edit-user-button')?.click();
   }
 
   saveNewUser() {
@@ -360,7 +360,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
     this.giveAccessUsername = '';
     this.giveAccessPassword = '';
     this.giveAccessRole = 'USUARIO';
-    document.getElementById('give-access-button')?.click();
+    document.getElementById('users-give-access-button')?.click();
   }
 
   /** Crear usuario desde persona (dar acceso) */
@@ -379,7 +379,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
       next: () => {
         this.savingGiveAccess = false;
         this.toastr.success('Usuario creado. La persona ya puede iniciar sesión.');
-        document.getElementById('close-give-access-modal')?.click();
+        document.getElementById('users-close-give-access-modal')?.click();
         this.loadPersonsWithoutUser();
         this.usersService.getAllUsers().subscribe((res: any[]) => { this.users = res; });
       },

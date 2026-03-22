@@ -1,148 +1,139 @@
-# Despliegue VC-INGRESO (Local, Stage, Producción)
+# Guia de Backup y Despliegue Seguro - VC-INGRESO
 
-## Resumen de entornos
-
-| Entorno | MySQL (puerto) | API (puerto) | Frontend (puerto) | Build Angular |
-|--------|-----------------|--------------|-------------------|----------------|
-| **Local** | 3306 interno y externo | 8080 | 4200 | `environment.ts` (localhost:8080) |
-| **Stage** (nube) | 3306 solo interno | 8089 externo | 8086 externo | `ng build --configuration=stage` → environment.stage.ts |
-| **Prod** (contenedores) | 3306 solo interno | 80 | 8080 (nginx) | `ng build --configuration=production` |
-| **Prod** (RDS) | — | 80 | 8080 (nginx) | `ng build --configuration=production` |
+Esta guia describe el flujo recomendado para realizar despliegues sin perder datos, incluyendo respaldo de base de datos e imagenes.
 
 ---
 
-## 1. Variables de entorno
+## 1. Backup de Base de Datos (Produccion)
 
-- **Backend (PHP):** `.env` (copiar desde `.env.example`). En Docker, el compose inyecta `DB_HOST=mysql` y `DB_PASS` en el contenedor de la API.
-- **Frontend (Angular):** no usa `.env` para la URL de la API; se elige por configuración de build:
-  - Desarrollo: `src/environments/environment.ts` → `baseUrl: "http://localhost:8080"`.
-  - Stage: `src/environments/environment.stage.ts` → actualizar IP/dominio y puerto (ej. `http://13.218.39.221:8089`).
-  - Producción: `src/environments/environment.prod.ts` → poner la URL final con HTTPS.
-
----
-
-## 2. Actualizar código en el servidor (git pull)
-
-En el servidor (Stage o Producción), para traer los últimos cambios de la rama `main`:
+Ejecutar dentro del servidor:
 
 ```bash
-cd ~/vc-ingreso   # o la ruta donde esté el proyecto en el servidor
+docker exec vc-ingreso-mysql \
+  sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" vc_db --single-transaction' \
+  > backup_vc_db_$(date +%F_%H-%M-%S).sql
+```
 
+Notas:
+
+- --single-transaction evita inconsistencias en bases activas.
+- El archivo se guarda en el directorio actual (~/vc-ingreso).
+
+---
+
+## 2. Backup de Imagenes (Volumen Docker)
+
+```bash
+docker run --rm \
+  -v vc-ingreso_uploads_data:/data:ro \
+  -v $(pwd):/backup \
+  alpine \
+  tar czf /backup/uploads_$(date +%F_%H-%M-%S).tar.gz -C /data .
+```
+
+Resultado:
+
+- Se genera un .tar.gz con todas las imagenes del sistema.
+- Ejemplo: uploads_2026-03-22_07-36-01.tar.gz
+
+Seguridad:
+
+- --rm NO elimina datos del volumen.
+- Solo elimina el contenedor temporal.
+
+---
+
+## 3. Flujo de Despliegue Seguro
+
+```bash
+set -euo pipefail
+
+cd ~/vc-ingreso
+
+echo "==> 1. Backup de BD"
+docker exec vc-ingreso-mysql \
+  sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" vc_db --single-transaction' \
+  > backup_vc_db_$(date +%F_%H-%M-%S).sql
+
+echo "==> 2. Backup de imagenes"
+docker run --rm \
+  -v vc-ingreso_uploads_data:/data:ro \
+  -v $(pwd):/backup \
+  alpine \
+  tar czf /backup/uploads_$(date +%F_%H-%M-%S).tar.gz -C /data .
+
+echo "==> 3. Actualizar codigo"
 git fetch origin
 git checkout main
 git pull origin main
-```
 
-Después de actualizar el código:
+echo "==> 4. Build"
+docker compose -f docker-compose.prod.yml build
 
-- **Stage:** recrear el frontend para que use el código nuevo (p. ej. si cambió `angular.json` o dependencias):
-  ```bash
-  docker compose -f docker-compose.stage.yml up -d --force-recreate frontend
-  ```
-- **Producción:** volver a construir la imagen del frontend (si usas build en el servidor) y levantar los servicios:
-  ```bash
-  docker compose -f docker-compose.prod.yml up -d --build
-  ```
-
-Si solo cambió el backend (PHP) o la API, a veces basta con reiniciar el servicio correspondiente en lugar de recrear todo.
-
----
-
-## 3. Local (Docker)
-
-```bash
-cp .env.example .env
-# Editar .env: DB_PASS y demás si quieres. DB_HOST no hace falta cambiarlo (el compose lo sobreescribe para la API).
-
-docker compose -f docker-compose.dev.yml up -d
-```
-
-- MySQL: `localhost:3306`
-- API: `http://localhost:8080`
-- Frontend: `http://localhost:4200` (el contenedor ejecuta `npm run start`).
-
-Para crear esquema y datos iniciales (primera vez o tras borrar volumen), hay que sustituir el placeholder de contraseña en `vc_create_database.sql`:
-
-- **PowerShell:**  
-  `Get-Content database/vc_create_database.sql | ForEach-Object { $_ -replace '__MYSQL_ROOT_PASSWORD__', $env:DB_PASS } | docker exec -i vc-ingreso-mysql mysql -uroot -p"$env:DB_PASS"`  
-  Luego: `Get-Content database/vc_dev_data.sql | docker exec -i vc-ingreso-mysql mysql -uroot -p"$env:DB_PASS"`
-  También: `Get-Content database/crearttech_clientes_schema.sql | ForEach-Object { $_ -replace '__MYSQL_ROOT_PASSWORD__', $env:DB_PASS } | docker exec -i vc-ingreso-mysql mysql -uroot -p"$env:DB_PASS"`
-
-- **Bash:**  
-  `sed "s#__MYSQL_ROOT_PASSWORD__#$DB_PASS#g" database/vc_create_database.sql | docker exec -i vc-ingreso-mysql mysql -uroot -p"$DB_PASS"`  
-  Luego: `docker exec -i vc-ingreso-mysql mysql -uroot -p"$DB_PASS" < database/vc_dev_data.sql`
-
----
-
-## 4. Stage (nube, previo a producción)
-
-```bash
-cp .env.example .env
-# Ajustar .env: DB_PASS seguro, CORS_ALLOW_ORIGIN (ej. http://13.218.39.221:8086).
-
-docker compose -f docker-compose.stage.yml up -d
-```
-
-- Contenedores: **frontend** (Node, live), **api**, **mysql**. MySQL sin puerto externo; API 8089, Frontend 8086.
-- El frontend en Stage usa el contenedor con `npm run start` (igual que dev). Para servir estáticos harías antes `ng build --configuration=stage` y usar nginx en otro paso si lo prefieres.
-- Tras actualizar el código en el servidor (ver sección 2): forzar recreación del frontend para que use el código nuevo:  
-  `docker compose -f docker-compose.stage.yml up -d --force-recreate frontend`
-
----
-
-## 5. Error "Access denied for user 'root'@'172.x.x.x'" (Stage/Local con Docker)
-
-La API corre en otro contenedor (IP tipo `172.x.x.x`). MySQL 8 por defecto solo permite `root@localhost`. Este proyecto incluye un script de init que crea `root@'%'` con la misma contraseña (`MYSQL_ROOT_PASSWORD` / `DB_PASS`), pero **solo se ejecuta cuando el volumen de MySQL se crea por primera vez**.
-
-Si el volumen ya existía con otra contraseña (o vacía), hay que **recrear el volumen** para que se ejecute el init y coincida la contraseña con `.env`:
-
-```bash
-docker compose -f docker-compose.stage.yml down
-docker volume rm vc-ingreso_mysql_data
-docker compose -f docker-compose.stage.yml up -d
-```
-
-Esperar a que MySQL esté healthy y luego ejecutar de nuevo los SQL (sustituir `<DB_PASS>` por el valor de `DB_PASS`):
-
-- **Bash:**  
-  `sed "s#__MYSQL_ROOT_PASSWORD__#<DB_PASS>#g" database/vc_create_database.sql | docker exec -i vc-ingreso-mysql mysql -uroot -p"<DB_PASS>"`  
-  `docker exec -i vc-ingreso-mysql mysql -uroot -p"<DB_PASS>" < database/vc_dev_data.sql`
-
----
-
-## 6. Producción
-
-Hay **dos archivos** según dónde corra MySQL:
-
-### 6.1 Producción con MySQL en contenedor (frontend + api + mysql)
-
-- Contenedores: **frontend** (nginx sirve `dist/Ingreso`), **api**, **mysql**.
-- Antes: `ng build --configuration=production` (genera `dist/Ingreso`).
-- En `.env`: `DB_PASS`, `DB_NAME`, `CORS_ALLOW_ORIGIN`, etc. La API usa `DB_HOST=mysql`.
-
-```bash
+echo "==> 5. Reinicio controlado"
+docker compose -f docker-compose.prod.yml down
 docker compose -f docker-compose.prod.yml up -d
+
+echo "==> 6. Verificacion"
+docker compose -f docker-compose.prod.yml ps
+
+echo "Deploy listo"
 ```
 
-- API en puerto 80, frontend en 8080. Tras el primer arranque (o tras borrar volumen), ejecutar los SQL de datos si hace falta (con `sed` para el placeholder, ver sección 5).
+---
 
-### 6.2 Producción con RDS (frontend + api, sin mysql)
+## 4. Restaurar Base de Datos en DEV (Windows PowerShell)
 
-- Contenedores: **frontend** (nginx sirve `dist/Ingreso`), **api**. Sin servicio MySQL.
-- En `.env`: `DB_HOST=<rds-endpoint>`, `DB_PORT=3306`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_LICENSE_NAME`, `CORS_ALLOW_ORIGIN`.
-- Antes: `ng build --configuration=production`.
-
-```bash
-docker compose -f docker-compose.prod-rds.yml up -d
+```powershell
+Get-Content .\backup_vc_db_YYYY-MM-DD_HH-MM-SS.sql | docker exec -i vc-ingreso-mysql mysql -uroot -pTU_PASSWORD vc_db
 ```
 
-### Resumen: 4 archivos compose
+Reemplazar:
 
-| Archivo | Contenedores | Uso |
-|---------|--------------|-----|
-| **docker-compose.dev.yml** | frontend (Node live), api, mysql | Desarrollo local. Puertos 3306, 8080, 4200. |
-| **docker-compose.stage.yml** | frontend (Node live), api, mysql | Stage (nube). Puertos 8089 (API), 8086 (frontend). MySQL solo interno. |
-| **docker-compose.prod.yml** | frontend (nginx), api, mysql | Producción todo en contenedores. API 80, frontend 8080. |
-| **docker-compose.prod-rds.yml** | frontend (nginx), api | Producción con MySQL en RDS. API 80, frontend 8080. |
+- TU_PASSWORD por tu contrasena local.
 
-- Configurar `environment.prod.ts` con la URL final de la API (HTTPS). Asegurar `DB_PASS` seguro, CORS restringido y JWT/CSRF en `.env`.
+---
+
+## 5. Restaurar Imagenes en DEV
+
+```powershell
+docker run --rm `
+  -v vc-ingreso_uploads_data:/data `
+  -v ${PWD}:/backup `
+  alpine `
+  sh -c "rm -rf /data/* && tar xzf /backup/uploads_YYYY-MM-DD_HH-MM-SS.tar.gz -C /data"
+```
+
+Esto:
+
+- Limpia el volumen.
+- Restaura exactamente las imagenes de produccion.
+
+---
+
+## 6. Buenas Practicas
+
+- Siempre hacer backup ANTES de hacer pull.
+- No confiar solo en la base de datos: las imagenes tambien son datos criticos.
+- Mantener backups historicos (no sobrescribir).
+- Validar que el .sql tenga INSERT INTO.
+- Probar restauracion en DEV regularmente.
+
+---
+
+## 7. Recomendacion a Futuro
+
+Cuando escales:
+
+- Base de datos -> RDS (persistencia real).
+- Imagenes -> S3 (no depender de volumenes Docker).
+
+---
+
+## 8. Resultado Final
+
+Con este flujo:
+
+- Nunca pierdes datos.
+- Puedes clonar produccion en dev facilmente.
+- Tienes rollback inmediato si algo falla.

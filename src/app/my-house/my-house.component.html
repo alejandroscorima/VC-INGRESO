@@ -2,33 +2,33 @@
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Mi Casa</h2>
         <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myhouse-default-tab" data-tabs-toggle="#myhouse-default-tab-content" role="tablist">
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg" id="family-tab" data-tabs-target="#family" type="button" role="tab" aria-controls="family" aria-selected="false">Residentes</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg" id="myhouse-family-tab" data-tabs-target="#myhouse-family" type="button" role="tab" aria-controls="myhouse-family" aria-selected="false">Residentes</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="tenants-tab" data-tabs-target="#tenants" type="button" role="tab" aria-controls="tenants" aria-selected="false">Inquilinos</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="myhouse-tenants-tab" data-tabs-target="#myhouse-tenants" type="button" role="tab" aria-controls="myhouse-tenants" aria-selected="false">Inquilinos</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="pets-tab" data-tabs-target="#pets" type="button" role="tab" aria-controls="pets" aria-selected="false">Mascotas</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="myhouse-pets-tab" data-tabs-target="#myhouse-pets" type="button" role="tab" aria-controls="myhouse-pets" aria-selected="false">Mascotas</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="vehicles-tab" data-tabs-target="#vehicles" type="button" role="tab" aria-controls="vehicles" aria-selected="false">Vehiculos</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="myhouse-vehicles-tab" data-tabs-target="#myhouse-vehicles" type="button" role="tab" aria-controls="myhouse-vehicles" aria-selected="false">Vehiculos</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="visits-tab" data-tabs-target="#visits" type="button" role="tab" aria-controls="visits" aria-selected="false">Visitas</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="myhouse-visits-tab" data-tabs-target="#myhouse-visits" type="button" role="tab" aria-controls="myhouse-visits" aria-selected="false">Visitas</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="external-vehicles-tab" data-tabs-target="#external-vehicles" type="button" role="tab" aria-controls="external-vehicles" aria-selected="false">Vehiculos Externos</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="myhouse-external-vehicles-tab" data-tabs-target="#myhouse-external-vehicles" type="button" role="tab" aria-controls="myhouse-external-vehicles" aria-selected="false">Vehiculos Externos</button>
                 </li>
 <!--                 <li role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="contacts-tab" data-tabs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="false">Contacts</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="myhouse-contacts-tab" data-tabs-target="#myhouse-contacts" type="button" role="tab" aria-controls="myhouse-contacts" aria-selected="false">Contacts</button>
                 </li> -->
             </ul>
         </div>
-        <div id="default-tab-content">
+        <div id="myhouse-default-tab-content">
 <!--RESIDENT TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="family" role="tabpanel" aria-labelledby="family-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-family" role="tabpanel" aria-labelledby="myhouse-family-tab">
                 <button type="button" (click)="newUser()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -93,7 +93,7 @@
                 </div>
             </div>
 <!--INQUILINOS-TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="tenants" role="tabpanel" aria-labelledby="tenants-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-tenants" role="tabpanel" aria-labelledby="myhouse-tenants-tab">
                 <button type="button" (click)="newTenant()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -130,7 +130,7 @@
                 </div>
             </div>
 <!--MASCOTAS-TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="pets" role="tabpanel" aria-labelledby="pets-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-pets" role="tabpanel" aria-labelledby="myhouse-pets-tab">
                 <button type="button" (click)="newPet()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -169,8 +169,8 @@
                                 <td class="px-6 py-4">{{ pt?.breed || '-' }}</td>
                                 <td class="px-6 py-4 uppercase">{{ pt?.status_system || pt?.status_validated }}</td>
                                 <td class="px-6 py-4 text-right">
-                                    <input type="file" #petPhotoInput [attr.id]="'pet-photo-' + myPets.indexOf(pt)" accept="image/jpeg,image/png,image/gif" (change)="onPetPhotoSelect(myPets.indexOf(pt), $event)" class="hidden" />
-                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingPetIndex === myPets.indexOf(pt) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingPetIndex === myPets.indexOf(pt)" [attr.for]="'pet-photo-' + myPets.indexOf(pt)" (click)="document.getElementById('pet-photo-' + myPets.indexOf(pt))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingPetIndex === myPets.indexOf(pt) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
+                                    <input type="file" #petPhotoInput [attr.id]="'myhouse-pet-photo-' + myPets.indexOf(pt)" accept="image/jpeg,image/png,image/gif" (change)="onPetPhotoSelect(myPets.indexOf(pt), $event)" class="hidden" />
+                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingPetIndex === myPets.indexOf(pt) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingPetIndex === myPets.indexOf(pt)" [attr.for]="'myhouse-pet-photo-' + myPets.indexOf(pt)" (click)="document.getElementById('myhouse-pet-photo-' + myPets.indexOf(pt))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingPetIndex === myPets.indexOf(pt) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="pt?.photo_url" type="button" (click)="openViewPhoto(pt, 'Mascota: '+pt?.name)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
                                     <button type="button" (click)="editPet(pt)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
@@ -181,7 +181,7 @@
                 </div>
             </div>
 <!--VEHICLES-TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="vehicles" role="tabpanel" aria-labelledby="vehicles-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-vehicles" role="tabpanel" aria-labelledby="myhouse-vehicles-tab">
                 <button type="button" (click)="newVehicle()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -229,8 +229,8 @@
                                     {{ vh?.status_system || vh?.status_validated }}
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
-                                    <input type="file" [attr.id]="'vehicle-photo-' + myVehicles.indexOf(vh)" accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(myVehicles.indexOf(vh), $event)" class="hidden" />
-                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingVehicleIndex === myVehicles.indexOf(vh)" [attr.for]="'vehicle-photo-' + myVehicles.indexOf(vh)" (click)="document.getElementById('vehicle-photo-' + myVehicles.indexOf(vh))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
+                                    <input type="file" [attr.id]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(myVehicles.indexOf(vh), $event)" class="hidden" />
+                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingVehicleIndex === myVehicles.indexOf(vh)" [attr.for]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" (click)="document.getElementById('myhouse-vehicle-photo-' + myVehicles.indexOf(vh))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="vh?.photo_url" type="button" (click)="openViewPhoto(vh, 'Vehículo: '+vh?.license_plate)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
                                     <button type="button" (click)="editVehicle(vh)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
@@ -241,7 +241,7 @@
                 </div>
             </div>
 <!--VISITS-TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="visits" role="tabpanel" aria-labelledby="visits-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-visits" role="tabpanel" aria-labelledby="myhouse-visits-tab">
                 <button type="button" (click)="newVisit()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -291,7 +291,7 @@
                 </div>
             </div>
 <!--EXTERNAL-VEHICLES-TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="external-vehicles" role="tabpanel" aria-labelledby="external-vehicles-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-external-vehicles" role="tabpanel" aria-labelledby="myhouse-external-vehicles-tab">
                 <button type="button" (click)="newExternalVehicle()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -352,10 +352,10 @@
 
 
 <!-- Modal toggle nuevo residente (oculto: solo se abre por JS) -->
-<button id="new-user-button" data-modal-target="new-user-modal" data-modal-toggle="new-user-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo residente</button>
+<button id="myhouse-new-user-button" data-modal-target="myhouse-new-user-modal" data-modal-toggle="myhouse-new-user-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo residente</button>
 
 <!-- Main modal new user -->
-<div id="new-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -364,7 +364,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Nueva Persona
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-user-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-new-user-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -374,88 +374,88 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
-                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
-                    <select [(ngModel)]="userToAdd.type_doc" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de documento..." required>
+                    <label for="myhouse-typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
+                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
+                    <select [(ngModel)]="userToAdd.type_doc" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de documento..." required>
                         <option *ngFor="let td of typeDocs">{{td}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="docNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
+                    <label for="myhouse-docNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento (DNI)</label>
                     <div class="flex">
-                        <input [(ngModel)]="userToAdd.doc_number" type="text" name="docNumberNew" id="docNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 rounded-s-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de documento..." required />
+                        <input [(ngModel)]="userToAdd.doc_number" type="text" inputmode="numeric" pattern="[0-9]{8,}" name="docNumberNew" id="myhouse-docNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 rounded-s-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="DNI (8) o CE (más dígitos)..." required />
                         <span (click)="searchUser(userToAdd.doc_number)" class="cursor-pointer inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-s-0 border-gray-300 rounded-e-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect width="24" height="24" fill="white"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M7.25007 2.38782C8.54878 2.0992 10.1243 2 12 2C13.8757 2 15.4512 2.0992 16.7499 2.38782C18.06 2.67897 19.1488 3.176 19.9864 4.01358C20.824 4.85116 21.321 5.94002 21.6122 7.25007C21.9008 8.54878 22 10.1243 22 12C22 13.8757 21.9008 15.4512 21.6122 16.7499C21.321 18.06 20.824 19.1488 19.9864 19.9864C19.1488 20.824 18.06 21.321 16.7499 21.6122C15.4512 21.9008 13.8757 22 12 22C10.1243 22 8.54878 21.9008 7.25007 21.6122C5.94002 21.321 4.85116 20.824 4.01358 19.9864C3.176 19.1488 2.67897 18.06 2.38782 16.7499C2.0992 15.4512 2 13.8757 2 12C2 10.1243 2.0992 8.54878 2.38782 7.25007C2.67897 5.94002 3.176 4.85116 4.01358 4.01358C4.85116 3.176 5.94002 2.67897 7.25007 2.38782ZM9 11.5C9 10.1193 10.1193 9 11.5 9C12.8807 9 14 10.1193 14 11.5C14 12.8807 12.8807 14 11.5 14C10.1193 14 9 12.8807 9 11.5ZM11.5 7C9.01472 7 7 9.01472 7 11.5C7 13.9853 9.01472 16 11.5 16C12.3805 16 13.202 15.7471 13.8957 15.31L15.2929 16.7071C15.6834 17.0976 16.3166 17.0976 16.7071 16.7071C17.0976 16.3166 17.0976 15.6834 16.7071 15.2929L15.31 13.8957C15.7471 13.202 16 12.3805 16 11.5C16 9.01472 13.9853 7 11.5 7Z" fill="#323232"></path> </g></svg>
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="myhouse-SVGRepo_bgCarrier" stroke-width="0"></g><g id="myhouse-SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="myhouse-SVGRepo_iconCarrier"> <rect width="24" height="24" fill="white"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M7.25007 2.38782C8.54878 2.0992 10.1243 2 12 2C13.8757 2 15.4512 2.0992 16.7499 2.38782C18.06 2.67897 19.1488 3.176 19.9864 4.01358C20.824 4.85116 21.321 5.94002 21.6122 7.25007C21.9008 8.54878 22 10.1243 22 12C22 13.8757 21.9008 15.4512 21.6122 16.7499C21.321 18.06 20.824 19.1488 19.9864 19.9864C19.1488 20.824 18.06 21.321 16.7499 21.6122C15.4512 21.9008 13.8757 22 12 22C10.1243 22 8.54878 21.9008 7.25007 21.6122C5.94002 21.321 4.85116 20.824 4.01358 19.9864C3.176 19.1488 2.67897 18.06 2.38782 16.7499C2.0992 15.4512 2 13.8757 2 12C2 10.1243 2.0992 8.54878 2.38782 7.25007C2.67897 5.94002 3.176 4.85116 4.01358 4.01358C4.85116 3.176 5.94002 2.67897 7.25007 2.38782ZM9 11.5C9 10.1193 10.1193 9 11.5 9C12.8807 9 14 10.1193 14 11.5C14 12.8807 12.8807 14 11.5 14C10.1193 14 9 12.8807 9 11.5ZM11.5 7C9.01472 7 7 9.01472 7 11.5C7 13.9853 9.01472 16 11.5 16C12.3805 16 13.202 15.7471 13.8957 15.31L15.2929 16.7071C15.6834 17.0976 16.3166 17.0976 16.7071 16.7071C17.0976 16.3166 17.0976 15.6834 16.7071 15.2929L15.31 13.8957C15.7471 13.202 16 12.3805 16 11.5C16 9.01472 13.9853 7 11.5 7Z" fill="#323232"></path> </g></svg>
                         </span>
                     </div>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="paternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
-                    <input [(ngModel)]="userToAdd.paternal_surname" type="text" name="paternalSurnameNew" id="paternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
+                    <label for="myhouse-paternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
+                    <input [(ngModel)]="userToAdd.paternal_surname" type="text" name="paternalSurnameNew" id="myhouse-paternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="maternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
-                    <input [(ngModel)]="userToAdd.maternal_surname" type="text" name="maternalSurnameNew" id="maternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
+                    <label for="myhouse-maternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
+                    <input [(ngModel)]="userToAdd.maternal_surname" type="text" name="maternalSurnameNew" id="myhouse-maternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
                 </div>
                 <div class="col-span-full mb-2 mx-1">
-                    <label for="firstNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
-                    <input [(ngModel)]="userToAdd.first_name" type="text" name="firstNameNew" id="firstNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
+                    <label for="myhouse-firstNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+                    <input [(ngModel)]="userToAdd.first_name" type="text" name="firstNameNew" id="myhouse-firstNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="genderNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
-                    <!-- <input [(ngModel)]="userToAdd.gender" type="text" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Genero..." required /> -->
-                    <select [(ngModel)]="userToAdd.gender" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
+                    <label for="myhouse-genderNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
+                    <!-- <input [(ngModel)]="userToAdd.gender" type="text" name="genderNew" id="myhouse-genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Genero..." required /> -->
+                    <select [(ngModel)]="userToAdd.gender" name="genderNew" id="myhouse-genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
                         <option *ngFor="let g of genders">{{g}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="birthdateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
-                    <input [(ngModel)]="userToAdd.birth_date" type="date" name="birthdateNew" id="birthdateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                    <label for="myhouse-birthdateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
+                    <input [(ngModel)]="userToAdd.birth_date" type="date" name="birthdateNew" id="myhouse-birthdateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="celNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <label for="myhouse-celNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                    <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="myhouse-celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToAdd.username_system" type="text" name="username_systemNew" id="username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
+                    <label for="myhouse-username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToAdd.username_system" type="text" name="username_systemNew" id="myhouse-username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                        <select [(ngModel)]="userToAdd.role_system" name="role_systemNew" id="role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
+                    <label for="myhouse-role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                        <select [(ngModel)]="userToAdd.role_system" name="role_systemNew" id="myhouse-role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
                         <option *ngFor="let r of roles">{{r}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="myhouse-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="myhouse-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.status_validated" name="status_validatedNew" id="status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.status_validated" name="status_validatedNew" id="myhouse-status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated" [ngValue]="s">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="userToAdd.status_reason" type="text" name="status_reasonNew" id="status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="userToAdd.status_reason" type="text" name="status_reasonNew" id="myhouse-status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewUser()" data-modal-hide="new-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button data-modal-hide="new-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveNewUser()" data-modal-hide="myhouse-new-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button data-modal-hide="myhouse-new-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -463,10 +463,10 @@
 
 
 <!-- Modal toggle edit user -->
-<button id="edit-user-button" data-modal-target="edit-user-modal" data-modal-toggle="edit-user-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar residente</button>
+<button id="myhouse-edit-user-button" data-modal-target="myhouse-edit-user-modal" data-modal-toggle="myhouse-edit-user-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar residente</button>
 
 <!-- Main modal edit user -->
-<div id="edit-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -475,7 +475,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Editar usuario
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-user-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-user-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -485,95 +485,95 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
-                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
-                    <select disabled [(ngModel)]="userToEdit.type_doc" name="typeDocEdit" id="typeDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 disabled:bg-gray-300" placeholder="Tipo de documento..." required>
+                    <label for="myhouse-typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
+                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
+                    <select disabled [(ngModel)]="userToEdit.type_doc" name="typeDocEdit" id="myhouse-typeDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 disabled:bg-gray-300" placeholder="Tipo de documento..." required>
                         <option *ngFor="let td of typeDocs">{{td}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="docNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
-                    <input disabled [(ngModel)]="userToEdit.doc_number" type="text" name="docNumberEdit" id="docNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de documento..." required />
+                    <label for="myhouse-docNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
+                    <input disabled [(ngModel)]="userToEdit.doc_number" type="text" name="docNumberEdit" id="myhouse-docNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de documento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="paternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
-                    <input [(ngModel)]="userToEdit.paternal_surname" type="text" name="paternalSurnameEdit" id="paternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
+                    <label for="myhouse-paternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
+                    <input [(ngModel)]="userToEdit.paternal_surname" type="text" name="paternalSurnameEdit" id="myhouse-paternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="maternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
-                    <input [(ngModel)]="userToEdit.maternal_surname" type="text" name="maternalSurnameEdit" id="maternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
+                    <label for="myhouse-maternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
+                    <input [(ngModel)]="userToEdit.maternal_surname" type="text" name="maternalSurnameEdit" id="myhouse-maternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
                 </div>
                 <div class="col-span-full mb-2 mx-1">
-                    <label for="firstNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
-                    <input [(ngModel)]="userToEdit.first_name" type="text" name="firstNameEdit" id="firstNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
+                    <label for="myhouse-firstNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+                    <input [(ngModel)]="userToEdit.first_name" type="text" name="firstNameEdit" id="myhouse-firstNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="genderEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
-                    <select [(ngModel)]="userToEdit.gender" name="genderEdit" id="genderEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
+                    <label for="myhouse-genderEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
+                    <select [(ngModel)]="userToEdit.gender" name="genderEdit" id="myhouse-genderEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
                         <option *ngFor="let g of genders">{{g}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
-                    <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                    <label for="myhouse-birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
+                    <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="myhouse-birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <label for="myhouse-celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                    <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="myhouse-celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToEdit.username_system" type="text" name="username_systemEdit" id="username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
+                    <label for="myhouse-username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToEdit.username_system" type="text" name="username_systemEdit" id="myhouse-username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                    <select [(ngModel)]="userToEdit.role_system" name="role_systemEdit" id="role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
+                    <label for="myhouse-role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                    <select [(ngModel)]="userToEdit.role_system" name="role_systemEdit" id="myhouse-role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
                         <option *ngFor="let r of roles">{{r}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de Rol</label>
-                    <select [(ngModel)]="userToEdit.status_system" name="status_systemEdit" id="status_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado de Rol..." required>
+                    <label for="myhouse-status_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de Rol</label>
+                    <select [(ngModel)]="userToEdit.status_system" name="status_systemEdit" id="myhouse-status_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado de Rol..." required>
                         <option *ngFor="let ss of status_validated">{{ss}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <label for="myhouse-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="myhouse-property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="myhouse-property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
-                    <select [(ngModel)]="userToEdit.status_validated" name="status_validatedEdit" id="status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
+                    <select [(ngModel)]="userToEdit.status_validated" name="status_validatedEdit" id="myhouse-status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated" [ngValue]="s">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="userToEdit.status_reason" type="text" name="status_reasonEdit" id="status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="userToEdit.status_reason" type="text" name="status_reasonEdit" id="myhouse-status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditUser()" data-modal-hide="edit-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button data-modal-hide="edit-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveEditUser()" data-modal-hide="myhouse-edit-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button data-modal-hide="myhouse-edit-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal toggle new visit -->
-<button id="new-visit-button" data-modal-target="new-visit-modal" data-modal-toggle="new-visit-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nueva visita</button>
+<button id="myhouse-new-visit-button" data-modal-target="myhouse-new-visit-modal" data-modal-toggle="myhouse-new-visit-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nueva visita</button>
 
 <!-- Main modal new visit -->
-<div id="new-visit-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-visit-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -582,7 +582,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Nueva Persona
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-visit-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-new-visit-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -592,88 +592,88 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
-                    <!-- <input [(ngModel)]="visitToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
-                    <select [(ngModel)]="userToAdd.type_doc" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de documento..." required>
+                    <label for="myhouse-typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
+                    <!-- <input [(ngModel)]="visitToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
+                    <select [(ngModel)]="userToAdd.type_doc" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de documento..." required>
                         <option *ngFor="let td of typeDocs">{{td}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="docNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
+                    <label for="myhouse-docNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento (DNI)</label>
                     <div class="flex">
-                        <input [(ngModel)]="userToAdd.doc_number" type="text" name="docNumberNew" id="docNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 rounded-s-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de documento..." required />
+                        <input [(ngModel)]="userToAdd.doc_number" type="text" inputmode="numeric" pattern="[0-9]{8,}" name="docNumberNew" id="myhouse-docNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 rounded-s-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="DNI (8) o CE (más dígitos)..." required />
                         <span (click)="searchUser(userToAdd.doc_number)" class="cursor-pointer inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-s-0 border-gray-300 rounded-e-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect width="24" height="24" fill="white"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M7.25007 2.38782C8.54878 2.0992 10.1243 2 12 2C13.8757 2 15.4512 2.0992 16.7499 2.38782C18.06 2.67897 19.1488 3.176 19.9864 4.01358C20.824 4.85116 21.321 5.94002 21.6122 7.25007C21.9008 8.54878 22 10.1243 22 12C22 13.8757 21.9008 15.4512 21.6122 16.7499C21.321 18.06 20.824 19.1488 19.9864 19.9864C19.1488 20.824 18.06 21.321 16.7499 21.6122C15.4512 21.9008 13.8757 22 12 22C10.1243 22 8.54878 21.9008 7.25007 21.6122C5.94002 21.321 4.85116 20.824 4.01358 19.9864C3.176 19.1488 2.67897 18.06 2.38782 16.7499C2.0992 15.4512 2 13.8757 2 12C2 10.1243 2.0992 8.54878 2.38782 7.25007C2.67897 5.94002 3.176 4.85116 4.01358 4.01358C4.85116 3.176 5.94002 2.67897 7.25007 2.38782ZM9 11.5C9 10.1193 10.1193 9 11.5 9C12.8807 9 14 10.1193 14 11.5C14 12.8807 12.8807 14 11.5 14C10.1193 14 9 12.8807 9 11.5ZM11.5 7C9.01472 7 7 9.01472 7 11.5C7 13.9853 9.01472 16 11.5 16C12.3805 16 13.202 15.7471 13.8957 15.31L15.2929 16.7071C15.6834 17.0976 16.3166 17.0976 16.7071 16.7071C17.0976 16.3166 17.0976 15.6834 16.7071 15.2929L15.31 13.8957C15.7471 13.202 16 12.3805 16 11.5C16 9.01472 13.9853 7 11.5 7Z" fill="#323232"></path> </g></svg>
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="myhouse-SVGRepo_bgCarrier" stroke-width="0"></g><g id="myhouse-SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="myhouse-SVGRepo_iconCarrier"> <rect width="24" height="24" fill="white"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M7.25007 2.38782C8.54878 2.0992 10.1243 2 12 2C13.8757 2 15.4512 2.0992 16.7499 2.38782C18.06 2.67897 19.1488 3.176 19.9864 4.01358C20.824 4.85116 21.321 5.94002 21.6122 7.25007C21.9008 8.54878 22 10.1243 22 12C22 13.8757 21.9008 15.4512 21.6122 16.7499C21.321 18.06 20.824 19.1488 19.9864 19.9864C19.1488 20.824 18.06 21.321 16.7499 21.6122C15.4512 21.9008 13.8757 22 12 22C10.1243 22 8.54878 21.9008 7.25007 21.6122C5.94002 21.321 4.85116 20.824 4.01358 19.9864C3.176 19.1488 2.67897 18.06 2.38782 16.7499C2.0992 15.4512 2 13.8757 2 12C2 10.1243 2.0992 8.54878 2.38782 7.25007C2.67897 5.94002 3.176 4.85116 4.01358 4.01358C4.85116 3.176 5.94002 2.67897 7.25007 2.38782ZM9 11.5C9 10.1193 10.1193 9 11.5 9C12.8807 9 14 10.1193 14 11.5C14 12.8807 12.8807 14 11.5 14C10.1193 14 9 12.8807 9 11.5ZM11.5 7C9.01472 7 7 9.01472 7 11.5C7 13.9853 9.01472 16 11.5 16C12.3805 16 13.202 15.7471 13.8957 15.31L15.2929 16.7071C15.6834 17.0976 16.3166 17.0976 16.7071 16.7071C17.0976 16.3166 17.0976 15.6834 16.7071 15.2929L15.31 13.8957C15.7471 13.202 16 12.3805 16 11.5C16 9.01472 13.9853 7 11.5 7Z" fill="#323232"></path> </g></svg>
                         </span>
                     </div>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="paternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
-                    <input [(ngModel)]="userToAdd.paternal_surname" type="text" name="paternalSurnameNew" id="paternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
+                    <label for="myhouse-paternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
+                    <input [(ngModel)]="userToAdd.paternal_surname" type="text" name="paternalSurnameNew" id="myhouse-paternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="maternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
-                    <input [(ngModel)]="userToAdd.maternal_surname" type="text" name="maternalSurnameNew" id="maternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
+                    <label for="myhouse-maternalSurnameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
+                    <input [(ngModel)]="userToAdd.maternal_surname" type="text" name="maternalSurnameNew" id="myhouse-maternalSurnameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
                 </div>
                 <div class="col-span-full mb-2 mx-1">
-                    <label for="firstNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
-                    <input [(ngModel)]="userToAdd.first_name" type="text" name="firstNameNew" id="firstNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
+                    <label for="myhouse-firstNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+                    <input [(ngModel)]="userToAdd.first_name" type="text" name="firstNameNew" id="myhouse-firstNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="genderNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
-                    <!-- <input [(ngModel)]="userToAdd.gender" type="text" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Genero..." required /> -->
-                    <select [(ngModel)]="userToAdd.gender" name="genderNew" id="genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
+                    <label for="myhouse-genderNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
+                    <!-- <input [(ngModel)]="userToAdd.gender" type="text" name="genderNew" id="myhouse-genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Genero..." required /> -->
+                    <select [(ngModel)]="userToAdd.gender" name="genderNew" id="myhouse-genderNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
                         <option *ngFor="let g of genders">{{g}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="birthdateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
-                    <input [(ngModel)]="userToAdd.birth_date" type="date" name="birthdateNew" id="birthdateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                    <label for="myhouse-birthdateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
+                    <input [(ngModel)]="userToAdd.birth_date" type="date" name="birthdateNew" id="myhouse-birthdateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="celNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <label for="myhouse-celNumberNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                    <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="myhouse-celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToAdd.username_system" type="text" name="username_systemNew" id="username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
+                    <label for="myhouse-username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToAdd.username_system" type="text" name="username_systemNew" id="myhouse-username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                        <select [(ngModel)]="userToAdd.role_system" name="role_systemNew" id="role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
+                    <label for="myhouse-role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                        <select [(ngModel)]="userToAdd.role_system" name="role_systemNew" id="myhouse-role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
                         <option *ngFor="let r of roles">{{r}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="myhouse-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="myhouse-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories_visits" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.status_validated" name="status_validatedNew" id="status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
+                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
+                    <select [(ngModel)]="userToAdd.status_validated" name="status_validatedNew" id="myhouse-status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated" [ngValue]="s">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="userToAdd.status_reason" type="text" name="status_reasonNew" id="status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="userToAdd.status_reason" type="text" name="status_reasonNew" id="myhouse-status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewUser()" data-modal-hide="new-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button data-modal-hide="new-visit-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveNewUser()" data-modal-hide="myhouse-new-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button data-modal-hide="myhouse-new-visit-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -681,10 +681,10 @@
 
 
 <!-- Modal toggle edit visit -->
-<button id="edit-visit-button" data-modal-target="edit-visit-modal" data-modal-toggle="edit-visit-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar visita</button>
+<button id="myhouse-edit-visit-button" data-modal-target="myhouse-edit-visit-modal" data-modal-toggle="myhouse-edit-visit-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar visita</button>
 
 <!-- Main modal edit visit -->
-<div id="edit-visit-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-visit-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -693,7 +693,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Editar usuario
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-visit-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-visit-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -703,85 +703,85 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
-                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
-                    <select disabled [(ngModel)]="userToEdit.type_doc" name="typeDocEdit" id="typeDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 disabled:bg-gray-300" placeholder="Tipo de documento..." required>
+                    <label for="myhouse-typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
+                    <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
+                    <select disabled [(ngModel)]="userToEdit.type_doc" name="typeDocEdit" id="myhouse-typeDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 disabled:bg-gray-300" placeholder="Tipo de documento..." required>
                         <option *ngFor="let td of typeDocs">{{td}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="docNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
-                    <input disabled [(ngModel)]="userToEdit.doc_number" type="text" name="docNumberEdit" id="docNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de documento..." required />
+                    <label for="myhouse-docNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de documento</label>
+                    <input disabled [(ngModel)]="userToEdit.doc_number" type="text" name="docNumberEdit" id="myhouse-docNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de documento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="paternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
-                    <input [(ngModel)]="userToEdit.paternal_surname" type="text" name="paternalSurnameEdit" id="paternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
+                    <label for="myhouse-paternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido paterno</label>
+                    <input [(ngModel)]="userToEdit.paternal_surname" type="text" name="paternalSurnameEdit" id="myhouse-paternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido paterno..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="maternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
-                    <input [(ngModel)]="userToEdit.maternal_surname" type="text" name="maternalSurnameEdit" id="maternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
+                    <label for="myhouse-maternalSurnameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellido materno</label>
+                    <input [(ngModel)]="userToEdit.maternal_surname" type="text" name="maternalSurnameEdit" id="myhouse-maternalSurnameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Apellido materno..." required />
                 </div>
                 <div class="col-span-full mb-2 mx-1">
-                    <label for="firstNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
-                    <input [(ngModel)]="userToEdit.first_name" type="text" name="firstNameEdit" id="firstNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
+                    <label for="myhouse-firstNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombres</label>
+                    <input [(ngModel)]="userToEdit.first_name" type="text" name="firstNameEdit" id="myhouse-firstNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombres..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="genderEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
-                    <select [(ngModel)]="userToEdit.gender" name="genderEdit" id="genderEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
+                    <label for="myhouse-genderEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Genero</label>
+                    <select [(ngModel)]="userToEdit.gender" name="genderEdit" id="myhouse-genderEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genero..." required>
                         <option *ngFor="let g of genders">{{g}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
-                       <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
+                    <label for="myhouse-birthdateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
+                       <input [(ngModel)]="userToEdit.birth_date" type="date" name="birthdateEdit" id="myhouse-birthdateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Fecha de nacimiento..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                       <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <label for="myhouse-celNumberEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                       <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="myhouse-celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToEdit.username_system" type="text" name="username_systemEdit" id="username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
+                    <label for="myhouse-username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToEdit.username_system" type="text" name="username_systemEdit" id="myhouse-username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                    <select [(ngModel)]="userToEdit.role_system" name="role_systemEdit" id="role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
+                    <label for="myhouse-role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                    <select [(ngModel)]="userToEdit.role_system" name="role_systemEdit" id="myhouse-role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
                         <option *ngFor="let r of roles">{{r}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de Rol</label>
-                    <select [(ngModel)]="userToEdit.status_system" name="status_systemEdit" id="status_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado de Rol..." required>
+                    <label for="myhouse-status_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de Rol</label>
+                    <select [(ngModel)]="userToEdit.status_system" name="status_systemEdit" id="myhouse-status_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado de Rol..." required>
                         <option *ngFor="let ss of status_validated">{{ss}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <label for="myhouse-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                       <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="myhouse-property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                       <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="myhouse-property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                            <option *ngFor="let c of categories_visits" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
-                    <select [(ngModel)]="userToEdit.status_validated" name="status_validatedEdit" id="status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de validación</label>
+                    <select [(ngModel)]="userToEdit.status_validated" name="status_validatedEdit" id="myhouse-status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated" [ngValue]="s">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="userToEdit.status_reason" type="text" name="status_reasonEdit" id="status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="userToEdit.status_reason" type="text" name="status_reasonEdit" id="myhouse-status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditUser()" data-modal-hide="edit-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button data-modal-hide="edit-visit-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveEditUser()" data-modal-hide="myhouse-edit-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button data-modal-hide="myhouse-edit-visit-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -789,10 +789,10 @@
 
 <!-- Modal toggle new vehicle -->
 
-<button id="new-vehicle-button" data-modal-target="new-vehicle-modal" data-modal-toggle="new-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo vehículo</button> 
+<button id="myhouse-new-vehicle-button" data-modal-target="myhouse-new-vehicle-modal" data-modal-toggle="myhouse-new-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo vehículo</button> 
 
 <!-- Main modal new vehicle -->
-<div id="new-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -801,7 +801,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Nuevo vehiculo
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-vehicle-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-new-vehicle-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -811,57 +811,57 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="type_vehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
-                    <select [(ngModel)]="vehicleToAdd.type_vehicle" name="type_vehicleNew" id="type_vehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo ..." required>
+                    <label for="myhouse-type_vehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
+                    <select [(ngModel)]="vehicleToAdd.type_vehicle" name="type_vehicleNew" id="myhouse-type_vehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo ..." required>
                         <option *ngFor="let t of types">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
-                    <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                    <label for="myhouse-license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
+                    <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="myhouse-license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="brandNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
-                    <input [(ngModel)]="vehicleToAdd.brand" type="text" name="brandNew" id="brandNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca (ej: Toyota)..." />
+                    <label for="myhouse-brandNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
+                    <input [(ngModel)]="vehicleToAdd.brand" type="text" name="brandNew" id="myhouse-brandNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca (ej: Toyota)..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="modelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
-                    <input [(ngModel)]="vehicleToAdd.model" type="text" name="modelNew" id="modelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo (ej: Corolla)..." />
+                    <label for="myhouse-modelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
+                    <input [(ngModel)]="vehicleToAdd.model" type="text" name="modelNew" id="myhouse-modelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo (ej: Corolla)..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <select [(ngModel)]="vehicleToAdd.color" name="colorNew" id="colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color...">
+                    <label for="myhouse-colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <select [(ngModel)]="vehicleToAdd.color" name="colorNew" id="myhouse-colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color...">
                         <option value="">Seleccione un color</option>
                         <option *ngFor="let c of vehicleColors" [ngValue]="c">{{ c }}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="vehicleToAdd.house_id" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <select [(ngModel)]="vehicleToAdd.house_id" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="category_entryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <select [(ngModel)]="vehicleToAdd.category_entry" name="category_entryNew" id="category_entryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="myhouse-category_entryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <select [(ngModel)]="vehicleToAdd.category_entry" name="category_entryNew" id="myhouse-category_entryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <select [(ngModel)]="vehicleToAdd.status_validated" name="status_validatedNew" id="status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-status_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="vehicleToAdd.status_validated" name="status_validatedNew" id="myhouse-status_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="vehicleToAdd.status_reason" type="text" name="status_reasonNew" id="status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="vehicleToAdd.status_reason" type="text" name="status_reasonNew" id="myhouse-status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewVehicle()" data-modal-hide="new-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="new-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveNewVehicle()" data-modal-hide="myhouse-new-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="myhouse-new-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -869,10 +869,10 @@
 
 
 <!-- Modal toggle edit vehicle -->
-<button id="edit-vehicle-button" data-modal-target="edit-vehicle-modal" data-modal-toggle="edit-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar vehículo</button>
+<button id="myhouse-edit-vehicle-button" data-modal-target="myhouse-edit-vehicle-modal" data-modal-toggle="myhouse-edit-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar vehículo</button>
 
 <!-- Main modal edit vehicle -->
-<div id="edit-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -881,7 +881,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Editar vehiculo
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-vehicle-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-vehicle-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -891,57 +891,57 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="typeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
-                    <select [(ngModel)]="vehicleToEdit.type_vehicle" name="typeEdit" id="typeEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <label for="myhouse-typeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
+                    <select [(ngModel)]="vehicleToEdit.type_vehicle" name="typeEdit" id="myhouse-typeEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
                         <option *ngFor="let t of types">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
-                    <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
+                    <label for="myhouse-license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
+                    <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="myhouse-license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
                 </div>
                    <div class="col-span-1 mb-2 mx-1">
-                       <label for="brandEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
-                       <input [(ngModel)]="vehicleToEdit.brand" type="text" name="brandEdit" id="brandEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca (ej: Toyota)..." />
+                       <label for="myhouse-brandEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
+                       <input [(ngModel)]="vehicleToEdit.brand" type="text" name="brandEdit" id="myhouse-brandEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Marca (ej: Toyota)..." />
                    </div>
                    <div class="col-span-1 mb-2 mx-1">
-                       <label for="modelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
-                       <input [(ngModel)]="vehicleToEdit.model" type="text" name="modelEdit" id="modelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo (ej: Corolla)..." />
+                       <label for="myhouse-modelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modelo</label>
+                       <input [(ngModel)]="vehicleToEdit.model" type="text" name="modelEdit" id="myhouse-modelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Modelo (ej: Corolla)..." />
                    </div>
                    <div class="col-span-1 mb-2 mx-1">
-                       <label for="colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                       <select [(ngModel)]="vehicleToEdit.color" name="colorEdit" id="colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color...">
+                       <label for="myhouse-colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                       <select [(ngModel)]="vehicleToEdit.color" name="colorEdit" id="myhouse-colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color...">
                            <option value="">Seleccione un color</option>
                            <option *ngFor="let c of vehicleColors" [ngValue]="c">{{ c }}</option>
                        </select>
                    </div>
                    <div class="col-span-1 mb-2 mx-1">
-                       <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="vehicleToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                       <label for="myhouse-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
+                    <select [(ngModel)]="vehicleToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="category_entryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <select [(ngModel)]="vehicleToEdit.category_entry" name="category_entryEdit" id="category_entryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="myhouse-category_entryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
+                    <select [(ngModel)]="vehicleToEdit.category_entry" name="category_entryEdit" id="myhouse-category_entryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
                         <option *ngFor="let c of categories">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <select [(ngModel)]="vehicleToEdit.status_validated" name="status_validatedEdit" id="status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-status_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="vehicleToEdit.status_validated" name="status_validatedEdit" id="myhouse-status_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="vehicleToEdit.status_reason" type="text" name="status_reasonEdit" id="status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Motivo..." required />
+                    <label for="myhouse-status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="vehicleToEdit.status_reason" type="text" name="status_reasonEdit" id="myhouse-status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditVehicle()" data-modal-hide="edit-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="edit-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveEditVehicle()" data-modal-hide="myhouse-edit-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="myhouse-edit-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -951,10 +951,10 @@
 
 <!-- Modal toggle new vehicle -->
 
-<button id="new-external-vehicle-button" data-modal-target="new-external-vehicle-modal" data-modal-toggle="new-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo vehículo externo</button> 
+<button id="myhouse-new-external-vehicle-button" data-modal-target="myhouse-new-external-vehicle-modal" data-modal-toggle="myhouse-new-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo vehículo externo</button> 
 
 <!-- Main modal new external vehicle -->
-<div id="new-external-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-external-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -963,7 +963,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Nuevo vehiculo externo
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-external-vehicle-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-new-external-vehicle-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -973,43 +973,43 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="type_externalVehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
-                    <select [(ngModel)]="externalVehicleToAdd.temp_visit_type" name="type_ExternalVehicleNew" id="type_ExternalvehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <label for="myhouse-type_externalVehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
+                    <select [(ngModel)]="externalVehicleToAdd.temp_visit_type" name="type_ExternalVehicleNew" id="myhouse-type_ExternalvehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
                         <option *ngFor="let t of temp_visit_type">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="external_license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_plate" type="text" name="external_license_plateNew" id="external_license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                    <label for="myhouse-external_license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa</label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_plate" type="text" name="external_license_plateNew" id="myhouse-external_license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc. Responsable</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_doc" type="text" name="externalDocNew" id="externalDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad..." required/>
+                    <label for="myhouse-externalDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc. Responsable</label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_doc" type="text" name="externalDocNew" id="myhouse-externalDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad..." required/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_name" type="text" name="externalNameNew" id="externalNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Datos del responsable..." required/>
+                    <label for="myhouse-externalNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_name" type="text" name="externalNameNew" id="myhouse-externalNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Datos del responsable..." required/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalCelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_cel" type="text" name="externalCelNew" id="externalCelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <label for="myhouse-externalCelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_cel" type="text" name="externalCelNew" id="myhouse-externalCelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalStatus_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="externalVehicleToAdd.status_validated" name="externalStatus_validatedNew" id="externalStatus_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-externalStatus_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="myhouse-entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
+                    <select [(ngModel)]="externalVehicleToAdd.status_validated" name="externalStatus_validatedNew" id="myhouse-externalStatus_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalStatus_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="externalVehicleToAdd.status_reason" type="text" name="externalStatus_reasonNew" id="externalStatus_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-externalStatus_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="externalVehicleToAdd.status_reason" type="text" name="externalStatus_reasonNew" id="myhouse-externalStatus_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewExternalVehicle()" data-modal-hide="new-external-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="new-external-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveNewExternalVehicle()" data-modal-hide="myhouse-new-external-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="myhouse-new-external-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1017,10 +1017,10 @@
 
 
 <!-- Modal toggle edit vehicle -->
-<button id="edit-external-vehicle-button" data-modal-target="edit-external-vehicle-modal" data-modal-toggle="edit-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar vehículo externo</button>
+<button id="myhouse-edit-external-vehicle-button" data-modal-target="myhouse-edit-external-vehicle-modal" data-modal-toggle="myhouse-edit-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar vehículo externo</button>
 
 <!-- Main modal edit vehicle -->
-<div id="edit-external-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-external-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -1029,7 +1029,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Editar vehiculo externo
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-external-vehicle-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-external-vehicle-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -1039,97 +1039,97 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="type_externalVehicleEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
-                    <select [(ngModel)]="externalVehicleToEdit.temp_visit_type" name="type_ExternalVehicleEdit" id="type_ExternalvehicleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <label for="myhouse-type_externalVehicleEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
+                    <select [(ngModel)]="externalVehicleToEdit.temp_visit_type" name="type_ExternalVehicleEdit" id="myhouse-type_ExternalvehicleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
                         <option *ngFor="let t of temp_visit_type">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="external_license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_plate" type="text" name="external_license_plateEdit" id="external_license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                    <label for="myhouse-external_license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa</label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_plate" type="text" name="external_license_plateEdit" id="myhouse-external_license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc. Responsable</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_doc" type="text" name="externalDocEdit" id="externalDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad..." required/>
+                    <label for="myhouse-externalDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc. Responsable</label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_doc" type="text" name="externalDocEdit" id="myhouse-externalDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad..." required/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_name" type="text" name="externalNameEdit" id="externalNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Datos del responsable..." required/>
+                    <label for="myhouse-externalNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_name" type="text" name="externalNameEdit" id="myhouse-externalNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Datos del responsable..." required/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalCelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_cel" type="text" name="externalCelEdit" id="externalCelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <label for="myhouse-externalCelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_cel" type="text" name="externalCelEdit" id="myhouse-externalCelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalStatus_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <!-- <input [(ngModel)]="userToEdit.entrance_role" type="text" name="entranceRoleEdit" id="entranceRoleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="externalVehicleToEdit.status_validated" name="externalStatus_validatedEdit" id="externalStatus_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <label for="myhouse-externalStatus_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <!-- <input [(ngModel)]="userToEdit.entrance_role" type="text" name="entranceRoleEdit" id="myhouse-entranceRoleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
+                    <select [(ngModel)]="externalVehicleToEdit.status_validated" name="externalStatus_validatedEdit" id="myhouse-externalStatus_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
                         <option *ngFor="let s of status_validated">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="externalStatus_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="externalVehicleToEdit.status_reason" type="text" name="externalStatus_reasonEdit" id="externalStatus_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <label for="myhouse-externalStatus_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
+                    <input [(ngModel)]="externalVehicleToEdit.status_reason" type="text" name="externalStatus_reasonEdit" id="myhouse-externalStatus_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditExternalVehicle()" data-modal-hide="edit-external-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="edit-external-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="saveEditExternalVehicle()" data-modal-hide="myhouse-edit-external-vehicle-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="myhouse-edit-external-vehicle-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal toggle nueva mascota -->
-<button id="new-pet-button" data-modal-target="new-pet-modal" data-modal-toggle="new-pet-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nueva mascota</button>
+<button id="myhouse-new-pet-button" data-modal-target="myhouse-new-pet-modal" data-modal-toggle="myhouse-new-pet-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nueva mascota</button>
 <!-- Modal nueva mascota -->
-<div id="new-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-lg max-h-full">
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Nueva mascota</h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-pet-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-new-pet-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
                     <span class="sr-only">Cerrar</span>
                 </button>
             </div>
             <div class="p-4 md:p-5 space-y-4">
                 <div>
-                    <label for="petNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-                    <input [(ngModel)]="petToAdd.name" type="text" name="petNameNew" id="petNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Nombre de la mascota" required />
+                    <label for="myhouse-petNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                    <input [(ngModel)]="petToAdd.name" type="text" name="petNameNew" id="myhouse-petNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Nombre de la mascota" required />
                 </div>
                 <div>
-                    <label for="petSpeciesNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
-                    <select [(ngModel)]="petToAdd.species" name="petSpeciesNew" id="petSpeciesNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="myhouse-petSpeciesNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
+                    <select [(ngModel)]="petToAdd.species" name="petSpeciesNew" id="myhouse-petSpeciesNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option *ngFor="let s of petSpecies" [ngValue]="s.value">{{ s.label }}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="petBreedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
-                    <input [(ngModel)]="petToAdd.breed" type="text" name="petBreedNew" id="petBreedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Raza (opcional)" />
+                    <label for="myhouse-petBreedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
+                    <input [(ngModel)]="petToAdd.breed" type="text" name="petBreedNew" id="myhouse-petBreedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Raza (opcional)" />
                 </div>
                 <div>
-                    <label for="petColorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <select [(ngModel)]="petToAdd.color" name="petColorNew" id="petColorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="myhouse-petColorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <select [(ngModel)]="petToAdd.color" name="petColorNew" id="myhouse-petColorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option value="">Seleccione un color</option>
                         <option *ngFor="let c of petColors" [ngValue]="c">{{ c }}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="petAgeNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad (años)</label>
-                    <input [(ngModel)]="petToAdd.age_years" type="number" name="petAgeNew" id="petAgeNew" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
+                    <label for="myhouse-petAgeNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad (años)</label>
+                    <input [(ngModel)]="petToAdd.age_years" type="number" name="petAgeNew" id="myhouse-petAgeNew" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
                 </div>
                 <div>
-                    <label for="petStatusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <select [(ngModel)]="petToAdd.status_validated" name="petStatusNew" id="petStatusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="myhouse-petStatusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="petToAdd.status_validated" name="petStatusNew" id="myhouse-petStatusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option *ngFor="let st of petStatusList" [ngValue]="st">{{ st }}</option>
                     </select>
                 </div>
             </div>
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewPet()" data-modal-hide="new-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="new-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white">Cancelar</button>
+                <button (click)="saveNewPet()" data-modal-hide="myhouse-new-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="myhouse-new-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1149,55 +1149,58 @@
 </div>
 
 <!-- Modal toggle editar mascota -->
-<button id="edit-pet-button" data-modal-target="edit-pet-modal" data-modal-toggle="edit-pet-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar mascota</button>
+<button id="myhouse-edit-pet-button" data-modal-target="myhouse-edit-pet-modal" data-modal-toggle="myhouse-edit-pet-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar mascota</button>
 <!-- Modal editar mascota -->
-<div id="edit-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-lg max-h-full">
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Editar mascota</h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-pet-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-pet-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
                     <span class="sr-only">Cerrar</span>
                 </button>
             </div>
             <div class="p-4 md:p-5 space-y-4">
                 <div>
-                    <label for="petNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-                    <input [(ngModel)]="petToEdit.name" type="text" name="petNameEdit" id="petNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Nombre de la mascota" required />
+                    <label for="myhouse-petNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                    <input [(ngModel)]="petToEdit.name" type="text" name="petNameEdit" id="myhouse-petNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Nombre de la mascota" required />
                 </div>
                 <div>
-                    <label for="petSpeciesEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
-                    <select [(ngModel)]="petToEdit.species" name="petSpeciesEdit" id="petSpeciesEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="myhouse-petSpeciesEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
+                    <select [(ngModel)]="petToEdit.species" name="petSpeciesEdit" id="myhouse-petSpeciesEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option *ngFor="let s of petSpecies" [ngValue]="s.value">{{ s.label }}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="petBreedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
-                    <input [(ngModel)]="petToEdit.breed" type="text" name="petBreedEdit" id="petBreedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Raza (opcional)" />
+                    <label for="myhouse-petBreedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
+                    <input [(ngModel)]="petToEdit.breed" type="text" name="petBreedEdit" id="myhouse-petBreedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Raza (opcional)" />
                 </div>
                 <div>
-                    <label for="petColorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <select [(ngModel)]="petToEdit.color" name="petColorEdit" id="petColorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="myhouse-petColorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <select [(ngModel)]="petToEdit.color" name="petColorEdit" id="myhouse-petColorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option value="">Seleccione un color</option>
                         <option *ngFor="let c of petColors" [ngValue]="c">{{ c }}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="petAgeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad (años)</label>
-                    <input [(ngModel)]="petToEdit.age_years" type="number" name="petAgeEdit" id="petAgeEdit" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
+                    <label for="myhouse-petAgeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad (años)</label>
+                    <input [(ngModel)]="petToEdit.age_years" type="number" name="petAgeEdit" id="myhouse-petAgeEdit" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
                 </div>
                 <div>
-                    <label for="petStatusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <select [(ngModel)]="petToEdit.status_validated" name="petStatusEdit" id="petStatusEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="myhouse-petStatusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="petToEdit.status_validated" name="petStatusEdit" id="myhouse-petStatusEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option *ngFor="let st of petStatusList" [ngValue]="st">{{ st }}</option>
                     </select>
                 </div>
             </div>
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditPet()" data-modal-hide="edit-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="edit-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white">Cancelar</button>
+                <button (click)="saveEditPet()" data-modal-hide="myhouse-edit-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="myhouse-edit-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
+
+
+

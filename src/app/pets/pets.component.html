@@ -108,12 +108,12 @@
 </div>
 
 <!-- Modal toggle new pet -->
-<button id="new-pet-button" data-modal-target="new-pet-modal" data-modal-toggle="new-pet-modal" class="hidden" type="button" aria-hidden="true">
+<button id="pets-new-pet-button" data-modal-target="pets-new-pet-modal" data-modal-toggle="pets-new-pet-modal" class="hidden" type="button" aria-hidden="true">
     NUEVA MASCOTA
 </button>
 
 <!-- Main modal new pet -->
-<div id="new-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="pets-new-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -122,7 +122,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Nueva mascota
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="new-pet-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="pets-new-pet-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -132,12 +132,12 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="nameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-                    <input [(ngModel)]="petToAdd.name" type="text" name="nameNew" id="nameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombre..." required />
+                    <label for="pets-nameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                    <input [(ngModel)]="petToAdd.name" type="text" name="nameNew" id="pets-nameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombre..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="speciesNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
-                    <select [(ngModel)]="petToAdd.species" name="speciesNew" id="speciesNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <label for="pets-speciesNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
+                    <select [(ngModel)]="petToAdd.species" name="speciesNew" id="pets-speciesNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         <option value="PERRO">Perro</option>
                         <option value="GATO">Gato</option>
                         <option value="AVE">Ave</option>
@@ -148,23 +148,23 @@
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="breedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
-                    <input [(ngModel)]="petToAdd.breed" type="text" name="breedNew" id="breedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Raza..." />
+                    <label for="pets-breedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
+                    <input [(ngModel)]="petToAdd.breed" type="text" name="breedNew" id="pets-breedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Raza..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <input [(ngModel)]="petToAdd.color" type="text" name="colorNew" id="colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Color..." />
+                    <label for="pets-colorNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <input [(ngModel)]="petToAdd.color" type="text" name="colorNew" id="pets-colorNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Color..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Casa</label>
-                    <select [(ngModel)]="petToAdd.house_id" name="houseIdNew" id="houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <label for="pets-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Casa</label>
+                    <select [(ngModel)]="petToAdd.house_id" name="houseIdNew" id="pets-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         <option value="">Seleccionar casa...</option>
                         <option *ngFor="let h of houses" [value]="h.house_id">Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="statusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <select [(ngModel)]="petToAdd.status_validated" name="statusNew" id="statusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <label for="pets-statusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="petToAdd.status_validated" name="statusNew" id="pets-statusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         <option value="PERMITIDO">Permitido</option>
                         <option value="DENEGADO">Denegado</option>
                         <option value="OBSERVADO">Observado</option>
@@ -173,20 +173,20 @@
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="createPet()" data-modal-hide="new-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="new-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="createPet()" data-modal-hide="pets-new-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="pets-new-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal toggle edit pet -->
-<button id="edit-pet-button" data-modal-target="edit-pet-modal" data-modal-toggle="edit-pet-modal" class="hidden" type="button" aria-hidden="true">
+<button id="pets-edit-pet-button" data-modal-target="pets-edit-pet-modal" data-modal-toggle="pets-edit-pet-modal" class="hidden" type="button" aria-hidden="true">
     EDITAR MASCOTA
 </button>
 
 <!-- Main modal edit pet -->
-<div id="edit-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="pets-edit-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -195,7 +195,7 @@
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Editar mascota
                 </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="edit-pet-modal">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="pets-edit-pet-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
@@ -205,12 +205,12 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1" *ngIf="petToEdit">
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="nameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-                    <input [(ngModel)]="petToEdit.name" type="text" name="nameEdit" id="nameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required />
+                    <label for="pets-nameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                    <input [(ngModel)]="petToEdit.name" type="text" name="nameEdit" id="pets-nameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="speciesEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
-                    <select [(ngModel)]="petToEdit.species" name="speciesEdit" id="speciesEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <label for="pets-speciesEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Especie</label>
+                    <select [(ngModel)]="petToEdit.species" name="speciesEdit" id="pets-speciesEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         <option value="PERRO">Perro</option>
                         <option value="GATO">Gato</option>
                         <option value="AVE">Ave</option>
@@ -221,22 +221,22 @@
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="breedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
-                    <input [(ngModel)]="petToEdit.breed" type="text" name="breedEdit" id="breedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
+                    <label for="pets-breedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Raza</label>
+                    <input [(ngModel)]="petToEdit.breed" type="text" name="breedEdit" id="pets-breedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
-                    <input [(ngModel)]="petToEdit.color" type="text" name="colorEdit" id="colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
+                    <label for="pets-colorEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                    <input [(ngModel)]="petToEdit.color" type="text" name="colorEdit" id="pets-colorEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Casa</label>
-                    <select [(ngModel)]="petToEdit.house_id" name="houseIdEdit" id="houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <label for="pets-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Casa</label>
+                    <select [(ngModel)]="petToEdit.house_id" name="houseIdEdit" id="pets-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         <option *ngFor="let h of houses" [value]="h.house_id">Mz:{{ h.block_house }} Lt:{{ h.lot }}{{ h.apartment ? ' Dpto: ' + h.apartment : '' }}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="statusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
-                    <select [(ngModel)]="petToEdit.status_validated" name="statusEdit" id="statusEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <label for="pets-statusEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                    <select [(ngModel)]="petToEdit.status_validated" name="statusEdit" id="pets-statusEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         <option value="PERMITIDO">Permitido</option>
                         <option value="DENEGADO">Denegado</option>
                         <option value="OBSERVADO">Observado</option>
@@ -245,8 +245,8 @@
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="updatePet()" data-modal-hide="edit-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
-                <button (click)="clean()" data-modal-hide="edit-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
+                <button (click)="updatePet()" data-modal-hide="pets-edit-pet-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="clean()" data-modal-hide="pets-edit-pet-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
     </div>
@@ -264,3 +264,4 @@
     <img *ngIf="viewPhotoUrl" [src]="viewPhotoUrl" [alt]="viewPhotoTitle" class="photo-view-img" />
   </div>
 </div>
+

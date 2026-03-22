@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { initFlowbite } from 'flowbite';
 import { Pet } from '../pet';
 import { ApiService } from '../api.service';
 import { PetsService } from '../pets.service';
@@ -13,7 +14,7 @@ import { House } from '../house';
   templateUrl: './pets.component.html',
   styleUrls: ['./pets.component.css']
 })
-export class PetsComponent implements OnInit {
+export class PetsComponent implements OnInit, AfterViewInit {
 
   pets: Pet[] = [];
   houses: House[] = [];
@@ -45,6 +46,10 @@ export class PetsComponent implements OnInit {
     this.loadPets();
     this.loadHouses();
     this.loadOwners();
+  }
+
+  ngAfterViewInit(): void {
+    initFlowbite();
   }
 
   /** URL completa para mostrar la foto de la mascota (desde el servidor o API). */
@@ -87,6 +92,7 @@ export class PetsComponent implements OnInit {
   }
 
   newPet(): void {
+    initFlowbite();
     this.petToAdd = { 
       name: '', 
       species: 'PERRO', 
@@ -95,12 +101,13 @@ export class PetsComponent implements OnInit {
       house_id: 0,
       status_validated: 'PERMITIDO'
     };
-    document.getElementById('new-pet-button')?.click();
+    document.getElementById('pets-new-pet-button')?.click();
   }
 
   editPet(pet: Pet): void {
+    initFlowbite();
     this.petToEdit = { ...pet };
-    document.getElementById('edit-pet-button')?.click();
+    document.getElementById('pets-edit-pet-button')?.click();
   }
 
   get filteredPets(): Pet[] {

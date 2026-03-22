@@ -261,45 +261,83 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   searchUser(doc_number: string){
-    this.usersService.getUserByDocNumber(doc_number).subscribe((resExistentUser:User)=>{
-      if(resExistentUser.user_id){
-        if(resExistentUser.role_system!='SN'&&resExistentUser.role_system!='NINGUNO'&&resExistentUser.role_system!=''){
+    // Validar que sea un documento válido
+    const docTrimmed = doc_number?.trim() ?? '';
+    const isValidDoc = /^\d{8,}$/.test(docTrimmed); // 8 o más dígitos
+
+    if (!isValidDoc) {
+      this.toastr.warning('Por favor ingresa un documento válido (mínimo 8 dígitos)');
+      return;
+    }
+
+    const isDni = docTrimmed.length === 8;
+
+    // Primero buscar en la base de datos
+    this.usersService.getUserByDocNumber(docTrimmed).subscribe(
+      (resExistentUser: User) => {
+        if (resExistentUser?.user_id) {
+          // Usuario existe en BD
+          if (resExistentUser.role_system !== 'SN' && resExistentUser.role_system !== 'NINGUNO' && resExistentUser.role_system !== '') {
+            this.clean();
+            this.toastr.warning('El usuario ya existe en el sistema');
+          } else {
+            this.toastr.success('Datos obtenidos correctamente desde BD');
+            this.userToAdd = resExistentUser;
+          }
+        } else {
+          // No existe en BD
+          // Solo usar RENIEC si es DNI (8 dígitos)
+          if (isDni) {
+            this.fetchFromReniec(docTrimmed);
+          } else {
+            // Es Carné de Extranjería u otro documento: solo busca en BD
+            this.toastr.info('No se encontraron datos en el sistema. Completa los datos manualmente.');
+            this.clean();
+          }
+        }
+      },
+      (error: any) => {
+        console.error('Error consultando BD:', error);
+        // Fallback a RENIEC solo si es DNI (8 dígitos)
+        if (isDni) {
+          this.fetchFromReniec(docTrimmed);
+        } else {
+          this.toastr.error('Error consultando BD. Completa los datos manualmente.');
           this.clean();
-          this.toastr.warning('El usuario ya existe');
-        }
-        else{
-          this.toastr.success('Datos obtenidos correctamente');
-          this.userToAdd=resExistentUser;
         }
       }
-      else if(doc_number.trim().length==8){
-        this.usersService.getUserFromReniec(doc_number).subscribe((resReniecUser:any)=>{
-          if(resReniecUser&&resReniecUser['success']){
-            this.toastr.success('Datos obtenidos correctamente');
-            this.userToAdd.type_doc='DNI';
-            this.userToAdd.first_name=resReniecUser['data']['nombres'];
-            this.userToAdd.paternal_surname=resReniecUser['data']['apellido_paterno'];
-            this.userToAdd.maternal_surname=resReniecUser['data']['apellido_materno'];
-            const sexo = (resReniecUser['data']['sexo'] || '').toString().toUpperCase();
-            this.userToAdd.gender = (sexo === 'FEMENINO' || sexo === 'F') ? 'F' : (sexo === 'MASCULINO' || sexo === 'M') ? 'M' : sexo || '';
-            this.userToAdd.birth_date=resReniecUser['data']['fecha_nacimiento'];
-            this.userToAdd.civil_status=resReniecUser['data']['estado_civil'];
-            this.userToAdd.address_reniec=resReniecUser['data']['direccion_completa'];
-            this.userToAdd.district=resReniecUser['data']['distrito'];
-            this.userToAdd.province=resReniecUser['data']['provincia'];
-            this.userToAdd.region=resReniecUser['data']['departamento'];
-          }
-          else{
-            this.noData();
-          }
-        },(error:any)=>{
+    );
+  }
+
+  private fetchFromReniec(doc_number: string){
+    this.usersService.getUserFromReniec(doc_number).subscribe(
+      (resReniecUser: any) => {
+        if (resReniecUser && resReniecUser['success'] && resReniecUser['data']) {
+          this.toastr.success('Datos obtenidos desde RENIEC');
+          this.userToAdd.type_doc = 'DNI';
+          this.userToAdd.first_name = resReniecUser['data']['nombres'] || '';
+          this.userToAdd.paternal_surname = resReniecUser['data']['apellido_paterno'] || '';
+          this.userToAdd.maternal_surname = resReniecUser['data']['apellido_materno'] || '';
+          
+          const sexo = (resReniecUser['data']['sexo'] || '').toString().toUpperCase();
+          this.userToAdd.gender = (sexo === 'FEMENINO' || sexo === 'F') ? 'F' : (sexo === 'MASCULINO' || sexo === 'M') ? 'M' : sexo || '';
+          
+          this.userToAdd.birth_date = resReniecUser['data']['fecha_nacimiento'] || '';
+          this.userToAdd.civil_status = resReniecUser['data']['estado_civil'] || '';
+          this.userToAdd.address_reniec = resReniecUser['data']['direccion_completa'] || '';
+          this.userToAdd.district = resReniecUser['data']['distrito'] || '';
+          this.userToAdd.province = resReniecUser['data']['provincia'] || '';
+          this.userToAdd.region = resReniecUser['data']['departamento'] || '';
+        } else {
           this.noData();
-        })
+        }
+      },
+      (error: any) => {
+        console.error('Error consultando RENIEC:', error);
+        this.toastr.error('Error consultando RENIEC. Completa los datos manualmente.');
+        this.clean();
       }
-      else{
-        this.noData();
-      }
-    })
+    );
   }
 
   noData(){
@@ -310,29 +348,29 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   newUser(){
     this.userToAdd.property_category = 'PROPIETARIO';
-    document.getElementById('new-user-button')?.click();
+    document.getElementById('myhouse-new-user-button')?.click();
   }
 
   newTenant(){
     this.userToAdd = User.empty();
     this.userToAdd.property_category = 'INQUILINO';
     this.userToAdd.house_id = this.userOnSes.house_id ?? 0;
-    document.getElementById('new-user-button')?.click();
+    document.getElementById('myhouse-new-user-button')?.click();
   }
 
   editUser(user: User): void {
     this.userToEdit = { ...user } as User;
     const g = (this.userToEdit.gender || '').toString().toUpperCase();
     this.userToEdit.gender = (g === 'FEMENINO' || g === 'F') ? 'F' : (g === 'MASCULINO' || g === 'M') ? 'M' : g || '';
-    document.getElementById('edit-user-button')?.click();
+    document.getElementById('myhouse-edit-user-button')?.click();
   }
   newVisit(){
-    document.getElementById('new-visit-button')?.click();
+    document.getElementById('myhouse-new-visit-button')?.click();
   }
 
   editVisit(user:User){
     this.userToEdit = user;
-    document.getElementById('edit-visit-button')?.click();
+    document.getElementById('myhouse-edit-visit-button')?.click();
   }
   
   clean(){
@@ -355,12 +393,12 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       house_id: this.userOnSes.house_id ?? 0,
       status_validated: 'PERMITIDO'
     };
-    document.getElementById('new-pet-button')?.click();
+    document.getElementById('myhouse-new-pet-button')?.click();
   }
 
   editPet(pet: Pet){
     this.petToEdit = { ...pet };
-    document.getElementById('edit-pet-button')?.click();
+    document.getElementById('myhouse-edit-pet-button')?.click();
   }
 
   saveNewPet(){
@@ -495,12 +533,12 @@ newVehicle(){
   if (this.houses.length === 0 && houseId) {
     this.houses = [{ house_id: houseId, block_house: '—', lot: null, apartment: null } as House];
   }
-  document.getElementById('new-vehicle-button')?.click();
+  document.getElementById('myhouse-new-vehicle-button')?.click();
 }
 
 editVehicle(vehicle:Vehicle){
   this.vehicleToEdit = vehicle;
-  document.getElementById('edit-vehicle-button')?.click();
+  document.getElementById('myhouse-edit-vehicle-button')?.click();
 }
 
 saveEditVehicle(){
@@ -558,12 +596,12 @@ saveNewVehicle(): void {
 
   //EXTERNAL VEHICLE
   newExternalVehicle(){
-    document.getElementById('new-external-vehicle-button')?.click();
+    document.getElementById('myhouse-new-external-vehicle-button')?.click();
   }
 
   editExternalVehicle(externalVehicle:ExternalVehicle){
     this.externalVehicleToEdit = externalVehicle;
-    document.getElementById('edit-external-vehicle-button')?.click();
+    document.getElementById('myhouse-edit-external-vehicle-button')?.click();
   }
 
   saveEditExternalVehicle(){
@@ -741,4 +779,6 @@ saveNewVehicle(): void {
   }
 
 }
+
+
 

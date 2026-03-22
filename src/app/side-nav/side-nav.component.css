@@ -1,9 +1,16 @@
 /* Forzar que el sidebar empiece debajo del navbar (56px). Evita que Flowbite u otros lo pongan en top: 0 */
-/* z-index alto para que en móvil quede por encima del backdrop gris de Flowbite y se pueda tocar */
+/* Mantener z-index menor al modal/backdrop (z-40/z-50) para no bloquear ventanas emergentes */
 #logo-sidebar {
   top: 56px !important;
   height: calc(100vh - 56px) !important;
-  z-index: 9998 !important;
+  z-index: 20 !important;
+}
+
+/* En móvil el drawer debe quedar sobre su propio backdrop (z-30 de Flowbite). */
+@media (max-width: 639.98px) {
+  #logo-sidebar {
+    z-index: 40 !important;
+  }
 }
 
 /* Enlace del sidebar: transición y estado activo */

@@ -56,4 +56,80 @@ export class SideNavComponent extends AppComponent implements OnInit {
       }
     });
   }
+
+  onNavPointerDown(event: Event): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    const link = target.closest('a.nav-item') as HTMLElement | null;
+    if (!link) {
+      return;
+    }
+
+    // Ocurre antes del click: evita que el link retenga foco cuando Flowbite oculte el drawer.
+    link.blur();
+  }
+
+  onNavInteraction(event: Event): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    const link = target.closest('a.nav-item') as HTMLElement | null;
+    if (!link) {
+      return;
+    }
+
+    link.blur();
+    const main = document.querySelector('main') as HTMLElement | null;
+    if (main) {
+      const hadTabIndex = main.hasAttribute('tabindex');
+      if (!hadTabIndex) {
+        main.setAttribute('tabindex', '-1');
+      }
+      main.focus({ preventScroll: true });
+      if (!hadTabIndex) {
+        setTimeout(() => main.removeAttribute('tabindex'), 0);
+      }
+    }
+
+    this.closeMobileSidebarSafely();
+  }
+
+  private closeMobileSidebarSafely(): void {
+    if (window.innerWidth >= 640) {
+      return;
+    }
+
+    this.setMobileSidebarOpen(false);
+
+    // Fallback: fuerza estado oculto por si Flowbite no alcanza a cerrar durante el cambio de ruta.
+    setTimeout(() => {
+      this.setMobileSidebarOpen(false);
+
+      document.body.classList.remove('overflow-hidden');
+      this.removeMobileDrawerBackdrops();
+    }, 0);
+
+    document.body.classList.remove('overflow-hidden');
+    this.removeMobileDrawerBackdrops();
+  }
+
+  private removeMobileDrawerBackdrops(): void {
+    // Limpia backdrops residuales del drawer móvil que pueden bloquear clics.
+    const backdropSelectors = [
+      '[drawer-backdrop]',
+      '[data-drawer-backdrop]',
+      '.drawer-backdrop',
+      'div.fixed.inset-0.z-30.bg-gray-900\\/50',
+      'div.fixed.inset-0.z-30.dark\\:bg-gray-900\\/80'
+    ];
+
+    backdropSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => el.remove());
+    });
+  }
 }

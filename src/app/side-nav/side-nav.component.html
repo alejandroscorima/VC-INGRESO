@@ -23,7 +23,7 @@
     </div>
 
     <!-- Navegación: scroll solo aquí -->
-    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto">
+    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto" (mousedown)="onNavPointerDown($event)" (click)="onNavInteraction($event)">
       <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Principal</p>
       <ul class="space-y-0.5">
         <li>

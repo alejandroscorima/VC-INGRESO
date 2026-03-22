@@ -99,12 +99,12 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
 //VEHÍCULOS DE RESIDENTES
 
   newVehicle(){
-    document.getElementById('new-vehicle-button')?.click();
+    document.getElementById('vehicles-new-vehicle-button')?.click();
   }
 
   editVehicle(vehicle:Vehicle){
     this.vehicleToEdit = vehicle;
-    document.getElementById('edit-vehicle-button')?.click();
+    document.getElementById('vehicles-edit-vehicle-button')?.click();
   }
 
   get filteredVehicles(): Vehicle[] {
@@ -314,12 +314,12 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   
   //VEHÍCULOS EXTERNOS
   newExternalVehicle(){
-    document.getElementById('new-external-vehicle-button')?.click();
+    document.getElementById('vehicles-new-external-vehicle-button')?.click();
   }
 
   editExternalVehicle(externalVehicle:ExternalVehicle){
     this.externalVehicleToEdit = externalVehicle;
-    document.getElementById('edit-external-vehicle-button')?.click();
+    document.getElementById('vehicles-edit-external-vehicle-button')?.click();
   }
 
   saveEditExternalVehicle(){
@@ -419,3 +419,5 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }*/
 
 }
+
+
