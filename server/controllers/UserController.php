@@ -24,6 +24,7 @@ class UserController extends Controller {
                        u.status_validated, u.status_reason, u.status_system, u.is_active,
                        p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
                        p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status,
+                       p.person_type AS property_category,
                        p.address, p.district, p.province, p.region,
                        h.block_house, h.lot, h.apartment
                 FROM users u
@@ -55,6 +56,7 @@ class UserController extends Controller {
                        u.status_validated, u.status_reason, u.status_system, u.is_active,
                        p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
                        p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status,
+                       p.person_type AS property_category,
                        p.address, p.district, p.province, p.region,
                        h.block_house, h.lot, h.apartment
                 FROM users u
@@ -128,7 +130,7 @@ class UserController extends Controller {
             }
         }
         
-        $personAllowed = ['type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname', 'gender', 'birth_date', 'cel_number', 'email', 'address', 'district', 'province', 'region', 'civil_status', 'photo_url', 'person_type', 'house_id', 'status_validated', 'status_system'];
+        $personAllowed = ['type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname', 'gender', 'birth_date', 'cel_number', 'email', 'address', 'district', 'province', 'region', 'civil_status', 'photo_url', 'person_type', 'property_category', 'house_id', 'status_validated', 'status_system'];
         $userAllowed = ['role_system', 'username_system', 'password_system', 'house_id', 'status_validated', 'status_reason', 'status_system'];
         
         if ($existingPerson) {
@@ -138,6 +140,10 @@ class UserController extends Controller {
             foreach ($personAllowed as $f) {
                 if (isset($data[$f])) $pData[$f] = $data[$f];
             }
+            if (isset($pData['property_category']) && (!isset($pData['person_type']) || trim((string)$pData['person_type']) === '')) {
+                $pData['person_type'] = $pData['property_category'];
+            }
+            unset($pData['property_category']);
             if (empty($pData['person_type'])) $pData['person_type'] = 'RESIDENTE';
             $cols = implode(', ', array_keys($pData));
             $ph = implode(', ', array_fill(0, count($pData), '?'));
@@ -163,7 +169,7 @@ class UserController extends Controller {
         $userId = (int) $this->db->lastInsertId();
         
         $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id, u.status_validated, u.status_reason, u.status_system, u.is_active,
-                       p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname, p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status, p.address, p.district, p.province, p.region
+                   p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname, p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status, p.person_type AS property_category, p.address, p.district, p.province, p.region
                 FROM users u LEFT JOIN persons p ON u.person_id = p.id WHERE u.user_id = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
@@ -190,7 +196,7 @@ class UserController extends Controller {
             Response::error('No hay datos para actualizar', 400);
         }
         
-        $personAllowed = ['type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname', 'gender', 'birth_date', 'cel_number', 'email', 'address', 'district', 'province', 'region', 'civil_status', 'photo_url', 'person_type', 'house_id', 'status_validated', 'status_system'];
+        $personAllowed = ['type_doc', 'doc_number', 'first_name', 'paternal_surname', 'maternal_surname', 'gender', 'birth_date', 'cel_number', 'email', 'address', 'district', 'province', 'region', 'civil_status', 'photo_url', 'person_type', 'property_category', 'house_id', 'status_validated', 'status_system'];
         $userAllowed = ['role_system', 'username_system', 'password_system', 'house_id', 'status_validated', 'status_reason', 'status_system', 'is_active', 'force_password_change'];
         
         if (!empty($user->person_id)) {
@@ -198,6 +204,11 @@ class UserController extends Controller {
             foreach ($personAllowed as $f) {
                 if (array_key_exists($f, $data)) $pData[$f] = $data[$f];
             }
+            $hasPersonType = array_key_exists('person_type', $pData) && trim((string)$pData['person_type']) !== '';
+            if (array_key_exists('property_category', $pData) && !$hasPersonType) {
+                $pData['person_type'] = $pData['property_category'];
+            }
+            unset($pData['property_category']);
             if (!empty($pData)) {
                 $set = implode(', ', array_map(fn($c) => "$c = ?", array_keys($pData)));
                 $params = array_values($pData);
@@ -219,7 +230,7 @@ class UserController extends Controller {
         }
         
         $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id, u.status_validated, u.status_reason, u.status_system, u.is_active,
-                       p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname, p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status, p.address, p.district, p.province, p.region
+                   p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname, p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status, p.person_type AS property_category, p.address, p.district, p.province, p.region
                 FROM users u LEFT JOIN persons p ON u.person_id = p.id WHERE u.user_id = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
@@ -250,7 +261,7 @@ class UserController extends Controller {
     /**
      * POST /api/v1/users/from-person
      * Crear usuario a partir de una persona existente (dar acceso al sistema).
-     * Body: { person_id, username_system, password_system, role_system }.
+    * Body: { person_id, username_system, password_system, role_system, force_password_change? }.
      * No se duplican datos de identidad en users; se obtienen de persons vía person_id.
      */
     public function createFromPerson($params = []) {
@@ -291,6 +302,7 @@ class UserController extends Controller {
             'password_system' => password_hash($data['password_system'], PASSWORD_DEFAULT),
             'role_system' => trim($data['role_system']),
             'is_active' => 1,
+            'force_password_change' => isset($data['force_password_change']) ? ((int)$data['force_password_change'] ? 1 : 0) : 1,
             'house_id' => $houseId,
             'status_validated' => 'PERMITIDO',
             'status_system' => 'ACTIVO'
@@ -316,10 +328,11 @@ class UserController extends Controller {
             Response::error('doc_number requerido', 400);
             return;
         }
-        $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id,
+        $sql = "SELECT u.user_id, u.person_id, u.role_system, u.username_system, u.house_id, u.force_password_change,
                        u.status_validated, u.status_reason, u.status_system,
                        p.type_doc, p.doc_number, p.first_name, p.paternal_surname, p.maternal_surname,
                        p.gender, p.birth_date, p.cel_number, p.email, p.photo_url, p.civil_status,
+                       p.person_type AS property_category,
                        p.address, p.address AS address_reniec, p.district, p.province, p.region,
                        h.block_house, h.lot, h.apartment
                 FROM users u

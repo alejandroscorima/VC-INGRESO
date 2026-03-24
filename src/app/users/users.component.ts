@@ -20,6 +20,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
   /** Pestaña activa: 'users' | 'persons' */
   activeTab: 'users' | 'persons' = 'users';
+  /** Contexto del modal Nuevo/Editar */
+  modalMode: 'users' | 'persons' = 'users';
+  enableSystemAccessNew = true;
+  enableSystemAccessEdit = true;
 
   /** Personas registradas que aún no tienen usuario (para "Dar acceso") */
   personsWithoutUser: any[] = [];
@@ -38,10 +42,14 @@ export class UsersComponent implements OnInit, AfterViewInit{
   houses: House[] = [];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
+  categoriesNewUser: string[] = ['PROPIETARIO','RESIDENTE','INQUILINO'];
   
   searchTerm: string = '';
   selectedBlock: string = '';
   selectedLot: string = '';
+  personsSearchTerm: string = '';
+  personsSelectedBlock: string = '';
+  personsSelectedLot: string = '';
   usersCurrentPage: number = 1;
   usersPageSize: number = 10;
   personsCurrentPage: number = 1;
@@ -138,7 +146,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   get personsTotalPages(): number {
-    return Math.max(1, Math.ceil(this.personsWithoutUser.length / this.personsPageSize));
+    return Math.max(1, Math.ceil(this.filteredPersonsWithoutUser.length / this.personsPageSize));
   }
 
   get paginatedPersonsWithoutUser(): any[] {
@@ -147,7 +155,31 @@ export class UsersComponent implements OnInit, AfterViewInit{
       this.personsCurrentPage = safePage;
     }
     const start = (safePage - 1) * this.personsPageSize;
-    return this.personsWithoutUser.slice(start, start + this.personsPageSize);
+    return this.filteredPersonsWithoutUser.slice(start, start + this.personsPageSize);
+  }
+
+  get filteredPersonsWithoutUser(): any[] {
+    if (!this.personsSearchTerm.trim() && !this.personsSelectedBlock && !this.personsSelectedLot) {
+      return this.personsWithoutUser;
+    }
+
+    const search = this.personsSearchTerm.toLowerCase();
+    return this.personsWithoutUser.filter((p: any) => {
+      const fullName = `${p.paternal_surname || ''} ${p.maternal_surname || ''} ${p.first_name || ''}`.toLowerCase();
+      const doc = (p.doc_number || '').toString().toLowerCase();
+      const cel = (p.cel_number || '').toString().toLowerCase();
+      const email = (p.email || '').toString().toLowerCase();
+      const matchesSearch = !this.personsSearchTerm.trim() ||
+        fullName.includes(search) || doc.includes(search) || cel.includes(search) || email.includes(search);
+
+      const house = this.houses.find(h => Number(h.house_id) === Number(p.house_id));
+      const blockVal = (house?.block_house ?? p.block_house ?? '').toString();
+      const lotVal = (house?.lot ?? p.lot ?? '').toString();
+      const matchesBlock = !this.personsSelectedBlock || blockVal === this.personsSelectedBlock;
+      const matchesLot = !this.personsSelectedLot || lotVal === this.personsSelectedLot;
+
+      return matchesSearch && matchesBlock && matchesLot;
+    });
   }
 
   onUsersPageSizeChange(): void {
@@ -167,6 +199,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   onPersonsPageSizeChange(): void {
+    this.personsCurrentPage = 1;
+  }
+
+  onPersonsFiltersChange(): void {
     this.personsCurrentPage = 1;
   }
 
@@ -209,6 +245,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
             this.userToAdd.district=resReniecUser['data']['distrito'];
             this.userToAdd.province=resReniecUser['data']['provincia'];
             this.userToAdd.region=resReniecUser['data']['departamento'];
+            this.onNewUserNameFieldsChange();
           }
           else{
             this.noData();
@@ -235,15 +272,145 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   newUser(){
+    this.modalMode = 'users';
+    this.userToAdd = User.empty();
+    this.userToAdd.force_password_change = 1;
+    this.userToAdd.username_system = '';
+    this.enableSystemAccessNew = true;
     document.getElementById('users-new-user-button')?.click();
   }
 
+  newPerson(){
+    this.modalMode = 'persons';
+    this.userToAdd = User.empty();
+    this.userToAdd.type_doc = 'DNI';
+    this.userToAdd.status_validated = 'PERMITIDO';
+    this.userToAdd.property_category = 'RESIDENTE';
+    this.userToAdd.force_password_change = 1;
+    this.userToAdd.role_system = 'USUARIO';
+    this.enableSystemAccessNew = false;
+    document.getElementById('users-new-user-button')?.click();
+  }
+
+  private normalizeUsernamePart(value: string): string {
+    return (value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase();
+  }
+
+  private buildSuggestedUsername(firstName: string, paternalSurname: string): string {
+    const initial = this.normalizeUsernamePart((firstName || '').trim()).charAt(0);
+    const lastName = this.normalizeUsernamePart((paternalSurname || '').trim());
+    return `${initial}${lastName}`;
+  }
+
+  private buildIncrementalUsername(base: string): string {
+    const normalizedBase = (base || '').trim().toLowerCase();
+    if (!normalizedBase) {
+      return '';
+    }
+
+    const existing = new Set(
+      (this.users || [])
+        .map((u: any) => (u?.username_system || '').toString().trim().toLowerCase())
+        .filter((u: string) => !!u)
+    );
+
+    let candidate = normalizedBase;
+    let i = 2;
+    while (existing.has(candidate)) {
+      candidate = `${normalizedBase}${i}`;
+      i += 1;
+    }
+    return candidate;
+  }
+
+  onNewUserNameFieldsChange(): void {
+    const base = this.buildSuggestedUsername(this.userToAdd.first_name, this.userToAdd.paternal_surname);
+    this.userToAdd.username_system = this.buildIncrementalUsername(base);
+  }
+
+  private ensureSuggestedUsernameFor(target: User): void {
+    if ((target.username_system || '').toString().trim()) {
+      return;
+    }
+    const base = this.buildSuggestedUsername(target.first_name || '', target.paternal_surname || '');
+    target.username_system = this.buildIncrementalUsername(base);
+  }
+
+  onToggleSystemAccessNew(): void {
+    if (this.enableSystemAccessNew) {
+      this.userToAdd.role_system = this.userToAdd.role_system || 'USUARIO';
+      this.userToAdd.force_password_change = Number(this.userToAdd.force_password_change ? 1 : 1);
+      this.ensureSuggestedUsernameFor(this.userToAdd);
+    }
+  }
+
+  onToggleSystemAccessEdit(): void {
+    if (this.enableSystemAccessEdit) {
+      this.userToEdit.role_system = this.userToEdit.role_system || 'USUARIO';
+      this.userToEdit.force_password_change = Number(this.userToEdit.force_password_change ? 1 : 1);
+      this.ensureSuggestedUsernameFor(this.userToEdit);
+    }
+  }
+
   editUser(user:User){
-    this.userToEdit = user;
+    this.modalMode = 'users';
+    this.enableSystemAccessEdit = true;
+    this.userToEdit = { ...user };
+    this.userToEdit.force_password_change = Number((this.userToEdit as any).force_password_change || 0);
+
+    const normalizeGender = (value: any): string => {
+      const g = (value || '').toString().trim().toUpperCase();
+      if (g === 'M' || g === 'MASCULINO') return 'MASCULINO';
+      if (g === 'F' || g === 'FEMENINO') return 'FEMENINO';
+      return g;
+    };
+
+    this.userToEdit.gender = normalizeGender(this.userToEdit.gender);
+
+    const userId = Number((user as any).user_id || 0);
+    if (userId > 0) {
+      this.usersService.getUserById(userId).subscribe({
+        next: (dbUser: any) => {
+          if (!dbUser) return;
+          this.userToEdit = {
+            ...this.userToEdit,
+            ...dbUser,
+            gender: normalizeGender(dbUser.gender ?? this.userToEdit.gender),
+            cel_number: dbUser.cel_number ?? this.userToEdit.cel_number,
+            property_category: dbUser.property_category ?? this.userToEdit.property_category,
+            force_password_change: Number((dbUser as any).force_password_change || this.userToEdit.force_password_change || 0)
+          } as User;
+        },
+        error: () => {
+          // Mantener datos locales si falla la recarga puntual desde BD.
+        }
+      });
+    }
+    document.getElementById('users-edit-user-button')?.click();
+  }
+
+  editPerson(person: any){
+    this.modalMode = 'persons';
+    this.enableSystemAccessEdit = false;
+    this.userToEdit = { ...(person as any) } as User;
+    this.userToEdit.property_category = ((person as any).property_category || (person as any).person_type || this.userToEdit.property_category || 'RESIDENTE').toString().toUpperCase();
+    this.userToEdit.user_id = Number((person as any).user_id || 0);
+    this.userToEdit.force_password_change = Number((this.userToEdit as any).force_password_change || 0);
+    if (!this.userToEdit.role_system) this.userToEdit.role_system = 'USUARIO';
+    if (!this.userToEdit.status_validated) this.userToEdit.status_validated = 'PERMITIDO';
     document.getElementById('users-edit-user-button')?.click();
   }
 
   saveNewUser() {
+    if (this.modalMode === 'persons') {
+      this.saveNewPerson();
+      return;
+    }
+
     if (!this.validateUser(this.userToAdd)) {
       this.toastr.error("Por favor, completa todos los campos requeridos correctamente.");
       this.clean();
@@ -258,6 +425,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
       this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-female.png';
     }
     this.userToAdd.status_system = 'ACTIVO';
+    this.userToAdd.force_password_change = Number(this.userToAdd.force_password_change ? 1 : 0);
   
     // Verificar existencia del usuario en la base de datos
     this.usersService.getUserByDocNumber(this.userToAdd.doc_number).subscribe((resExistentUser: User) => {
@@ -310,6 +478,66 @@ export class UsersComponent implements OnInit, AfterViewInit{
       }
     });
   }
+
+  private saveNewPerson() {
+    if (!this.validateUser(this.userToAdd)) {
+      this.toastr.error('Por favor, completa todos los campos requeridos correctamente.');
+      return;
+    }
+
+    const personPayload: any = {
+      type_doc: this.userToAdd.type_doc || 'DNI',
+      doc_number: this.userToAdd.doc_number,
+      first_name: this.userToAdd.first_name,
+      paternal_surname: this.userToAdd.paternal_surname,
+      maternal_surname: this.userToAdd.maternal_surname || '',
+      gender: this.userToAdd.gender || undefined,
+      birth_date: this.userToAdd.birth_date || undefined,
+      cel_number: this.userToAdd.cel_number || undefined,
+      email: this.userToAdd.email || undefined,
+      house_id: this.userToAdd.house_id || undefined,
+      person_type: this.userToAdd.property_category || 'RESIDENTE',
+      status_validated: this.userToAdd.status_validated || 'PERMITIDO',
+      status_reason: this.userToAdd.status_reason || '',
+      status_system: 'ACTIVO'
+    };
+
+    this.usersService.createPerson(personPayload).subscribe({
+      next: (res: any) => {
+        const personId = Number(res?.data?.id || res?.id || 0);
+        if (this.enableSystemAccessNew && personId) {
+          this.ensureSuggestedUsernameFor(this.userToAdd);
+          if (!(this.userToAdd.username_system || '').trim()) {
+            this.toastr.warning('No se pudo generar un usuario automáticamente. Completa el campo Usuario.');
+            return;
+          }
+          this.usersService.createUserFromPerson({
+            person_id: personId,
+            username_system: (this.userToAdd.username_system || '').trim(),
+            password_system: (this.userToAdd.doc_number || '').trim(),
+            role_system: this.userToAdd.role_system || 'USUARIO',
+            force_password_change: Number(this.userToAdd.force_password_change ? 1 : 0)
+          }).subscribe({
+            next: () => {
+              this.toastr.success('Persona creada y acceso habilitado.');
+              this.afterPersonAccessChange();
+            },
+            error: (err) => {
+              this.toastr.warning(err?.error?.error || 'Persona creada, pero no se pudo dar acceso al sistema.');
+              this.afterPersonOnlyChange();
+            }
+          });
+          return;
+        }
+
+        this.toastr.success('Persona creada correctamente.');
+        this.afterPersonOnlyChange();
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.error || 'Error al crear la persona.');
+      }
+    });
+  }
   
   private validateUser(user: User): boolean {
     if (!user.doc_number || user.doc_number.trim().length < 8) return false;
@@ -330,11 +558,88 @@ export class UsersComponent implements OnInit, AfterViewInit{
   
 
   saveEditUser(){
+    if (this.modalMode === 'persons') {
+      this.saveEditPerson();
+      return;
+    }
+
+    this.userToEdit.force_password_change = Number(this.userToEdit.force_password_change ? 1 : 0);
     this.usersService.updateUser(this.userToEdit).subscribe(resUpdateUser=>{
       if(resUpdateUser){
         this.handleSuccess();
       }
     })
+  }
+
+  private saveEditPerson() {
+    const personId = Number((this.userToEdit as any).id || (this.userToEdit as any).person_id || 0);
+    if (!personId) {
+      this.toastr.error('No se encontró el ID de la persona para editar.');
+      return;
+    }
+
+    const personPayload: any = {
+      first_name: this.userToEdit.first_name,
+      paternal_surname: this.userToEdit.paternal_surname,
+      maternal_surname: this.userToEdit.maternal_surname,
+      gender: this.userToEdit.gender,
+      birth_date: this.userToEdit.birth_date,
+      cel_number: this.userToEdit.cel_number,
+      email: this.userToEdit.email,
+      house_id: this.userToEdit.house_id,
+      person_type: this.userToEdit.property_category || 'RESIDENTE',
+      status_validated: this.userToEdit.status_validated || 'PERMITIDO',
+      status_reason: this.userToEdit.status_reason || ''
+    };
+
+    this.usersService.updatePerson(personId, personPayload).subscribe({
+      next: () => {
+        if (this.enableSystemAccessEdit && !Number((this.userToEdit as any).user_id || 0)) {
+          this.ensureSuggestedUsernameFor(this.userToEdit);
+          if (!(this.userToEdit.username_system || '').trim()) {
+            this.toastr.warning('No se pudo generar un usuario automáticamente. Completa el campo Usuario.');
+            return;
+          }
+          this.usersService.createUserFromPerson({
+            person_id: personId,
+            username_system: (this.userToEdit.username_system || '').trim(),
+            password_system: (this.userToEdit.doc_number || '').trim(),
+            role_system: this.userToEdit.role_system || 'USUARIO',
+            force_password_change: Number(this.userToEdit.force_password_change ? 1 : 0)
+          }).subscribe({
+            next: () => {
+              this.toastr.success('Persona actualizada y acceso habilitado.');
+              this.afterPersonAccessChange();
+            },
+            error: (err) => {
+              this.toastr.warning(err?.error?.error || 'Persona actualizada, pero no se pudo dar acceso al sistema.');
+              this.afterPersonOnlyChange();
+            }
+          });
+          return;
+        }
+
+        this.toastr.success('Persona actualizada correctamente.');
+        this.afterPersonOnlyChange();
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.error || 'Error al actualizar la persona.');
+      }
+    });
+  }
+
+  private afterPersonOnlyChange() {
+    this.clean();
+    this.loadPersonsWithoutUser();
+    this.usersService.getAllUsers().subscribe((res: any[]) => { this.users = res; });
+    this.activeTab = 'persons';
+  }
+
+  private afterPersonAccessChange() {
+    this.clean();
+    this.loadPersonsWithoutUser();
+    this.usersService.getAllUsers().subscribe((res: any[]) => { this.users = res; });
+    this.activeTab = 'users';
   }
 
   /** Listar personas que aún no tienen usuario (para convertir en usuario) */
@@ -344,7 +649,11 @@ export class UsersComponent implements OnInit, AfterViewInit{
       next: (res: any) => {
         this.loadingPersonsWithoutUser = false;
         this.hasLoadedPersonsWithoutUser = true;
-        this.personsWithoutUser = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        const raw = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        this.personsWithoutUser = (raw || []).map((p: any) => ({
+          ...p,
+          property_category: (p?.property_category || p?.person_type || 'RESIDENTE').toString().toUpperCase()
+        }));
         this.personsCurrentPage = 1;
       },
       error: () => {

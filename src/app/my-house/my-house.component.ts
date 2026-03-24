@@ -50,9 +50,14 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO'];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INQUILINO'];
+  residentCategories: string[] = ['PROPIETARIO','RESIDENTE'];
+  tenantCategories: string[] = ['INQUILINO'];
+  currentCategoryOptions: string[] = ['PROPIETARIO','RESIDENTE'];
   categories_visits: string[] = ['INVITADO'];
   types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
   temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
+  enableSystemAccessNew = false;
+  enableSystemAccessEdit = false;
   
   // Colores para vehículos
   vehicleColors: string[] = ['Blanco', 'Negro', 'Plata', 'Gris', 'Rojo', 'Azul', 'Verde', 'Beige', 'Otro'];
@@ -260,6 +265,90 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     this.viewPhotoTitle = '';
   }
 
+  private hasSystemAccess(user: Partial<User>): boolean {
+    const role = (user.role_system || '').toString().trim().toUpperCase();
+    return !!user.user_id && role !== '' && role !== 'SN' && role !== 'NINGUNO';
+  }
+
+  getSessionHouseLabel(): string {
+    const houseId = Number(this.userOnSes.house_id) || 0;
+    if (houseId <= 0) {
+      return 'Sin domicilio asociado';
+    }
+    const houseFromList = this.houses.find((h) => Number(h.house_id) === houseId);
+    const block = houseFromList?.block_house || this.userOnSes.block_house || '—';
+    const lot = houseFromList?.lot ?? this.userOnSes.lot ?? '—';
+    const apartment = houseFromList?.apartment ?? this.userOnSes.apartment ?? '—';
+    return `Mz:${block} Lt:${lot} Dpt:${apartment}`;
+  }
+
+  onToggleSystemAccessNew(): void {
+    if (this.enableSystemAccessNew) {
+      this.userToAdd.force_password_change = 1;
+      this.suggestUniqueUsernameFor(this.userToAdd, true);
+      this.userToAdd.role_system = 'USUARIO';
+    } else {
+      this.userToAdd.username_system = '';
+      this.userToAdd.role_system = '';
+      this.userToAdd.password_system = '';
+      this.userToAdd.force_password_change = 0;
+    }
+  }
+
+  onToggleSystemAccessEdit(): void {
+    if (this.enableSystemAccessEdit) {
+      if (typeof this.userToEdit.force_password_change === 'undefined') {
+        this.userToEdit.force_password_change = 0;
+      }
+      if (!this.userToEdit.username_system?.trim()) {
+        this.suggestUniqueUsernameFor(this.userToEdit, false);
+      }
+      this.userToEdit.role_system = 'USUARIO';
+    }
+  }
+
+  private normalizeUsernamePart(value: string): string {
+    return (value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase();
+  }
+
+  private suggestUniqueUsernameFor(targetUser: User, force = false): void {
+    if (!force && targetUser.username_system?.trim()) {
+      return;
+    }
+    const firstInitial = this.normalizeUsernamePart((targetUser.first_name || '').trim()).charAt(0);
+    const lastName = this.normalizeUsernamePart((targetUser.paternal_surname || '').trim());
+    const docFallback = this.normalizeUsernamePart((targetUser.doc_number || '').trim());
+    let base = `${firstInitial}${lastName}`;
+    if (!base) {
+      base = docFallback || 'usuario';
+    }
+
+    this.usersService.getAllUsers().subscribe({
+      next: (users: any[]) => {
+        const existing = new Set(
+          (Array.isArray(users) ? users : [])
+            .map((u: any) => (u?.username_system || '').toString().trim().toLowerCase())
+            .filter((u: string) => !!u)
+        );
+
+        let candidate = base;
+        let i = 2;
+        while (existing.has(candidate.toLowerCase())) {
+          candidate = `${base}${i}`;
+          i += 1;
+        }
+        targetUser.username_system = candidate;
+      },
+      error: () => {
+        targetUser.username_system = base;
+      }
+    });
+  }
+
   searchUser(doc_number: string){
     // Validar que sea un documento válido
     const docTrimmed = doc_number?.trim() ?? '';
@@ -347,35 +436,177 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   newUser(){
-    this.userToAdd.property_category = 'PROPIETARIO';
+    this.userToAdd = User.empty();
+    this.enableSystemAccessNew = false;
+    this.currentCategoryOptions = [...this.residentCategories];
+    this.userToAdd.property_category = 'RESIDENTE';
+    this.userToAdd.role_system = 'USUARIO';
+    this.userToAdd.house_id = this.userOnSes.house_id ?? 0;
+    this.userToAdd.force_password_change = 1;
     document.getElementById('myhouse-new-user-button')?.click();
   }
 
   newTenant(){
     this.userToAdd = User.empty();
+    this.enableSystemAccessNew = false;
+    this.currentCategoryOptions = [...this.tenantCategories];
     this.userToAdd.property_category = 'INQUILINO';
+    this.userToAdd.role_system = 'USUARIO';
     this.userToAdd.house_id = this.userOnSes.house_id ?? 0;
+    this.userToAdd.force_password_change = 1;
     document.getElementById('myhouse-new-user-button')?.click();
   }
 
   editUser(user: User): void {
     this.userToEdit = { ...user } as User;
+    this.userToEdit.house_id = this.userOnSes.house_id ?? this.userToEdit.house_id;
+    this.enableSystemAccessEdit = this.hasSystemAccess(this.userToEdit);
+    this.currentCategoryOptions = ((this.userToEdit.property_category || '').toUpperCase() === 'INQUILINO')
+      ? [...this.tenantCategories]
+      : [...this.residentCategories];
+    this.userToEdit.force_password_change = Number((this.userToEdit as any).force_password_change || 0);
     const g = (this.userToEdit.gender || '').toString().toUpperCase();
     this.userToEdit.gender = (g === 'FEMENINO' || g === 'F') ? 'F' : (g === 'MASCULINO' || g === 'M') ? 'M' : g || '';
+
+    // Sincronizar campos de users desde BD para reflejar acceso real del sistema.
+    const doc = (this.userToEdit.doc_number || '').trim();
+    if (doc) {
+      this.usersService.getUserByDocNumber(doc).subscribe({
+        next: (resUser: User) => {
+          if (resUser?.user_id) {
+            this.userToEdit.user_id = resUser.user_id;
+            this.userToEdit.username_system = resUser.username_system || '';
+            this.userToEdit.role_system = 'USUARIO';
+            this.userToEdit.status_system = resUser.status_system || 'ACTIVO';
+            this.userToEdit.status_validated = resUser.status_validated || this.userToEdit.status_validated;
+            this.userToEdit.status_reason = resUser.status_reason || this.userToEdit.status_reason;
+            this.userToEdit.force_password_change = Number((resUser as any).force_password_change || 0);
+            this.enableSystemAccessEdit = true;
+          } else {
+            this.enableSystemAccessEdit = false;
+            this.userToEdit.user_id = 0;
+            this.userToEdit.username_system = '';
+            this.userToEdit.role_system = '';
+            this.userToEdit.force_password_change = 0;
+          }
+        },
+        error: () => {
+          // Mantener fallback con data local si falla consulta puntual.
+        }
+      });
+    }
     document.getElementById('myhouse-edit-user-button')?.click();
   }
   newVisit(){
+    this.userToAdd = User.empty();
+    this.enableSystemAccessNew = false;
+    this.userToAdd.property_category = 'INVITADO';
+    this.userToAdd.role_system = '';
+    this.userToAdd.username_system = '';
+    this.userToAdd.force_password_change = 0;
+    this.userToAdd.house_id = this.userOnSes.house_id ?? 0;
+    this.userToAdd.status_validated = 'PERMITIDO';
     document.getElementById('myhouse-new-visit-button')?.click();
   }
 
   editVisit(user:User){
-    this.userToEdit = user;
+    this.userToEdit = { ...user } as User;
+    this.enableSystemAccessEdit = false;
+    this.userToEdit.property_category = 'INVITADO';
+    this.userToEdit.role_system = '';
+    this.userToEdit.username_system = '';
+    this.userToEdit.force_password_change = 0;
+    this.userToEdit.house_id = this.userOnSes.house_id ?? this.userToEdit.house_id;
     document.getElementById('myhouse-edit-visit-button')?.click();
+  }
+
+  saveNewVisit() {
+    if (!this.validateUser(this.userToAdd)) {
+      this.toastr.error('Por favor, completa todos los campos requeridos correctamente.');
+      this.clean();
+      return;
+    }
+
+    const newVisitPerson: any = {
+      type_doc: this.userToAdd.type_doc || 'DNI',
+      doc_number: this.userToAdd.doc_number,
+      first_name: this.userToAdd.first_name,
+      paternal_surname: this.userToAdd.paternal_surname,
+      maternal_surname: this.userToAdd.maternal_surname || '',
+      gender: this.userToAdd.gender || undefined,
+      birth_date: this.userToAdd.birth_date || undefined,
+      cel_number: this.userToAdd.cel_number || undefined,
+      email: this.userToAdd.email || undefined,
+      address: this.userToAdd.address_reniec || undefined,
+      district: this.userToAdd.district || undefined,
+      province: this.userToAdd.province || undefined,
+      region: this.userToAdd.region || undefined,
+      civil_status: this.userToAdd.civil_status || undefined,
+      house_id: this.userOnSes.house_id,
+      person_type: 'INVITADO',
+      status_system: 'ACTIVO',
+      status_validated: this.userToAdd.status_validated || 'PERMITIDO',
+      status_reason: this.userToAdd.status_reason || ''
+    };
+
+    this.usersService.createPerson(newVisitPerson).subscribe({
+      next: () => {
+        this.toastr.success('Visita creada correctamente');
+        this.handleSuccess();
+      },
+      error: (error) => {
+        if (error?.error?.error && error.error.error.includes('documento')) {
+          this.toastr.warning('Ya existe una persona con este documento');
+        } else {
+          this.toastr.error(error?.error?.error || 'Error al crear la visita.');
+        }
+        console.error(error);
+      }
+    });
+  }
+
+  saveEditVisit() {
+    const personId = (this.userToEdit as any).person_id || (this.userToEdit as any).id;
+    if (!personId) {
+      this.toastr.error('No se puede editar la visita.');
+      return;
+    }
+
+    const updateVisitPayload: any = {
+      first_name: this.userToEdit.first_name,
+      paternal_surname: this.userToEdit.paternal_surname,
+      maternal_surname: this.userToEdit.maternal_surname,
+      cel_number: this.userToEdit.cel_number,
+      email: this.userToEdit.email,
+      address: this.userToEdit.address_reniec,
+      district: this.userToEdit.district,
+      province: this.userToEdit.province,
+      region: this.userToEdit.region,
+      civil_status: this.userToEdit.civil_status,
+      person_type: 'INVITADO',
+      house_id: this.userOnSes.house_id,
+      status_validated: this.userToEdit.status_validated || 'PERMITIDO',
+      status_reason: this.userToEdit.status_reason || ''
+    };
+
+    this.usersService.updatePerson(personId, updateVisitPayload).subscribe({
+      next: () => {
+        this.toastr.success('Visita actualizada correctamente');
+        this.handleSuccess();
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastr.error('Error al actualizar la visita');
+      }
+    });
   }
   
   clean(){
     this.userToAdd = User.empty();
     this.userToEdit = User.empty();
+    this.enableSystemAccessNew = false;
+    this.enableSystemAccessEdit = false;
+    this.currentCategoryOptions = [...this.residentCategories];
     this.vehicleToAdd = new Vehicle('','',0,'','','','');
     this.vehicleToEdit = new Vehicle('','',0,'','','','');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
@@ -460,16 +691,56 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       birth_date: this.userToAdd.birth_date || undefined,
       cel_number: this.userToAdd.cel_number || undefined,
       email: this.userToAdd.email || undefined,
+      address: this.userToAdd.address_reniec || undefined,
+      district: this.userToAdd.district || undefined,
+      province: this.userToAdd.province || undefined,
+      region: this.userToAdd.region || undefined,
+      civil_status: this.userToAdd.civil_status || undefined,
       house_id: this.userOnSes.house_id,
       person_type: ((this.userToAdd as any).property_category || (this.userToAdd as any).person_type || 'RESIDENTE').toUpperCase(),
       status_system: 'ACTIVO',
       status_validated: 'PERMITIDO'
     };
 
+    if (this.enableSystemAccessNew) {
+      this.userToAdd.role_system = 'USUARIO';
+      if (!this.userToAdd.username_system?.trim()) {
+        this.toastr.warning('Para acceso al sistema, completa Usuario.');
+        return;
+      }
+    }
+
     this.usersService.createPerson(newPerson).subscribe({
-      next: () => {
-        this.toastr.success('Persona creada correctamente');
-        this.handleSuccess();
+      next: (resCreate: any) => {
+        const personId = Number(resCreate?.data?.id || resCreate?.id || 0);
+        if (!this.enableSystemAccessNew) {
+          this.toastr.success('Persona creada correctamente');
+          this.handleSuccess();
+          return;
+        }
+
+        if (!personId) {
+          this.toastr.warning('Persona creada, pero no se pudo activar acceso al sistema.');
+          this.handleSuccess();
+          return;
+        }
+
+        this.usersService.createUserFromPerson({
+          person_id: personId,
+          username_system: this.userToAdd.username_system.trim(),
+          password_system: this.userToAdd.doc_number.trim(),
+          role_system: 'USUARIO',
+          force_password_change: Number(this.userToAdd.force_password_change ? 1 : 0)
+        }).subscribe({
+          next: () => {
+            this.toastr.success('Persona y acceso al sistema creados correctamente');
+            this.handleSuccess();
+          },
+          error: (errUser) => {
+            this.toastr.warning(errUser?.error?.error || 'Persona creada, pero no se pudo crear acceso al sistema.');
+            this.handleSuccess();
+          }
+        });
       },
       error: (error) => {
         if (error?.error?.error && error.error.error.includes('documento')) {
@@ -485,6 +756,9 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   private validateUser(user: User): boolean {
     if (!user.doc_number || user.doc_number.trim().length < 8) return false;
     if (!user.first_name) return false;
+    if (this.enableSystemAccessNew) {
+      if (!user.username_system || !user.username_system.trim()) return false;
+    }
     // Agrega más validaciones según sea necesario.
     return true;
   }
@@ -498,13 +772,72 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         maternal_surname: this.userToEdit.maternal_surname,
         cel_number: this.userToEdit.cel_number,
         email: this.userToEdit.email,
+        address: this.userToEdit.address_reniec,
+        district: this.userToEdit.district,
+        province: this.userToEdit.province,
+        region: this.userToEdit.region,
+        civil_status: this.userToEdit.civil_status,
         person_type: ((this.userToEdit as any).property_category || (this.userToEdit as any).person_type || 'RESIDENTE').toUpperCase(),
         house_id: this.userOnSes.house_id
       };
       this.usersService.updatePerson(personId, updatePersonPayload).subscribe({
         next: () => {
-          this.toastr.success('Persona actualizada correctamente');
-          this.handleSuccess();
+          if (!this.enableSystemAccessEdit) {
+            this.toastr.success('Persona actualizada correctamente');
+            this.handleSuccess();
+            return;
+          }
+
+          if (!this.userToEdit.username_system?.trim() || !this.userToEdit.role_system?.trim()) {
+            this.userToEdit.role_system = 'USUARIO';
+          }
+
+          if (!this.userToEdit.username_system?.trim()) {
+            this.toastr.warning('Persona actualizada, pero falta Usuario para activar acceso.');
+            this.handleSuccess();
+            return;
+          }
+
+          if (this.userToEdit.user_id) {
+            const userPayload: any = {
+              user_id: this.userToEdit.user_id,
+              username_system: this.userToEdit.username_system.trim(),
+              role_system: 'USUARIO',
+              house_id: this.userOnSes.house_id,
+              status_system: this.userToEdit.status_system || 'ACTIVO',
+              status_validated: this.userToEdit.status_validated || 'PERMITIDO',
+              status_reason: this.userToEdit.status_reason || '',
+              force_password_change: Number(this.userToEdit.force_password_change ? 1 : 0)
+            };
+            this.usersService.updateUser(userPayload).subscribe({
+              next: () => {
+                this.toastr.success('Persona y acceso al sistema actualizados correctamente');
+                this.handleSuccess();
+              },
+              error: () => {
+                this.toastr.warning('Persona actualizada, pero no se pudo actualizar el acceso al sistema.');
+                this.handleSuccess();
+              }
+            });
+            return;
+          }
+
+          this.usersService.createUserFromPerson({
+            person_id: Number(personId),
+            username_system: this.userToEdit.username_system.trim(),
+            password_system: this.userToEdit.doc_number.trim(),
+            role_system: 'USUARIO',
+            force_password_change: Number(this.userToEdit.force_password_change ? 1 : 0)
+          }).subscribe({
+            next: () => {
+              this.toastr.success('Persona actualizada y acceso al sistema creado correctamente');
+              this.handleSuccess();
+            },
+            error: () => {
+              this.toastr.warning('Persona actualizada, pero no se pudo crear acceso al sistema.');
+              this.handleSuccess();
+            }
+          });
         },
         error: (err) => {
           console.error(err);
@@ -565,6 +898,9 @@ saveEditVehicle(){
 }
 
 saveNewVehicle(): void {
+  const houseId = this.userOnSes.house_id ?? 0;
+  this.vehicleToAdd.house_id = houseId;
+
   //CAMPOS OBLIGATORIOS
   if(!this.vehicleToAdd.license_plate || !this.vehicleToAdd.house_id||!this.vehicleToAdd.type_vehicle){
     this.toastr.error('Los campos obligatorios no pueden estar vacíos');

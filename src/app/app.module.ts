@@ -54,6 +54,7 @@ import { UsersComponent } from './users/users.component';
 import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
+import { ModalUppercaseDirective } from './my-house/modal-uppercase.directive';
 import { PetsComponent } from './pets/pets.component';
 import { WebcamComponent } from './webcam/webcam.component';
 import { CalendarComponent } from './calendar/calendar.component';
@@ -85,6 +86,7 @@ Chart.register(...registerables);
         HousesComponent,
         VehiclesComponent,
         MyHouseComponent,
+        ModalUppercaseDirective,
         PetsComponent,
         WebcamComponent,
         PublicRegistrationComponent,

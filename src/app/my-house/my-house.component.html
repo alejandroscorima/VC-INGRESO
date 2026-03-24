@@ -355,7 +355,7 @@
 <button id="myhouse-new-user-button" data-modal-target="myhouse-new-user-modal" data-modal-toggle="myhouse-new-user-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo residente</button>
 
 <!-- Main modal new user -->
-<div id="myhouse-new-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-user-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -373,6 +373,10 @@
             </div>
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-full mb-2 mx-1 p-3 rounded-lg border border-sky-200 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-800">
+                    <p class="text-sm font-semibold text-sky-800 dark:text-sky-200">PERSONS: Datos personales y de residencia</p>
+                    <p class="text-xs text-sky-700 dark:text-sky-300">Se guardan en la tabla persons.</p>
+                </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
                     <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
@@ -417,27 +421,21 @@
                     <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="myhouse-celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToAdd.username_system" type="text" name="username_systemNew" id="myhouse-username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
+                    <label for="myhouse-emailNewVisit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+                    <input [(ngModel)]="userToAdd.email" type="email" name="emailNewVisit" id="myhouse-emailNewVisit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="correo@dominio.com" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                        <select [(ngModel)]="userToAdd.role_system" name="role_systemNew" id="myhouse-role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
-                        <option *ngFor="let r of roles">{{r}}</option>
-                    </select>
+                    <label for="myhouse-emailNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+                    <input [(ngModel)]="userToAdd.email" type="email" name="emailNew" id="myhouse-emailNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="correo@dominio.com" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
-                        <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
-                    </select>
+                    <input [value]="getSessionHouseLabel()" type="text" name="houseIdNewLabel" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" readonly />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
                     <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="myhouse-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
-                        <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
+                        <option *ngFor="let c of currentCategoryOptions" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
@@ -450,6 +448,32 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
                     <input [(ngModel)]="userToAdd.status_reason" type="text" name="status_reasonNew" id="myhouse-status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                </div>
+                <div class="col-span-full mt-2 mb-2 mx-1 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-800">
+                    <p class="text-sm font-semibold text-violet-800 dark:text-violet-200">USERS: Acceso al sistema</p>
+                    <p class="text-xs text-violet-700 dark:text-violet-300">Se guardan en la tabla users y permiten iniciar sesión.</p>
+                </div>
+                <div class="col-span-full mb-2 mx-1">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" [(ngModel)]="enableSystemAccessNew" name="enableSystemAccessNew" (change)="onToggleSystemAccessNew()">
+                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-200">Crear acceso al sistema (objeto users)</span>
+                    </label>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="myhouse-username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToAdd.username_system" [disabled]="!enableSystemAccessNew" type="text" name="username_systemNew" id="myhouse-username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 disabled:bg-gray-200 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="myhouse-role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                    <input [(ngModel)]="userToAdd.role_system" [disabled]="true" type="text" name="role_systemNew" id="myhouse-role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 disabled:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div class="col-span-full mb-2 mx-1">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input [(ngModel)]="userToAdd.force_password_change" [disabled]="!enableSystemAccessNew" [ngModelOptions]="{standalone: true}" [checked]="!!userToAdd.force_password_change" (ngModelChange)="userToAdd.force_password_change = $event ? 1 : 0" type="checkbox" class="sr-only peer" name="myhouse-forcePasswordChangeNew">
+                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-amber-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-200">Forzar cambio de contraseña en primer inicio</span>
+                    </label>
                 </div>
             </div>
             <!-- Modal footer -->
@@ -466,14 +490,14 @@
 <button id="myhouse-edit-user-button" data-modal-target="myhouse-edit-user-modal" data-modal-toggle="myhouse-edit-user-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar residente</button>
 
 <!-- Main modal edit user -->
-<div id="myhouse-edit-user-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-user-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    Editar usuario
+                    Editar persona
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-user-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -484,6 +508,10 @@
             </div>
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-full mb-2 mx-1 p-3 rounded-lg border border-sky-200 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-800">
+                    <p class="text-sm font-semibold text-sky-800 dark:text-sky-200">PERSONS: Datos personales y de residencia</p>
+                    <p class="text-xs text-sky-700 dark:text-sky-300">Se actualizan en la tabla persons.</p>
+                </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
                     <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
@@ -522,31 +550,17 @@
                     <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="myhouse-celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToEdit.username_system" type="text" name="username_systemEdit" id="myhouse-username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
-                </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                    <select [(ngModel)]="userToEdit.role_system" name="role_systemEdit" id="myhouse-role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
-                        <option *ngFor="let r of roles">{{r}}</option>
-                    </select>
-                </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-status_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de Rol</label>
-                    <select [(ngModel)]="userToEdit.status_system" name="status_systemEdit" id="myhouse-status_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado de Rol..." required>
-                        <option *ngFor="let ss of status_validated">{{ss}}</option>
-                    </select>
+                    <label for="myhouse-emailEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+                    <input [(ngModel)]="userToEdit.email" type="email" name="emailEdit" id="myhouse-emailEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="correo@dominio.com" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
-                        <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
-                    </select>
+                    <input [value]="getSessionHouseLabel()" type="text" name="houseIdEditLabel" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" readonly />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
                     <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="myhouse-property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
-                        <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
+                        <option *ngFor="let c of currentCategoryOptions" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
@@ -558,6 +572,32 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
                     <input [(ngModel)]="userToEdit.status_reason" type="text" name="status_reasonEdit" id="myhouse-status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                </div>
+                <div class="col-span-full mt-2 mb-2 mx-1 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-800">
+                    <p class="text-sm font-semibold text-violet-800 dark:text-violet-200">USERS: Acceso al sistema</p>
+                    <p class="text-xs text-violet-700 dark:text-violet-300">Se actualizan en la tabla users y controlan el inicio de sesión.</p>
+                </div>
+                <div class="col-span-full mb-2 mx-1">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" [(ngModel)]="enableSystemAccessEdit" name="enableSystemAccessEdit" (change)="onToggleSystemAccessEdit()">
+                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-200">Habilitar acceso al sistema (objeto users)</span>
+                    </label>
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="myhouse-username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
+                    <input [(ngModel)]="userToEdit.username_system" [disabled]="!enableSystemAccessEdit" type="text" name="username_systemEdit" id="myhouse-username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 disabled:bg-gray-200 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="myhouse-role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                    <input [(ngModel)]="userToEdit.role_system" [disabled]="true" type="text" name="role_systemEdit" id="myhouse-role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 disabled:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                </div>
+                <div class="col-span-full mb-2 mx-1">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input [(ngModel)]="userToEdit.force_password_change" [disabled]="!enableSystemAccessEdit" [ngModelOptions]="{standalone: true}" [checked]="!!userToEdit.force_password_change" (ngModelChange)="userToEdit.force_password_change = $event ? 1 : 0" type="checkbox" class="sr-only peer" name="myhouse-forcePasswordChangeEdit">
+                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-amber-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-200">Forzar cambio de contraseña en próximo inicio</span>
+                    </label>
                 </div>
             </div>
             <!-- Modal footer -->
@@ -573,14 +613,14 @@
 <button id="myhouse-new-visit-button" data-modal-target="myhouse-new-visit-modal" data-modal-toggle="myhouse-new-visit-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nueva visita</button>
 
 <!-- Main modal new visit -->
-<div id="myhouse-new-visit-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-visit-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    Nueva Persona
+                    Nueva Visita
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-new-visit-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -591,6 +631,10 @@
             </div>
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-full mb-2 mx-1 p-3 rounded-lg border border-sky-200 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-800">
+                    <p class="text-sm font-semibold text-sky-800 dark:text-sky-200">PERSONS: Datos personales y de residencia</p>
+                    <p class="text-xs text-sky-700 dark:text-sky-300">Se guardan en la tabla persons. Las visitas no tienen acceso al sistema.</p>
+                </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
                     <!-- <input [(ngModel)]="visitToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
@@ -635,21 +679,8 @@
                     <input [(ngModel)]="userToAdd.cel_number" type="text" name="celNumberNew" id="myhouse-celNumberNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-username_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToAdd.username_system" type="text" name="username_systemNew" id="myhouse-username_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
-                </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                        <select [(ngModel)]="userToAdd.role_system" name="role_systemNew" id="myhouse-role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
-                        <option *ngFor="let r of roles">{{r}}</option>
-                    </select>
-                </div>
-                <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
-                        <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
-                    </select>
+                    <input [value]="getSessionHouseLabel()" type="text" name="houseIdNewLabelVisit" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" readonly />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
@@ -672,7 +703,7 @@
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewUser()" data-modal-hide="myhouse-new-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="saveNewVisit()" data-modal-hide="myhouse-new-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
                 <button data-modal-hide="myhouse-new-visit-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
@@ -684,14 +715,14 @@
 <button id="myhouse-edit-visit-button" data-modal-target="myhouse-edit-visit-modal" data-modal-toggle="myhouse-edit-visit-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar visita</button>
 
 <!-- Main modal edit visit -->
-<div id="myhouse-edit-visit-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-visit-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    Editar usuario
+                    Editar Visita
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="myhouse-edit-visit-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -702,6 +733,10 @@
             </div>
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
+                <div class="col-span-full mb-2 mx-1 p-3 rounded-lg border border-sky-200 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-800">
+                    <p class="text-sm font-semibold text-sky-800 dark:text-sky-200">PERSONS: Datos personales y de residencia</p>
+                    <p class="text-xs text-sky-700 dark:text-sky-300">Se actualizan en la tabla persons. Las visitas no tienen acceso al sistema.</p>
+                </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
                     <!-- <input [(ngModel)]="userToAdd.type_doc" type="text" name="typeDocNew" id="myhouse-typeDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Tipo de documento..." required /> -->
@@ -740,26 +775,12 @@
                        <input [(ngModel)]="userToEdit.cel_number" type="text" name="celNumberEdit" id="myhouse-celNumberEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-username_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario</label>
-                    <input [(ngModel)]="userToEdit.username_system" type="text" name="username_systemEdit" id="myhouse-username_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Usuario..." required />
-                </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-role_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
-                    <select [(ngModel)]="userToEdit.role_system" name="role_systemEdit" id="myhouse-role_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." required>
-                        <option *ngFor="let r of roles">{{r}}</option>
-                    </select>
-                </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-status_systemEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de Rol</label>
-                    <select [(ngModel)]="userToEdit.status_system" name="status_systemEdit" id="myhouse-status_systemEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado de Rol..." required>
-                        <option *ngFor="let ss of status_validated">{{ss}}</option>
-                    </select>
+                    <label for="myhouse-emailEditVisit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+                    <input [(ngModel)]="userToEdit.email" type="email" name="emailEditVisit" id="myhouse-emailEditVisit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="correo@dominio.com" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
-                        <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
-                    </select>
+                    <input [value]="getSessionHouseLabel()" type="text" name="houseIdEditLabelVisit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" readonly />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
@@ -780,7 +801,7 @@
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditUser()" data-modal-hide="myhouse-edit-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="saveEditVisit()" data-modal-hide="myhouse-edit-visit-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
                 <button data-modal-hide="myhouse-edit-visit-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
@@ -792,7 +813,7 @@
 <button id="myhouse-new-vehicle-button" data-modal-target="myhouse-new-vehicle-modal" data-modal-toggle="myhouse-new-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo vehículo</button> 
 
 <!-- Main modal new vehicle -->
-<div id="myhouse-new-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-vehicle-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -837,9 +858,7 @@
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="vehicleToAdd.house_id" name="houseIdNew" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
-                        <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
-                    </select>
+                    <input [value]="getSessionHouseLabel()" type="text" name="houseIdNewLabelVehicle" id="myhouse-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" readonly />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-category_entryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
@@ -872,7 +891,7 @@
 <button id="myhouse-edit-vehicle-button" data-modal-target="myhouse-edit-vehicle-modal" data-modal-toggle="myhouse-edit-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar vehículo</button>
 
 <!-- Main modal edit vehicle -->
-<div id="myhouse-edit-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-vehicle-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -954,7 +973,7 @@
 <button id="myhouse-new-external-vehicle-button" data-modal-target="myhouse-new-external-vehicle-modal" data-modal-toggle="myhouse-new-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nuevo vehículo externo</button> 
 
 <!-- Main modal new external vehicle -->
-<div id="myhouse-new-external-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-external-vehicle-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -1020,7 +1039,7 @@
 <button id="myhouse-edit-external-vehicle-button" data-modal-target="myhouse-edit-external-vehicle-modal" data-modal-toggle="myhouse-edit-external-vehicle-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar vehículo externo</button>
 
 <!-- Main modal edit vehicle -->
-<div id="myhouse-edit-external-vehicle-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-external-vehicle-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -1084,7 +1103,7 @@
 <!-- Modal toggle nueva mascota -->
 <button id="myhouse-new-pet-button" data-modal-target="myhouse-new-pet-modal" data-modal-toggle="myhouse-new-pet-modal" class="hidden" type="button" aria-hidden="true">Abrir modal nueva mascota</button>
 <!-- Modal nueva mascota -->
-<div id="myhouse-new-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-new-pet-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-lg max-h-full">
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
@@ -1151,7 +1170,7 @@
 <!-- Modal toggle editar mascota -->
 <button id="myhouse-edit-pet-button" data-modal-target="myhouse-edit-pet-modal" data-modal-toggle="myhouse-edit-pet-modal" class="hidden" type="button" aria-hidden="true">Abrir modal editar mascota</button>
 <!-- Modal editar mascota -->
-<div id="myhouse-edit-pet-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="myhouse-edit-pet-modal" appModalUppercase data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-lg max-h-full">
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">

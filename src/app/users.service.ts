@@ -126,7 +126,7 @@ export class UsersService {
    * Crear usuario a partir de una persona existente (dar acceso al sistema).
    * POST api/v1/users/from-person
    */
-  createUserFromPerson(body: { person_id: number; username_system: string; password_system: string; role_system: string }): Observable<any> {
+  createUserFromPerson(body: { person_id: number; username_system: string; password_system: string; role_system: string; force_password_change?: number }): Observable<any> {
     return this.api.post('api/v1/users/from-person', body);
   }
 
