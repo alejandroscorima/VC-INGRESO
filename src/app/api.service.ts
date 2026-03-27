@@ -27,6 +27,7 @@ export interface ApiResponse<T> {
 })
 export class ApiService {
   private baseUrl = environment.baseUrl;
+  private publicAppUrl = (environment.publicAppUrl || '').replace(/\/$/, '');
 
   constructor(private http: HttpClient) {}
 
@@ -103,12 +104,35 @@ export class ApiService {
 
   /**
    * Devuelve la URL completa para mostrar una foto (vehículo, mascota, perfil, etc.).
-   * Si la URL ya es absoluta (http/https), la devuelve tal cual; si es ruta relativa (ej. /uploads/...), le antepone la baseUrl del API.
+   * - http(s):// → tal cual.
+   * - /assets/… → estáticos de la SPA: URL completa con `environment.publicAppUrl` (no el API).
+   * - Otras rutas relativas (p. ej. /uploads/…) → se antepone baseUrl del backend.
    */
   getPhotoUrl(url: string | null | undefined): string | null {
     if (!url || typeof url !== 'string') return null;
     const u = url.trim();
-    if (u.startsWith('http://') || u.startsWith('https://')) return u;
+    if (u.startsWith('http://') || u.startsWith('https://')) {
+      if (this.publicAppUrl) {
+        try {
+          const parsed = new URL(u);
+          if (parsed.pathname.startsWith('/assets/')) {
+            const apiOrigin = new URL(this.baseUrl.endsWith('/') ? this.baseUrl : `${this.baseUrl}/`).origin;
+            if (parsed.origin === apiOrigin) {
+              return `${this.publicAppUrl}${parsed.pathname}${parsed.search}`;
+            }
+          }
+        } catch {
+          /* URL inválida: devolver tal cual */
+        }
+      }
+      return u;
+    }
+    if (u.startsWith('/assets/') && this.publicAppUrl) {
+      return `${this.publicAppUrl}${u}`;
+    }
+    if (u.startsWith('/assets/')) {
+      return u;
+    }
     const base = this.baseUrl.replace(/\/$/, '');
     return u.startsWith('/') ? `${base}${u}` : `${base}/${u}`;
   }

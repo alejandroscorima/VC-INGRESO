@@ -91,11 +91,33 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
   getPhotoUrl(photoUrl: string): string {
     if (!photoUrl) return '';
-    // Si la URL es relativa (empieza con /), construir URL completa con baseUrl
+    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+      const pub = (environment.publicAppUrl || '').replace(/\/$/, '');
+      if (pub) {
+        try {
+          const parsed = new URL(photoUrl);
+          if (parsed.pathname.startsWith('/assets/')) {
+            const apiOrigin = new URL(
+              environment.baseUrl.endsWith('/') ? environment.baseUrl : `${environment.baseUrl}/`
+            ).origin;
+            if (parsed.origin === apiOrigin) {
+              return `${pub}${parsed.pathname}${parsed.search}`;
+            }
+          }
+        } catch {
+          /* seguir */
+        }
+      }
+      return photoUrl;
+    }
+    // Misma lógica que ApiService.getPhotoUrl: /assets/ se sirve desde publicAppUrl, no desde el API
+    if (photoUrl.startsWith('/assets/')) {
+      const origin = (environment.publicAppUrl || '').replace(/\/$/, '');
+      return origin ? `${origin}${photoUrl}` : photoUrl;
+    }
     if (photoUrl.startsWith('/')) {
       return environment.baseUrl + photoUrl;
     }
-    // Si es URL absoluta, devolverla tal cual
     return photoUrl;
   }
 
@@ -276,6 +298,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
     this.userToAdd = User.empty();
     this.userToAdd.force_password_change = 1;
     this.userToAdd.username_system = '';
+    this.userToAdd.role_system = this.roles[0] || 'USUARIO';
     this.enableSystemAccessNew = true;
     document.getElementById('users-new-user-button')?.click();
   }
@@ -285,9 +308,11 @@ export class UsersComponent implements OnInit, AfterViewInit{
     this.userToAdd = User.empty();
     this.userToAdd.type_doc = 'DNI';
     this.userToAdd.status_validated = 'PERMITIDO';
-    this.userToAdd.property_category = 'RESIDENTE';
-    this.userToAdd.force_password_change = 1;
-    this.userToAdd.role_system = 'USUARIO';
+    this.userToAdd.property_category = '';
+    this.userToAdd.house_id = null as any;
+    this.userToAdd.force_password_change = 0;
+    this.userToAdd.role_system = '';
+    this.userToAdd.username_system = '';
     this.enableSystemAccessNew = false;
     document.getElementById('users-new-user-button')?.click();
   }
@@ -328,6 +353,9 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   onNewUserNameFieldsChange(): void {
+    if (this.modalMode === 'persons' && !this.enableSystemAccessNew) {
+      return;
+    }
     const base = this.buildSuggestedUsername(this.userToAdd.first_name, this.userToAdd.paternal_surname);
     this.userToAdd.username_system = this.buildIncrementalUsername(base);
   }
@@ -341,11 +369,15 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   onToggleSystemAccessNew(): void {
-    if (this.enableSystemAccessNew) {
-      this.userToAdd.role_system = this.userToAdd.role_system || 'USUARIO';
-      this.userToAdd.force_password_change = Number(this.userToAdd.force_password_change ? 1 : 1);
-      this.ensureSuggestedUsernameFor(this.userToAdd);
+    if (!this.enableSystemAccessNew) {
+      this.userToAdd.username_system = '';
+      this.userToAdd.role_system = '';
+      this.userToAdd.force_password_change = 0;
+      return;
     }
+    this.userToAdd.role_system = this.roles[0] || 'USUARIO';
+    this.userToAdd.force_password_change = 1;
+    this.ensureSuggestedUsernameFor(this.userToAdd);
   }
 
   onToggleSystemAccessEdit(): void {
@@ -411,37 +443,35 @@ export class UsersComponent implements OnInit, AfterViewInit{
       return;
     }
 
-    if (!this.validateUser(this.userToAdd)) {
-      this.toastr.error("Por favor, completa todos los campos requeridos correctamente.");
-      this.clean();
+    const validationMsg = this.validateNewUserAdminModal();
+    if (validationMsg) {
+      this.toastr.error(validationMsg);
       return;
     }
     // Configurar valores predeterminados
     this.userToAdd.password_system = this.userToAdd.doc_number;
-    if(this.userToAdd.gender=='MASCULINO'){
-      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-male.png';
-    }
-    else{
-      this.userToAdd.photo_url='http://52.5.47.64/VC/Media/Profile-photos/user-female.png';
+    const photoNew = this.optionalPhotoUrlByGender(this.userToAdd.gender);
+    if (photoNew) {
+      this.userToAdd.photo_url = photoNew;
+    } else {
+      delete (this.userToAdd as any).photo_url;
     }
     this.userToAdd.status_system = 'ACTIVO';
     this.userToAdd.force_password_change = Number(this.userToAdd.force_password_change ? 1 : 0);
   
     // Verificar existencia del usuario en la base de datos
     this.usersService.getUserByDocNumber(this.userToAdd.doc_number).subscribe((resExistentUser: User) => {
-      if (resExistentUser) {
-        // Asignar el ID del usuario existente
-        this.userToAdd.user_id = resExistentUser.user_id;
-  
-        // Verificar si el usuario ya tiene un rol asignado
+      const existingId = Number((resExistentUser as any)?.user_id || 0);
+      if (existingId) {
+        this.userToAdd.user_id = existingId;
+
         if (
           resExistentUser.role_system &&
           resExistentUser.role_system !== 'NINGUNO' &&
           resExistentUser.role_system !== 'SN'
         ) {
-          this.clean();
           this.toastr.warning('El usuario ya existe');
-          return; // Salir si el usuario ya existe
+          return;
         }
       }
   
@@ -451,7 +481,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
         this.usersService.updateUser(this.userToAdd).subscribe({
           next: (resUpdateUser) =>{
             if (resUpdateUser) {
-              this.handleSuccess();
+              this.handleSuccess('users-new-user-modal');
             }
           },
           error: (error) =>{
@@ -466,7 +496,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
         this.usersService.addUser(this.userToAdd).subscribe({
           next: (resAddUser) => {
             if (resAddUser) {
-              this.handleSuccess();
+              this.handleSuccess('users-new-user-modal');
             }
           },
           error: (error) => {
@@ -480,11 +510,13 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   private saveNewPerson() {
-    if (!this.validateUser(this.userToAdd)) {
-      this.toastr.error('Por favor, completa todos los campos requeridos correctamente.');
+    const validationMsg = this.validateNewPersonModal();
+    if (validationMsg) {
+      this.toastr.error(validationMsg);
       return;
     }
 
+    const hid = Number(this.userToAdd.house_id) || 0;
     const personPayload: any = {
       type_doc: this.userToAdd.type_doc || 'DNI',
       doc_number: this.userToAdd.doc_number,
@@ -495,12 +527,16 @@ export class UsersComponent implements OnInit, AfterViewInit{
       birth_date: this.userToAdd.birth_date || undefined,
       cel_number: this.userToAdd.cel_number || undefined,
       email: this.userToAdd.email || undefined,
-      house_id: this.userToAdd.house_id || undefined,
-      person_type: this.userToAdd.property_category || 'RESIDENTE',
+      house_id: hid > 0 ? hid : undefined,
+      person_type: this.trim(this.userToAdd.property_category) || 'RESIDENTE',
       status_validated: this.userToAdd.status_validated || 'PERMITIDO',
       status_reason: this.userToAdd.status_reason || '',
       status_system: 'ACTIVO'
     };
+    const photoPerson = this.optionalPhotoUrlByGender(this.userToAdd.gender);
+    if (photoPerson) {
+      personPayload.photo_url = photoPerson;
+    }
 
     this.usersService.createPerson(personPayload).subscribe({
       next: (res: any) => {
@@ -520,18 +556,18 @@ export class UsersComponent implements OnInit, AfterViewInit{
           }).subscribe({
             next: () => {
               this.toastr.success('Persona creada y acceso habilitado.');
-              this.afterPersonAccessChange();
+              this.afterPersonAccessChange('new');
             },
             error: (err) => {
               this.toastr.warning(err?.error?.error || 'Persona creada, pero no se pudo dar acceso al sistema.');
-              this.afterPersonOnlyChange();
+              this.afterPersonOnlyChange('new');
             }
           });
           return;
         }
 
         this.toastr.success('Persona creada correctamente.');
-        this.afterPersonOnlyChange();
+        this.afterPersonOnlyChange('new');
       },
       error: (err) => {
         this.toastr.error(err?.error?.error || 'Error al crear la persona.');
@@ -539,16 +575,118 @@ export class UsersComponent implements OnInit, AfterViewInit{
     });
   }
   
-  private validateUser(user: User): boolean {
-    if (!user.doc_number || user.doc_number.trim().length < 8) return false;
-    if (!user.first_name) return false;
-    // Agrega más validaciones según sea necesario.
-    return true;
+  private trim(v: string | undefined | null): string {
+    return (v ?? '').toString().trim();
   }
 
+  /**
+   * Avatar por defecto según género (URL absoluta al origen de la SPA). Solo si hay género.
+   * Acepta MASCULINO/FEMENINO (users) y M/F por compatibilidad.
+   */
+  private optionalPhotoUrlByGender(gender: string | undefined | null): string | undefined {
+    const g = (gender ?? '').toString().trim().toUpperCase();
+    if (!g) {
+      return undefined;
+    }
+    const origin = (environment.publicAppUrl || '').replace(/\/$/, '');
+    const path = g === 'MASCULINO' || g === 'M' ? '/assets/user-male.png' : '/assets/user-female.png';
+    return origin ? `${origin}${path}` : path;
+  }
+
+  /** Campos person obligatorios en modal Nuevo (pestaña Usuarios o Personas). */
+  private validateCommonRequiredPersonFields(u: User): string | null {
+    if (!this.trim(u.type_doc)) {
+      return 'Seleccione el tipo de documento.';
+    }
+    if (!this.trim(u.doc_number) || this.trim(u.doc_number).length < 8) {
+      return 'El número de documento es obligatorio (mínimo 8 caracteres).';
+    }
+    if (!this.trim(u.paternal_surname)) {
+      return 'El apellido paterno es obligatorio.';
+    }
+    if (!this.trim(u.maternal_surname)) {
+      return 'El apellido materno es obligatorio.';
+    }
+    if (!this.trim(u.first_name)) {
+      return 'Los nombres son obligatorios.';
+    }
+    const hid = Number(u.house_id) || 0;
+    if (hid <= 0) {
+      return 'Seleccione el domicilio.';
+    }
+    if (!this.trim(u.property_category)) {
+      return 'Seleccione la categoría.';
+    }
+    if (!this.trim(u.status_validated)) {
+      return 'Seleccione el estado de validación.';
+    }
+    return null;
+  }
+
+  /** Pestaña Usuarios: Nuevo usuario + bloque USERS (usuario y rol). */
+  private validateNewUserAdminModal(): string | null {
+    const common = this.validateCommonRequiredPersonFields(this.userToAdd);
+    if (common) {
+      return common;
+    }
+    if (!this.trim(this.userToAdd.username_system)) {
+      return 'Indique el usuario de acceso al sistema.';
+    }
+    if (!this.trim(this.userToAdd.role_system)) {
+      return 'Seleccione el rol en el sistema.';
+    }
+    return null;
+  }
+
+  /**
+   * Pestaña Personas: domicilio opcional; si hay domicilio, categoría obligatoria.
+   * Sin "Dar acceso al sistema" no se valida bloque USERS.
+   */
+  private validateNewPersonModal(): string | null {
+    const u = this.userToAdd;
+    if (!this.trim(u.type_doc)) {
+      return 'Seleccione el tipo de documento.';
+    }
+    if (!this.trim(u.doc_number) || this.trim(u.doc_number).length < 8) {
+      return 'El número de documento es obligatorio (mínimo 8 caracteres).';
+    }
+    if (!this.trim(u.paternal_surname)) {
+      return 'El apellido paterno es obligatorio.';
+    }
+    if (!this.trim(u.maternal_surname)) {
+      return 'El apellido materno es obligatorio.';
+    }
+    if (!this.trim(u.first_name)) {
+      return 'Los nombres son obligatorios.';
+    }
+    const hid = Number(u.house_id) || 0;
+    if (hid > 0 && !this.trim(u.property_category)) {
+      return 'Si selecciona domicilio, indique la categoría.';
+    }
+    if (!this.trim(u.status_validated)) {
+      return 'Seleccione el estado de validación.';
+    }
+    if (this.enableSystemAccessNew) {
+      if (!this.trim(this.userToAdd.username_system)) {
+        return 'Indique el usuario de acceso al sistema.';
+      }
+      if (!this.trim(this.userToAdd.role_system)) {
+        return 'Seleccione el rol en el sistema.';
+      }
+    }
+    return null;
+  }
+
+  private closeModalByDataId(modalId: string): void {
+    const btn = document.querySelector(`[data-modal-hide="${modalId}"]`) as HTMLElement | null;
+    btn?.click();
+  }
 
   // Manejar éxito en la creación o actualización
-  private handleSuccess() {
+  private handleSuccess(closeModalId?: string) {
+    if (closeModalId) {
+      this.closeModalByDataId(closeModalId);
+    }
     this.clean();
     this.usersService.getAllUsers().subscribe((res: any[]) => {
       this.users = res;
@@ -564,9 +702,15 @@ export class UsersComponent implements OnInit, AfterViewInit{
     }
 
     this.userToEdit.force_password_change = Number(this.userToEdit.force_password_change ? 1 : 0);
-    this.usersService.updateUser(this.userToEdit).subscribe(resUpdateUser=>{
+    const userUpdatePayload = { ...this.userToEdit } as any;
+    if (userUpdatePayload.force_password_change === 1) {
+      userUpdatePayload.password_system = (this.userToEdit.doc_number || '').toString().trim();
+    } else {
+      delete userUpdatePayload.password_system;
+    }
+    this.usersService.updateUser(userUpdatePayload).subscribe(resUpdateUser=>{
       if(resUpdateUser){
-        this.handleSuccess();
+        this.handleSuccess('users-edit-user-modal');
       }
     })
   }
@@ -594,7 +738,30 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
     this.usersService.updatePerson(personId, personPayload).subscribe({
       next: () => {
-        if (this.enableSystemAccessEdit && !Number((this.userToEdit as any).user_id || 0)) {
+        const existingUserId = Number((this.userToEdit as any).user_id || 0);
+
+        if (this.enableSystemAccessEdit && existingUserId) {
+          this.userToEdit.force_password_change = Number(this.userToEdit.force_password_change ? 1 : 0);
+          const userUpdatePayload = { ...this.userToEdit } as any;
+          if (userUpdatePayload.force_password_change === 1) {
+            userUpdatePayload.password_system = (this.userToEdit.doc_number || '').toString().trim();
+          } else {
+            delete userUpdatePayload.password_system;
+          }
+          this.usersService.updateUser(userUpdatePayload).subscribe({
+            next: () => {
+              this.toastr.success('Persona y acceso al sistema actualizados correctamente.');
+              this.afterPersonAccessChange('edit');
+            },
+            error: (err) => {
+              this.toastr.warning(err?.error?.error || 'Persona actualizada, pero no se pudo actualizar el acceso al sistema.');
+              this.afterPersonOnlyChange('edit');
+            }
+          });
+          return;
+        }
+
+        if (this.enableSystemAccessEdit && !existingUserId) {
           this.ensureSuggestedUsernameFor(this.userToEdit);
           if (!(this.userToEdit.username_system || '').trim()) {
             this.toastr.warning('No se pudo generar un usuario automáticamente. Completa el campo Usuario.');
@@ -609,18 +776,18 @@ export class UsersComponent implements OnInit, AfterViewInit{
           }).subscribe({
             next: () => {
               this.toastr.success('Persona actualizada y acceso habilitado.');
-              this.afterPersonAccessChange();
+              this.afterPersonAccessChange('edit');
             },
             error: (err) => {
               this.toastr.warning(err?.error?.error || 'Persona actualizada, pero no se pudo dar acceso al sistema.');
-              this.afterPersonOnlyChange();
+              this.afterPersonOnlyChange('edit');
             }
           });
           return;
         }
 
         this.toastr.success('Persona actualizada correctamente.');
-        this.afterPersonOnlyChange();
+        this.afterPersonOnlyChange('edit');
       },
       error: (err) => {
         this.toastr.error(err?.error?.error || 'Error al actualizar la persona.');
@@ -628,14 +795,16 @@ export class UsersComponent implements OnInit, AfterViewInit{
     });
   }
 
-  private afterPersonOnlyChange() {
+  private afterPersonOnlyChange(which: 'new' | 'edit' = 'edit') {
+    this.closeModalByDataId(which === 'new' ? 'users-new-user-modal' : 'users-edit-user-modal');
     this.clean();
     this.loadPersonsWithoutUser();
     this.usersService.getAllUsers().subscribe((res: any[]) => { this.users = res; });
     this.activeTab = 'persons';
   }
 
-  private afterPersonAccessChange() {
+  private afterPersonAccessChange(which: 'new' | 'edit' = 'edit') {
+    this.closeModalByDataId(which === 'new' ? 'users-new-user-modal' : 'users-edit-user-modal');
     this.clean();
     this.loadPersonsWithoutUser();
     this.usersService.getAllUsers().subscribe((res: any[]) => { this.users = res; });

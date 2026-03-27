@@ -110,29 +110,29 @@
         </div>
         </div>
 
-        <!-- Tab Personas -->
-        <div *ngIf="activeTab === 'persons'" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <!-- Tab Personas (misma estructura visual que Usuarios) -->
+        <div *ngIf="activeTab === 'persons'">
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Personas registradas sin acceso al sistema. Desde Nuevo/Editar puede activar «Dar acceso al sistema».</p>
             <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <button type="button" (click)="newPerson()" class="text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:focus:ring-indigo-800 shadow-lg shadow-indigo-500/50 dark:shadow-lg dark:shadow-indigo-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2">
+                <button type="button" (click)="newPerson()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2">
                     Nuevo
                 </button>
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total personas sin acceso: {{ personsWithoutUser.length }}</span>
             </div>
             <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center">
-                <input [(ngModel)]="personsSearchTerm" (ngModelChange)="onPersonsFiltersChange()" type="text" placeholder="Buscar por nombre, documento, celular o correo..." class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-                <select [(ngModel)]="personsSelectedBlock" (ngModelChange)="onPersonsFiltersChange()" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-indigo-500 md:w-auto">
+                <input [(ngModel)]="personsSearchTerm" (ngModelChange)="onPersonsFiltersChange()" type="text" placeholder="Buscar por nombre, documento, celular o correo..." class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                <select [(ngModel)]="personsSelectedBlock" (ngModelChange)="onPersonsFiltersChange()" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto">
                     <option value="">Mz: Todas</option>
                     <option *ngFor="let block of uniqueBlocks" [value]="block">Mz: {{block}}</option>
                 </select>
-                <select [(ngModel)]="personsSelectedLot" (ngModelChange)="onPersonsFiltersChange()" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-indigo-500 md:w-auto">
+                <select [(ngModel)]="personsSelectedLot" (ngModelChange)="onPersonsFiltersChange()" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto">
                     <option value="">Lt: Todos</option>
                     <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{lot}}</option>
                 </select>
             </div>
-            <div class="relative overflow-x-auto shadow rounded-lg" *ngIf="personsWithoutUser.length > 0">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700">
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg" *ngIf="personsWithoutUser.length > 0">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th class="px-4 py-2 w-12"></th>
                             <th class="px-4 py-2">Documento</th>
@@ -143,7 +143,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let p of paginatedPersonsWithoutUser" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <tr *ngFor="let p of paginatedPersonsWithoutUser" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td class="px-4 py-2">
                                 <div *ngIf="p.photo_url" class="w-10 h-10 rounded-full overflow-hidden">
                                     <img [src]="getPhotoUrl(p.photo_url)" alt="Foto" class="w-full h-full object-cover">
@@ -246,9 +246,9 @@
             </div>
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
-                <div class="col-span-full mb-2 mx-1 p-3 rounded-lg border border-sky-200 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-800">
-                    <p class="text-sm font-semibold text-sky-800 dark:text-sky-200">PERSONS: Datos personales y de residencia</p>
-                    <p class="text-xs text-sky-700 dark:text-sky-300">Se guardan en la tabla persons.</p>
+                <div class="col-span-full mb-3 mx-1 pb-2 border-b border-gray-200 dark:border-gray-600">
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Datos personales y residencia</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tabla <span class="font-mono">persons</span></p>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="users-typeDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
@@ -300,14 +300,16 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="users-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
                     <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." [required]="modalMode !== 'persons'">
+                        <option *ngIf="modalMode === 'persons'" [ngValue]="null">Sin domicilio (opcional)</option>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="users-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
                     <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="users-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="users-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." [required]="modalMode !== 'persons'">
+                        <option *ngIf="modalMode === 'persons'" [ngValue]="''">Seleccione categoría…</option>
                         <option *ngFor="let c of categoriesNewUser" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
@@ -322,9 +324,9 @@
                     <label for="users-status_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
                     <input [(ngModel)]="userToAdd.status_reason" type="text" name="status_reasonNew" id="users-status_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
-                <div class="col-span-full mt-2 mb-2 mx-1 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-800">
-                    <p class="text-sm font-semibold text-violet-800 dark:text-violet-200">USERS: Acceso al sistema</p>
-                    <p class="text-xs text-violet-700 dark:text-violet-300">Se guardan en la tabla users y permiten iniciar sesión.</p>
+                <div class="col-span-full mt-2 mb-2 mx-1 pt-3 pb-2 border-t border-gray-200 dark:border-gray-600">
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Acceso al sistema</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tabla <span class="font-mono">users</span> (inicio de sesión)</p>
                 </div>
                 <div class="col-span-full mb-2 mx-1" *ngIf="modalMode === 'persons'">
                     <label class="inline-flex items-center cursor-pointer">
@@ -340,20 +342,21 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="users-role_systemNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
                         <select [(ngModel)]="userToAdd.role_system" [disabled]="modalMode === 'persons' && !enableSystemAccessNew" name="role_systemNew" id="users-role_systemNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 disabled:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rol..." [required]="modalMode !== 'persons' || enableSystemAccessNew">
+                        <option *ngIf="modalMode === 'persons'" [ngValue]="''">—</option>
                         <option *ngFor="let r of roles">{{r}}</option>
                     </select>
                 </div>
                 <div class="col-span-full mb-2 mx-1">
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input [(ngModel)]="userToAdd.force_password_change" [ngModelOptions]="{standalone: true}" [checked]="!!userToAdd.force_password_change" (ngModelChange)="userToAdd.force_password_change = $event ? 1 : 0" type="checkbox" class="sr-only peer" name="users-forcePasswordChangeNew">
-                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-amber-600"></div>
+                    <label class="inline-flex items-center cursor-pointer" [class.opacity-50]="modalMode === 'persons' && !enableSystemAccessNew">
+                        <input [(ngModel)]="userToAdd.force_password_change" [disabled]="modalMode === 'persons' && !enableSystemAccessNew" [ngModelOptions]="{standalone: true}" [checked]="!!userToAdd.force_password_change" (ngModelChange)="userToAdd.force_password_change = $event ? 1 : 0" type="checkbox" class="sr-only peer" name="users-forcePasswordChangeNew">
+                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-amber-600 peer-disabled:opacity-50"></div>
                         <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-200">Forzar cambio de contraseña en primer inicio</span>
                     </label>
                 </div>
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveNewUser()" data-modal-hide="users-new-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="saveNewUser()" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
                 <button data-modal-hide="users-new-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>
@@ -385,9 +388,9 @@
             </div>
             <!-- Modal body -->
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
-                <div class="col-span-full mb-2 mx-1 p-3 rounded-lg border border-sky-200 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-800">
-                    <p class="text-sm font-semibold text-sky-800 dark:text-sky-200">PERSONS: Datos personales y de residencia</p>
-                    <p class="text-xs text-sky-700 dark:text-sky-300">Se actualizan en la tabla persons.</p>
+                <div class="col-span-full mb-3 mx-1 pb-2 border-b border-gray-200 dark:border-gray-600">
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Datos personales y residencia</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tabla <span class="font-mono">persons</span></p>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="users-typeDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
@@ -452,9 +455,9 @@
                     <label for="users-status_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
                     <input [(ngModel)]="userToEdit.status_reason" type="text" name="status_reasonEdit" id="users-status_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
                 </div>
-                <div class="col-span-full mt-2 mb-2 mx-1 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-800">
-                    <p class="text-sm font-semibold text-violet-800 dark:text-violet-200">USERS: Acceso al sistema</p>
-                    <p class="text-xs text-violet-700 dark:text-violet-300">Se actualizan en la tabla users y controlan el inicio de sesión.</p>
+                <div class="col-span-full mt-2 mb-2 mx-1 pt-3 pb-2 border-t border-gray-200 dark:border-gray-600">
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Acceso al sistema</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tabla <span class="font-mono">users</span> (inicio de sesión)</p>
                 </div>
                 <div class="col-span-full mb-2 mx-1" *ngIf="modalMode === 'persons'">
                     <label class="inline-flex items-center cursor-pointer">
@@ -489,7 +492,7 @@
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button (click)="saveEditUser()" data-modal-hide="users-edit-user-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+                <button (click)="saveEditUser()" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
                 <button data-modal-hide="users-edit-user-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
             </div>
         </div>

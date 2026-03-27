@@ -9,6 +9,7 @@ import { ApiService } from '../api.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { Vehicle } from '../vehicle';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../environments/environment';
 import { PetsService } from '../pets.service';
 import { Pet } from '../pet';
 import { PublicRegistrationService } from '../public-registration/public-registration.service';
@@ -297,13 +298,12 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   onToggleSystemAccessEdit(): void {
     if (this.enableSystemAccessEdit) {
-      if (typeof this.userToEdit.force_password_change === 'undefined') {
-        this.userToEdit.force_password_change = 0;
-      }
+      this.userToEdit.role_system = 'USUARIO';
+      // Mismo criterio que users: al habilitar acceso se exige cambio en próximo inicio por defecto.
+      this.userToEdit.force_password_change = 1;
       if (!this.userToEdit.username_system?.trim()) {
         this.suggestUniqueUsernameFor(this.userToEdit, false);
       }
-      this.userToEdit.role_system = 'USUARIO';
     }
   }
 
@@ -468,32 +468,53 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     const g = (this.userToEdit.gender || '').toString().toUpperCase();
     this.userToEdit.gender = (g === 'FEMENINO' || g === 'F') ? 'F' : (g === 'MASCULINO' || g === 'M') ? 'M' : g || '';
 
-    // Sincronizar campos de users desde BD para reflejar acceso real del sistema.
-    const doc = (this.userToEdit.doc_number || '').trim();
-    if (doc) {
-      this.usersService.getUserByDocNumber(doc).subscribe({
-        next: (resUser: User) => {
-          if (resUser?.user_id) {
-            this.userToEdit.user_id = resUser.user_id;
-            this.userToEdit.username_system = resUser.username_system || '';
-            this.userToEdit.role_system = 'USUARIO';
-            this.userToEdit.status_system = resUser.status_system || 'ACTIVO';
-            this.userToEdit.status_validated = resUser.status_validated || this.userToEdit.status_validated;
-            this.userToEdit.status_reason = resUser.status_reason || this.userToEdit.status_reason;
-            this.userToEdit.force_password_change = Number((resUser as any).force_password_change || 0);
-            this.enableSystemAccessEdit = true;
-          } else {
-            this.enableSystemAccessEdit = false;
-            this.userToEdit.user_id = 0;
-            this.userToEdit.username_system = '';
-            this.userToEdit.role_system = '';
-            this.userToEdit.force_password_change = 0;
-          }
+    const normalizeFromDb = (resUser: any): void => {
+      if (!resUser) {
+        return;
+      }
+      if (resUser.user_id) {
+        this.userToEdit.user_id = resUser.user_id;
+        this.userToEdit.username_system = resUser.username_system || '';
+        // En Mi casa solo se gestiona acceso de residente (rol fijo en UI).
+        this.userToEdit.role_system = 'USUARIO';
+        this.userToEdit.status_system = resUser.status_system || 'ACTIVO';
+        this.userToEdit.status_validated = resUser.status_validated || this.userToEdit.status_validated;
+        this.userToEdit.status_reason = resUser.status_reason || this.userToEdit.status_reason;
+        this.userToEdit.force_password_change = Number((resUser as any).force_password_change || 0);
+        this.enableSystemAccessEdit = true;
+      } else {
+        this.enableSystemAccessEdit = false;
+        this.userToEdit.user_id = 0;
+        this.userToEdit.username_system = '';
+        this.userToEdit.role_system = '';
+        this.userToEdit.force_password_change = 0;
+      }
+    };
+
+    const userId = Number((user as any).user_id || 0);
+    if (userId > 0) {
+      this.usersService.getUserById(userId).subscribe({
+        next: (dbUser: any) => {
+          normalizeFromDb({ ...dbUser, user_id: dbUser?.user_id ?? userId });
         },
         error: () => {
-          // Mantener fallback con data local si falla consulta puntual.
+          const doc = (this.userToEdit.doc_number || '').trim();
+          if (doc) {
+            this.usersService.getUserByDocNumber(doc).subscribe({
+              next: (resUser: User) => normalizeFromDb(resUser as any),
+              error: () => {}
+            });
+          }
         }
       });
+    } else {
+      const doc = (this.userToEdit.doc_number || '').trim();
+      if (doc) {
+        this.usersService.getUserByDocNumber(doc).subscribe({
+          next: (resUser: User) => normalizeFromDb(resUser as any),
+          error: () => {}
+        });
+      }
     }
     document.getElementById('myhouse-edit-user-button')?.click();
   }
@@ -674,6 +695,19 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     this.ngOnInit();
   }
 
+  /**
+   * Misma regla que en Users: foto por defecto solo si hay género (F/M o FEMENINO/MASCULINO).
+   */
+  private optionalPhotoUrlByGender(gender: string | undefined | null): string | undefined {
+    const g = (gender ?? '').toString().trim().toUpperCase();
+    if (!g) {
+      return undefined;
+    }
+    const origin = (environment.publicAppUrl || '').replace(/\/$/, '');
+    const path = g === 'MASCULINO' || g === 'M' ? '/assets/user-male.png' : '/assets/user-female.png';
+    return origin ? `${origin}${path}` : path;
+  }
+
   saveNewUser() {
     if (!this.validateUser(this.userToAdd)) {
       this.toastr.error("Por favor, completa todos los campos requeridos correctamente.");
@@ -701,6 +735,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       status_system: 'ACTIVO',
       status_validated: 'PERMITIDO'
     };
+    const photoUrl = this.optionalPhotoUrlByGender(this.userToAdd.gender);
+    if (photoUrl) {
+      newPerson.photo_url = photoUrl;
+    }
 
     if (this.enableSystemAccessNew) {
       this.userToAdd.role_system = 'USUARIO';
@@ -799,6 +837,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
           }
 
           if (this.userToEdit.user_id) {
+            const forcePw = Number(this.userToEdit.force_password_change ? 1 : 0);
             const userPayload: any = {
               user_id: this.userToEdit.user_id,
               username_system: this.userToEdit.username_system.trim(),
@@ -807,8 +846,11 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
               status_system: this.userToEdit.status_system || 'ACTIVO',
               status_validated: this.userToEdit.status_validated || 'PERMITIDO',
               status_reason: this.userToEdit.status_reason || '',
-              force_password_change: Number(this.userToEdit.force_password_change ? 1 : 0)
+              force_password_change: forcePw
             };
+            if (forcePw === 1) {
+              userPayload.password_system = (this.userToEdit.doc_number || '').toString().trim();
+            }
             this.usersService.updateUser(userPayload).subscribe({
               next: () => {
                 this.toastr.success('Persona y acceso al sistema actualizados correctamente');

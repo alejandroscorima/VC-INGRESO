@@ -223,7 +223,10 @@ class UserController extends Controller {
         }
         if (isset($uData['password_system']) && $uData['password_system'] !== '') {
             $uData['password_system'] = password_hash($uData['password_system'], PASSWORD_DEFAULT);
-            $uData['force_password_change'] = 0;
+            // Si el cliente pide forzar cambio en el próximo login (p. ej. restablecer a doc_number), no anular el flag.
+            if (!array_key_exists('force_password_change', $data) || (int) ($data['force_password_change'] ?? 0) === 0) {
+                $uData['force_password_change'] = 0;
+            }
         }
         if (!empty($uData)) {
             parent::update($userId, $uData, 'user_id');
