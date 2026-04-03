@@ -137,8 +137,10 @@ export class BirthdayComponent implements OnInit {
   felicitar(person: User | any) {
     const nombre = [person?.first_name].filter(Boolean).join(' ').trim() || 'Vecin@';
     const genero = (person?.gender ?? '').toString().toUpperCase();
-    const tratamiento = genero.includes('FEMENINO') ? 'Vecina' : 'Vecino';
-    const msg = `¡Feliz cumpleaños ${tratamiento} ${nombre}! 🎂🎉 Que tengas un excelente día.`;
+    const tratamiento = genero.includes('FEMENINO') ? 'Vecina' : genero.includes('MASCULINO') ? 'Vecino' : null;
+    const msg = tratamiento
+      ? `¡Feliz cumpleaños ${tratamiento} ${nombre}! \u{1F382}\u{1F389} Que tengas un excelente día.`
+      : `¡Feliz cumpleaños, ${nombre}! \u{1F382}\u{1F389} Que tengas un excelente día.`;
     const textEnc = encodeURIComponent(msg);
     const cel = (person?.cel_number ?? '').toString().replace(/\D/g, '');
     let url: string;

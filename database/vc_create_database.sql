@@ -186,6 +186,7 @@ CREATE TABLE `vehicles` (
 -- -----------------------------------------------------------------------------
 CREATE TABLE `temporary_visits` (
     `temp_visit_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `registered_by_user_id` INT UNSIGNED NULL DEFAULT NULL COMMENT 'Usuario que registró esta visita temporal',
     `temp_visit_name` VARCHAR(100) DEFAULT NULL,
     `temp_visit_doc` VARCHAR(15) DEFAULT NULL,
     `temp_visit_plate` VARCHAR(15) DEFAULT NULL,
@@ -194,8 +195,9 @@ CREATE TABLE `temporary_visits` (
     `status_validated` VARCHAR(50) DEFAULT NULL,
     `status_reason` VARCHAR(255) DEFAULT NULL,
     `status_system` VARCHAR(50) DEFAULT NULL,
-    PRIMARY KEY (`temp_visit_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    PRIMARY KEY (`temp_visit_id`),
+    KEY `idx_temporary_visits_registered_by` (`registered_by_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Visitas temporales (taxi, delivery, etc.); anotadas por usuario';
 
 -- -----------------------------------------------------------------------------
 -- 7. REGISTROS DE ACCESO (access_logs) - Formato API (access_point_id, person_id, type)
@@ -313,6 +315,10 @@ ALTER TABLE `persons`
 ALTER TABLE `house_members`
     ADD CONSTRAINT `fk_house_members_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `fk_house_members_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- temporary_visits -> users (quién registró la visita temporal)
+ALTER TABLE `temporary_visits`
+    ADD CONSTRAINT `fk_temporary_visits_registered_by` FOREIGN KEY (`registered_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- vehicles -> houses, users
 ALTER TABLE `vehicles`

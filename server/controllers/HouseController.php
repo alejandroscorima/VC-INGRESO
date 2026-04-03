@@ -7,16 +7,33 @@
 
 namespace Controllers;
 
+require_once __DIR__ . '/../auth_middleware.php';
+require_once __DIR__ . '/../helpers/house_permissions.php';
+
 use Utils\Response;
 
 class HouseController extends Controller {
     protected $tableName = 'houses';
     
     /**
-     * Listar todas las casas
+     * Listar casas. Solo administración ve todas; el resto solo las vinculadas a su persona.
      */
     public function index($params = []) {
-        $houses = $this->getAll([], 'house_id DESC');
+        $auth = requireAuth();
+        if (isAdminRole($auth)) {
+            $houses = $this->getAll([], 'house_id DESC');
+            Response::success($houses, 'Casas obtenidas correctamente');
+            return;
+        }
+        $ids = getAccessibleHouseIds($this->db, $auth);
+        if (empty($ids)) {
+            Response::success([], 'Casas obtenidas correctamente');
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->db->prepare("SELECT * FROM {$this->tableName} WHERE house_id IN ($placeholders) ORDER BY house_id DESC");
+        $stmt->execute($ids);
+        $houses = $stmt->fetchAll(\PDO::FETCH_OBJ);
         Response::success($houses, 'Casas obtenidas correctamente');
     }
 
@@ -24,6 +41,7 @@ class HouseController extends Controller {
      * Obtener casa por ID
      */
     public function show($params = []) {
+        $auth = requireAuth();
         $houseId = $params['id'] ?? null;
 
         if (!$houseId) {
@@ -35,6 +53,10 @@ class HouseController extends Controller {
         if (!$house) {
             Response::notFound('Casa no encontrada');
         }
+        if (!canAccessHouse($this->db, $auth, (int) $houseId)) {
+            Response::error('Sin permiso para ver esta casa', 403);
+            return;
+        }
         
         Response::success($house);
     }
@@ -44,9 +66,14 @@ class HouseController extends Controller {
      * Reemplazo conceptual de getPersonsByHouseId (que devolvía users).
      */
     public function members($params = []) {
+        $auth = requireAuth();
         $houseId = $params['id'] ?? null;
         if (!$houseId) {
             Response::error('ID de casa requerido', 400);
+        }
+        if (!canAccessHouse($this->db, $auth, (int) $houseId)) {
+            Response::error('Sin permiso para ver miembros de esta casa', 403);
+            return;
         }
         $house = $this->findById($houseId, 'house_id');
         if (!$house) {
@@ -95,6 +122,11 @@ class HouseController extends Controller {
      * Crear nueva casa
      */
     public function store($params = []) {
+        $auth = requireAuth();
+        if (!isAdminRole($auth)) {
+            Response::error('Solo administradores pueden crear casas', 403);
+            return;
+        }
         $data = $this->getInput();
         
         // Validar campos requeridos
@@ -125,6 +157,11 @@ class HouseController extends Controller {
      * Actualizar casa
      */
     public function updateHouse($params = []) {
+        $auth = requireAuth();
+        if (!isAdminRole($auth)) {
+            Response::error('Solo administradores pueden editar casas', 403);
+            return;
+        }
         $houseId = $params['id'] ?? null;
         
         if (!$houseId) {
@@ -162,6 +199,11 @@ class HouseController extends Controller {
      * Eliminar casa
      */
     public function destroy($params = []) {
+        $auth = requireAuth();
+        if (!isAdminRole($auth)) {
+            Response::error('Solo administradores pueden eliminar casas', 403);
+            return;
+        }
         $houseId = $params['id'] ?? null;
         
         if (!$houseId) {

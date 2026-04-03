@@ -21,7 +21,17 @@ class VehicleController extends Controller {
      * Listar todos los vehículos (requiere auth; admin ve todos, resto según política)
      */
     public function index($params = []) {
-        requireAuth();
+        $auth = requireAuth();
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            if ($tid <= 0) {
+                Response::success([], 'Vehículos obtenidos correctamente');
+                return;
+            }
+            $vehicles = $this->getAll(['owner_id' => $tid], 'vehicle_id DESC');
+            Response::success($vehicles, 'Vehículos obtenidos correctamente');
+            return;
+        }
         $vehicles = $this->getAll([], 'vehicle_id DESC');
         Response::success($vehicles, 'Vehículos obtenidos correctamente');
     }
@@ -44,6 +54,13 @@ class VehicleController extends Controller {
         if (!canAccessHouse($this->db, $auth, (int) $vehicle->house_id)) {
             Response::error('Sin permiso para ver este vehículo', 403);
         }
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            $vOwner = isset($vehicle->owner_id) ? (int) $vehicle->owner_id : 0;
+            if ($tid <= 0 || $vOwner !== $tid) {
+                Response::error('Sin permiso para ver este vehículo', 403);
+            }
+        }
         Response::success($vehicle);
     }
     
@@ -59,6 +76,16 @@ class VehicleController extends Controller {
         }
         if (!canAccessHouse($this->db, $auth, (int) $houseId)) {
             Response::error('Sin permiso para ver vehículos de esta casa', 403);
+        }
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            if ($tid <= 0) {
+                Response::success([]);
+                return;
+            }
+            $vehicles = $this->getAll(['house_id' => (int) $houseId, 'owner_id' => $tid], 'vehicle_id DESC');
+            Response::success($vehicles);
+            return;
         }
         $vehicles = $this->getAll(['house_id' => $houseId], 'vehicle_id DESC');
         Response::success($vehicles);
@@ -84,9 +111,42 @@ class VehicleController extends Controller {
         if (!canAccessHouse($this->db, $auth, $houseId)) {
             Response::error('Sin permiso para crear vehículos en esta casa', 403);
         }
-        $ownerId = isset($data['owner_id']) ? (int) $data['owner_id'] : null;
-        if ($houseId && $ownerId !== null && !validateOwnerInHouse($this->db, $houseId, $ownerId)) {
-            Response::error('El responsable (owner_id) debe ser miembro activo de la misma casa', 400);
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            if ($tid <= 0) {
+                Response::error('Sesión sin persona asociada', 403);
+                return;
+            }
+            $cat = strtoupper(trim((string) ($data['category_entry'] ?? '')));
+            if ($cat !== 'INQUILINO') {
+                Response::error('Como inquilino solo puedes registrar vehículos con categoría INQUILINO', 403);
+                return;
+            }
+            $data['owner_id'] = $tid;
+            $data['category_entry'] = 'INQUILINO';
+        } elseif (isAdminRole($auth)) {
+            $ownerProp = getFirstPropietarioPersonIdForHouse($this->db, $houseId);
+            if ($ownerProp === null || $ownerProp <= 0) {
+                Response::error('No hay propietario registrado para esta casa.', 400);
+                return;
+            }
+            $data['owner_id'] = $ownerProp;
+        } else {
+            $pid = (int) ($auth['person_id'] ?? 0);
+            if ($pid <= 0) {
+                Response::error('Sesión sin persona asociada; no se puede asignar responsable del vehículo.', 403);
+                return;
+            }
+            $data['owner_id'] = $pid;
+        }
+
+        $ownerId = (int) ($data['owner_id'] ?? 0);
+        if ($ownerId <= 0) {
+            Response::error('No se pudo determinar el responsable del vehículo (owner_id).', 400);
+            return;
+        }
+        if (!validateOwnerInHouse($this->db, $houseId, $ownerId)) {
+            Response::error('El responsable (owner_id) debe pertenecer a la misma casa', 400);
         }
         $createdBy = isset($auth['user_id']) ? (int) $auth['user_id'] : null;
 
@@ -121,8 +181,23 @@ class VehicleController extends Controller {
         if (!canAccessHouse($this->db, $auth, (int) $vehicle->house_id)) {
             Response::error('Sin permiso para editar este vehículo', 403);
         }
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            $vOwner = isset($vehicle->owner_id) ? (int) $vehicle->owner_id : 0;
+            $vCat = strtoupper(trim((string) ($vehicle->category_entry ?? '')));
+            if ($tid <= 0 || $vOwner !== $tid || $vCat !== 'INQUILINO') {
+                Response::error('Solo puedes editar tus vehículos registrados como INQUILINO', 403);
+                return;
+            }
+        }
 
         $data = $this->getInput();
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            $data['owner_id'] = $tid;
+            $data['category_entry'] = 'INQUILINO';
+            unset($data['house_id']);
+        }
         $houseId = isset($data['house_id']) ? (int) $data['house_id'] : (int) $vehicle->house_id;
         if (isset($data['house_id']) && (int) $data['house_id'] !== (int) $vehicle->house_id) {
             if (!canAccessHouse($this->db, $auth, (int) $data['house_id'])) {
@@ -170,6 +245,15 @@ class VehicleController extends Controller {
         }
         if (!canAccessHouse($this->db, $auth, (int) $vehicle->house_id)) {
             Response::error('Sin permiso para eliminar este vehículo', 403);
+        }
+        if (isTenantUser($this->db, $auth)) {
+            $tid = (int) ($auth['person_id'] ?? 0);
+            $vOwner = isset($vehicle->owner_id) ? (int) $vehicle->owner_id : 0;
+            $vCat = strtoupper(trim((string) ($vehicle->category_entry ?? '')));
+            if ($tid <= 0 || $vOwner !== $tid || $vCat !== 'INQUILINO') {
+                Response::error('Sin permiso para eliminar este vehículo', 403);
+                return;
+            }
         }
         $this->delete($vehicleId, 'vehicle_id');
         Response::success(null, 'Vehículo eliminado correctamente');

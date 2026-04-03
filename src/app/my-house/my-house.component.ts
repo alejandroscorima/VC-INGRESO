@@ -123,6 +123,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
         this.loadVehicles(houseId);
         this.loadExternalVehicles();
         this.loadAllHouses();
+        setTimeout(() => initFlowbite(), 0);
       },
       error: () => {
         this.toastr.error('Error al cargar información del usuario.');
@@ -132,6 +133,60 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   private normalizeCategory(value: any): string {
     return (value || '').toString().trim().toUpperCase();
+  }
+
+  /**
+   * Usuario con `role_system` USUARIO y persona INQUILINO: no gestiona la pestaña Residentes
+   * (propietarios y residentes) para no exponer edición sobre datos del domicilio.
+   */
+  get isTenantRestrictedInMyHouse(): boolean {
+    const role = (this.userOnSes.role_system ?? '').toString().trim().toUpperCase();
+    if (role !== 'USUARIO') {
+      return false;
+    }
+    const cat = this.normalizeCategory(
+      (this.userOnSes as any).property_category || (this.userOnSes as any).person_type || ''
+    );
+    return cat === 'INQUILINO';
+  }
+
+  private assertCanManageResidents(): boolean {
+    if (this.isTenantRestrictedInMyHouse) {
+      this.toastr.warning('No tienes permiso para gestionar propietarios ni residentes.');
+      return false;
+    }
+    return true;
+  }
+
+  /** persons.id del usuario en sesión (JWT / getUserById). */
+  personIdSession(): number {
+    return Number((this.userOnSes as any).person_id ?? 0) || 0;
+  }
+
+  /** Inquilino: solo vehículos propios con categoría INQUILINO. */
+  canTenantEditVehicle(v: Vehicle): boolean {
+    if (!this.isTenantRestrictedInMyHouse) {
+      return true;
+    }
+    const pid = this.personIdSession();
+    const cat = (v.category_entry ?? '').toString().trim().toUpperCase();
+    const oid = Number((v as any).owner_id);
+    return pid > 0 && cat === 'INQUILINO' && oid === pid;
+  }
+
+  /** Inquilino: solo mascotas donde es responsable. */
+  canTenantEditPet(pt: Pet): boolean {
+    if (!this.isTenantRestrictedInMyHouse) {
+      return true;
+    }
+    const pid = this.personIdSession();
+    const oid = Number((pt as any).owner_id);
+    return pid > 0 && oid === pid;
+  }
+
+  /** Opciones de categoría de ingreso en modales de vehículo (inquilino: solo INQUILINO). */
+  get vehicleCategoryOptions(): string[] {
+    return this.isTenantRestrictedInMyHouse ? ['INQUILINO'] : this.categories;
   }
 
   private safeDataArray(res: any): any[] {
@@ -224,7 +279,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   private loadExternalVehicles(): void {
-    this.entranceService.getAllExternalVehicles().subscribe({
+    this.entranceService.getMyExternalVehicles().subscribe({
       next: (res: any) => {
         this.externalVehicles = this.safeDataArray(res);
       },
@@ -327,24 +382,26 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       base = docFallback || 'usuario';
     }
 
-    this.usersService.getAllUsers().subscribe({
-      next: (users: any[]) => {
-        const existing = new Set(
-          (Array.isArray(users) ? users : [])
-            .map((u: any) => (u?.username_system || '').toString().trim().toLowerCase())
-            .filter((u: string) => !!u)
-        );
+    this.reserveUsernameCandidate(base, targetUser, 0);
+  }
 
-        let candidate = base;
-        let i = 2;
-        while (existing.has(candidate.toLowerCase())) {
-          candidate = `${base}${i}`;
-          i += 1;
+  /** Busca el primer username libre usando GET check-username (sin descargar todos los usuarios). */
+  private reserveUsernameCandidate(base: string, targetUser: User, suffix: number): void {
+    if (suffix > 200) {
+      targetUser.username_system = suffix === 0 ? base : `${base}${suffix}`;
+      return;
+    }
+    const candidate = suffix === 0 ? base : `${base}${suffix}`;
+    this.usersService.checkUsernameAvailable(candidate).subscribe({
+      next: (raw: any) => {
+        if (raw?.available === true) {
+          targetUser.username_system = candidate;
+          return;
         }
-        targetUser.username_system = candidate;
+        this.reserveUsernameCandidate(base, targetUser, suffix + 1);
       },
       error: () => {
-        targetUser.username_system = base;
+        targetUser.username_system = candidate;
       }
     });
   }
@@ -436,6 +493,9 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   newUser(){
+    if (!this.assertCanManageResidents()) {
+      return;
+    }
     this.userToAdd = User.empty();
     this.enableSystemAccessNew = false;
     this.currentCategoryOptions = [...this.residentCategories];
@@ -458,6 +518,16 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   editUser(user: User): void {
+    const catEdit = this.normalizeCategory(
+      (user as any).property_category || (user as any).person_type || (user as any).relation_type
+    );
+    if (
+      this.isTenantRestrictedInMyHouse &&
+      ['PROPIETARIO', 'RESIDENTE', 'ADMINISTRADOR'].includes(catEdit)
+    ) {
+      this.toastr.warning('No tienes permiso para editar datos de propietarios o residentes.');
+      return;
+    }
     this.userToEdit = { ...user } as User;
     this.userToEdit.house_id = this.userOnSes.house_id ?? this.userToEdit.house_id;
     this.enableSystemAccessEdit = this.hasSystemAccess(this.userToEdit);
@@ -649,6 +719,10 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   editPet(pet: Pet){
+    if (!this.canTenantEditPet(pet)) {
+      this.toastr.warning('Solo puedes editar mascotas registradas como tuyas.');
+      return;
+    }
     this.petToEdit = { ...pet };
     document.getElementById('myhouse-edit-pet-button')?.click();
   }
@@ -657,6 +731,14 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     if (!this.petToAdd.name?.trim() || !this.petToAdd.species || !this.petToAdd.house_id) {
       this.toastr.error('Nombre, especie y casa son obligatorios.');
       return;
+    }
+    if (this.isTenantRestrictedInMyHouse) {
+      const pid = this.personIdSession();
+      if (!pid) {
+        this.toastr.error('No se encontró tu persona en sesión.');
+        return;
+      }
+      this.petToAdd.owner_id = pid;
     }
     this.petsService.createPet(this.petToAdd).subscribe({
       next: () => {
@@ -675,9 +757,19 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       this.toastr.error('No se puede editar la mascota.');
       return;
     }
+    if (!this.canTenantEditPet(this.petToEdit as Pet)) {
+      this.toastr.warning('Solo puedes editar mascotas registradas como tuyas.');
+      return;
+    }
     if (!this.petToEdit.name?.trim() || !this.petToEdit.species) {
       this.toastr.error('Nombre y especie son obligatorios.');
       return;
+    }
+    if (this.isTenantRestrictedInMyHouse) {
+      const pid = this.personIdSession();
+      if (pid) {
+        (this.petToEdit as any).owner_id = pid;
+      }
     }
     this.petsService.updatePet(id, this.petToEdit).subscribe({
       next: () => {
@@ -903,7 +995,21 @@ newVehicle(){
   const houseId = this.userOnSes.house_id ?? 0;
   this.vehicleToAdd.house_id = houseId;
   if (!this.vehicleToAdd.type_vehicle) this.vehicleToAdd.type_vehicle = 'AUTOMOVIL';
-  if (!this.vehicleToAdd.category_entry) this.vehicleToAdd.category_entry = 'RESIDENTE';
+  if (this.isTenantRestrictedInMyHouse) {
+    this.vehicleToAdd.category_entry = 'INQUILINO';
+    const pid = this.personIdSession();
+    if (pid) {
+      (this.vehicleToAdd as any).owner_id = pid;
+    }
+  } else {
+    const pid = this.personIdSession();
+    if (pid) {
+      (this.vehicleToAdd as any).owner_id = pid;
+    }
+    if (!this.vehicleToAdd.category_entry) {
+      this.vehicleToAdd.category_entry = 'RESIDENTE';
+    }
+  }
   if (!this.vehicleToAdd.status_validated) this.vehicleToAdd.status_validated = 'PERMITIDO';
   if (this.houses.length === 0 && houseId) {
     this.houses = [{ house_id: houseId, block_house: '—', lot: null, apartment: null } as House];
@@ -912,6 +1018,10 @@ newVehicle(){
 }
 
 editVehicle(vehicle:Vehicle){
+  if (!this.canTenantEditVehicle(vehicle)) {
+    this.toastr.warning('Solo puedes editar vehículos de categoría INQUILINO registrados a tu nombre.');
+    return;
+  }
   this.vehicleToEdit = vehicle;
   document.getElementById('myhouse-edit-vehicle-button')?.click();
 }
@@ -921,6 +1031,17 @@ saveEditVehicle(){
     this.toastr.error('Los campos obligatorios no pueden estar vacíos');
     this.clean();
     return;
+  }
+  if (!this.canTenantEditVehicle(this.vehicleToEdit)) {
+    this.toastr.warning('Solo puedes editar vehículos de categoría INQUILINO registrados a tu nombre.');
+    return;
+  }
+  if (this.isTenantRestrictedInMyHouse) {
+    const pid = this.personIdSession();
+    if (pid) {
+      (this.vehicleToEdit as any).owner_id = pid;
+    }
+    this.vehicleToEdit.category_entry = 'INQUILINO';
   }
   this.entranceService.updateVehicle(this.vehicleToEdit).subscribe({
     next:(resUpdate:any)=>{
@@ -948,6 +1069,20 @@ saveNewVehicle(): void {
     this.toastr.error('Los campos obligatorios no pueden estar vacíos');
     this.clean();
     return;
+  }
+  if (this.isTenantRestrictedInMyHouse) {
+    const pid = this.personIdSession();
+    if (!pid) {
+      this.toastr.error('No se encontró tu persona en sesión.');
+      return;
+    }
+    this.vehicleToAdd.category_entry = 'INQUILINO';
+    (this.vehicleToAdd as any).owner_id = pid;
+  } else {
+    const pid = this.personIdSession();
+    if (pid) {
+      (this.vehicleToAdd as any).owner_id = pid;
+    }
   }
   //HASTA AQUÍ
   this.vehicleToAdd.status_system='ACTIVO'
@@ -977,8 +1112,12 @@ saveNewVehicle(): void {
     document.getElementById('myhouse-new-external-vehicle-button')?.click();
   }
 
-  editExternalVehicle(externalVehicle:ExternalVehicle){
-    this.externalVehicleToEdit = externalVehicle;
+  editExternalVehicle(externalVehicle: ExternalVehicle) {
+    this.externalVehicleToEdit = { ...externalVehicle } as ExternalVehicle;
+    const tid = (externalVehicle as any).temp_visit_id ?? (externalVehicle as any).id;
+    if (tid) {
+      (this.externalVehicleToEdit as any).id = tid;
+    }
     document.getElementById('myhouse-edit-external-vehicle-button')?.click();
   }
 
@@ -1076,6 +1215,10 @@ saveNewVehicle(): void {
       this.toastr.error('Vehículo no encontrado.');
       return;
     }
+    if (!this.canTenantEditVehicle(vehicle)) {
+      this.toastr.warning('No puedes actualizar la foto de este vehículo.');
+      return;
+    }
 
     this.uploadingVehicleIndex = vehicleIndex;
     this.publicReg.uploadVehiclePhoto(file).subscribe({
@@ -1121,6 +1264,10 @@ saveNewVehicle(): void {
     const pet = this.myPets[petIndex];
     if (!pet) {
       this.toastr.error('Mascota no encontrada.');
+      return;
+    }
+    if (!this.canTenantEditPet(pet)) {
+      this.toastr.warning('No puedes actualizar la foto de esta mascota.');
       return;
     }
 

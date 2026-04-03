@@ -15,6 +15,8 @@ export class Vehicle {
     public lot?: string,
     public apartment?: string,
     public vehicle_id?: number,
+    /** persons.id del responsable (inquilino/residente/propietario). El API lo asigna al crear. */
+    public owner_id?: number,
     public photo_url?: string,
   ) { }
 

@@ -28,6 +28,15 @@ export class UsersService {
     return this.api.get('api/v1/users').pipe(map((r) => r.data ?? r));
   }
 
+  /**
+   * Comprueba si un username_system está disponible (auth). Para Mi casa sin listar todo el directorio.
+   */
+  checkUsernameAvailable(username: string): Observable<{ available: boolean; username?: string }> {
+    return this.api
+      .get<{ available: boolean; username?: string }>('api/v1/users/check-username', { username })
+      .pipe(map((r) => (r.data ?? r) as { available: boolean; username?: string }));
+  }
+
   getUser(username_system: string, password_system: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/v1/auth/login`, { username_system, password_system });
   }

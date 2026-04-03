@@ -21,23 +21,54 @@
 
 namespace Controllers;
 
+require_once __DIR__ . '/../auth_middleware.php';
+require_once __DIR__ . '/../helpers/house_permissions.php';
+
 use Utils\Response;
 
 class PersonController extends Controller {
     protected $tableName = 'persons';  // Tabla renombrada de 'clients'
-    
+
     /**
-     * Listar todas las personas.
-     * Query: without_user=1 → solo personas que aún no tienen usuario (users.person_id).
+     * Listar personas. USUARIO: solo vínculos a sus casas. Admin/operario: listado completo.
+     * Query: without_user=1 → solo sin usuario (solo administración).
      */
     public function index($params = []) {
+        $auth = requireAuth();
         $withoutUser = isset($params['without_user']) && ($params['without_user'] === '1' || $params['without_user'] === true);
         if ($withoutUser) {
+            if (!isAdminRole($auth)) {
+                Response::error('Sin permiso', 403);
+                return;
+            }
             $sql = "SELECT p.* FROM {$this->tableName} p
                     LEFT JOIN users u ON u.person_id = p.id
                     WHERE u.user_id IS NULL
                     ORDER BY p.id DESC";
             $stmt = $this->db->query($sql);
+            $persons = $stmt->fetchAll();
+            Response::success($persons, 'Personas obtenidas correctamente');
+            return;
+        }
+
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        if ($role === 'USUARIO') {
+            $ids = getAccessibleHouseIds($this->db, $auth);
+            if (empty($ids)) {
+                Response::success([], 'Personas obtenidas correctamente');
+                return;
+            }
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $sql = "SELECT DISTINCT p.* FROM {$this->tableName} p
+                    WHERE p.house_id IN ($placeholders)
+                       OR EXISTS (
+                            SELECT 1 FROM house_members hm
+                            WHERE hm.person_id = p.id AND hm.house_id IN ($placeholders)
+                              AND COALESCE(hm.is_active, 1) = 1
+                        )
+                    ORDER BY p.id DESC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(array_merge($ids, $ids));
             $persons = $stmt->fetchAll();
         } else {
             $persons = $this->getAll([], 'id DESC');
@@ -49,6 +80,7 @@ class PersonController extends Controller {
      * Obtener persona por ID
      */
     public function show($params = []) {
+        $auth = requireAuth();
         $id = $params['id'] ?? null;
         
         if (!$id) {
@@ -60,6 +92,10 @@ class PersonController extends Controller {
         if (!$person) {
             Response::notFound('Persona no encontrada');
         }
+        if (!canAccessPersonRecord($this->db, $auth, $person)) {
+            Response::error('Persona no encontrada', 404);
+            return;
+        }
         
         Response::success($person);
     }
@@ -68,6 +104,7 @@ class PersonController extends Controller {
      * Obtener persona por numero de documento
      */
     public function byDocNumber($params = []) {
+        $auth = requireAuth();
         $docNumber = $params['doc_number'] ?? null;
         
         if (!$docNumber) {
@@ -83,6 +120,10 @@ class PersonController extends Controller {
         if (!$person) {
             Response::notFound('Persona no encontrada');
         }
+        if (!canAccessPersonRecord($this->db, $auth, $person)) {
+            Response::error('Persona no encontrada', 404);
+            return;
+        }
         
         Response::success($person);
     }
@@ -91,6 +132,7 @@ class PersonController extends Controller {
      * GET persons?fecha_cumple=MM-DD - Listar personas por cumpleaños (reemplazo getAll.php legacy)
      */
     public function listByBirthday($params = []) {
+        $auth = requireAuth();
         $fecha_cumple = $params['fecha_cumple'] ?? $_GET['fecha_cumple'] ?? '';
         if ($fecha_cumple === '') {
             Response::error('fecha_cumple requerido', 400);
@@ -100,9 +142,31 @@ class PersonController extends Controller {
             Response::error('fecha_cumple inválido', 400);
             return;
         }
-        $sql = "SELECT p.*, h.block_house, h.lot, h.apartment FROM {$this->tableName} p LEFT JOIN houses h ON p.house_id = h.house_id WHERE p.birth_date LIKE ? ORDER BY p.paternal_surname";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(["%{$fecha_cumple}%"]);
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        if ($role === 'USUARIO') {
+            $ids = getAccessibleHouseIds($this->db, $auth);
+            if (empty($ids)) {
+                Response::success([]);
+                return;
+            }
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $sql = "SELECT p.*, h.block_house, h.lot, h.apartment FROM {$this->tableName} p
+                    LEFT JOIN houses h ON p.house_id = h.house_id
+                    WHERE p.birth_date LIKE ?
+                      AND (p.house_id IN ($placeholders)
+                       OR EXISTS (
+                            SELECT 1 FROM house_members hm
+                            WHERE hm.person_id = p.id AND hm.house_id IN ($placeholders)
+                              AND COALESCE(hm.is_active, 1) = 1
+                        ))
+                    ORDER BY p.paternal_surname";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(array_merge(["%{$fecha_cumple}%"], $ids, $ids));
+        } else {
+            $sql = "SELECT p.*, h.block_house, h.lot, h.apartment FROM {$this->tableName} p LEFT JOIN houses h ON p.house_id = h.house_id WHERE p.birth_date LIKE ? ORDER BY p.paternal_surname";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(["%{$fecha_cumple}%"]);
+        }
         $persons = $stmt->fetchAll(\PDO::FETCH_OBJ);
         Response::success($persons);
     }
@@ -111,6 +175,11 @@ class PersonController extends Controller {
      * GET persons/destacados - Stub / personas permitidas (reemplazo getDestacados legacy)
      */
     public function destacados($params = []) {
+        $auth = requireAuth();
+        if (!isStaffRole($auth)) {
+            Response::error('Sin permiso', 403);
+            return;
+        }
         $sql = "SELECT p.*, h.block_house, h.lot FROM {$this->tableName} p LEFT JOIN houses h ON p.house_id = h.house_id WHERE p.status_validated = 'PERMITIDO' ORDER BY p.id DESC LIMIT 100";
         $stmt = $this->db->query($sql);
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
@@ -120,6 +189,11 @@ class PersonController extends Controller {
      * Listar personas observadas (estado OBSERVADO)
      */
     public function observed($params = []) {
+        $auth = requireAuth();
+        if (!isStaffRole($auth)) {
+            Response::error('Sin permiso', 403);
+            return;
+        }
         $sql = "SELECT * FROM {$this->tableName} WHERE status_validated = 'OBSERVADO' ORDER BY id DESC";
         $stmt = $this->db->query($sql);
         $persons = $stmt->fetchAll();
@@ -131,6 +205,11 @@ class PersonController extends Controller {
      * Listar personas restringidas (estado DENEGADO)
      */
     public function restricted($params = []) {
+        $auth = requireAuth();
+        if (!isStaffRole($auth)) {
+            Response::error('Sin permiso', 403);
+            return;
+        }
         $sql = "SELECT * FROM {$this->tableName} WHERE status_validated = 'DENEGADO' ORDER BY id DESC";
         $stmt = $this->db->query($sql);
         $persons = $stmt->fetchAll();
@@ -142,6 +221,7 @@ class PersonController extends Controller {
      * Crear nueva persona
      */
     public function store($params = []) {
+        $auth = requireAuth();
         $data = $this->getInput();
         
         // Validar campos requeridos
@@ -172,8 +252,36 @@ class PersonController extends Controller {
                 $filtered[$field] = $data[$field];
             }
         }
+
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        $requestedType = isset($filtered['person_type']) ? strtoupper(trim((string) $filtered['person_type'])) : 'RESIDENTE';
+        if ($requestedType === '') {
+            $requestedType = 'RESIDENTE';
+        }
+
+        if (isStaffRole($auth)) {
+            // Admin / operario: sin restricción de vecino
+        } elseif ($role === 'USUARIO') {
+            $hid = isset($filtered['house_id']) ? (int) $filtered['house_id'] : 0;
+            if ($hid <= 0) {
+                Response::error('Debe indicar house_id para registrar la persona', 400);
+                return;
+            }
+            if (!canUsuarioCreatePersonForHouse($this->db, $auth, $hid, $requestedType)) {
+                Response::error('Sin permiso para crear este tipo de persona en esta casa', 403);
+                return;
+            }
+            // Vecinos: alta estándar Mi casa (sin privilegios de portería)
+            $filtered['person_type'] = $requestedType;
+            $filtered['status_validated'] = 'PERMITIDO';
+            $filtered['status_system'] = 'ACTIVO';
+            unset($filtered['status_reason'], $filtered['origin_list'], $filtered['motivo'], $filtered['sala_list'], $filtered['fecha_list'], $filtered['fecha_registro'], $filtered['sala_registro'], $filtered['condicion']);
+        } else {
+            Response::error('Sin permiso para crear personas', 403);
+            return;
+        }
         
-        // Estado por defecto
+        // Estado por defecto (staff u omisiones)
         if (!isset($filtered['status_validated'])) {
             $filtered['status_validated'] = 'PERMITIDO';
         }
@@ -197,6 +305,7 @@ class PersonController extends Controller {
      * Actualizar persona
      */
     public function updatePerson($params = []) {
+        $auth = requireAuth();
         $id = $params['id'] ?? null;
         
         if (!$id) {
@@ -206,6 +315,10 @@ class PersonController extends Controller {
         $person = $this->findById($id, 'id');
         if (!$person) {
             Response::notFound('Persona no encontrada');
+        }
+        if (!isStaffRole($auth) && !canAccessPersonRecord($this->db, $auth, $person)) {
+            Response::error('Persona no encontrada', 404);
+            return;
         }
         
         $data = $this->getInput();
@@ -225,6 +338,12 @@ class PersonController extends Controller {
                 $filtered[$field] = $data[$field];
             }
         }
+
+        if (!isStaffRole($auth)) {
+            foreach (['status_validated', 'status_reason', 'status_system', 'person_type', 'house_id', 'doc_number', 'type_doc'] as $priv) {
+                unset($filtered[$priv]);
+            }
+        }
         
         if (empty($filtered)) {
             Response::error('No hay datos para actualizar', 400);
@@ -241,6 +360,11 @@ class PersonController extends Controller {
      * POST /api/v1/persons/:id/validate
      */
     public function validate($params = []) {
+        $auth = requireAuth();
+        if (!isStaffRole($auth)) {
+            Response::error('Sin permiso', 403);
+            return;
+        }
         $id = $params['id'] ?? null;
         
         if (!$id) {
@@ -276,6 +400,11 @@ class PersonController extends Controller {
      * Eliminar persona
      */
     public function destroy($params = []) {
+        $auth = requireAuth();
+        if (!isAdminRole($auth)) {
+            Response::error('Solo administradores pueden eliminar personas', 403);
+            return;
+        }
         $id = $params['id'] ?? null;
         
         if (!$id) {

@@ -6,6 +6,7 @@ import { EntranceService } from '../entrance.service';
 import { ExternalVehicle } from '../externalVehicle';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-vehicles',
@@ -65,7 +66,15 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     private entranceService: EntranceService,
     private toastr: ToastrService,
     private api: ApiService,
+    private auth: AuthService,
   ){}
+
+  /** Administración y operarios: pestaña global de visitas temporales (todos los registros). */
+  get showStaffExternalVehiclesTab(): boolean {
+    const r = (this.auth.getUser()?.role_system ?? '').toString().trim().toUpperCase();
+
+    return ['ADMINISTRADOR', 'ADMIN', 'OPERARIO'].includes(r);
+  }
 
   ngOnInit(): void {
     this.entranceService.getAllVehicles().subscribe({
@@ -80,6 +89,14 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
       },
       error: (err) => { console.error('Error obteniendo casas:', err); }
     });
+    this.reloadExternalVehicles();
+  }
+
+  private reloadExternalVehicles(): void {
+    if (!this.showStaffExternalVehiclesTab) {
+      this.externalVehicles = [];
+      return;
+    }
     this.entranceService.getAllExternalVehicles().subscribe({
       next: (res: any) => {
         this.externalVehicles = Array.isArray(res) ? res : (res?.data ?? []);
@@ -138,8 +155,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
         ev.temp_visit_type.toLowerCase().includes(search) ||
         ev.temp_visit_plate.toLowerCase().includes(search) ||
         (ev.temp_visit_name && ev.temp_visit_name.toLowerCase().includes(search));
-      
-      // External vehicles no tienen house_id, así que no filtramos por manzana/lote
+      // Visitas temporales no van ligadas a un lote; filtros Mz/Lt no aplican salvo que añadas otro modelo.
       return matchesSearch;
     });
   }
@@ -317,8 +333,12 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     document.getElementById('vehicles-new-external-vehicle-button')?.click();
   }
 
-  editExternalVehicle(externalVehicle:ExternalVehicle){
-    this.externalVehicleToEdit = externalVehicle;
+  editExternalVehicle(externalVehicle: ExternalVehicle) {
+    this.externalVehicleToEdit = { ...externalVehicle } as ExternalVehicle;
+    const tid = (externalVehicle as any).temp_visit_id ?? (externalVehicle as any).id;
+    if (tid) {
+      (this.externalVehicleToEdit as any).id = tid;
+    }
     document.getElementById('vehicles-edit-external-vehicle-button')?.click();
   }
 
@@ -385,9 +405,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     this.entranceService.getAllVehicles().subscribe((res: any[]) => {
       this.vehicles = res;
     });
-    this.entranceService.getAllExternalVehicles().subscribe((resExt: any[]) => {
-      this.externalVehicles = resExt;
-    });
+    this.reloadExternalVehicles();
   }
   
   public clean(){

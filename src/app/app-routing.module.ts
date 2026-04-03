@@ -15,6 +15,7 @@ import { CalendarComponent } from './calendar/calendar.component';
 import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
 import { AuthGuard } from './auth.guard';
+import { MyHouseGuard } from './my-house.guard';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
@@ -26,7 +27,7 @@ const routes: Routes = [
   { path: "users", component: UsersComponent, canActivate: [AuthGuard] },
   { path: "houses", component: HousesComponent, canActivate: [AuthGuard] },
   { path: "vehicles", component: VehiclesComponent, canActivate: [AuthGuard] },
-  { path: "my-house", component: MyHouseComponent, canActivate: [AuthGuard] },
+  { path: "my-house", component: MyHouseComponent, canActivate: [AuthGuard, MyHouseGuard] },
   { path: "pets", component: PetsComponent, canActivate: [AuthGuard] },
   { path: "calendar", component: CalendarComponent, canActivate: [AuthGuard] },
   { path: "scanner", component: QrScannerComponent, canActivate: [AuthGuard] },

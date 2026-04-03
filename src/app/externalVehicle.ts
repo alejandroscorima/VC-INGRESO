@@ -10,6 +10,10 @@ export class ExternalVehicle {
     public status_reason: string,
     public status_system: string,
     public temp_visit_id?: number,
+    /** Usuario que registró la visita (API: registered_by_user_id). */
+    public registered_by_user_id?: number,
+    /** Alias para PUT /external-vehicles/:id (mismo valor que temp_visit_id). */
+    public id?: number,
   ) { }
 
 }

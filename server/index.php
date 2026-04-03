@@ -167,6 +167,11 @@ if (str_starts_with($uri, '/api/v1/')) {
             $controller->changeMyPassword();
             exit;
         }
+
+        if ($path === 'users/check-username' && $method === 'GET') {
+            $controller->checkUsernameAvailability([]);
+            exit;
+        }
         
         if (str_contains($path, 'from-person') && $method === 'POST') {
             $controller->createFromPerson();
@@ -204,7 +209,9 @@ if (str_starts_with($uri, '/api/v1/')) {
                     break;
                 case 'DELETE':
                     if ($id) {
-                        $controller->destroy(['id' => $id]);
+                        require_once __DIR__ . '/utils/Response.php';
+                        \Utils\Response::error('No se permite eliminar usuarios; los registros se conservan por trazabilidad.', 403);
+                        exit;
                     }
                     break;
             }
@@ -605,7 +612,7 @@ echo json_encode([
             'GET /api/v1/users/:id' => 'Obtener usuario por ID',
             'POST /api/v1/users' => 'Crear usuario',
             'PUT /api/v1/users/:id' => 'Actualizar usuario',
-            'DELETE /api/v1/users/:id' => 'Eliminar usuario',
+            'DELETE /api/v1/users/:id' => 'No permitido (conservación de registros)',
             'POST /api/v1/users/me/photo' => 'Subir foto de perfil (auth, multipart)',
             'GET /api/v1/users/by-birthday?fecha_cumple=MM-DD' => 'Usuarios por cumpleaños',
             

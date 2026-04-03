@@ -3,7 +3,7 @@
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Mi Casa</h2>
         <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myhouse-default-tab" data-tabs-toggle="#myhouse-default-tab-content" role="tablist">
-                <li class="me-2" role="presentation">
+                <li *ngIf="!isTenantRestrictedInMyHouse" class="me-2" role="presentation">
                     <button class="inline-block p-4 border-b-2 rounded-t-lg" id="myhouse-family-tab" data-tabs-target="#myhouse-family" type="button" role="tab" aria-controls="myhouse-family" aria-selected="false">Residentes</button>
                 </li>
                 <li class="me-2" role="presentation">
@@ -27,8 +27,8 @@
             </ul>
         </div>
         <div id="myhouse-default-tab-content">
-<!--RESIDENT TAB-->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-family" role="tabpanel" aria-labelledby="myhouse-family-tab">
+<!--RESIDENT TAB (oculto para usuario inquilino: no editar propietarios/residentes) -->
+            <div *ngIf="!isTenantRestrictedInMyHouse" class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-family" role="tabpanel" aria-labelledby="myhouse-family-tab">
                 <button type="button" (click)="newUser()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -170,9 +170,9 @@
                                 <td class="px-6 py-4 uppercase">{{ pt?.status_system || pt?.status_validated }}</td>
                                 <td class="px-6 py-4 text-right">
                                     <input type="file" #petPhotoInput [attr.id]="'myhouse-pet-photo-' + myPets.indexOf(pt)" accept="image/jpeg,image/png,image/gif" (change)="onPetPhotoSelect(myPets.indexOf(pt), $event)" class="hidden" />
-                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingPetIndex === myPets.indexOf(pt) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingPetIndex === myPets.indexOf(pt)" [attr.for]="'myhouse-pet-photo-' + myPets.indexOf(pt)" (click)="document.getElementById('myhouse-pet-photo-' + myPets.indexOf(pt))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingPetIndex === myPets.indexOf(pt) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
+                                    <button *ngIf="canTenantEditPet(pt)" type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingPetIndex === myPets.indexOf(pt) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingPetIndex === myPets.indexOf(pt)" [attr.for]="'myhouse-pet-photo-' + myPets.indexOf(pt)" (click)="document.getElementById('myhouse-pet-photo-' + myPets.indexOf(pt))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingPetIndex === myPets.indexOf(pt) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="pt?.photo_url" type="button" (click)="openViewPhoto(pt, 'Mascota: '+pt?.name)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
-                                    <button type="button" (click)="editPet(pt)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
+                                    <button *ngIf="canTenantEditPet(pt)" type="button" (click)="editPet(pt)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
                             </tr>
                             <tr *ngIf="myPets.length === 0"><td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No hay mascotas registradas</td></tr>
@@ -230,9 +230,9 @@
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
                                     <input type="file" [attr.id]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(myVehicles.indexOf(vh), $event)" class="hidden" />
-                                    <button type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingVehicleIndex === myVehicles.indexOf(vh)" [attr.for]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" (click)="document.getElementById('myhouse-vehicle-photo-' + myVehicles.indexOf(vh))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
+                                    <button *ngIf="canTenantEditVehicle(vh)" type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingVehicleIndex === myVehicles.indexOf(vh)" [attr.for]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" (click)="document.getElementById('myhouse-vehicle-photo-' + myVehicles.indexOf(vh))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="vh?.photo_url" type="button" (click)="openViewPhoto(vh, 'Vehículo: '+vh?.license_plate)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
-                                    <button type="button" (click)="editVehicle(vh)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
+                                    <button *ngIf="canTenantEditVehicle(vh)" type="button" (click)="editVehicle(vh)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
                             </tr>
                             <tr *ngIf="myVehicles.length === 0"><td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No hay vehículos registrados</td></tr>
@@ -290,8 +290,9 @@
                     </table>
                 </div>
             </div>
-<!--EXTERNAL-VEHICLES-TAB-->
+<!--EXTERNAL-VEHICLES-TAB: solo lo que cada usuario registró (incluye admin/operario como residentes) -->
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="myhouse-external-vehicles" role="tabpanel" aria-labelledby="myhouse-external-vehicles-tab">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Aquí solo se listan los taxis, deliverys, movilidad escolar, colectivos u otros que <strong>usted</strong> registre como residente.
                 <button type="button" (click)="newExternalVehicle()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">
                     Nuevo
                 </button>
@@ -863,7 +864,7 @@
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-category_entryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
                     <select [(ngModel)]="vehicleToAdd.category_entry" name="category_entryNew" id="myhouse-category_entryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
-                        <option *ngFor="let c of categories">{{c}}</option>
+                        <option *ngFor="let c of vehicleCategoryOptions">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
@@ -936,14 +937,14 @@
                    </div>
                    <div class="col-span-1 mb-2 mx-1">
                        <label for="myhouse-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="vehicleToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <select [(ngModel)]="vehicleToEdit.house_id" name="houseIdEdit" id="myhouse-houseIdEdit" [disabled]="isTenantRestrictedInMyHouse" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-category_entryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
                     <select [(ngModel)]="vehicleToEdit.category_entry" name="category_entryEdit" id="myhouse-category_entryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
-                        <option *ngFor="let c of categories">{{c}}</option>
+                        <option *ngFor="let c of vehicleCategoryOptions">{{c}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
@@ -966,7 +967,7 @@
     </div>
 </div>
 
-<!--CREAR NUEVO VEHÍCULO EXTERNO Y EDITAR VEHÍCULO EXTERNO-->
+<!--CREAR NUEVO VEHÍCULO EXTERNO Y EDITAR VEHÍCULO EXTERNO -->
 
 <!-- Modal toggle new vehicle -->
 
