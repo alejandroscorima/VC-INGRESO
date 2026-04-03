@@ -600,7 +600,7 @@ http_response_code(404);
 echo json_encode([
     'success' => false,
     'error' => 'Ruta no encontrada',
-    'documentation' => 'Todas las rutas están bajo /api/v1/. Ver API.md',
+    'documentation' => 'Todas las rutas están bajo /api/v1/. Ver server/API.md',
     'available_routes' => [
             // Registro público (sin auth)
             'POST /api/v1/public/register' => 'Registro público: vivienda + propietarios + vehículos + mascotas',

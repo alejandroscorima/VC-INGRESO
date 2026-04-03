@@ -1,30 +1,43 @@
-# API REST v1 – VC-INGRESO
+# API REST v1 — VC-INGRESO
 
-Base URL: `/api/v1/`. **Punto de entrada único:** `index.php` + `db_connection.php`. Ya no se usan archivos `.php` sueltos (legacy eliminado).
+Documentación alineada al enrutado en [`index.php`](index.php). Base URL: **`/api/v1/`**.
 
-Autenticación: cabecera `Authorization: Bearer <token>` (JWT) en endpoints que usan `requireAuth()`. **Excepciones (sin auth):** `POST /api/v1/public/register`, `POST /api/v1/auth/login`.
+- **Entrada:** `server/index.php` + `server/db_connection.php`.
+- **Formato:** JSON (`Content-Type: application/json`), salvo subidas `multipart/form-data`.
+- **CORS:** `Access-Control-Allow-Origin: *`; métodos `GET, POST, PUT, DELETE, OPTIONS`.
+- **Autenticación:** cabecera `Authorization: Bearer <JWT>` en rutas que invocan `requireAuth()` en los controladores (la mayoría salvo `auth/login`, `public/*` y la respuesta 404 documentada).
 
-Patrón común para CRUD: `GET` listar, `GET /:id` obtener uno, `POST` crear (body JSON), `PUT /:id` actualizar (body JSON), `DELETE /:id` eliminar.
-
----
-
-## Auth
-
-| Método | Ruta | Auth | Descripción |
-|--------|------|------|-------------|
-| POST | /api/v1/auth/login | No | Login. Body: `{ "username_system", "password_system" }`. Retorna `{ user, person, my_houses, token }`. |
+`requireAuth()` acepta opcionalmente validación CSRF vía cabecera `X-CSRF-Token` cuando el controlador use `requireAuth(true)` (ver `auth_middleware.php`).
 
 ---
 
-## Registro público (sin login)
+## Archivos estáticos (no son `/api/v1`)
 
-Para el formulario de registro de propietarios (sin pasar por login).
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/uploads/...` | Sirve imágenes bajo `server/uploads/` si el archivo existe y es imagen (MIME `image/*`). |
 
-| Método | Ruta | Auth | Descripción |
-|--------|------|------|-------------|
-| POST | /api/v1/public/register | No | Crea vivienda + propietario(s) + vehículos + mascotas en una sola petición |
+---
 
-**Body JSON:**
+## Auth (sin token)
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/v1/auth/login` | Body JSON: `username_system`, `password_system`. Respuesta: `user`, `person`, `my_houses`, `token` (JWT). Errores 400/401. |
+
+---
+
+## Registro público (sin token)
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/v1/public/register` | Alta de vivienda + propietarios (`persons`) + vehículos + mascotas. Ver cuerpo más abajo. |
+| GET | `/api/v1/public/houses` | Casas **sin** propietario (`person_type = PROPIETARIO`) — desplegables de registro. |
+| GET | `/api/v1/public/check-doc?doc_number=` | `registered: true|false` si el documento ya existe en `persons`. Siempre 200. |
+| POST | `/api/v1/public/upload/vehicle-photo` | `multipart/form-data`, campo **`photo`**. Máx. 5 MB; JPG, PNG, GIF. |
+| POST | `/api/v1/public/upload/pet-photo` | Igual que vehículo. |
+
+### Body `POST /public/register` (ejemplo)
 
 ```json
 {
@@ -67,93 +80,32 @@ Para el formulario de registro de propietarios (sin pasar por login).
 }
 ```
 
-- **house**: obligatorio. `house_type`: CASA | DEPARTAMENTO | LOCAL COMERCIAL | OTRO. `block_house`, `lot` obligatorios; `apartment` opcional.
-- **owners**: array con al menos un propietario. Obligatorios: `doc_number`, `first_name`, `paternal_surname`. Opcionales: `maternal_surname`, `cel_number`, `email`, `type_doc` (default DNI). No se permite repetir `doc_number`.
-- **vehicles**: array opcional. Cada item requiere `license_plate`; opcionales: `type_vehicle`, `brand`, `color`, `photo_url`.
-- **pets**: array opcional. Cada item requiere `name` y `species` (PERRO | GATO | AVE | OTRO); opcionales: `breed`, `color`, `age_years`, `photo_url`.
+- **house:** obligatorio. `house_type`: CASA | DEPARTAMENTO | LOCAL COMERCIAL | OTRO. `block_house`, `lot` obligatorios; `apartment` opcional.
+- **owners:** al menos uno. Obligatorios: `doc_number`, `first_name`, `paternal_surname`. Opcionales: `maternal_surname`, `cel_number`, `email`, `type_doc` (default DNI). No repetir `doc_number` en el array.
+- **vehicles / pets:** opcionales; para `photo_url` subir antes con los endpoints públicos de upload.
 
-**Respuesta 201:** `{ "success": true, "data": { "house_id", "person_ids", "vehicle_ids", "pet_ids", "created_users" }, "message": "..." }`.
+**Respuesta 201:** típicamente `{ "success": true, "data": { "house_id", "person_ids", "vehicle_ids", "pet_ids", ... } }`.
 
-**Subida de fotos (registro público):** Para incluir `photo_url` en vehículos o mascotas, primero subir la imagen con los endpoints siguientes y luego enviar la URL devuelta en el payload de `POST /api/v1/public/register`.
-
-| Método | Ruta | Auth | Descripción |
-|--------|------|------|-------------|
-| POST | /api/v1/public/upload/vehicle-photo | No | Sube una foto de vehículo. Body: `multipart/form-data`, campo **photo** (archivo). Máx. 5 MB; formatos: JPG, PNG, GIF. |
-| POST | /api/v1/public/upload/pet-photo | No | Sube una foto de mascota. Mismo formato que vehicle-photo. |
-
-**Respuesta 200:** `{ "success": true, "photo_url": "/uploads/public/vehicles/xxx.jpg" }` (o `.../pets/xxx.jpg`).  
-**Errores 400:** `{ "success": false, "error": "No se ha subido ninguna imagen" }`, `"Formato no permitido..."`, `"El archivo no debe superar 5 MB."`, etc.
-
-Las URLs devueltas deben servirse como estáticos (proxy o alias `/uploads` en el servidor) para poder mostrar las imágenes en el sistema tras el login.
-
-**RENIEC:** La consulta por DNI para autocompletar (nombre, apellidos, etc.) se hace desde el frontend a la API externa; el endpoint de registro solo recibe los datos ya completos. Ver sección [API RENIEC (consulta por DNI)](#api-reniec-consulta-por-dni) más abajo.
+**RENIEC:** la consulta por DNI es **solo en el frontend** (p. ej. `GET https://my.apidev.pro/api/dni/{dni}`). El backend solo recibe datos ya completos.
 
 ---
 
-## API RENIEC (consulta por DNI)
-
-API externa para autocompletar datos del propietario al ingresar el DNI. Ejemplo de uso: [my.apidev.pro](https://my.apidev.pro/api/dni/). La consulta se realiza desde el **frontend** (p. ej. al perder foco del campo DNI o con un botón “Buscar”).
-
-**Petición (desde el frontend):**  
-`GET https://my.apidev.pro/api/dni/{numero_dni}`  
-(Revisar en la documentación del proveedor si requiere API key o cabeceras.)
-
-**Respuesta de ejemplo (éxito):**
-
-```json
-{
-  "success": true,
-  "data": {
-    "numero": "70416431",
-    "nombre_completo": "OSCORIMA PALOMINO, MARTIN ALEJANDRO",
-    "nombres": "MARTIN ALEJANDRO",
-    "apellido_paterno": "OSCORIMA",
-    "apellido_materno": "PALOMINO",
-    "codigo_verificacion": 4,
-    "fecha_nacimiento": "1999-03-30",
-    "sexo": "MASCULINO",
-    "estado_civil": "SOLTERO",
-    "departamento": "AYACUCHO",
-    "provincia": "HUAMANGA",
-    "distrito": "AYACUCHO",
-    "direccion": "JR. DOS DE MAYO 710",
-    "direccion_completa": "JR. DOS DE MAYO 710, AYACUCHO - HUAMANGA - AYACUCHO",
-    "ubigeo_reniec": "050101",
-    "ubigeo_sunat": "050101",
-    "ubigeo": ["05", "0501", "050101"]
-  },
-  "time": 0.060066938400268555
-}
-```
-
-**Campos de `data` y uso en el formulario / `POST /api/v1/public/register`:**
-
-| Campo RENIEC       | Uso en registro (owners[])     | Notas |
-|--------------------|---------------------------------|--------|
-| `numero`           | `doc_number`                   | DNI. |
-| `nombres`          | `first_name`                   | Puede venir en mayúsculas; el usuario puede corregir. |
-| `apellido_paterno` | `paternal_surname`             | |
-| `apellido_materno` | `maternal_surname`             | |
-| `fecha_nacimiento` | —                              | Opcional: guardar como `birth_date` si en el futuro persons/users lo usan. |
-| `sexo`             | —                              | Opcional: mapear a `gender` (M/F u otro) si se usa. |
-| `direccion` / `direccion_completa` | —                    | Opcional: dirección para perfiles. |
-| `departamento`, `provincia`, `distrito` | —                      | Opcional: para ubicación. |
-
-El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname** y opcionalmente **maternal_surname** desde `data`; el usuario puede editar antes de enviar a `POST /api/v1/public/register`.
-
----
-
-## Users
+## Users (requiere token salvo donde se indique)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/users | Listar usuarios |
-| GET | /api/v1/users/:id | Obtener usuario por user_id |
-| POST | /api/v1/users | Crear usuario (body JSON) |
-| PUT | /api/v1/users/:id | Actualizar usuario |
-| DELETE | /api/v1/users/:id | Eliminar usuario |
-| POST | /api/v1/users/me/photo | **Auth.** Subir foto de perfil. Body: `multipart/form-data`, campo **photo**. Respuesta: usuario actualizado con `photo_url`. |
-| GET | /api/v1/users/by-birthday?fecha_cumple=MM-DD | Usuarios con cumpleaños ese día (incl. block_house, lot) |
+| GET | `/api/v1/users` | Listar usuarios. |
+| GET | `/api/v1/users/:id` | Usuario por `user_id`. |
+| POST | `/api/v1/users` | Crear usuario (JSON). |
+| PUT | `/api/v1/users/:id` | Actualizar usuario. |
+| DELETE | `/api/v1/users/:id` | **No permitido** — responde **403** (conservación de registros). |
+| POST | `/api/v1/users/me/photo` | Subir foto de perfil (`multipart/form-data`, campo **`photo`**). |
+| PUT | `/api/v1/users/me/person` | Actualizar datos de la persona vinculada al usuario autenticado. |
+| PUT | `/api/v1/users/me/password` | Cambiar contraseña del usuario autenticado. |
+| GET | `/api/v1/users/check-username?username=` | (o `?q=`) Comprueba si el nombre de usuario está libre. Respuesta incluye `available`. |
+| POST | `/api/v1/users/from-person` | Crear usuario desde persona existente. Body: `person_id`, `username_system`, `password_system`, `role_system`, opcional `force_password_change`. Reglas de rol y permisos en `UserController::createFromPerson`. |
+| GET | `/api/v1/users/by-doc-number?doc_number=` | Buscar por documento (join con `persons`). |
+| GET | `/api/v1/users/by-birthday?fecha_cumple=MM-DD` | Cumpleaños del día (incluye datos de casa cuando aplica). |
 
 ---
 
@@ -161,11 +113,12 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/houses | Listar casas |
-| GET | /api/v1/houses/:id | Obtener casa por house_id |
-| POST | /api/v1/houses | Crear casa |
-| PUT | /api/v1/houses/:id | Actualizar casa |
-| DELETE | /api/v1/houses/:id | Eliminar casa |
+| GET | `/api/v1/houses` | Listar. |
+| GET | `/api/v1/houses/:id` | Una casa. |
+| GET | `/api/v1/houses/:id/members` | Miembros (`house_members` + datos de persona). |
+| POST | `/api/v1/houses` | Crear. |
+| PUT | `/api/v1/houses/:id` | Actualizar. |
+| DELETE | `/api/v1/houses/:id` | Eliminar. |
 
 ---
 
@@ -173,12 +126,12 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/vehicles | Listar vehículos |
-| GET | /api/v1/vehicles/:id | Obtener vehículo |
-| POST | /api/v1/vehicles | Crear vehículo |
-| PUT | /api/v1/vehicles/:id | Actualizar vehículo |
-| DELETE | /api/v1/vehicles/:id | Eliminar vehículo |
-| GET | /api/v1/vehicles/by-house?house_id=:id | Vehículos por casa |
+| GET | `/api/v1/vehicles` | Listar. |
+| GET | `/api/v1/vehicles/:id` | Uno. |
+| GET | `/api/v1/vehicles/by-house?house_id=` | Por casa. |
+| POST | `/api/v1/vehicles` | Crear. |
+| PUT | `/api/v1/vehicles/:id` | Actualizar. |
+| DELETE | `/api/v1/vehicles/:id` | Eliminar. |
 
 ---
 
@@ -186,15 +139,19 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/persons | Listar personas |
-| GET | /api/v1/persons/:id | Obtener persona por id |
-| POST | /api/v1/persons | Crear persona |
-| PUT | /api/v1/persons/:id | Actualizar persona |
-| DELETE | /api/v1/persons/:id | Eliminar persona |
-| GET | /api/v1/persons/by-doc-number?doc_number= | Por documento |
-| GET | /api/v1/persons/observed | Personas observadas |
-| GET | /api/v1/persons/restricted | Personas restringidas |
-| PUT | /api/v1/persons/:id/validate | Cambiar estado validación (body: status_validated, status_reason) |
+| GET | `/api/v1/persons` | Listar (filtros vía query según `PersonController::index`). |
+| GET | `/api/v1/persons/:id` | Una persona. |
+| POST | `/api/v1/persons` | Crear. |
+| PUT | `/api/v1/persons/:id` | Actualizar. |
+| DELETE | `/api/v1/persons/:id` | Eliminar. |
+| GET | `/api/v1/persons/by-doc-number?doc_number=` | Por documento. |
+| GET | `/api/v1/persons/destacados` | Listado destacados. |
+| GET | `/api/v1/persons/list-by-birthday` | Cumpleaños (también puede usarse `GET /api/v1/persons?fecha_cumple=...` según enrutado). |
+| GET | `/api/v1/persons/observed` | Estado OBSERVADO. |
+| GET | `/api/v1/persons/restricted` | Estado DENEGADO. |
+| PUT | `/api/v1/persons/:id/validate` | Cambiar validación (`status_validated`, `status_reason`). |
+
+> **Nota (enrutado):** las rutas como `persons/by-doc-number`, `persons/observed`, etc. están definidas **después** del bloque que hace `preg_match('#^persons(?:/(\d+))?#')` sin ancla `$`. Ese patrón coincide con el prefijo `persons` de cualquier path que empiece así, por lo que el bloque puede ejecutarse y hacer `exit` antes de llegar a las rutas específicas. Si alguna de esas URLs no funciona en tu entorno, hay que reordenar o restringir el regex (p. ej. exigir fin de cadena o solo dígitos en el segmento opcional) para que las rutas con nombre se resuelvan primero.
 
 ---
 
@@ -202,26 +159,26 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/external-vehicles | Listar |
-| GET | /api/v1/external-vehicles/:id | Obtener uno |
-| POST | /api/v1/external-vehicles | Crear |
-| PUT | /api/v1/external-vehicles/:id | Actualizar |
-| DELETE | /api/v1/external-vehicles/:id | Eliminar |
+| GET | `/api/v1/external-vehicles` | Listar. |
+| GET | `/api/v1/external-vehicles/:id` | Uno. |
+| POST | `/api/v1/external-vehicles` | Crear. |
+| PUT | `/api/v1/external-vehicles/:id` | Actualizar. |
+| DELETE | `/api/v1/external-vehicles/:id` | Eliminar. |
 
 ---
 
-## Pets (mascotas – gestión por house_id)
+## Pets
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/pets | Listar (query: house_id, owner_id, status, species) |
-| GET | /api/v1/pets/:id | Obtener una (incl. block_house, lot) |
-| GET | /api/v1/pets/person/:person_id | Mascotas de un propietario |
-| POST | /api/v1/pets | Crear (body: name, species, house_id obligatorios; breed, color, age_years, owner_id, photo_url opcionales) |
-| PUT | /api/v1/pets/:id | Actualizar |
-| PUT | /api/v1/pets/:id/validate | Cambiar estado (body: status_validated, status_reason) |
-| POST | /api/v1/pets/:id/photo | Subir foto (multipart/form-data: photo) |
-| DELETE | /api/v1/pets/:id | Eliminar |
+| GET | `/api/v1/pets` | Listar (query: `house_id`, `owner_id`, `status`, `species`, etc.). |
+| GET | `/api/v1/pets/:id` | Una mascota. |
+| GET | `/api/v1/pets/person/:person_id` | Por propietario (`person_id`). |
+| POST | `/api/v1/pets` | Crear. |
+| PUT | `/api/v1/pets/:id` | Actualizar. |
+| PUT | `/api/v1/pets/:id/validate` | Cambiar estado de validación. |
+| POST | `/api/v1/pets/:id/photo` | Subir foto (`multipart/form-data`, campo **`photo`**). |
+| DELETE | `/api/v1/pets/:id` | Eliminar. |
 
 ---
 
@@ -229,39 +186,50 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/access-logs | Listar (query: access_point_id, person_id, type, date, start_date, end_date, page, limit) |
-| GET | /api/v1/access-logs/:id | Obtener uno |
-| POST | /api/v1/access-logs | Crear registro (body JSON) |
-| GET | /api/v1/access-logs/access-points | Listar puntos de acceso |
-| GET | /api/v1/access-logs/stats/daily | Estadísticas diarias |
-| GET | /api/v1/access-logs/entrance-by-range | Reporte ingresos por día (query: date_init, date_end) |
-| GET | /api/v1/access-logs/history-by-date | Por fecha y sala (query: fecha, sala) |
-| GET | /api/v1/access-logs/history-by-range | Por rango (query: fecha_inicial, fecha_final, access_point) |
-| GET | /api/v1/access-logs/history-by-client | Por cliente (query: fecha, sala, doc) |
-| GET | /api/v1/access-logs/aforo | Reporte aforo (query: sala, fechaInicio, fechaFin, etc.) |
-| GET | /api/v1/access-logs/address | Idem (alias) |
-| GET | /api/v1/access-logs/total-month | Total mensual |
-| GET | /api/v1/access-logs/total-month-new | Total mensual (nuevo) |
-| GET | /api/v1/access-logs/hours | Por hora |
-| GET | /api/v1/access-logs/age | Por edad |
+| GET | `/api/v1/access-logs` | Listar (filtros en query: `access_point_id`, `person_id`, `type`, fechas, `page`, `limit`, etc.). |
+| GET | `/api/v1/access-logs/:id` | Un registro. |
+| POST | `/api/v1/access-logs` | Crear ingreso/egreso. |
+| GET | `/api/v1/access-logs/access-points` | Puntos de acceso. |
+| GET | `/api/v1/access-logs/stats/daily` | Estadísticas diarias. |
+| GET | `/api/v1/access-logs/entrance-by-range` | Ingresos por rango de fechas (`date_init`, `date_end`, …). |
+| GET | `/api/v1/access-logs/history-by-date` | Por fecha y sala. |
+| GET | `/api/v1/access-logs/history-by-range` | Por rango. |
+| GET | `/api/v1/access-logs/history-by-client` | Por cliente/documento. |
+| GET | `/api/v1/access-logs/aforo` | Reporte aforo. |
+| GET | `/api/v1/access-logs/address` | Alias / variante de reporte (mismo uso que legacy). |
+| GET | `/api/v1/access-logs/total-month` | Total mensual. |
+| GET | `/api/v1/access-logs/total-month-new` | Total mensual (versión nueva). |
+| GET | `/api/v1/access-logs/hours` | Por hora. |
+| GET | `/api/v1/access-logs/age` | Por edad. |
 
 ---
 
-## Catalog (áreas, salas, stubs)
+## Catalog (stubs y catálogos)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | /api/v1/catalog/areas | Lista de áreas (access_points) |
-| GET | /api/v1/catalog/salas | Lista de salas (access_points activos) |
-| GET | /api/v1/catalog/prioridad | Prioridades (stub: []) |
-| GET | /api/v1/catalog/collaborator | Por user_id (stub) |
-| GET | /api/v1/catalog/personal | Por area_id (stub: []) |
-| GET | /api/v1/catalog/payment-by-client | Por client_id (stub) |
-| GET | /api/v1/catalog/activities-by-user | Stub [] |
-| GET | /api/v1/catalog/machines | Stub [] |
-| GET | /api/v1/catalog/inc-pendientes | Stub [] |
-| GET | /api/v1/catalog/inc-proceso | Stub [] |
-| GET | /api/v1/catalog/inc-fin | Stub [] |
+Todas requieren token. Varias devuelven `[]` o `null` hasta integrar datos reales.
+
+| Método | Ruta |
+|--------|------|
+| GET | `/api/v1/catalog/areas` |
+| GET | `/api/v1/catalog/salas` |
+| GET | `/api/v1/catalog/prioridad` |
+| GET | `/api/v1/catalog/collaborator` |
+| GET | `/api/v1/catalog/personal` |
+| GET | `/api/v1/catalog/payment-by-client` |
+| GET | `/api/v1/catalog/activities-by-user` |
+| GET | `/api/v1/catalog/machines` |
+| GET | `/api/v1/catalog/machine-by-rmt` |
+| GET | `/api/v1/catalog/problems-by-type` |
+| GET | `/api/v1/catalog/solutions-by-type` |
+| GET | `/api/v1/catalog/areas-by-zone` |
+| GET | `/api/v1/catalog/campus-by-zone` |
+| GET | `/api/v1/catalog/inc-pendientes` |
+| GET | `/api/v1/catalog/inc-proceso` |
+| GET | `/api/v1/catalog/inc-fin` |
+| GET | `/api/v1/catalog/campus-by-id` |
+| GET | `/api/v1/catalog/campus-active-by-id` |
+
+Parámetros query según `CatalogController.php`.
 
 ---
 
@@ -269,25 +237,50 @@ El formulario debe rellenar **doc_number**, **first_name**, **paternal_surname**
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/reservations | Listar (query: access_point_id, person_id, house_id, date, start_date, end_date, status) |
-| GET | /api/v1/reservations/:id | Obtener una |
-| POST | /api/v1/reservations | Crear |
-| PUT | /api/v1/reservations/:id | Actualizar |
-| PUT | /api/v1/reservations/:id/status | Cambiar estado |
-| DELETE | /api/v1/reservations/:id | Eliminar |
-| GET | /api/v1/reservations/areas | Áreas disponibles (access_points tipo PISCINA, CASA_CLUB) |
-| GET | /api/v1/reservations/availability | Disponibilidad (query params según controller) |
+| GET | `/api/v1/reservations` | Listar. |
+| GET | `/api/v1/reservations/:id` | Una reservación. |
+| POST | `/api/v1/reservations` | Crear. |
+| PUT | `/api/v1/reservations/:id` | Actualizar. |
+| PUT | `/api/v1/reservations/:id/status` | Cambiar estado. |
+| DELETE | `/api/v1/reservations/:id` | Eliminar. |
+| GET | `/api/v1/reservations/areas` | Áreas (p. ej. PISCINA, CASA_CLUB). |
+| GET | `/api/v1/reservations/availability` | Disponibilidad (parámetros en query). |
 
 ---
 
-## Respuestas
+## API RENIEC (referencia frontend)
 
-- Éxito: `{ "success": true, "data": ... }` o según controlador (Response::success / Response::json).
-- Error: `{ "success": false, "error": "mensaje" }` con código HTTP 4xx/5xx.
-- Listados suelen devolver `data` (array) y a veces `count`.
+No es un endpoint de este servidor. Ejemplo de proveedor: `GET https://my.apidev.pro/api/dni/{numero_dni}`.
 
-## Crear nuevos CRUD
+Campos útiles para rellenar el formulario público / `owners[]`:
 
-1. Añadir tabla en `vc_create_database.sql` (y FK si aplica).
-2. Crear `server/controllers/NombreController.php` (extender `Controller` para reutilizar getInput(), getDatabase(), create(), update(), delete(), findById()).
-3. En `server/index.php` registrar rutas bajo `/api/v1/nombre-recurso` con el mismo patrón: `preg_match` para `recurso` y `recurso/:id`, switch por método (GET/POST/PUT/DELETE) y subrutas especiales antes del CRUD genérico.
+| Campo API | Uso |
+|-----------|-----|
+| `numero` | `doc_number` |
+| `nombres` | `first_name` |
+| `apellido_paterno` | `paternal_surname` |
+| `apellido_materno` | `maternal_surname` |
+
+---
+
+## Respuestas y errores
+
+- Éxito habitual: `{ "success": true, "data": ... }` (u otra forma según `Utils\Response`).
+- Error: `{ "success": false, "error": "mensaje" }` con código HTTP apropiado (400, 401, 403, 404, 409, …).
+- **404** en rutas desconocidas: JSON con `documentation` apuntando a este archivo y listado orientativo en `available_routes` (ver final de `index.php`).
+
+---
+
+## Añadir un nuevo recurso CRUD
+
+1. Tabla en `database/vc_create_database.sql` (y FKs).
+2. `server/controllers/NuevoController.php` extendiendo `Controller` donde aplique.
+3. Registrar rutas en `server/index.php` bajo `/api/v1/...`, con subrutas específicas **antes** del patrón genérico `recurso/:id`.
+
+---
+
+## Documentación ampliada
+
+Contexto de negocio, bases de datos, despliegue y flujo `users` / `persons` / `house_members`: [`../plans/REFERENCIA_TECNICA.md`](../plans/REFERENCIA_TECNICA.md).
+
+Estado del proyecto y mejoras: [`../ESTADO_Y_MEJORAS.md`](../ESTADO_Y_MEJORAS.md).
