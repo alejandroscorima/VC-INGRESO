@@ -84,6 +84,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
                                     <button *ngIf="fm.photo_url" type="button" (click)="openViewPhoto(fm, 'Residente: '+fm.first_name+' '+fm.paternal_surname)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
+                                    <button *ngIf="canShowQrForPersonRow(fm)" type="button" (click)="openPersonAccessQr(fm, 'QR ingreso — ' + (fm.first_name||'') + ' ' + (fm.paternal_surname||''))" class="inline-flex items-center justify-center p-1 rounded text-violet-600 hover:bg-violet-100 dark:text-violet-400 dark:hover:bg-violet-900/30" title="QR de ingreso"><mat-icon class="!text-lg !w-5 !h-5">qr_code_2</mat-icon></button>
                                     <button type="button" (click)="editUser(fm)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
                             </tr>
@@ -121,6 +122,7 @@
                                 <td class="px-6 py-4">{{ t?.status_system || t?.status_validated }}</td>
                                 <td class="px-6 py-4 text-right">
                                     <button *ngIf="t.photo_url" type="button" (click)="openViewPhoto(t, 'Inquilino: '+t.first_name+' '+t.paternal_surname)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
+                                    <button *ngIf="canShowQrForPersonRow(t)" type="button" (click)="openPersonAccessQr(t, 'QR ingreso — ' + (t.first_name||'') + ' ' + (t.paternal_surname||''))" class="inline-flex items-center justify-center p-1 rounded text-violet-600 hover:bg-violet-100 dark:text-violet-400 dark:hover:bg-violet-900/30" title="QR de ingreso"><mat-icon class="!text-lg !w-5 !h-5">qr_code_2</mat-icon></button>
                                     <button type="button" (click)="editUser(t)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
                             </tr>
@@ -232,6 +234,7 @@
                                     <input type="file" [attr.id]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(myVehicles.indexOf(vh), $event)" class="hidden" />
                                     <button *ngIf="canTenantEditVehicle(vh)" type="button" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-500" [attr.title]="uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'Cargando...' : 'Subir foto'" [disabled]="uploadingVehicleIndex === myVehicles.indexOf(vh)" [attr.for]="'myhouse-vehicle-photo-' + myVehicles.indexOf(vh)" (click)="document.getElementById('myhouse-vehicle-photo-' + myVehicles.indexOf(vh))?.click()"><mat-icon class="!text-lg !w-5 !h-5">{{ uploadingVehicleIndex === myVehicles.indexOf(vh) ? 'hourglass_empty' : 'photo_camera' }}</mat-icon></button>
                                     <button *ngIf="vh?.photo_url" type="button" (click)="openViewPhoto(vh, 'Vehículo: '+vh?.license_plate)" class="inline-flex items-center justify-center p-1 rounded text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Ver foto"><mat-icon class="!text-lg !w-5 !h-5">visibility</mat-icon></button>
+                                    <button *ngIf="canShowQrForVehicleRow(vh)" type="button" (click)="openVehicleAccessQr(vh)" class="inline-flex items-center justify-center p-1 rounded text-violet-600 hover:bg-violet-100 dark:text-violet-400 dark:hover:bg-violet-900/30" title="QR de ingreso (placa)"><mat-icon class="!text-lg !w-5 !h-5">qr_code_2</mat-icon></button>
                                     <button *ngIf="canTenantEditVehicle(vh)" type="button" (click)="editVehicle(vh)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
                             </tr>
@@ -282,6 +285,7 @@
                                     {{mv?.status_system || mv?.status_validated}}
                                 </td>
                                 <td class="px-6 py-4 text-right uppercase">
+                                    <button *ngIf="canShowQrForPersonRow(mv)" type="button" (click)="openPersonAccessQr(mv, 'QR ingreso — visita ' + (mv.first_name||'') + ' ' + (mv.paternal_surname||''))" class="inline-flex items-center justify-center p-1 rounded text-violet-600 hover:bg-violet-100 dark:text-violet-400 dark:hover:bg-violet-900/30" title="QR de ingreso"><mat-icon class="!text-lg !w-5 !h-5">qr_code_2</mat-icon></button>
                                     <button type="button" (click)="editVisit(mv)" class="inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30" aria-label="Editar"><mat-icon class="!text-lg !w-5 !h-5">edit</mat-icon></button>
                                 </td>
                             </tr>
@@ -1153,6 +1157,20 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal Mi QR de ingreso -->
+<div *ngIf="showMyQrDialog" class="photo-view-overlay" (click)="closeMyQrDialog()">
+  <div class="photo-view-modal" (click)="$event.stopPropagation()">
+    <div class="photo-view-header">
+      <h3>{{ myQrDialogTitle }}</h3>
+      <button type="button" (click)="closeMyQrDialog()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+    <p class="text-sm text-gray-600 dark:text-gray-300 px-2 mb-2">Muéstrelo en portería. Válido unos 90 días; no lo comparta públicamente.</p>
+    <img *ngIf="myQrDataUrl" [src]="myQrDataUrl" alt="Código QR de acceso" class="photo-view-img mx-auto" />
+  </div>
 </div>
 
 <!-- Modal ver foto -->

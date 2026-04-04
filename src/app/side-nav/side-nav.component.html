@@ -26,6 +26,13 @@
     <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto" (mousedown)="onNavPointerDown($event)" (click)="onNavInteraction($event)">
       <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Principal</p>
       <ul class="space-y-0.5">
+        <li *ngIf="showCodigoQrNav()">
+          <a routerLink="/codigo-qr" routerLinkActive="nav-item-active"
+            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
+            <mat-icon class="nav-item-icon">qr_code_2</mat-icon>
+            <span>Código QR</span>
+          </a>
+        </li>
         <li>
           <a routerLink="/" routerLinkActive="nav-item-active" [routerLinkActiveOptions]="{ exact: true }"
             class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
@@ -59,13 +66,6 @@
             class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
             <mat-icon class="nav-item-icon">event</mat-icon>
             <span>Calendario</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/scanner" routerLinkActive="nav-item-active"
-            class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
-            <mat-icon class="nav-item-icon">qr_code_scanner</mat-icon>
-            <span>Escáner QR</span>
           </a>
         </li>
       </ul>

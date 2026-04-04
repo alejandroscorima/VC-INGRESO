@@ -1,25 +1,19 @@
-import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { UsersService } from "../users.service"
-import { User } from "../user"
-import { AccessLogService } from "../access-log.service"
-import { Visit } from "../visit"
+import { Component, Inject, OnInit } from '@angular/core';
+import { AccessLogService } from '../access-log.service';
+import { Visit } from '../visit';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ThemePalette } from '@angular/material/core';
-import { FormBuilder, FormControl } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Item } from '../item';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { Sale } from '../sale';
-import { EntranceService } from '../entrance.service';
-import { ToastrService } from 'ngx-toastr';
-import html2canvas from 'html2canvas';
-import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { AccessPoint } from '../accessPoint';
+import { ToastrService } from 'ngx-toastr';
+import { EntranceService } from '../entrance.service';
+import * as XLSX from 'xlsx';
 
+export interface HistoryAccessPointOption {
+  id: number;
+  label: string;
+}
+
+type HistoryRow = Record<string, unknown>;
 
 @Component({
   selector: 'app-history',
@@ -27,263 +21,328 @@ import { AccessPoint } from '../accessPoint';
   styleUrls: ['./history.component.css'],
   animations: [
     trigger('detailExpand', [
-      state('collapsed', style({height: '0px', minHeight: '0', display:'none'})),
-      state('expanded', style({height: '*'})),
+      state('collapsed', style({ height: '0px', minHeight: '0', display: 'none' })),
+      state('expanded', style({ height: '*' })),
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
   ],
 })
 export class HistoryComponent implements OnInit {
+  expandedElement: Item;
 
-  expandedElement: Item ;
-
-  visit: Visit= new Visit('','','','','','','');
+  visit: Visit = new Visit('', '', '', '', '', '', '');
   visits: Visit[] = [];
 
-  salas: string[]=[];
+  fecha_inicial: Date;
+  fecha_final: Date;
 
-  fecha;
-  fecha_inicial;
-  fecha_final;
-  fechaString;
-  fechaString_inicial;
-  fechaString_final;
+  access_point: number | null = null;
 
-  access_point;
+  accessPointOptions: HistoryAccessPointOption[] = [];
 
-  day;
-  month;
-  year;
+  loading = false;
 
-  dataSourceHistory: MatTableDataSource<Visit>;
+  /** Filas crudas del API */
+  allRows: HistoryRow[] = [];
 
-  accessPoints: AccessPoint[] = [];
+  filterQuery = '';
+  sortKey: keyof HistoryRow | string = 'date_entry';
+  sortAsc = false;
 
-  @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
-  @ViewChildren(MatSort) sort= new QueryList<MatSort>();
+  pageIndex = 0;
+  pageSize = 50;
+
+  readonly pageSizeOptions = [25, 50, 100, 200];
 
   constructor(
     private accessLogService: AccessLogService,
     private entranceService: EntranceService,
     public dialog: MatDialog,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private toastr: ToastrService,
-  ) { }
+    private toastr: ToastrService
+  ) {}
 
-  searchItem(){
-
+  get filteredRows(): HistoryRow[] {
+    let rows = [...this.allRows];
+    const f = this.filterQuery.trim().toLowerCase();
+    if (f) {
+      rows = rows.filter((r) =>
+        Object.values(r)
+          .filter((v) => v != null && v !== '')
+          .some((v) => String(v).toLowerCase().includes(f))
+      );
+    }
+    const key = this.sortKey;
+    const dir = this.sortAsc ? 1 : -1;
+    rows.sort((a, b) => {
+      const va = a[key as string];
+      const vb = b[key as string];
+      const sa = va == null ? '' : String(va);
+      const sb = vb == null ? '' : String(vb);
+      if (sa < sb) {
+        return -1 * dir;
+      }
+      if (sa > sb) {
+        return 1 * dir;
+      }
+      return 0;
+    });
+    return rows;
   }
 
-  saveCheck(){
-
+  get pagedRows(): HistoryRow[] {
+    const start = this.pageIndex * this.pageSize;
+    return this.filteredRows.slice(start, start + this.pageSize);
   }
 
-  applyFilterList(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSourceHistory.filter = filterValue.trim().toLowerCase();
+  get totalFiltered(): number {
+    return this.filteredRows.length;
+  }
 
-    if (this.dataSourceHistory.paginator) {
-      this.dataSourceHistory.paginator.firstPage();
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalFiltered / this.pageSize));
+  }
+
+  get displayRangeEnd(): number {
+    if (!this.totalFiltered) {
+      return 0;
+    }
+    return this.pageIndex * this.pageSize + this.pagedRows.length;
+  }
+
+  get fechaInicialInput(): string {
+    return this.toYmd(this.fecha_inicial) ?? '';
+  }
+
+  get fechaFinalInput(): string {
+    return this.toYmd(this.fecha_final) ?? '';
+  }
+
+  onFechaInicialInput(s: string): void {
+    if (s) {
+      this.fecha_inicial = new Date(s + 'T12:00:00');
+    }
+    this.pageIndex = 0;
+    this.onDateRangeChange();
+  }
+
+  onFechaFinalInput(s: string): void {
+    if (s) {
+      this.fecha_final = new Date(s + 'T12:00:00');
+    }
+    this.pageIndex = 0;
+    this.onDateRangeChange();
+  }
+
+  onFilterInput(value: string): void {
+    this.filterQuery = value;
+    this.pageIndex = 0;
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortAsc = !this.sortAsc;
+    } else {
+      this.sortKey = key;
+      this.sortAsc = key === 'date_entry' || key === 'date_exit' ? false : true;
     }
   }
 
-  salaChange(){
-    this.accessLogService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
-      this.visits=vrange;
-      this.dataSourceHistory = new MatTableDataSource(this.visits);
-      this.dataSourceHistory.paginator = this.paginator.toArray()[0];
-      this.dataSourceHistory.sort = this.sort.toArray()[0];
-    })
-  }
-
-  change(a){
-    if(this.fecha_final!=null){
-
-      this.year=this.fecha_inicial.getFullYear();
-      this.month=parseInt(this.fecha_inicial.getMonth())+1;
-      this.day=this.fecha_inicial.getDate();
-    
-      if(parseInt(this.month)<10){
-          this.month='0'+this.month;
-      }
-    
-      if(parseInt(this.day)<10){
-          this.day='0'+this.day;
-      }
-    
-      this.fechaString_inicial=this.year+'-'+this.month+'-'+this.day+' 00:00:00';
-  
-      this.year=this.fecha_final.getFullYear();
-      this.month=parseInt(this.fecha_final.getMonth())+1;
-      this.day=this.fecha_final.getDate();
-    
-      if(parseInt(this.month)<10){
-          this.month='0'+this.month;
-      }
-    
-      if(parseInt(this.day)<10){
-          this.day='0'+this.day;
-      }
-    
-      this.fechaString_final=this.year+'-'+this.month+'-'+this.day+' 23:59:59';
-  
-      if(this.access_point!=''){
-  
-  
-        this.accessLogService.getHistoryByRange(this.fechaString_inicial,this.fechaString_final,this.access_point).subscribe((vrange:Visit[])=>{
-          this.visits=vrange;
-          this.dataSourceHistory = new MatTableDataSource(this.visits);
-          this.dataSourceHistory.paginator = this.paginator.toArray()[0];
-          this.dataSourceHistory.sort = this.sort.toArray()[0];
-        })
-      }
-      else{
-        this.toastr.warning('Selecciona un Punto de Acceso');
-      }
+  sortIndicator(key: string): string {
+    if (this.sortKey !== key) {
+      return '';
     }
+    return this.sortAsc ? '↑' : '↓';
   }
 
-  viewDetail(vis: Visit){
-    var dialogRef;
-
-    dialogRef=this.dialog.open(DialogHistoryDetail,{
-      data:{data:vis,dataSala:this.access_point}
-    })
-
-    dialogRef.afterClosed().subscribe((res:User) => {
-    })
+  goPrevPage(): void {
+    this.pageIndex = Math.max(0, this.pageIndex - 1);
   }
 
-  viewLudops(){
-    var dialogRef;
-
-    dialogRef=this.dialog.open(DialogLudops,{
-      data:""
-    })
-
-    dialogRef.afterClosed().subscribe((res:User) => {
-    })
+  goNextPage(): void {
+    this.pageIndex = Math.min(this.totalPages - 1, this.pageIndex + 1);
   }
 
-  ngOnInit() {
-    // Punto de acceso predefinido
-    this.access_point='GARITA';
-    // Configurar la fecha inicial y final como la fecha actual
+  onPageSizeChange(): void {
+    this.pageIndex = 0;
+  }
+
+  exportExcel(): void {
+    const rows = this.filteredRows;
+    if (!rows.length) {
+      this.toastr.warning('No hay datos para exportar.');
+      return;
+    }
+    const data = rows.map((r) => ({
+      TIPO: r['type'],
+      DOCUMENTO: r['doc_number'],
+      DATOS: r['name'],
+      DOMICILIO: r['house_address'],
+      INGRESO: r['date_entry'],
+      SALIDA: r['date_exit'],
+      RESULTADO: r['obs'],
+      OPERARIO: r['operator'],
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Historial');
+    XLSX.writeFile(wb, 'Reporte_ingresos_por_fecha.xlsx');
+  }
+
+  onAccessPointChange(): void {
+    this.pageIndex = 0;
+    this.fetchHistory();
+  }
+
+  onDateRangeChange(): void {
+    if (!this.fecha_inicial || !this.fecha_final) {
+      return;
+    }
+    if (this.fecha_final < this.fecha_inicial) {
+      this.toastr.warning('La fecha final no puede ser anterior a la inicial.');
+      return;
+    }
+    if (this.access_point == null) {
+      this.toastr.warning('Selecciona un punto de acceso.');
+      return;
+    }
+    this.pageIndex = 0;
+    this.fetchHistory();
+  }
+
+  private toYmd(d: Date | null | undefined): string | null {
+    if (!d || !(d instanceof Date) || isNaN(d.getTime())) {
+      return null;
+    }
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  fetchHistory(): void {
+    const fi = this.toYmd(this.fecha_inicial);
+    const ff = this.toYmd(this.fecha_final);
+    if (!fi || !ff || this.access_point == null) {
+      return;
+    }
+    this.loading = true;
+    this.accessLogService.getHistoryByRange(fi, ff, String(this.access_point)).subscribe({
+      next: (raw: unknown) => {
+        const rows = Array.isArray(raw) ? raw : [];
+        this.visits = rows as Visit[];
+        this.allRows = rows as HistoryRow[];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener el historial:', err);
+        this.loading = false;
+        this.toastr.error('No se pudo cargar el historial.');
+      },
+    });
+  }
+
+  ngOnInit(): void {
     const today = new Date();
     this.fecha_inicial = today;
     this.fecha_final = today;
-    // Formato de fecha en cadena para el rango
-    this.year = today.getFullYear();
-    this.month = (today.getMonth() + 1).toString().padStart(2, '0');
-    this.day = today.getDate().toString().padStart(2, '0');
-    this.fechaString_inicial = `${this.year}-${this.month}-${this.day}`+' 00:00:00';
-    this.fechaString_final = `${this.year}-${this.month}-${this.day}`+' 23:59:59';
-    // obtener todos los putnos de acceso del sql en la lista desplegable
-    this.entranceService.getAllAccessPoints().subscribe((campList:AccessPoint[])=>{
-      console.log(campList)
-      if(campList){
-        this.accessPoints=campList;
-      }
+
+    this.entranceService.getAllAccessPoints().subscribe({
+      next: (raw: unknown) => {
+        const list = Array.isArray(raw) ? raw : [];
+        this.accessPointOptions = list.map((p: Record<string, unknown>) => ({
+          id: Number(p['id'] ?? p['ap_id'] ?? 0),
+          label: String(p['name'] ?? p['ap_location'] ?? p['location'] ?? `Punto ${p['id'] ?? ''}`),
+        })).filter((o) => o.id > 0);
+
+        if (!this.accessPointOptions.length) {
+          this.toastr.warning('No hay puntos de acceso configurados.');
+          this.loading = false;
+          return;
+        }
+
+        if (this.access_point == null || !this.accessPointOptions.some((o) => o.id === this.access_point)) {
+          this.access_point = this.accessPointOptions[0].id;
+        }
+
+        this.fetchHistory();
+      },
+      error: () => {
+        this.toastr.error('No se pudieron cargar los puntos de acceso.');
+        this.loading = false;
+      },
     });
-    this.toastr.success('Mostrando historial del día de hoy: '+this.day+'/'+this.month+'/'+this.year);
-
-  //Cargar historial al inicio basado en valores predefinidos
-    this.accessLogService.getHistoryByRange(this.fechaString_inicial, this.fechaString_final, this.access_point).subscribe((vrange: Visit[]) => {
-      this.visits = vrange;
-      console.log(this.visits);
-      this.dataSourceHistory = new MatTableDataSource(this.visits);
-      this.dataSourceHistory.paginator = this.paginator.toArray()[0];
-      this.dataSourceHistory.sort = this.sort.toArray()[0];
-    },
-    (error) => {
-      console.error('Error al obtener el historial:', error);
-      this.toastr.error('Error al cargar el historial.'); // Muestra un mensaje de error
-    }
-  );
   }
 
-  onSubmit() {
+  viewDetail(row: HistoryRow): void {
+    this.dialog
+      .open(DialogHistoryDetail, {
+        width: 'min(720px, 96vw)',
+        maxHeight: '90vh',
+        data: { data: row as unknown as Visit, accessPointId: this.access_point },
+      })
+      .afterClosed()
+      .subscribe(() => {});
   }
 
+  canOpenDayDetail(row: HistoryRow): boolean {
+    const doc = String(row?.['doc_number'] ?? '').trim();
+    return doc.length > 0 && doc !== '—';
+  }
 }
-
 
 @Component({
   selector: 'dialog-history-detail',
   templateUrl: 'dialog-history-detail.html',
-  styleUrls: ['./history.component.css']
+  styleUrls: ['./history.component.css'],
 })
 export class DialogHistoryDetail implements OnInit {
-
-  visit: Visit= new Visit('','','','','','','');
+  visit: Visit = new Visit('', '', '', '', '', '', '');
   visits: Visit[] = [];
 
-  dataSourceHistoryClient: MatTableDataSource<Visit>;
+  detailRows: HistoryRow[] = [];
 
-  @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
-  @ViewChildren(MatSort) sort= new QueryList<MatSort>();
-
+  loading = false;
 
   constructor(
     public dialogRef: MatDialogRef<DialogHistoryDetail>,
-    @Inject(MAT_DIALOG_DATA) public data,
-    private fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: { data: Visit; accessPointId: number | null },
     private accessLogService: AccessLogService,
-    private toastr: ToastrService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
+    const row = this.data?.data as unknown as HistoryRow | undefined;
+    const accessPointId = this.data?.accessPointId;
+    const doc = String(row?.['doc_number'] ?? '').trim();
+    const rawDate = row?.['date_entry'] ?? row?.['created_at'];
+    const fecha =
+      typeof rawDate === 'string'
+        ? rawDate.slice(0, 10)
+        : rawDate instanceof Date
+          ? rawDate.toISOString().slice(0, 10)
+          : '';
 
-    this.accessLogService.getHistoryByClient(this.data['data'].date_entrance,this.data['dataSala'],this.data['data'].doc_number).subscribe((vList:Visit[])=>{
-      vList.unshift(this.data['data']);
-      this.visits=vList;
-      this.dataSourceHistoryClient = new MatTableDataSource(this.visits);
-      this.dataSourceHistoryClient.paginator = this.paginator.toArray()[0];
-      this.dataSourceHistoryClient.sort = this.sort.toArray()[0];
+    if (!fecha || accessPointId == null || !doc) {
+      this.toastr.error('Faltan datos para cargar el detalle.');
+      return;
+    }
+
+    this.loading = true;
+    this.accessLogService.getHistoryByDocumentDay(fecha, String(accessPointId), doc).subscribe({
+      next: (list: unknown) => {
+        const rows = Array.isArray(list) ? list : [];
+        this.visits = rows as Visit[];
+        this.detailRows = rows as HistoryRow[];
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.toastr.error('No se pudo cargar el detalle.');
+      },
     });
   }
 
   onNoClick(): void {
     this.dialogRef.close();
   }
-
-
-}
-
-
-
-@Component({
-  selector: 'dialog-ludops',
-  templateUrl: 'dialog-ludops.html',
-  styleUrls: ['./history.component.css']
-})
-export class DialogLudops implements OnInit {
-
-  visit: Visit= new Visit('','','','','','','');
-  visits: Visit[] = [];
-
-  dataSourceHistoryClient: MatTableDataSource<Visit>;
-
-  @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
-  @ViewChildren(MatSort) sort= new QueryList<MatSort>();
-
-
-  constructor(
-    public dialogRef: MatDialogRef<DialogLudops>,
-    @Inject(MAT_DIALOG_DATA) public data,
-    private fb: FormBuilder,
-    private toastr: ToastrService,
-  ) {}
-
-  ngOnInit(): void {
-
-  }
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-
 }

@@ -90,7 +90,112 @@ function isAdminRole(array $auth): bool {
 function isStaffRole(array $auth): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
 
-    return $role === 'ADMIN' || $role === 'ADMINISTRADOR' || $role === 'OPERARIO';
+    return $role === 'ADMIN' || $role === 'ADMINISTRADOR' || $role === 'OPERARIO' || $role === 'GUARDIA';
+}
+
+/**
+ * OPERARIO / GUARDIA: solo escanean en portería, no generan QR de hogar.
+ */
+function isOperarioOrGuardiaRole(array $auth): bool {
+    $role = strtoupper(trim($auth['role_system'] ?? ''));
+
+    return $role === 'OPERARIO' || $role === 'GUARDIA';
+}
+
+/**
+ * Puede generar JWT QR de ingreso: USUARIO o ADMIN/ADMINISTRADOR con person_id vinculada.
+ * (Administrador que también es residente del barrio — misma regla que Mi casa.)
+ */
+function canGenerateAccessQr(array $auth): bool {
+    $pid = isset($auth['person_id']) ? (int) $auth['person_id'] : 0;
+    if ($pid <= 0) {
+        return false;
+    }
+    $role = strtoupper(trim($auth['role_system'] ?? ''));
+    if ($role === 'USUARIO') {
+        return true;
+    }
+    if ($role === 'ADMIN' || $role === 'ADMINISTRADOR') {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Puede generar QR para otra persona en Mi casa (reglas propietario/residente/inquilino).
+ */
+function canGenerateQrForPerson(\PDO $pdo, array $auth, int $targetPersonId): bool {
+    if (!canGenerateAccessQr($auth)) {
+        return false;
+    }
+    if (isOperarioOrGuardiaRole($auth)) {
+        return false;
+    }
+    $stmt = $pdo->prepare('SELECT * FROM persons WHERE id = ? LIMIT 1');
+    $stmt->execute([$targetPersonId]);
+    $p = $stmt->fetch(\PDO::FETCH_ASSOC);
+    if (!$p) {
+        return false;
+    }
+    $authPid = (int) ($auth['person_id'] ?? 0);
+    if ($authPid <= 0) {
+        return false;
+    }
+    $hid = (int) ($p['house_id'] ?? 0);
+    if ($hid <= 0) {
+        $stmtH = $pdo->prepare(
+            'SELECT house_id FROM house_members WHERE person_id = ? AND COALESCE(is_active, 1) = 1 ORDER BY is_primary DESC, id ASC LIMIT 1'
+        );
+        $stmtH->execute([$targetPersonId]);
+        $hm = $stmtH->fetch(\PDO::FETCH_ASSOC);
+        if ($hm && !empty($hm['house_id'])) {
+            $hid = (int) $hm['house_id'];
+        }
+    }
+    if ($hid <= 0) {
+        return false;
+    }
+    if (!canAccessHouse($pdo, $auth, $hid)) {
+        return false;
+    }
+    if ($targetPersonId === $authPid) {
+        return true;
+    }
+    $pt = strtoupper(trim($p['person_type'] ?? ''));
+    $rel = getRelationTypeForHouse($pdo, $authPid, $hid);
+    if ($rel === null || $rel === '') {
+        return false;
+    }
+    if ($rel === 'PROPIETARIO' || $rel === 'RESIDENTE') {
+        return in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'VISITA'], true);
+    }
+    if ($rel === 'INQUILINO') {
+        return in_array($pt, ['INQUILINO', 'VISITA'], true);
+    }
+
+    return false;
+}
+
+/**
+ * Puede generar QR para un vehículo de una casa a la que tiene acceso (vecino).
+ */
+function canGenerateQrForVehicle(\PDO $pdo, array $auth, int $vehicleId): bool {
+    if (!canGenerateAccessQr($auth)) {
+        return false;
+    }
+    if (isOperarioOrGuardiaRole($auth)) {
+        return false;
+    }
+    $stmt = $pdo->prepare('SELECT vehicle_id, house_id, license_plate FROM vehicles WHERE vehicle_id = ? LIMIT 1');
+    $stmt->execute([$vehicleId]);
+    $v = $stmt->fetch(\PDO::FETCH_ASSOC);
+    if (!$v || empty($v['house_id'])) {
+        return false;
+    }
+    $hid = (int) $v['house_id'];
+
+    return canAccessHouse($pdo, $auth, $hid);
 }
 
 /**

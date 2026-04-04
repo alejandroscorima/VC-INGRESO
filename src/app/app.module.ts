@@ -18,7 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { InicioComponent } from './inicio/inicio.component';
 import { MatTableModule } from '@angular/material/table';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { DialogHistoryDetail, DialogLudops, HistoryComponent } from './history/history.component';
+import { DialogHistoryDetail, HistoryComponent } from './history/history.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -35,7 +35,6 @@ import {MatCardModule} from '@angular/material/card';
 
 import { ToastrModule } from 'ngx-toastr';
 
-import { MatTableExporterModule } from 'mat-table-exporter';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { DialogDatos, BirthdayComponent } from './birthday/birthday.component';
 
@@ -44,6 +43,7 @@ import { GoogleChartsModule } from 'angular-google-charts';
 
 import {MatTabsModule} from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 
 import { LoginComponent } from './login/login.component';
@@ -59,6 +59,7 @@ import { PetsComponent } from './pets/pets.component';
 import { WebcamComponent } from './webcam/webcam.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
+import { CodigoQrPageComponent } from './codigo-qr-page/codigo-qr-page.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
 
 import { NgChartsModule } from 'ng2-charts';
@@ -77,7 +78,6 @@ Chart.register(...registerables);
         DialogRevalidar,
         DialogDatos,
         DialogHistoryDetail,
-        DialogLudops,
         LoginComponent,
         NavBarComponent,
         SideNavComponent,
@@ -115,16 +115,17 @@ Chart.register(...registerables);
         MatPaginatorModule,
         MatSortModule,
         MatCardModule,
-        MatTableExporterModule,
         MatGridListModule,
         GoogleChartsModule,
         MatTabsModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         MatChipsModule,
         NgChartsModule,
         ToastrModule.forRoot(),
         CalendarComponent,
-        QrScannerComponent
+        QrScannerComponent,
+        CodigoQrPageComponent
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },

@@ -47,7 +47,10 @@
             "namedChunks": true,
             "allowedCommonJsDependencies": [
               "xlsx",
-              "pdfjs-dist"
+              "pdfjs-dist",
+              "qrcode",
+              "@zxing/library",
+              "@zxing/browser"
             ]
           },
           "configurations": {

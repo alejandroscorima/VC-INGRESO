@@ -1,0 +1,116 @@
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiService, ApiResponse } from '../api.service';
+
+/** Respuesta unificada de scan / validate (cuerpo `data` de la API). */
+export interface AccessQrScanResult {
+  source: 'qr' | 'manual';
+  kind: 'person' | 'vehicle';
+  person: AccessQrPersonPublic | null;
+  vehicle: AccessQrVehiclePublic | null;
+  person_id?: number | null;
+  doc_number?: string | null;
+  vehicle_id?: number | null;
+  license_plate?: string | null;
+  status_validated: string;
+  allow_entry: boolean;
+  is_birthday: boolean;
+  birth_date?: string | null;
+  message?: string;
+}
+
+export interface AccessQrPersonPublic {
+  id: number;
+  doc_number: string;
+  first_name?: string | null;
+  paternal_surname?: string | null;
+  maternal_surname?: string | null;
+  photo_url?: string | null;
+  birth_date?: string | null;
+  status_validated?: string | null;
+  person_type?: string | null;
+  house_id?: number | null;
+}
+
+export interface AccessQrVehiclePublic {
+  vehicle_id: number;
+  license_plate: string;
+  house_id?: number | null;
+  brand?: string | null;
+  model?: string | null;
+  photo_url?: string | null;
+  status_validated?: string | null;
+}
+
+export interface AccessQrGenerateResult {
+  token: string;
+  expires_at: number;
+  kind: 'person' | 'vehicle';
+  person_id?: number;
+  doc_number?: string;
+  house_id?: number;
+  vehicle_id?: number;
+  license_plate?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class QrAccessService {
+  constructor(private api: ApiService) {}
+
+  scan(input: string): Observable<AccessQrScanResult> {
+    return this.api
+      .post<{ input: string }>('api/v1/access-qr/scan', { input: input.trim() })
+      .pipe(
+        map((res: ApiResponse<AccessQrScanResult>) => {
+          if (!res.success || res.data == null) {
+            throw new Error(res.error || 'Error al escanear');
+          }
+          return res.data;
+        })
+      );
+  }
+
+  validateToken(token: string): Observable<AccessQrScanResult> {
+    return this.api.post<{ token: string }>('api/v1/access-qr/validate', { token }).pipe(
+      map((res: ApiResponse<AccessQrScanResult>) => {
+        if (!res.success || res.data == null) {
+          throw new Error(res.error || 'QR inválido');
+        }
+        return res.data;
+      })
+    );
+  }
+
+  generatePersonQr(personId: number): Observable<AccessQrGenerateResult> {
+    return this.api
+      .post<{ kind: string; person_id: number }>('api/v1/access-qr/generate', {
+        kind: 'person',
+        person_id: personId,
+      })
+      .pipe(
+        map((res: ApiResponse<AccessQrGenerateResult>) => {
+          if (!res.success || res.data == null) {
+            throw new Error(res.error || 'No se pudo generar el QR');
+          }
+          return res.data;
+        })
+      );
+  }
+
+  generateVehicleQr(vehicleId: number): Observable<AccessQrGenerateResult> {
+    return this.api
+      .post<{ kind: string; vehicle_id: number }>('api/v1/access-qr/generate', {
+        kind: 'vehicle',
+        vehicle_id: vehicleId,
+      })
+      .pipe(
+        map((res: ApiResponse<AccessQrGenerateResult>) => {
+          if (!res.success || res.data == null) {
+            throw new Error(res.error || 'No se pudo generar el QR');
+          }
+          return res.data;
+        })
+      );
+  }
+}

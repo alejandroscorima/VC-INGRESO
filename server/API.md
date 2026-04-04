@@ -192,15 +192,29 @@ Documentación alineada al enrutado en [`index.php`](index.php). Base URL: **`/a
 | GET | `/api/v1/access-logs/access-points` | Puntos de acceso. |
 | GET | `/api/v1/access-logs/stats/daily` | Estadísticas diarias. |
 | GET | `/api/v1/access-logs/entrance-by-range` | Ingresos por rango de fechas (`date_init`, `date_end`, …). |
-| GET | `/api/v1/access-logs/history-by-date` | Por fecha y sala. |
+| GET | `/api/v1/access-logs/history-by-date` | Por fecha y `access_point` (id o nombre; `sala` sigue aceptado por compatibilidad). |
 | GET | `/api/v1/access-logs/history-by-range` | Por rango. |
-| GET | `/api/v1/access-logs/history-by-client` | Por cliente/documento. |
-| GET | `/api/v1/access-logs/aforo` | Reporte aforo. |
+| GET | `/api/v1/access-logs/history-by-client` | Por fecha, `access_point` y `doc` (documento). `sala` aceptado como alias de `access_point`. |
+| GET | `/api/v1/access-logs/aforo` | Reporte aforo. Filtro por `access_point` (id); `sala` como alias legado. |
 | GET | `/api/v1/access-logs/address` | Alias / variante de reporte (mismo uso que legacy). |
 | GET | `/api/v1/access-logs/total-month` | Total mensual. |
 | GET | `/api/v1/access-logs/total-month-new` | Total mensual (versión nueva). |
 | GET | `/api/v1/access-logs/hours` | Por hora. |
 | GET | `/api/v1/access-logs/age` | Por edad. |
+
+---
+
+## Access QR (ingreso por JWT / lectura en portería)
+
+Autenticación con token. **Generar:** **USUARIO** o **ADMIN** / **ADMINISTRADOR** con `person_id` en el token (residente o admin vinculado a una persona), y permisos Mi casa sobre la persona o el vehículo; **OPERARIO** y **GUARDIA** no generan QR de hogar. **Validar / escanear:** solo **staff** (`ADMIN`, `ADMINISTRADOR`, `OPERARIO`, `GUARDIA`).
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/v1/access-qr/generate` | Body JSON: `kind`: `person` \| `vehicle`; `person_id` o `vehicle_id`. Respuesta `data`: `token`, `expires_at`, metadatos. TTL del JWT ~90 días. |
+| POST | `/api/v1/access-qr/validate` | Body: `{ "token": "<JWT del QR>" }`. Respuesta unificada: persona o vehículo, `status_validated`, `allow_entry`, `is_birthday`, etc. |
+| POST | `/api/v1/access-qr/scan` | Body: `{ "input": "<texto leído>" }`. Si `input` es un JWT (tres segmentos), equivale a validar QR; si no, trata como DNI (solo dígitos, longitud ≥ 8) o placa. |
+
+Payload del JWT (referencia): `typ: vc_access_qr`, `k`: `person` \| `vehicle`, más `doc`/`pid`/`hid` o `plate`/`vid`/`hid`. El secreto es `JWT_SECRET` (ver `server/token.php`).
 
 ---
 

@@ -140,7 +140,6 @@ export class LoginComponent implements OnInit {
         if ((resPay as any)?.error) {
           this.auth.deleteToken('user_id');
           this.auth.deleteToken('user_role');
-          this.auth.deleteToken('sala');
           this.auth.deleteToken('onSession');
           this.toastr.error('Error al obtener la licencia: ' + (resPay as any).error);
           this.router.navigateByUrl('/login');
@@ -153,7 +152,6 @@ export class LoginComponent implements OnInit {
         this.isloading = false;
         this.auth.deleteToken('user_id');
         this.auth.deleteToken('user_role');
-        this.auth.deleteToken('sala');
         this.auth.deleteToken('onSession');
         this.toastr.error('Error al obtener la licencia: ' + error);
         this.router.navigateByUrl('/login');

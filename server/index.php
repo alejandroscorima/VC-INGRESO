@@ -532,6 +532,26 @@ if (str_starts_with($uri, '/api/v1/')) {
             exit;
         }
     }
+
+    // ==================== ACCESS QR (vecinos generan, staff escanea) ====================
+    if (str_starts_with($path, 'access-qr')) {
+        require_once __DIR__ . '/db_connection.php';
+        require_once __DIR__ . '/controllers/AccessQrController.php';
+        $pdo = getDbConnection();
+        $qrController = new \Controllers\AccessQrController($pdo);
+        if ($path === 'access-qr/generate' && $method === 'POST') {
+            $qrController->generate();
+            exit;
+        }
+        if ($path === 'access-qr/validate' && $method === 'POST') {
+            $qrController->validate();
+            exit;
+        }
+        if ($path === 'access-qr/scan' && $method === 'POST') {
+            $qrController->scan();
+            exit;
+        }
+    }
     
     // ==================== RESERVATIONS ====================
     if (str_starts_with($path, 'reservations')) {
@@ -665,6 +685,11 @@ echo json_encode([
             'POST /api/v1/access-logs' => 'Crear registro de acceso',
             'GET /api/v1/access-logs/access-points' => 'Listar puntos de acceso',
             'GET /api/v1/access-logs/stats/daily' => 'Estadísticas diarias',
+
+            // Access QR (JWT ingreso; vecinos generan, staff valida/escanea)
+            'POST /api/v1/access-qr/generate' => 'Generar token QR (person|vehicle)',
+            'POST /api/v1/access-qr/validate' => 'Validar token QR (staff)',
+            'POST /api/v1/access-qr/scan' => 'Escanear: JWT o DNI/placa manual (staff)',
             
             // Reservations (Reservaciones Casa Club)
             'GET /api/v1/reservations' => 'Listar reservaciones',

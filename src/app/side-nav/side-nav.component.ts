@@ -118,6 +118,15 @@ export class SideNavComponent extends AppComponent implements OnInit {
     this.removeMobileDrawerBackdrops();
   }
 
+  isStaffUser(): boolean {
+    return this.auth.isStaff();
+  }
+
+  /** Staff (escáner) o quien puede generar QR de hogar. */
+  showCodigoQrNav(): boolean {
+    return this.auth.isStaff() || this.auth.canGenerateHouseAccessQr();
+  }
+
   private removeMobileDrawerBackdrops(): void {
     // Limpia backdrops residuales del drawer móvil que pueden bloquear clics.
     const backdropSelectors = [

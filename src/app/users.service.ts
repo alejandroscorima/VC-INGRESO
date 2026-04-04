@@ -106,7 +106,8 @@ export class UsersService {
     return this.api.getRaw('api/v1/catalog/areas');
   }
 
-  getSalas(): Observable<any> {
+  /** Catálogo de puntos/áreas (ruta API histórica `catalog/salas`). */
+  getAccessPointCatalog(): Observable<any> {
     return this.api.getRaw('api/v1/catalog/salas');
   }
 
@@ -198,40 +199,45 @@ export class UsersService {
   // ==================== LEGACY COMPATIBILITY ====================
   // Métodos que serán eliminados después de la refactorización
 
-  getClientes(fecha_cumple: string): Observable<any> {
+  getPersonsByBirthdayFilter(fecha_cumple: string): Observable<any> {
     return this.api.getRaw('api/v1/persons', { fecha_cumple }).pipe(map((r) => r?.data ?? r));
   }
 
-  getClientsHB(fecha_cumple: string): Observable<any> {
+  getPersonsByBirthdayOnDate(fecha_cumple: string): Observable<any> {
     return this.api.getRaw('api/v1/users/by-birthday', { fecha_cumple }).pipe(map((r) => r?.data ?? r));
   }
 
-  getHistoryByDate(fecha: string, sala: string): Observable<any> {
-    return this.api.getRaw('api/v1/access-logs/history-by-date', { fecha, sala });
+  getHistoryByDate(fecha: string, accessPoint: string): Observable<any> {
+    return this.api.getRaw('api/v1/access-logs/history-by-date', { fecha, access_point: accessPoint });
   }
 
-  getHistoryByClient(fecha: string, sala: string, doc: string): Observable<any> {
-    return this.api.getRaw('api/v1/access-logs/history-by-client', { fecha, sala, doc });
+  getHistoryByDocumentDay(fecha: string, accessPoint: string, docNumber: string): Observable<any> {
+    return this.api.getRaw('api/v1/access-logs/history-by-client', {
+      fecha,
+      access_point: accessPoint,
+      doc: docNumber,
+    });
   }
 
   getDestacados(): Observable<any> {
     return this.api.getRaw('api/v1/persons/destacados');
   }
 
-  getClient(doc_number: string): Observable<any> {
+  /** Persona registrada en `persons` por DNI (distinto de búsqueda vía users). */
+  getRegisteredPersonByDocNumber(doc_number: string): Observable<any> {
     return this.api.getRaw('api/v1/persons/by-doc-number', { doc_number }).pipe(map((r) => r?.data ?? r));
   }
 
-  addCliente(cliente: any): Observable<any> {
-    return this.api.post('api/v1/persons', cliente);
+  createPersonRecord(person: any): Observable<any> {
+    return this.api.post('api/v1/persons', person);
   }
 
-  deleteCliente(cliente: any): Observable<any> {
+  deletePersonRecord(cliente: any): Observable<any> {
     return this.api.delete(`api/v1/persons/${cliente?.id ?? cliente?.person_id}`);
   }
 
-  updateClient(cliente: any): Observable<any> {
-    return this.api.put(`api/v1/persons/${cliente?.id ?? cliente?.person_id}`, cliente);
+  updatePersonRecord(person: any): Observable<any> {
+    return this.api.put(`api/v1/persons/${person?.id ?? person?.person_id}`, person);
   }
 
   // ==================== RENIEC ====================

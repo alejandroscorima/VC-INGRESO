@@ -13,6 +13,8 @@ import { environment } from '../../environments/environment';
 import { PetsService } from '../pets.service';
 import { Pet } from '../pet';
 import { PublicRegistrationService } from '../public-registration/public-registration.service';
+import { QrAccessService } from '../services/qr-access.service';
+import * as QRCode from 'qrcode';
 
 
 @Component({
@@ -42,6 +44,11 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   showViewPhotoDialog = false;
   viewPhotoUrl: string | null = null;
   viewPhotoTitle = '';
+
+  showMyQrDialog = false;
+  myQrDataUrl: string | null = null;
+  myQrLoading = false;
+  myQrDialogTitle = 'Mi QR de ingreso';
 
   user_id;
   userOnSes: User = User.empty();
@@ -98,7 +105,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     public api: ApiService,
     private toastr: ToastrService,
     private petsService: PetsService,
-    private publicReg: PublicRegistrationService
+    private publicReg: PublicRegistrationService,
+    private qrAccess: QrAccessService
   ){}
 
   ngOnInit(): void {
@@ -161,6 +169,107 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   /** persons.id del usuario en sesión (JWT / getUserById). */
   personIdSession(): number {
     return Number((this.userOnSes as any).person_id ?? 0) || 0;
+  }
+
+  /** USUARIO o administrador con persona vinculada (misma regla que API access-qr/generate). */
+  canShowMyAccessQr(): boolean {
+    return this.auth.canGenerateHouseAccessQr();
+  }
+
+  /** persons.id en filas de Mi casa (API house_members / persons). */
+  personRowPersonId(row: any): number {
+    return Number(row?.id ?? row?.person_id ?? 0) || 0;
+  }
+
+  /**
+   * Reglas alineadas al backend: propietario/residente amplio; inquilino solo inquilino/visita.
+   */
+  canShowQrForPersonRow(row: any): boolean {
+    if (!this.canShowMyAccessQr()) {
+      return false;
+    }
+    if (this.personRowPersonId(row) <= 0) {
+      return false;
+    }
+    const cat = this.normalizeCategory(row.property_category || row.person_type || row.relation_type);
+    if (this.isTenantRestrictedInMyHouse) {
+      return ['INQUILINO', 'VISITA', 'INVITADO'].includes(cat);
+    }
+    return ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'VISITA', 'INVITADO', 'ADMINISTRADOR'].includes(cat);
+  }
+
+  canShowQrForVehicleRow(v: Vehicle): boolean {
+    return this.canShowMyAccessQr() && Number(v?.vehicle_id ?? 0) > 0;
+  }
+
+  openPersonAccessQr(row: any, title: string): void {
+    if (!this.canShowQrForPersonRow(row)) {
+      return;
+    }
+    const pid = this.personRowPersonId(row);
+    if (pid <= 0) {
+      this.toastr.error('No se pudo identificar a la persona.');
+      return;
+    }
+    this.myQrDialogTitle = title.trim() || 'QR de ingreso';
+    this.runGeneratePersonQr(pid);
+  }
+
+  openVehicleAccessQr(v: Vehicle): void {
+    if (!this.canShowQrForVehicleRow(v)) {
+      return;
+    }
+    const vid = Number(v.vehicle_id ?? 0);
+    this.myQrDialogTitle = `QR ingreso — vehículo ${v.license_plate || ''}`.trim();
+    this.myQrLoading = true;
+    this.qrAccess.generateVehicleQr(vid).subscribe({
+      next: (res) => {
+        QRCode.toDataURL(res.token, { width: 280, margin: 2, errorCorrectionLevel: 'M' })
+          .then((url) => {
+            this.myQrDataUrl = url;
+            this.showMyQrDialog = true;
+            this.myQrLoading = false;
+            setTimeout(() => initFlowbite(), 0);
+          })
+          .catch(() => {
+            this.myQrLoading = false;
+            this.toastr.error('No se pudo generar la imagen del QR.');
+          });
+      },
+      error: (e: Error) => {
+        this.myQrLoading = false;
+        this.toastr.error(e?.message || 'No se pudo generar el código.');
+      },
+    });
+  }
+
+  private runGeneratePersonQr(personId: number): void {
+    this.myQrLoading = true;
+    this.qrAccess.generatePersonQr(personId).subscribe({
+      next: (res) => {
+        QRCode.toDataURL(res.token, { width: 280, margin: 2, errorCorrectionLevel: 'M' })
+          .then((url) => {
+            this.myQrDataUrl = url;
+            this.showMyQrDialog = true;
+            this.myQrLoading = false;
+            setTimeout(() => initFlowbite(), 0);
+          })
+          .catch(() => {
+            this.myQrLoading = false;
+            this.toastr.error('No se pudo generar la imagen del QR.');
+          });
+      },
+      error: (e: Error) => {
+        this.myQrLoading = false;
+        this.toastr.error(e?.message || 'No se pudo generar el código.');
+      },
+    });
+  }
+
+  closeMyQrDialog(): void {
+    this.showMyQrDialog = false;
+    this.myQrDataUrl = null;
+    this.myQrDialogTitle = 'Mi QR de ingreso';
   }
 
   /** Inquilino: solo vehículos propios con categoría INQUILINO. */

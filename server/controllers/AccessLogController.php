@@ -248,25 +248,25 @@ class AccessLogController
         Response::json($result);
     }
 
-    /** GET ?fecha=&sala= (sala = access_point_id o name) - Logs por fecha y punto */
+    /** GET ?fecha=&access_point= (o sala= legacy) — id o nombre de punto */
     public function historyByDate()
     {
         requireAuth();
         $fecha = $_GET['fecha'] ?? '';
-        $sala = $_GET['sala'] ?? '';
+        $ap = $this->legacyAccessPointQueryValue();
         if ($fecha === '') {
             Response::json(['success' => false, 'error' => 'fecha requerida'], 400);
             return;
         }
         $where = ["DATE(al.created_at) = ?"];
         $params = [$fecha];
-        if ($sala !== '') {
-            if (is_numeric($sala)) {
+        if ($ap !== '') {
+            if (is_numeric($ap)) {
                 $where[] = 'al.access_point_id = ?';
-                $params[] = $sala;
+                $params[] = $ap;
             } else {
                 $where[] = 'ap.name = ?';
-                $params[] = $sala;
+                $params[] = $ap;
             }
         }
         $sql = "SELECT al.*, ap.name as access_point_name, p.first_name, p.paternal_surname, p.doc_number as person_doc
@@ -279,52 +279,46 @@ class AccessLogController
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
-    /** GET ?fecha_inicial=&fecha_final=&access_point= */
+    /** GET ?fecha_inicial=&fecha_final=&access_point= (id numérico o nombre de punto) */
     public function historyByRange()
     {
         requireAuth();
-        $fi = $_GET['fecha_inicial'] ?? '';
-        $ff = $_GET['fecha_final'] ?? '';
-        $ap = $_GET['access_point'] ?? '';
+        $fi = trim((string) ($_GET['fecha_inicial'] ?? ''));
+        $ff = trim((string) ($_GET['fecha_final'] ?? ''));
+        $ap = trim((string) ($_GET['access_point'] ?? ''));
         if ($fi === '' || $ff === '') {
             Response::json(['success' => false, 'error' => 'fecha_inicial y fecha_final requeridos'], 400);
             return;
         }
-        $where = ["al.created_at BETWEEN ? AND ?"];
-        $params = [$fi . ' 00:00:00', $ff . ' 23:59:59'];
-        if ($ap !== '') {
-            $where[] = 'al.access_point_id = ?';
-            $params[] = $ap;
-        }
-        $sql = "SELECT al.*, ap.name as access_point_name FROM {$this->table} al LEFT JOIN access_points ap ON ap.id = al.access_point_id WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
+        $where = ['al.created_at BETWEEN ? AND ?'];
+        $params = [$this->normalizeHistoryRangeStart($fi), $this->normalizeHistoryRangeEnd($ff)];
+        $this->appendAccessPointFilter($ap, $where, $params);
+        $sql = $this->historyRowsSelectSql() . ' WHERE ' . implode(' AND ', $where) . ' ORDER BY al.created_at DESC';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
-    /** GET ?fecha=&sala=&doc= - Logs de un documento en fecha y sala */
+    /** GET ?fecha=&access_point=&doc= (sala= legacy) — fecha YYYY-MM-DD */
     public function historyByClient()
     {
         requireAuth();
-        $fecha = $_GET['fecha'] ?? '';
-        $sala = $_GET['sala'] ?? '';
-        $doc = $_GET['doc'] ?? '';
+        $fecha = trim((string) ($_GET['fecha'] ?? ''));
+        $ap = $this->legacyAccessPointQueryValue();
+        $doc = trim((string) ($_GET['doc'] ?? ''));
         if ($fecha === '') {
             Response::json(['success' => false, 'error' => 'fecha requerida'], 400);
             return;
         }
-        $where = ["DATE(al.created_at) = ?"];
+        $where = ['DATE(al.created_at) = ?'];
         $params = [$fecha];
-        if ($sala !== '') {
-            $where[] = 'al.access_point_id = ?';
-            $params[] = $sala;
-        }
+        $this->appendAccessPointFilter($ap, $where, $params);
         if ($doc !== '') {
             $where[] = '(al.doc_number = ? OR p.doc_number = ?)';
             $params[] = $doc;
             $params[] = $doc;
         }
-        $sql = "SELECT al.*, ap.name as access_point_name, p.first_name, p.paternal_surname FROM {$this->table} al LEFT JOIN access_points ap ON ap.id = al.access_point_id LEFT JOIN persons p ON p.id = al.person_id WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
+        $sql = $this->historyRowsSelectSql() . ' WHERE ' . implode(' AND ', $where) . ' ORDER BY al.created_at ASC';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
@@ -334,7 +328,7 @@ class AccessLogController
     public function reportAforo()
     {
         requireAuth();
-        $sala = $_GET['sala'] ?? '';
+        $ap = $this->legacyAccessPointQueryValue();
         $fechaInicio = $_GET['fechaInicio'] ?? '';
         $fechaFin = $_GET['fechaFin'] ?? '';
         $fechaMes = $_GET['fechaMes'] ?? '';
@@ -342,9 +336,9 @@ class AccessLogController
         $f1 = $_GET['fecha1'] ?? ''; $f2 = $_GET['fecha2'] ?? ''; $f3 = $_GET['fecha3'] ?? ''; $f4 = $_GET['fecha4'] ?? ''; $f5 = $_GET['fecha5'] ?? '';
         $where = ["type = 'INGRESO'"];
         $params = [];
-        if ($sala !== '') {
+        if ($ap !== '') {
             $where[] = 'access_point_id = ?';
-            $params[] = $sala;
+            $params[] = $ap;
         }
         if ($fechaInicio !== '' && $fechaFin !== '' && ($mes === 'SELECCIONAR' || $mes === '')) {
             $where[] = 'DATE(created_at) BETWEEN ? AND ?';
@@ -392,5 +386,96 @@ class AccessLogController
     public function reportAge()
     {
         $this->reportAforo();
+    }
+
+    /**
+     * SELECT enriquecido para pantalla Historial (columnas alineadas al mat-table Angular).
+     */
+    private function historyRowsSelectSql(): string
+    {
+        $t = $this->table;
+
+        return "
+            SELECT
+                al.id,
+                al.access_point_id,
+                al.person_id,
+                al.doc_number,
+                al.vehicle_id,
+                al.type AS movement_type,
+                al.observation AS observation_raw,
+                al.created_by_user_id,
+                al.created_at,
+                al.updated_at,
+                ap.name AS access_point_name,
+                CASE WHEN al.vehicle_id IS NOT NULL THEN 'VEHÍCULO' ELSE 'PERSONA' END AS type,
+                v.license_plate AS vehicle_plate,
+                CONCAT_WS(' ', NULLIF(h.block_house,''), NULLIF(CAST(h.lot AS CHAR),''), NULLIF(h.apartment,'')) AS house_address,
+                al.created_at AS date_entry,
+                CASE WHEN al.type = 'EGRESO' THEN al.updated_at ELSE NULL END AS date_exit,
+                COALESCE(NULLIF(TRIM(al.observation), ''), NULLIF(p.status_validated, ''), '—') AS obs,
+                COALESCE(NULLIF(TRIM(u.username_system), ''), IF(al.created_by_user_id IS NOT NULL, CONCAT('#', al.created_by_user_id), NULL), '—') AS `operator`,
+                DATE_FORMAT(al.created_at, '%H:%i:%s') AS hour_entrance,
+                1 AS visits,
+                COALESCE(
+                    NULLIF(TRIM(CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.paternal_surname,''),' ',COALESCE(p.maternal_surname,''))), ''),
+                    NULLIF(TRIM(v.license_plate), ''),
+                    NULLIF(TRIM(al.doc_number), ''),
+                    '—'
+                ) AS name
+            FROM {$t} al
+            LEFT JOIN access_points ap ON ap.id = al.access_point_id
+            LEFT JOIN persons p ON p.id = al.person_id
+            LEFT JOIN houses h ON h.house_id = p.house_id
+            LEFT JOIN vehicles v ON v.vehicle_id = al.vehicle_id
+            LEFT JOIN users u ON u.user_id = al.created_by_user_id
+        ";
+    }
+
+    private function normalizeHistoryRangeStart(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return $value;
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return $value . ' 00:00:00';
+        }
+
+        return $value;
+    }
+
+    private function normalizeHistoryRangeEnd(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return $value;
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return $value . ' 23:59:59';
+        }
+
+        return $value;
+    }
+
+    /** Filtro por punto: id numérico o nombre (ap.name). */
+    private function appendAccessPointFilter(string $ap, array &$where, array &$params): void
+    {
+        if ($ap === '') {
+            return;
+        }
+        if (ctype_digit($ap)) {
+            $where[] = 'al.access_point_id = ?';
+            $params[] = (int) $ap;
+        } else {
+            $where[] = 'ap.name = ?';
+            $params[] = $ap;
+        }
+    }
+
+    /** Parámetro access_point (preferido) o sala (compat. legado). */
+    private function legacyAccessPointQueryValue(): string
+    {
+        return trim((string) ($_GET['access_point'] ?? $_GET['sala'] ?? ''));
     }
 }

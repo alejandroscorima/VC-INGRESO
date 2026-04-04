@@ -82,6 +82,43 @@ export class AuthService {
     return !!this.getUser();
   }
 
+  /** Personal de puerta / administración (puede usar escáner y validar QR). */
+  isStaff(): boolean {
+    const r = String(this.getUser()?.role_system ?? '').toUpperCase();
+    return r === 'ADMIN' || r === 'ADMINISTRADOR' || r === 'OPERARIO' || r === 'GUARDIA';
+  }
+
+  /** Vecino con rol USUARIO (Mi casa, generar QR). */
+  isNeighbor(): boolean {
+    return String(this.getUser()?.role_system ?? '').toUpperCase() === 'USUARIO';
+  }
+
+  /** persons.id en JWT / usuario en sesión (login fusiona user + person). */
+  hasLinkedPerson(): boolean {
+    const u = this.getUser() as { person_id?: number } | null;
+    return Number(u?.person_id ?? 0) > 0;
+  }
+
+  /** ADMIN / ADMINISTRADOR de aplicación (no implica solo portería). */
+  isAdministratorRole(): boolean {
+    const r = String(this.getUser()?.role_system ?? '').toUpperCase();
+    return r === 'ADMIN' || r === 'ADMINISTRADOR';
+  }
+
+  /**
+   * Generar QR de ingreso propio o de Mi casa: USUARIO o admin con persona vinculada.
+   * OPERARIO/GUARDIA no (solo escanean).
+   */
+  canGenerateHouseAccessQr(): boolean {
+    if (!this.hasLinkedPerson()) {
+      return false;
+    }
+    if (this.isNeighbor()) {
+      return true;
+    }
+    return this.isAdministratorRole();
+  }
+
   // ========== Métodos Migrados de CookiesService ==========
   // Usan localStorage en lugar de cookies
 

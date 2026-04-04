@@ -1,128 +1,212 @@
-<div *ngIf=true class="p-4 dark:bg-gray-900">
-  <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-    <div class="container" style="margin:20px" >
+<div class="history-page p-4 pb-8 dark:bg-gray-900">
+  <div
+    class="relative mx-auto mt-14 max-w-[1400px] rounded-lg border-2 border-dashed border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900/50 sm:p-6">
+    <div
+      *ngIf="loading"
+      class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80 dark:bg-gray-900/80">
+      <svg
+        class="h-10 w-10 animate-spin text-teal-600 dark:text-teal-400"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        aria-hidden="true">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
 
-      <div style="width:100%; display:display-inline;">
-        <div style="width:95%; float:center; min-width: 550px; margin:10px">
-          <h2>Historial : </h2>
-          
-          <p >
-            <mat-form-field appearance="fill" >
-              <mat-label>Punto de acceso:</mat-label>
-              <mat-select [(value)]="access_point" (selectionChange)="salaChange()">
-                  <mat-option *ngFor="let s of accessPoints" [value]="s.ap_location">{{s.ap_location | uppercase }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-    
-            <!------- Date Picker ---------->
-            <mat-form-field appearance="outline">
-              <mat-label>Elija un rango:</mat-label>
-              <mat-date-range-input [rangePicker]="picker" disabled #ref>
-                <input matStartDate placeholder="Fecha inicial" [(ngModel)]="fecha_inicial">
-                <input matEndDate placeholder="Fecha final" [(ngModel)]="fecha_final" (dateChange)="change(ref.value)">
-              </mat-date-range-input>
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-date-range-picker #picker disabled="false"></mat-date-range-picker>
-            </mat-form-field>   
-          </p>
-    
-            <mat-form-field appearance="fill" style="display:display-inline">
-              <mat-label>Búsqueda</mat-label>
-              <input matInput (keyup)="applyFilterList($event)" placeholder="Escribe algo para buscar" #input1>
-          </mat-form-field>
-    
-          <button mat-raised-button (click)="exporter2.exportTable('xlsx',{fileName:'Reporte de ingresos por fecha'})">EXPORTAR EXCEL</button>
-    
-          <div class="table-responsive" style="overflow-x:auto;"> 
-            <div class="mat-elevation-z8" style="width:100%;">
-                <table mat-table matTableExporter style="width:100%;" 
-                  [dataSource]="dataSourceHistory" matSort multiTemplateDataRows 
-                  #exporter2="matTableExporter">
-      
-                  <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> TIPO </th>
-                    <td mat-cell *matCellDef="let a">
-                      <mat-icon *ngIf="a.type=='VEHÍCULO'">directions_car</mat-icon>
-                      <mat-icon *ngIf="a.type=='PERSONA'">person</mat-icon>
-                    </td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="doc">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOCUMENTO </th>
-                    <td mat-cell *matCellDef="let a"> {{a.doc_number}}</td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DATOS </th>
-                    <td mat-cell *matCellDef="let a"> {{a.name}}</td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="age">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> DOMICILIO </th> 
-                    <td mat-cell *matCellDef="let a"> {{a.house_address}}</td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="fecha">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> CHECK-IN </th>
-                    <td mat-cell *matCellDef="let a"> {{a.date_entry}}</td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="hora">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> CHECK-OUT </th>
-                    <td mat-cell *matCellDef="let a"> {{a.date_exit}}</td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="obs">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> RESULTADO </th>
-                    <td mat-cell *matCellDef="let a" > {{a.obs|uppercase}}</td>
-                  </ng-container>
+    <h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-white">Historial de accesos</h2>
+    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+      Punto de acceso, rango de fechas y búsqueda. Mismo estilo que <strong>Mi casa</strong>.
+    </p>
 
-                  <ng-container matColumnDef="gender">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> OPERARIO </th> 
-                    <td mat-cell *matCellDef="let a"> {{a.operator}}</td>
-                  </ng-container>
-          
-                  <ng-container matColumnDef="indicador">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>  </th>
-                    <td mat-cell *matCellDef="let a" >
-                      <mat-icon *ngIf="a.obs=='PERMITIDO' || a.obs=='permitido'" style="color:rgb(14, 132, 14)">check</mat-icon>
-                      <mat-icon *ngIf="a.obs=='DENEGADO' || a.obs=='denegado'" style="color:rgb(147, 14, 14)">block</mat-icon>
-                      <mat-icon *ngIf="a.obs=='RESTRINGIDO' || a.obs=='restringido'" style="color:orange">warning</mat-icon>
-                    </td>
-                  </ng-container>
-      
-                  <ng-container matColumnDef="vis">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> VISITAS </th>
-                    <td mat-cell *matCellDef="let a"> {{a.visits}}
-                      <button mat-icon-button *ngIf="a.visits>1" (click)="viewDetail(a)">
-                        <mat-icon style="color:rgb(23, 71, 113)">search</mat-icon>
-                      </button>
-                      <button mat-icon-button *ngIf="a.obs=='DENEGADO'" (click)="viewLudops()">
-                        <mat-icon style="color:rgb(23, 71, 113)">description</mat-icon>
-                      </button>
-                    </td>
-                  </ng-container>
-      
-      
-                  <tr mat-header-row *matHeaderRowDef="['type','doc','name','age','fecha','hora','obs','gender','indicador','vis'];"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['type','doc','name','age','fecha','hora','obs','gender','indicador','vis'];"></tr>
-      
-                  <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="6">No se encontró "{{input1.value}}"</td>
-                  </tr>
-                </table>
-            </div>
-            <mat-paginator [pageSizeOptions]="[100, 200, 300, 400]" aria-label="Página">
-            </mat-paginator>
-          </div>
-
-        </div>
-    
+    <div class="mb-4 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+      <div class="min-w-[200px] flex-1">
+        <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Punto de acceso</label>
+        <select
+          [(ngModel)]="access_point"
+          (ngModelChange)="onAccessPointChange()"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-teal-500 dark:focus:ring-teal-500">
+          <option *ngFor="let p of accessPointOptions" [ngValue]="p.id">{{ p.label | uppercase }}</option>
+        </select>
       </div>
-    
+
+      <div class="flex min-w-[260px] flex-1 flex-wrap gap-3">
+        <div class="min-w-[140px] flex-1">
+          <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Desde</label>
+          <input
+            type="date"
+            [ngModel]="fechaInicialInput"
+            (ngModelChange)="onFechaInicialInput($event)"
+            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-500 dark:focus:ring-teal-500" />
+        </div>
+        <div class="min-w-[140px] flex-1">
+          <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Hasta</label>
+          <input
+            type="date"
+            [ngModel]="fechaFinalInput"
+            (ngModelChange)="onFechaFinalInput($event)"
+            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-500 dark:focus:ring-teal-500" />
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+      <div class="w-full flex-1 sm:min-w-[240px]">
+        <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Buscar en tabla</label>
+        <input
+          type="search"
+          [ngModel]="filterQuery"
+          (ngModelChange)="onFilterInput($event)"
+          placeholder="Documento, nombre, domicilio…"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-500 dark:focus:ring-teal-500" />
+      </div>
+      <button
+        type="button"
+        [disabled]="loading || !filteredRows.length"
+        (click)="exportExcel()"
+        class="shrink-0 rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-sm font-medium text-white shadow-lg shadow-teal-500/50 hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-teal-800/80 dark:focus:ring-teal-800">
+        Exportar Excel
+      </button>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600" (click)="toggleSort('type')">
+              Tipo {{ sortIndicator('type') }}
+            </th>
+            <th
+              scope="col"
+              class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600"
+              (click)="toggleSort('doc_number')">
+              Documento {{ sortIndicator('doc_number') }}
+            </th>
+            <th scope="col" class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600" (click)="toggleSort('name')">
+              Datos {{ sortIndicator('name') }}
+            </th>
+            <th
+              scope="col"
+              class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600"
+              (click)="toggleSort('house_address')">
+              Domicilio {{ sortIndicator('house_address') }}
+            </th>
+            <th
+              scope="col"
+              class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600"
+              (click)="toggleSort('date_entry')">
+              Ingreso {{ sortIndicator('date_entry') }}
+            </th>
+            <th
+              scope="col"
+              class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600"
+              (click)="toggleSort('date_exit')">
+              Salida {{ sortIndicator('date_exit') }}
+            </th>
+            <th scope="col" class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600" (click)="toggleSort('obs')">
+              Resultado {{ sortIndicator('obs') }}
+            </th>
+            <th
+              scope="col"
+              class="cursor-pointer px-4 py-3 select-none hover:bg-gray-100 dark:hover:bg-gray-600"
+              (click)="toggleSort('operator')">
+              Operario {{ sortIndicator('operator') }}
+            </th>
+            <th scope="col" class="px-4 py-3"></th>
+            <th scope="col" class="px-4 py-3">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let a of pagedRows"
+            class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+            <td class="px-4 py-3">
+              <mat-icon *ngIf="a.type == 'VEHÍCULO'" class="text-slate-600 dark:text-slate-300">directions_car</mat-icon>
+              <mat-icon *ngIf="a.type != 'VEHÍCULO'" class="text-slate-600 dark:text-slate-300">person</mat-icon>
+            </td>
+            <th scope="row" class="whitespace-nowrap px-4 py-3 font-medium text-gray-900 dark:text-white">
+              {{ a.doc_number }}
+            </th>
+            <td class="px-4 py-3">{{ a.name }}</td>
+            <td class="px-4 py-3">{{ a.house_address }}</td>
+            <td class="px-4 py-3 whitespace-nowrap">{{ a.date_entry | date : 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <ng-container *ngIf="a.date_exit; else noExit">{{ a.date_exit | date : 'dd/MM/yyyy HH:mm' }}</ng-container>
+              <ng-template #noExit>—</ng-template>
+            </td>
+            <td class="px-4 py-3">{{ a.obs | uppercase }}</td>
+            <td class="px-4 py-3">{{ a.operator }}</td>
+            <td class="px-4 py-3">
+              <mat-icon
+                *ngIf="a.obs == 'PERMITIDO' || a.obs == 'permitido'"
+                class="text-green-700 dark:text-green-400">
+                check_circle
+              </mat-icon>
+              <mat-icon *ngIf="a.obs == 'DENEGADO' || a.obs == 'denegado'" class="text-red-700 dark:text-red-400">block</mat-icon>
+              <mat-icon
+                *ngIf="a.obs == 'RESTRINGIDO' || a.obs == 'restringido' || a.obs == 'OBSERVADO' || a.obs == 'observado'"
+                class="text-amber-600 dark:text-amber-400">
+                warning
+              </mat-icon>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button
+                *ngIf="canOpenDayDetail(a)"
+                type="button"
+                title="Movimientos del mismo día (mismo documento)"
+                (click)="viewDetail(a)"
+                class="inline-flex items-center justify-center rounded p-1 text-violet-600 hover:bg-violet-100 dark:text-violet-400 dark:hover:bg-violet-900/30">
+                <mat-icon class="!h-5 !w-5 !text-lg">history</mat-icon>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!pagedRows.length">
+            <td colspan="10" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+              <ng-container *ngIf="filterQuery.trim(); else emptyState">
+                No hay filas que coincidan con «{{ filterQuery }}».
+              </ng-container>
+              <ng-template #emptyState>No hay registros en el rango seleccionado.</ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="mt-4 flex flex-col items-center justify-between gap-3 border-t border-gray-200 pt-4 text-sm dark:border-gray-700 sm:flex-row">
+      <div class="flex flex-wrap items-center gap-2 text-gray-600 dark:text-gray-400">
+        <span>Mostrando {{ totalFiltered ? pageIndex * pageSize + 1 : 0 }}–{{ displayRangeEnd }} de {{ totalFiltered }}</span>
+        <label class="ms-2 flex items-center gap-2">
+          <span class="text-xs">Filas</span>
+          <select
+            [(ngModel)]="pageSize"
+            (ngModelChange)="onPageSizeChange()"
+            class="rounded-lg border border-gray-300 bg-white py-1 pl-2 pr-8 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+            <option *ngFor="let n of pageSizeOptions" [ngValue]="n">{{ n }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="goPrevPage()"
+          [disabled]="pageIndex <= 0"
+          class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+          Anterior
+        </button>
+        <span class="text-gray-600 dark:text-gray-400">Página {{ pageIndex + 1 }} / {{ totalPages }}</span>
+        <button
+          type="button"
+          (click)="goNextPage()"
+          [disabled]="pageIndex >= totalPages - 1"
+          class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+          Siguiente
+        </button>
+      </div>
     </div>
   </div>
 </div>
-
-
-

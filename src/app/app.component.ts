@@ -294,7 +294,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private handleLicenseError(error: any): void {
     this.auth.deleteToken("user_id");
     this.auth.deleteToken("role_system");
-    this.auth.deleteToken('sala');
     this.auth.deleteToken('onSession');
     console.error('Error al obtener la licencia:', error);
     this.toastr.error('Error al obtener la licencia: ' + error);
