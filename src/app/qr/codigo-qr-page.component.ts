@@ -5,8 +5,8 @@ import { initFlowbite } from 'flowbite';
 import * as QRCode from 'qrcode';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../auth.service';
-import { QrAccessService } from '../services/qr-access.service';
-import { QrScannerComponent } from '../qr-scanner/qr-scanner.component';
+import { QrAccessService } from './qr-access.service';
+import { QrScannerComponent } from './qr-scanner.component';
 
 @Component({
   selector: 'app-codigo-qr-page',

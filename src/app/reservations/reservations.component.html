@@ -1,0 +1,399 @@
+<div class="max-w-6xl mx-auto px-4 py-6 sm:px-6">
+  <div
+    class="glass-effect rounded-xl border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 overflow-hidden"
+  >
+    <div class="px-5 py-4 border-b border-gray-200/80 dark:border-gray-600/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="text-lg font-semibold text-gray-800 dark:text-white">Reservas — áreas comunes</h1>
+      </div>
+      <button
+        type="button"
+        (click)="goToday()"
+        class="self-start sm:self-center text-sm font-medium text-teal-700 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300"
+      >
+        Ir a hoy
+      </button>
+    </div>
+
+    <div class="p-5 space-y-8">
+      <div *ngIf="!canRequest && !isAdmin" class="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+        Tu usuario no tiene una casa asignada: no puedes crear solicitudes. Si eres residente, contacta a administración.
+      </div>
+
+      <!-- Área + navegación mes (una sola fila) -->
+      <div class="flex min-w-0 flex-nowrap items-center gap-2 sm:gap-3 overflow-x-auto pb-0.5">
+        <div class="min-w-0 flex-1">
+          <label for="calendar-area" class="sr-only">Área del calendario</label>
+          <select
+            id="calendar-area"
+            name="calendarAreaFilter"
+            [(ngModel)]="calendarAreaFilter"
+            class="block w-full min-w-[12rem] rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+          >
+            <option [ngValue]="'ALL'">Todas las áreas</option>
+            <option *ngFor="let a of areasSelectable" [ngValue]="areaId(a)">{{ areaOptionLabel(a) }}</option>
+          </select>
+        </div>
+        <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            (click)="prevMonth()"
+            class="inline-flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+            aria-label="Mes anterior"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white capitalize text-center whitespace-nowrap px-0.5 min-w-[9rem] sm:min-w-[11rem]">
+            {{ monthTitle }}
+          </h2>
+          <button
+            type="button"
+            (click)="nextMonth()"
+            class="inline-flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+            aria-label="Mes siguiente"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Grilla mensual -->
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white/60 dark:bg-gray-900/40">
+        <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-600">
+          <div
+            *ngFor="let wd of weekDayLabels"
+            class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400"
+          >
+            {{ wd }}
+          </div>
+        </div>
+        <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-600">
+          <button
+            *ngFor="let cell of monthCells; trackBy: trackCell"
+            type="button"
+            (click)="onDayClick(cell)"
+            [ngClass]="dayCellClasses(cell)"
+            class="min-h-[5.5rem] sm:min-h-[6.5rem] bg-white dark:bg-gray-900/90 p-1.5 sm:p-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-400"
+          >
+            <span
+              class="text-sm font-medium"
+              [class.text-gray-400]="!cell.inMonth"
+              [class.text-gray-900]="cell.inMonth"
+              [class.dark:text-white]="cell.inMonth"
+            >
+              {{ cell.date.getDate() }}
+            </span>
+            <div class="mt-1 flex flex-wrap gap-0.5">
+              <span
+                *ngFor="let dot of cell.dots"
+                class="inline-block h-1.5 w-1.5 rounded-full shrink-0"
+                [ngClass]="dot"
+              ></span>
+              <span *ngIf="cell.extraCount > 0" class="text-[10px] text-gray-500 dark:text-gray-400">+{{ cell.extraCount }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="text-center text-sm text-gray-500 py-2">Cargando reservas del mes…</div>
+
+      <!-- Tabla solicitudes del mes -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-white mb-3">Solicitudes de este mes</h3>
+
+        <div
+          class="mb-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/30 p-4"
+        >
+          <div class="flex flex-col md:flex-row gap-2 md:items-center">
+            <input
+              id="res-filter-search"
+              name="tableSearch"
+              type="search"
+              [(ngModel)]="tableSearch"
+              placeholder="Área, estado, fechas, observación, teléfono, domicilio…"
+              class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              autocomplete="off"
+            />
+            <select
+              [(ngModel)]="selectedBlock"
+              (ngModelChange)="onReservationBlockFilterChange()"
+              class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto"
+            >
+              <option value="">Mz: Todas</option>
+              <option *ngFor="let block of uniqueBlocks" [value]="block">Mz: {{ block }}</option>
+            </select>
+            <select
+              [(ngModel)]="selectedLot"
+              class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto"
+            >
+              <option value="">Lt: Todos</option>
+              <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{ lot }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 dark:bg-gray-800/80 text-left text-xs font-semibold uppercase text-gray-600 dark:text-gray-400">
+                <th class="px-3 py-3">Inicio</th>
+                <th class="px-3 py-3">Fin</th>
+                <th class="px-3 py-3">Área</th>
+                <th *ngIf="isAdmin" class="px-3 py-3">Domicilio</th>
+                <th class="px-3 py-3">Estado</th>
+                <th class="px-3 py-3 hidden sm:table-cell">Inv.</th>
+                <th class="px-3 py-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of tableRows" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50/80 dark:hover:bg-gray-800/50">
+                <td class="px-3 py-2.5 text-gray-900 dark:text-gray-100 whitespace-nowrap">{{ r.reservation_date | date : 'short' }}</td>
+                <td class="px-3 py-2.5 text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ r.end_date | date : 'short' }}</td>
+                <td class="px-3 py-2.5 text-gray-800 dark:text-gray-200">{{ r.area_name || '—' }}</td>
+                <td *ngIf="isAdmin" class="px-3 py-2.5 text-gray-700 dark:text-gray-300">{{ houseDisplay(r) }}</td>
+                <td class="px-3 py-2.5">
+                  <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="statusBadgeClass(r.status)">{{ r.status }}</span>
+                </td>
+                <td class="px-3 py-2.5 hidden sm:table-cell text-gray-600 dark:text-gray-400">{{ r.num_guests ?? '—' }}</td>
+                <td class="px-3 py-2.5 text-right whitespace-nowrap">
+                  <div class="inline-flex flex-wrap justify-end gap-1">
+                    <!-- Vecino + admin: editar -->
+                    <button
+                      *ngIf="canEdit(r)"
+                      type="button"
+                      (click)="openEdit(r)"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-900/30"
+                      title="Editar"
+                      aria-label="Editar reservación"
+                    >
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <!-- Vecino: cancelar (por domicilio) -->
+                    <button
+                      *ngIf="canCancelAsNeighbor(r)"
+                      type="button"
+                      (click)="cancelReservation(r)"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                      title="Cancelar solicitud (tu domicilio)"
+                      aria-label="Cancelar solicitud de tu domicilio"
+                    >
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <!-- Admin: cancelar solo si la reserva es de su mismo domicilio -->
+                    <button
+                      *ngIf="canCancelAsAdmin(r)"
+                      type="button"
+                      (click)="cancelReservation(r)"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-900 dark:text-orange-400 dark:hover:bg-orange-900/20"
+                      title="Cancelar (tu domicilio como administrador)"
+                      aria-label="Cancelar reservación de tu domicilio"
+                    >
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <!-- Admin: confirmar -->
+                    <button
+                      *ngIf="isAdmin && r.status === 'PENDIENTE'"
+                      type="button"
+                      (click)="setStatus(r, 'CONFIRMADA')"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+                      title="Confirmar"
+                      aria-label="Confirmar reservación"
+                    >
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                    <!-- Admin: rechazar -->
+                    <button
+                      *ngIf="isAdmin && r.status === 'PENDIENTE'"
+                      type="button"
+                      (click)="setStatus(r, 'RECHAZADA')"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/30"
+                      title="Rechazar"
+                      aria-label="Rechazar solicitud"
+                    >
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                      </svg>
+                    </button>
+                    <!-- Admin: completar -->
+                    <button
+                      *ngIf="isAdmin && r.status === 'CONFIRMADA'"
+                      type="button"
+                      (click)="setStatus(r, 'COMPLETADA')"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-sky-200 text-sky-700 hover:bg-sky-50 dark:border-sky-800 dark:text-sky-400 dark:hover:bg-sky-900/30"
+                      title="Marcar completada"
+                      aria-label="Marcar reservación como completada"
+                    >
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!loading && monthReservations.length === 0">
+                <td [attr.colspan]="isAdmin ? 7 : 6" class="px-3 py-8 text-center text-gray-500 dark:text-gray-400">
+                  No hay solicitudes en este mes.
+                </td>
+              </tr>
+              <tr *ngIf="!loading && monthReservations.length > 0 && reservationsForMonthView.length === 0">
+                <td [attr.colspan]="isAdmin ? 7 : 6" class="px-3 py-8 text-center text-gray-600 dark:text-gray-400">
+                  No hay solicitudes para el área seleccionada en este mes.
+                </td>
+              </tr>
+              <tr *ngIf="!loading && reservationsForMonthView.length > 0 && tableRows.length === 0">
+                <td [attr.colspan]="isAdmin ? 7 : 6" class="px-3 py-8 text-center text-amber-700 dark:text-amber-300">
+                  Ninguna solicitud coincide con la búsqueda o los filtros de domicilio (Mz / Lt).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  *ngIf="modalOpen"
+  class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="absolute inset-0 bg-black/50" (click)="closeModal()"></div>
+  <div
+    class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-xl bg-white dark:bg-gray-900 shadow-xl border border-gray-200 dark:border-gray-700"
+  >
+    <div class="sticky top-0 flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ modalMode === 'create' ? 'Nueva solicitud' : 'Editar solicitud' }}
+      </h3>
+      <button type="button" (click)="closeModal()" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Cerrar">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form (ngSubmit)="submitModal()" class="p-5 space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Área *</label>
+        <select
+          name="area"
+          [(ngModel)]="formAccessPointId"
+          required
+          class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+        >
+          <option [ngValue]="null">Seleccione…</option>
+          <option *ngFor="let a of areas" [ngValue]="areaId(a)">{{ areaName(a) }}</option>
+        </select>
+      </div>
+
+      <div *ngIf="isAdmin">
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Domicilio *</label>
+        <select
+          name="house"
+          [(ngModel)]="formHouseId"
+          required
+          class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+        >
+          <option [ngValue]="null">Seleccione…</option>
+          <option *ngFor="let h of houses" [ngValue]="h.house_id">{{ houseOptionLabel(h) }}</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Inicio *</label>
+          <input
+            type="datetime-local"
+            name="start"
+            [(ngModel)]="formStart"
+            required
+            class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Fin *</label>
+          <input
+            type="datetime-local"
+            name="end"
+            [(ngModel)]="formEnd"
+            required
+            class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+          />
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400">Duración máxima {{ maxEventHours }} horas por evento (política del condominio).</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Invitados</label>
+          <input
+            type="number"
+            name="guests"
+            [(ngModel)]="formGuests"
+            min="1"
+            class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Teléfono contacto</label>
+          <input
+            type="text"
+            name="phone"
+            [(ngModel)]="formPhone"
+            class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Observación</label>
+        <textarea
+          name="obs"
+          [(ngModel)]="formObservation"
+          rows="2"
+          class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+        ></textarea>
+      </div>
+
+      <div *ngIf="isAdmin && modalMode === 'edit'">
+        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Estado</label>
+        <select
+          name="st"
+          [(ngModel)]="formStatus"
+          class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm"
+        >
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="CONFIRMADA">CONFIRMADA</option>
+          <option value="CANCELADA">CANCELADA</option>
+          <option value="RECHAZADA">RECHAZADA</option>
+          <option value="COMPLETADA">COMPLETADA</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          Cerrar
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving"
+          class="rounded-lg border border-teal-800/25 !bg-teal-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm hover:!bg-teal-700 disabled:opacity-50"
+        >
+          {{ saving ? 'Guardando…' : modalMode === 'create' ? 'Enviar solicitud' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

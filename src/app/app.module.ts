@@ -57,10 +57,11 @@ import { MyHouseComponent } from './my-house/my-house.component';
 import { ModalUppercaseDirective } from './my-house/modal-uppercase.directive';
 import { PetsComponent } from './pets/pets.component';
 import { WebcamComponent } from './webcam/webcam.component';
-import { CalendarComponent } from './calendar/calendar.component';
-import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
-import { CodigoQrPageComponent } from './codigo-qr-page/codigo-qr-page.component';
+import { ReservationsComponent } from './reservations/reservations.component';
+import { QrScannerComponent } from './qr/qr-scanner.component';
+import { CodigoQrPageComponent } from './qr/codigo-qr-page.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
+import { AccessPointsComponent } from './access-points/access-points.component';
 
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
@@ -90,6 +91,7 @@ Chart.register(...registerables);
         PetsComponent,
         WebcamComponent,
         PublicRegistrationComponent,
+        AccessPointsComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
@@ -123,7 +125,7 @@ Chart.register(...registerables);
         MatChipsModule,
         NgChartsModule,
         ToastrModule.forRoot(),
-        CalendarComponent,
+        ReservationsComponent,
         QrScannerComponent,
         CodigoQrPageComponent
     ],

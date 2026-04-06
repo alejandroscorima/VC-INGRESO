@@ -8,10 +8,11 @@ export interface Reservation {
   house_id: number;
   reservation_date: string;
   end_date?: string;
-  status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'COMPLETADA';
+  status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'RECHAZADA' | 'COMPLETADA';
   observation?: string;
   num_guests?: number;
   contact_phone?: string;
+  created_by_user_id?: number;
   created_at?: string;
   updated_at?: string;
   // Joined fields
@@ -26,16 +27,17 @@ export const RESERVATION_STATUS = [
   { value: 'PENDIENTE', label: 'Pendiente', color: 'warn' },
   { value: 'CONFIRMADA', label: 'Confirmada', color: 'primary' },
   { value: 'CANCELADA', label: 'Cancelada', color: 'accent' },
+  { value: 'RECHAZADA', label: 'Rechazada', color: 'warn' },
   { value: 'COMPLETADA', label: 'Completada', color: 'basic' }
 ];
 
 /**
- * Tipo de área
+ * Tipo lógico de punto de acceso (catálogo access_points)
  */
 export const AREA_TYPES = [
-  { value: 'CASA_CLUB', label: 'Casa Club' },
-  { value: 'PISCINA', label: 'Piscina' },
-  { value: 'OTRO', label: 'Otro' }
+  { value: 'ENTRADA', label: 'Entrada' },
+  { value: 'AREA_COMUN', label: 'Área común' },
+  { value: 'AREA_LIMITADA', label: 'Área limitada' }
 ];
 
 /**

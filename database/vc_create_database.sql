@@ -80,17 +80,20 @@ CREATE TABLE `users` (
 CREATE TABLE `access_points` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL COMMENT 'Nombre del punto/área',
-    `type` ENUM('GARITA', 'PISCINA', 'CASA_CLUB', 'ENTRADA_PEATONAL', 'ENTRADA_VEHICULAR', 'OTRO') NOT NULL DEFAULT 'OTRO',
+    `type` ENUM('ENTRADA', 'AREA_COMUN', 'AREA_LIMITADA') NOT NULL DEFAULT 'ENTRADA',
     `location` VARCHAR(255) DEFAULT NULL COMMENT 'Ubicación física',
     `is_active` TINYINT(1) NOT NULL DEFAULT 1,
-    `max_capacity` INT UNSIGNED DEFAULT NULL COMMENT 'Aforo máximo (Piscina, Casa Club)',
-    `current_capacity` INT UNSIGNED DEFAULT 0,
+    `controla_aforo` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=obliga max_capacity y current_capacity',
+    `permite_reserva` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=admite reservas en el módulo',
+    `max_capacity` INT UNSIGNED DEFAULT NULL COMMENT 'Solo si controla_aforo=1',
+    `current_capacity` INT UNSIGNED DEFAULT NULL COMMENT 'Ocupación; NULL si no controla aforo',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_name` (`name`),
     KEY `idx_type` (`type`),
-    KEY `idx_is_active` (`is_active`)
+    KEY `idx_is_active` (`is_active`),
+    KEY `idx_permite_reserva` (`permite_reserva`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Puntos de acceso y áreas reservables';
 
 -- -----------------------------------------------------------------------------
@@ -358,11 +361,11 @@ ALTER TABLE `reservations`
 -- =============================================================================
 -- DATOS INICIALES (puntos de acceso para reservas y API)
 -- =============================================================================
-INSERT INTO `access_points` (`name`, `type`, `location`, `max_capacity`, `current_capacity`) VALUES
-('Garita Principal', 'GARITA', 'Entrada principal del condominio', NULL, 0),
-('Entrada Peatonal', 'ENTRADA_PEATONAL', 'Puerta principal peatonal', NULL, 0),
-('Piscina', 'PISCINA', 'Área de piscina', 50, 0),
-('Casa Club', 'CASA_CLUB', 'Edificio de eventos', 200, 0)
+INSERT INTO `access_points` (`name`, `type`, `location`, `is_active`, `controla_aforo`, `permite_reserva`, `max_capacity`, `current_capacity`) VALUES
+('Garita Principal', 'ENTRADA', 'Entrada principal del condominio', 1, 0, 0, NULL, NULL),
+('Entrada Peatonal', 'ENTRADA', 'Puerta principal peatonal', 1, 0, 0, NULL, NULL),
+('Piscina', 'AREA_COMUN', 'Área de piscina', 1, 1, 1, 50, 0),
+('Casa Club', 'AREA_COMUN', 'Edificio de eventos', 1, 1, 1, 200, 0)
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 SET FOREIGN_KEY_CHECKS = 1;

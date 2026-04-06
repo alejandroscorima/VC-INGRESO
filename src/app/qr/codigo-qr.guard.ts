@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService } from '../auth.service';
 
 /**
  * Ruta Código QR: staff (escáner) o quien puede generar QR de hogar (USUARIO / admin con person_id).

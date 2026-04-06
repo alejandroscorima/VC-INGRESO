@@ -11,6 +11,7 @@ require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Router.php';
 require_once __DIR__ . '/../auth_middleware.php';
 require_once __DIR__ . '/../helpers/house_permissions.php';
+require_once __DIR__ . '/../config/reservation_business_rules.php';
 
 use Utils\Response;
 use Utils\Router;
@@ -20,6 +21,9 @@ class ReservationController
     private $pdo;
     private $table = 'reservations';
     private $accessPointsTable = 'access_points';
+
+    /** Estados que bloquean el hueco en el calendario (PENDIENTE reserva hasta decisión o fin de evento si confirma). */
+    private const BLOCKING_STATUSES = ['PENDIENTE', 'CONFIRMADA'];
 
     public function __construct($pdo)
     {
@@ -32,7 +36,7 @@ class ReservationController
      */
     public function index()
     {
-        requireAuth();
+        $auth = requireAuth();
 
         $params = Router::getParams();
         $where = [];
@@ -74,6 +78,9 @@ class ReservationController
             $where[] = 'r.house_id = ?';
             $values[] = $params['house_id'];
         }
+
+        // Vecinos: todas las de sus casas. Admin y personal (portería, etc.): listado completo.
+        $this->applyIndexRoleScope($where, $values, $auth);
 
         $sql = "SELECT r.*, ap.name as area_name, ap.type as area_type 
                 FROM {$this->table} r 
@@ -121,7 +128,7 @@ class ReservationController
      */
     public function show($id)
     {
-        requireAuth();
+        $auth = requireAuth();
 
         $stmt = $this->pdo->prepare("
             SELECT r.*, ap.name as area_name, ap.type as area_type 
@@ -134,6 +141,11 @@ class ReservationController
 
         if (!$reservation) {
             Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
+            return;
+        }
+
+        if (!$this->canViewReservation($auth, $reservation)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para ver esta reservación'], 403);
             return;
         }
 
@@ -155,24 +167,43 @@ class ReservationController
             return;
         }
 
-        // Validar campos requeridos
-        $required = ['access_point_id', 'reservation_date', 'house_id'];
+        // Validar campos requeridos (end_date necesario para límites de duración y solapes)
+        $required = ['access_point_id', 'reservation_date', 'end_date', 'house_id'];
         foreach ($required as $field) {
-            if (!isset($data[$field]) || empty($data[$field])) {
+            if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                 Response::json(['success' => false, 'error' => "Campo requerido: {$field}"], 400);
                 return;
             }
         }
 
-        // Validar estado
-        $validStatuses = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA'];
+        $validStatuses = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'RECHAZADA', 'COMPLETADA'];
         $data['status'] = isset($data['status']) ? strtoupper($data['status']) : 'PENDIENTE';
-        if (!in_array($data['status'], $validStatuses)) {
+        if (!in_array($data['status'], $validStatuses, true)) {
             Response::json(['success' => false, 'error' => 'Estado inválido'], 400);
             return;
         }
+        // Solo administrador puede crear con estado distinto de PENDIENTE
+        if (!isAdminRole($auth)) {
+            $data['status'] = 'PENDIENTE';
+        }
         if (!canAccessHouse($this->pdo, $auth, (int) $data['house_id'])) {
             Response::json(['success' => false, 'error' => 'Sin permiso para crear reservas en esta casa'], 403);
+            return;
+        }
+
+        if (empty($data['person_id']) && !empty($auth['person_id'])) {
+            $data['person_id'] = (int) $auth['person_id'];
+        }
+
+        $err = $this->validateReservationBusinessRules(
+            (int) $data['house_id'],
+            (int) $data['access_point_id'],
+            (string) $data['reservation_date'],
+            (string) $data['end_date'],
+            null
+        );
+        if ($err !== null) {
+            Response::json(['success' => false, 'error' => $err], 400);
             return;
         }
 
@@ -191,7 +222,7 @@ class ReservationController
                 $data['person_id'] ?? null,
                 $data['house_id'],
                 $data['reservation_date'],
-                $data['end_date'] ?? $data['reservation_date'] . ' 02:00:00',
+                $data['end_date'],
                 $data['status'],
                 $data['observation'] ?? null,
                 $data['num_guests'] ?? 1,
@@ -225,15 +256,23 @@ class ReservationController
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT id, house_id FROM {$this->table} WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
         $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
         if (!$reservation) {
             Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
             return;
         }
-        if (!canAccessHouse($this->pdo, $auth, (int) $reservation['house_id'])) {
+        if (!$this->canViewReservation($auth, $reservation)) {
             Response::json(['success' => false, 'error' => 'Sin permiso para editar esta reservación'], 403);
+            return;
+        }
+        if (!isAdminRole($auth) && !in_array($reservation['status'], ['PENDIENTE', 'CONFIRMADA'], true)) {
+            Response::json(['success' => false, 'error' => 'No se puede modificar esta reservación en su estado actual'], 400);
+            return;
+        }
+        if (!isAdminRole($auth) && $reservation['status'] === 'CONFIRMADA') {
+            Response::json(['success' => false, 'error' => 'Las reservas confirmadas solo pueden cancelarse desde el cambio de estado'], 400);
             return;
         }
         if (isset($data['house_id']) && (int) $data['house_id'] !== (int) $reservation['house_id']) {
@@ -243,16 +282,20 @@ class ReservationController
             }
         }
 
+        if (!isAdminRole($auth)) {
+            unset($data['status']);
+        }
+
         $fields = [];
         $values = [];
 
         $allowedFields = [
             'access_point_id', 'person_id', 'house_id', 'reservation_date',
-            'end_date', 'status', 'observation', 'num_guests', 'contact_phone'
+            'end_date', 'status', 'observation', 'num_guests', 'contact_phone',
         ];
 
         foreach ($allowedFields as $field) {
-            if (isset($data[$field])) {
+            if (array_key_exists($field, $data)) {
                 $fields[] = "{$field} = ?";
                 $values[] = $data[$field];
             }
@@ -261,6 +304,28 @@ class ReservationController
         if (empty($fields)) {
             Response::json(['success' => false, 'error' => 'No hay campos para actualizar'], 400);
             return;
+        }
+
+        $mergedHouse = isset($data['house_id']) ? (int) $data['house_id'] : (int) $reservation['house_id'];
+        $mergedAp = isset($data['access_point_id']) ? (int) $data['access_point_id'] : (int) $reservation['access_point_id'];
+        $mergedStart = isset($data['reservation_date']) ? (string) $data['reservation_date'] : (string) $reservation['reservation_date'];
+        $mergedEnd = isset($data['end_date']) ? (string) $data['end_date'] : (string) $reservation['end_date'];
+
+        if (
+            isset($data['house_id']) || isset($data['access_point_id'])
+            || isset($data['reservation_date']) || isset($data['end_date'])
+        ) {
+            $err = $this->validateReservationBusinessRules(
+                $mergedHouse,
+                $mergedAp,
+                $mergedStart,
+                $mergedEnd,
+                (int) $id
+            );
+            if ($err !== null) {
+                Response::json(['success' => false, 'error' => $err], 400);
+                return;
+            }
         }
 
         $values[] = $id;
@@ -272,7 +337,7 @@ class ReservationController
 
             Response::json([
                 'success' => true,
-                'data' => ['id' => $id, 'message' => 'Reservación actualizada correctamente']
+                'data' => ['id' => $id, 'message' => 'Reservación actualizada correctamente'],
             ]);
         } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al actualizar: ' . $e->getMessage()], 500);
@@ -287,15 +352,15 @@ class ReservationController
     {
         $auth = requireAuth();
 
-        $stmt = $this->pdo->prepare("SELECT id, house_id FROM {$this->table} WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
         $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
         if (!$reservation) {
             Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
             return;
         }
-        if (!canAccessHouse($this->pdo, $auth, (int) $reservation['house_id'])) {
-            Response::json(['success' => false, 'error' => 'Sin permiso para cambiar estado de esta reservación'], 403);
+        if (!$this->canViewReservation($auth, $reservation)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para cambiar el estado de esta reservación'], 403);
             return;
         }
 
@@ -306,20 +371,51 @@ class ReservationController
             return;
         }
 
-        $validStatuses = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA'];
-        $data['status'] = strtoupper($data['status']);
-        if (!in_array($data['status'], $validStatuses)) {
+        $validStatuses = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'RECHAZADA', 'COMPLETADA'];
+        $newStatus = strtoupper((string) $data['status']);
+        if (!in_array($newStatus, $validStatuses, true)) {
             Response::json(['success' => false, 'error' => 'Estado inválido'], 400);
             return;
         }
 
+        $isAdmin = isAdminRole($auth);
+        $current = strtoupper((string) ($reservation['status'] ?? ''));
+
+        if (in_array($newStatus, ['CONFIRMADA', 'RECHAZADA', 'COMPLETADA'], true) && !$isAdmin) {
+            Response::json(['success' => false, 'error' => 'Solo un administrador puede establecer este estado'], 403);
+            return;
+        }
+
+        if ($newStatus === 'PENDIENTE' && !$isAdmin) {
+            Response::json(['success' => false, 'error' => 'No autorizado'], 403);
+            return;
+        }
+
+        if ($newStatus === 'CANCELADA') {
+            if (!in_array($current, ['PENDIENTE', 'CONFIRMADA'], true)) {
+                Response::json(['success' => false, 'error' => 'No se puede cancelar en este estado'], 400);
+                return;
+            }
+            $resHouseId = (int) ($reservation['house_id'] ?? 0);
+            if ($isAdmin) {
+                $authHouseId = isset($auth['house_id']) ? (int) $auth['house_id'] : 0;
+                if ($authHouseId <= 0 || $resHouseId !== $authHouseId) {
+                    Response::json(['success' => false, 'error' => 'Solo puedes cancelar solicitudes de tu domicilio'], 403);
+                    return;
+                }
+            } elseif (!canAccessHouse($this->pdo, $auth, $resHouseId)) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para cancelar esta reservación'], 403);
+                return;
+            }
+        }
+
         try {
             $stmt = $this->pdo->prepare("UPDATE {$this->table} SET status = ? WHERE id = ?");
-            $stmt->execute([$data['status'], $id]);
+            $stmt->execute([$newStatus, $id]);
 
             Response::json([
                 'success' => true,
-                'data' => ['id' => $id, 'status' => $data['status']]
+                'data' => ['id' => $id, 'status' => $newStatus],
             ]);
         } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error: ' . $e->getMessage()], 500);
@@ -334,15 +430,16 @@ class ReservationController
     {
         $auth = requireAuth();
 
+        if (!isAdminRole($auth)) {
+            Response::json(['success' => false, 'error' => 'Solo un administrador puede eliminar reservaciones'], 403);
+            return;
+        }
+
         $stmt = $this->pdo->prepare("SELECT id, house_id FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
         $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
         if (!$reservation) {
             Response::json(['success' => false, 'error' => 'Reservación no encontrada'], 404);
-            return;
-        }
-        if (!canAccessHouse($this->pdo, $auth, (int) $reservation['house_id'])) {
-            Response::json(['success' => false, 'error' => 'Sin permiso para eliminar esta reservación'], 403);
             return;
         }
 
@@ -364,9 +461,9 @@ class ReservationController
         requireAuth();
 
         $stmt = $this->pdo->query("
-            SELECT * FROM {$this->accessPointsTable} 
-            WHERE type IN ('CASA_CLUB', 'PISCINA', 'OTRO') 
-            AND is_active = 1 
+            SELECT * FROM {$this->accessPointsTable}
+            WHERE permite_reserva = 1
+            AND is_active = 1
             ORDER BY name
         ");
 
@@ -389,16 +486,36 @@ class ReservationController
             return;
         }
 
-        // Obtener reservaciones confirmadas para ese día
+        $stmtAp = $this->pdo->prepare(
+            "SELECT id, permite_reserva, is_active FROM {$this->accessPointsTable} WHERE id = ? LIMIT 1"
+        );
+        $stmtAp->execute([(int) $accessPointId]);
+        $apRow = $stmtAp->fetch(\PDO::FETCH_ASSOC);
+        if (!$apRow) {
+            Response::json(['success' => false, 'error' => 'Punto de acceso no encontrado'], 404);
+            return;
+        }
+        if ((int) ($apRow['is_active'] ?? 0) !== 1) {
+            Response::json(['success' => false, 'error' => 'El punto de acceso no está activo'], 400);
+            return;
+        }
+        if ((int) ($apRow['permite_reserva'] ?? 0) !== 1) {
+            Response::json(['success' => false, 'error' => 'Este punto de acceso no admite reservaciones'], 400);
+            return;
+        }
+
+        // PENDIENTE y CONFIRMADA bloquean el hueco; RECHAZADA/CANCELADA liberan; COMPLETADA no aplica a nuevas reservas.
+        $placeholders = implode(',', array_fill(0, count(self::BLOCKING_STATUSES), '?'));
         $stmt = $this->pdo->prepare("
             SELECT reservation_date, end_date 
             FROM {$this->table} 
             WHERE access_point_id = ? 
-            AND status != 'CANCELADA'
+            AND status IN ({$placeholders})
             AND DATE(reservation_date) = ?
             ORDER BY reservation_date
         ");
-        $stmt->execute([$accessPointId, $date]);
+        $execParams = array_merge([$accessPointId], self::BLOCKING_STATUSES, [$date]);
+        $stmt->execute($execParams);
         $bookings = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Generar horarios disponibles (假设 8:00 - 22:00)
@@ -434,5 +551,161 @@ class ReservationController
                 'slots' => $availableSlots
             ]
         ]);
+    }
+
+    /**
+     * Listado: administradores ven todo; OPERARIO/GUARDIA ven todo; vecinos solo reservas de sus casas.
+     */
+    private function applyIndexRoleScope(array &$where, array &$values, array $auth): void
+    {
+        if (isAdminRole($auth)) {
+            return;
+        }
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+            return;
+        }
+
+        $ids = getAccessibleHouseIds($this->pdo, $auth);
+        if (empty($ids)) {
+            $where[] = '1 = 0';
+
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $where[] = "r.house_id IN ({$placeholders})";
+        foreach ($ids as $hid) {
+            $values[] = $hid;
+        }
+    }
+
+    /**
+     * Ver detalle: misma regla que applyIndexRoleScope (admin/staff global; vecino por casa).
+     */
+    private function canViewReservation(array $auth, array $reservation): bool
+    {
+        if (isAdminRole($auth)) {
+            return true;
+        }
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+            return true;
+        }
+        $hid = (int) ($reservation['house_id'] ?? 0);
+        if ($hid <= 0) {
+            return false;
+        }
+
+        return canAccessHouse($this->pdo, $auth, $hid);
+    }
+
+    /**
+     * Duración máxima, tope mensual de activas por casa y solape en el mismo área.
+     * Límites numéricos: server/config/reservation_business_rules.php
+     *
+     * @param int|null $excludeReservationId id actual al editar (no contar solape consigo mismo)
+     *
+     * @return string|null mensaje de error o null si OK
+     */
+    private function validateReservationBusinessRules(
+        int $houseId,
+        int $accessPointId,
+        string $reservationDateStr,
+        string $endDateStr,
+        $excludeReservationId
+    ): ?string {
+        if ($accessPointId <= 0) {
+            return 'Área de acceso no válida';
+        }
+        $stmtAp = $this->pdo->prepare(
+            "SELECT id, permite_reserva, is_active FROM {$this->accessPointsTable} WHERE id = ? LIMIT 1"
+        );
+        $stmtAp->execute([$accessPointId]);
+        $apRow = $stmtAp->fetch(\PDO::FETCH_ASSOC);
+        if (!$apRow) {
+            return 'Área de acceso no encontrada';
+        }
+        if ((int) ($apRow['is_active'] ?? 0) !== 1) {
+            return 'El punto de acceso no está activo';
+        }
+        if ((int) ($apRow['permite_reserva'] ?? 0) !== 1) {
+            return 'Este punto de acceso no admite reservaciones';
+        }
+
+        try {
+            $start = new \DateTime($reservationDateStr);
+            $end = new \DateTime($endDateStr);
+        } catch (\Exception $e) {
+            return 'Fechas inválidas';
+        }
+
+        if ($end <= $start) {
+            return 'La fecha y hora de fin deben ser posteriores al inicio';
+        }
+
+        $diffSeconds = $end->getTimestamp() - $start->getTimestamp();
+        $maxSeconds = (int) (RESERVATION_MAX_EVENT_HOURS * 3600);
+        if ($diffSeconds > $maxSeconds) {
+            return 'La duración máxima por evento es ' . RESERVATION_MAX_EVENT_HOURS . ' horas';
+        }
+
+        $year = (int) $start->format('Y');
+        $month = (int) $start->format('n');
+
+        /** Tope mensual y solape solo si la reserva bloquea hueco (PENDIENTE/CONFIRMADA). */
+        $blockingRulesApply = true;
+        if ($excludeReservationId !== null && $excludeReservationId !== '') {
+            $stmtSt = $this->pdo->prepare("SELECT status FROM {$this->table} WHERE id = ? LIMIT 1");
+            $stmtSt->execute([(int) $excludeReservationId]);
+            $rowSt = $stmtSt->fetch(\PDO::FETCH_ASSOC);
+            if ($rowSt && !in_array(strtoupper((string) ($rowSt['status'] ?? '')), ['PENDIENTE', 'CONFIRMADA'], true)) {
+                $blockingRulesApply = false;
+            }
+        }
+
+        if ($blockingRulesApply) {
+            $countSql = "
+                SELECT COUNT(*) FROM {$this->table}
+                WHERE house_id = ?
+                AND status IN ('PENDIENTE', 'CONFIRMADA')
+                AND YEAR(reservation_date) = ?
+                AND MONTH(reservation_date) = ?
+            ";
+            $countParams = [$houseId, $year, $month];
+            if ($excludeReservationId !== null && $excludeReservationId !== '') {
+                $countSql .= ' AND id != ?';
+                $countParams[] = (int) $excludeReservationId;
+            }
+            $stmt = $this->pdo->prepare($countSql);
+            $stmt->execute($countParams);
+            $othersInMonth = (int) $stmt->fetchColumn();
+            if ($othersInMonth >= RESERVATION_MAX_ACTIVE_PER_MONTH_PER_HOUSE) {
+                return 'Se alcanzó el máximo de reservas activas por mes para esta casa (' . RESERVATION_MAX_ACTIVE_PER_MONTH_PER_HOUSE . ')';
+            }
+        }
+
+        if (!$blockingRulesApply) {
+            return null;
+        }
+
+        $overlapSql = "
+            SELECT COUNT(*) FROM {$this->table}
+            WHERE access_point_id = ?
+            AND status IN ('PENDIENTE', 'CONFIRMADA')
+            AND reservation_date < ?
+            AND end_date > ?
+        ";
+        $overlapParams = [$accessPointId, $endDateStr, $reservationDateStr];
+        if ($excludeReservationId !== null && $excludeReservationId !== '') {
+            $overlapSql .= ' AND id != ?';
+            $overlapParams[] = (int) $excludeReservationId;
+        }
+        $stmtO = $this->pdo->prepare($overlapSql);
+        $stmtO->execute($overlapParams);
+        if ((int) $stmtO->fetchColumn() > 0) {
+            return 'El horario se solapa con otra reserva pendiente o confirmada en esta área';
+        }
+
+        return null;
     }
 }

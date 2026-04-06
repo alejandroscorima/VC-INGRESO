@@ -104,6 +104,8 @@ if (str_starts_with($uri, '/api/v1/')) {
     // ==================== CATALOG (areas, salas, prioridad, stubs) ====================
     if (str_starts_with($path, 'catalog/')) {
         require_once __DIR__ . '/controllers/CatalogController.php';
+        if ($path === 'catalog/access-points' && $method === 'POST') { \Controllers\CatalogController::accessPointsStore(); exit; }
+        if (preg_match('#^catalog/access-points/(\d+)$#', $path, $m) && $method === 'PUT') { \Controllers\CatalogController::accessPointsUpdate($m[1]); exit; }
         if ($path === 'catalog/areas' && $method === 'GET') { \Controllers\CatalogController::areas(); exit; }
         if ($path === 'catalog/salas' && $method === 'GET') { \Controllers\CatalogController::salas(); exit; }
         if ($path === 'catalog/prioridad' && $method === 'GET') { \Controllers\CatalogController::prioridad(); exit; }

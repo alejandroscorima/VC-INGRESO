@@ -16,7 +16,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../api.service';
-import { QrAccessService, AccessQrScanResult } from '../services/qr-access.service';
+import { QrAccessService, AccessQrScanResult } from './qr-access.service';
 
 /** Preferencia opcional: último punto elegido (sin bloqueo). */
 const ACCESS_POINT_STORAGE_KEY = 'vc_scanner_access_point_id';
@@ -160,8 +160,8 @@ interface AccessPointOption {
                 (click)="submitManualCode()"
                 [disabled]="cooldownActive || !manualCode.trim()"
                 title="Enviar"
-                class="inline-flex shrink-0 items-center justify-center rounded-lg bg-teal-600 p-2.5 text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-teal-500 dark:hover:bg-teal-600">
-                <mat-icon>send</mat-icon>
+                class="inline-flex shrink-0 items-center justify-center rounded-lg border border-teal-800/30 !bg-teal-600 p-2.5 shadow-sm hover:!bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 dark:!bg-teal-500 dark:hover:!bg-teal-600">
+                <mat-icon class="!text-white">send</mat-icon>
               </button>
             </div>
           </div>

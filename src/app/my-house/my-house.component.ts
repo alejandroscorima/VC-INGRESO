@@ -13,9 +13,8 @@ import { environment } from '../../environments/environment';
 import { PetsService } from '../pets.service';
 import { Pet } from '../pet';
 import { PublicRegistrationService } from '../public-registration/public-registration.service';
-import { QrAccessService } from '../services/qr-access.service';
+import { QrAccessService } from '../qr/qr-access.service';
 import * as QRCode from 'qrcode';
-
 
 @Component({
   selector: 'app-my-house',

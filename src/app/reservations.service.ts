@@ -64,7 +64,7 @@ export class ReservationsService {
   /**
    * Cambia el estado de una reservación
    */
-  updateStatus(id: number, status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'COMPLETADA'): Observable<Reservation> {
+  updateStatus(id: number, status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'RECHAZADA' | 'COMPLETADA'): Observable<Reservation> {
     return this.api.put(`api/v1/reservations/${id}/status`, { status }).pipe(
       map((res: any) => res?.data ?? res)
     );
@@ -101,7 +101,7 @@ export class ReservationsService {
   }
 
   /**
-   * Obtiene reservaciones por fecha (para calendario)
+   * Obtiene reservaciones por fecha (vista por rango)
    */
   getByDateRange(startDate: string, endDate: string, accessPointId?: number): Observable<Reservation[]> {
     let params: any = { start_date: startDate, end_date: endDate };
@@ -109,6 +109,19 @@ export class ReservationsService {
       params.access_point_id = accessPointId;
     }
     return this.api.getRaw('api/v1/reservations', params).pipe(
+      map((res: any) => (res && res.data) ? res.data : (Array.isArray(res) ? res : []))
+    );
+  }
+
+  /**
+   * Listado de reservas en un rango (p. ej. mes completo). Aumenta límite por defecto del API.
+   */
+  getReservationsInRange(startDate: string, endDate: string, limit = 200): Observable<Reservation[]> {
+    return this.api.getRaw('api/v1/reservations', {
+      start_date: startDate,
+      end_date: endDate,
+      limit,
+    }).pipe(
       map((res: any) => (res && res.data) ? res.data : (Array.isArray(res) ? res : []))
     );
   }

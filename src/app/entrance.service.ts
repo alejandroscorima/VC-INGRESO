@@ -98,6 +98,16 @@ export class EntranceService {
     return this.http.get(`${this.baseUrl}/api/v1/catalog/areas`);
   }
 
+  /** Crear punto de acceso (tabla access_points). Solo administración. */
+  addAccessPoint(body: Record<string, unknown>) {
+    return this.http.post(`${this.baseUrl}/api/v1/catalog/access-points`, body);
+  }
+
+  /** Actualizar punto de acceso. No hay eliminación por API. */
+  updateAccessPoint(id: number, body: Record<string, unknown>) {
+    return this.http.put(`${this.baseUrl}/api/v1/catalog/access-points/${id}`, body);
+  }
+
   getAreaById(area_id: number) {
     return this.http.get(`${this.baseUrl}/api/v1/catalog/areas`).pipe(
       map((arr: any) => Array.isArray(arr) ? arr.find((a: any) => a.id === area_id) : null)

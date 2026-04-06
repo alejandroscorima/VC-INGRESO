@@ -11,12 +11,13 @@ import { HousesComponent } from './houses/houses.component';
 import { VehiclesComponent } from './vehicles/vehicles.component';
 import { MyHouseComponent } from './my-house/my-house.component';
 import { PetsComponent } from './pets/pets.component';
-import { CalendarComponent } from './calendar/calendar.component';
+import { AccessPointsComponent } from './access-points/access-points.component';
+import { ReservationsComponent } from './reservations/reservations.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
-import { CodigoQrPageComponent } from './codigo-qr-page/codigo-qr-page.component';
+import { CodigoQrPageComponent } from './qr/codigo-qr-page.component';
 import { AuthGuard } from './auth.guard';
 import { MyHouseGuard } from './my-house.guard';
-import { CodigoQrGuard } from './codigo-qr.guard';
+import { CodigoQrGuard } from './qr/codigo-qr.guard';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
@@ -30,7 +31,9 @@ const routes: Routes = [
   { path: "vehicles", component: VehiclesComponent, canActivate: [AuthGuard] },
   { path: "my-house", component: MyHouseComponent, canActivate: [AuthGuard, MyHouseGuard] },
   { path: "pets", component: PetsComponent, canActivate: [AuthGuard] },
-  { path: "calendar", component: CalendarComponent, canActivate: [AuthGuard] },
+  { path: "access-points", component: AccessPointsComponent, canActivate: [AuthGuard] },
+  { path: "reservations", component: ReservationsComponent, canActivate: [AuthGuard] },
+  { path: "calendar", redirectTo: "reservations", pathMatch: "full" },
   { path: "codigo-qr", component: CodigoQrPageComponent, canActivate: [AuthGuard, CodigoQrGuard] },
   { path: "scanner", redirectTo: "codigo-qr", pathMatch: "full" },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz

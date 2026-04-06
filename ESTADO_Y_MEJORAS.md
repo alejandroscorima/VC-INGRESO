@@ -48,7 +48,7 @@ El modelo de datos evolucionó hacia un enfoque **house-centric** (`house_member
 ### Servicios y componentes integrados
 
 - **Servicios**: ApiService, AuthService, UsersService, PetsService, ReservationsService, AccessLogService, EntranceService. UsersService y AccessLogService alineados con API v1.
-- **Componentes**: History (AccessLogService), Birthday (cumpleaños vía API), Pets, Calendar, QrScanner, Webcam; rutas como `/pets`, `/calendar`, `/scanner`; menú actualizado.
+- **Componentes**: History (AccessLogService), Birthday (cumpleaños vía API), Pets, Reservaciones (vista mes + tabla), página Código QR (escáner + Mi QR), Webcam; rutas como `/pets`, `/reservations`, `/codigo-qr` (`/scanner` redirige); menú actualizado.
 - **Formulario de registro público**: secciones UI en [plans/REFERENCIA_TECNICA.md](plans/REFERENCIA_TECNICA.md) (§13); flujo de fotos (§11). Endpoints: [server/API.md](server/API.md) (registro público y uploads).
 
 ### Correcciones UI realizadas (plan)
@@ -70,7 +70,7 @@ El modelo de datos evolucionó hacia un enfoque **house-centric** (`house_member
 ### Fase 1 — Cerrar flujos clave
 
 1. **Registro público (UI completa)**: secciones vivienda → propietario(s) → vehículos → mascotas; RENIEC en frontend; `POST /api/v1/public/register`; ruta pública sin login (ej. `/registro`).
-2. **Calendario y reservas**: UI Casa Club / Piscina; consumo de `api/v1/reservations` (areas, availability, CRUD).
+2. **Reservaciones** (áreas comunes): UI vista mes + solicitudes; consumo de `api/v1/reservations` (areas, availability, CRUD).
 3. **Mi Casa**: residentes, inquilinos, visitas, vehículos, mascotas, vehículos externos por casa; opcional pestaña Casa Club.
 4. **Dashboard Piscina / Aforo**: tiempo real con access-logs y access-points (`current_capacity`, `max_capacity`).
 
@@ -93,13 +93,13 @@ El modelo de datos evolucionó hacia un enfoque **house-centric** (`house_member
 ### Prioridad alta
 
 - [ ] Controlador de **pagos / licencias** (API y UI Crearttech).
-- [ ] Completar **UI de Calendario** (reservas Casa Club) y **QR Scanner** (puertas).
+- [ ] Completar **UI de Reservaciones** (Casa Club / áreas) y **Código QR** / escáner (puertas).
 - [ ] **Dashboard Piscina / Aforo** en tiempo real.
 
 ### Prioridad media
 
 - [ ] **Módulo de gestión de imágenes** (upload, filesystem primero; S3 opcional después).
-- [ ] Mejoras de UI: Cumpleaños, Mascotas, Calendario, QR, Aforo-Piscina (crear).
+- [ ] Mejoras de UI: Cumpleaños, Mascotas, Reservaciones, Código QR, Aforo-Piscina (crear).
 - [ ] Campo **qr_code** en `persons` y generador de QR.
 - [ ] Formulario genérico para registros futuros.
 - [ ] OpenAPI/Swagger; tests unitarios backend; interfaces tipadas; loading/retry.
@@ -126,7 +126,7 @@ mi-house/
 ├── piscina             # Access point + aforo
 ├── garita              # Access point
 ├── formulario          # Registro genérico
-└── casa-club           # Reservaciones (calendario)
+└── casa-club           # Reservaciones (vista mes / API reservations)
 ```
 
 ---

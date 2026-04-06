@@ -64,7 +64,7 @@ VC-INGRESO/
 │   │   ├── pets.service.ts
 │   │   ├── reservations.service.ts
 │   │   ├── pet.ts, reservation.ts, user.ts, accessPoint.ts
-│   │   ├── pets/, calendar/, qr-scanner/, webcam/
+│   │   ├── pets/, reservations/, qr/, webcam/
 │   │   ├── history/, birthday/, users/, houses/, vehicles/
 │   │   ├── my-house/, login/, settings/, inicio/, side-nav/
 │   │   └── ...
@@ -95,6 +95,8 @@ VC-INGRESO/
 ├── ESTADO_Y_MEJORAS.md
 └── README.md
 ```
+
+**Carpeta `src/app/qr/`** (código QR unificado): `qr-access.service.ts`, `qr-scanner.component.ts`, `codigo-qr-page.component.ts`, `codigo-qr.guard.ts`. **Reservaciones:** `src/app/reservations/` (`ReservationsComponent`, ruta `#/reservations`; `#/calendar` redirige allí).
 
 ---
 
