@@ -30,9 +30,6 @@ type HistoryRow = Record<string, unknown>;
 export class HistoryComponent implements OnInit {
   expandedElement: Item;
 
-  visit: Visit = new Visit('', '', '', '', '', '', '');
-  visits: Visit[] = [];
-
   fecha_inicial: Date;
   fecha_final: Date;
 
@@ -201,12 +198,19 @@ export class HistoryComponent implements OnInit {
       this.toastr.warning('La fecha final no puede ser anterior a la inicial.');
       return;
     }
-    if (this.access_point == null) {
-      this.toastr.warning('Selecciona un punto de acceso.');
-      return;
-    }
     this.pageIndex = 0;
     this.fetchHistory();
+  }
+
+  /** Respuesta del API: array JSON o { data: [] } */
+  private unwrapHistoryRows(raw: unknown): HistoryRow[] {
+    if (Array.isArray(raw)) {
+      return raw as HistoryRow[];
+    }
+    if (raw && typeof raw === 'object' && 'data' in raw && Array.isArray((raw as { data: unknown }).data)) {
+      return (raw as { data: HistoryRow[] }).data;
+    }
+    return [];
   }
 
   private toYmd(d: Date | null | undefined): string | null {
@@ -222,15 +226,16 @@ export class HistoryComponent implements OnInit {
   fetchHistory(): void {
     const fi = this.toYmd(this.fecha_inicial);
     const ff = this.toYmd(this.fecha_final);
-    if (!fi || !ff || this.access_point == null) {
+    if (!fi || !ff) {
       return;
     }
     this.loading = true;
-    this.accessLogService.getHistoryByRange(fi, ff, String(this.access_point)).subscribe({
+    const ap =
+      this.access_point != null && this.access_point > 0 ? String(this.access_point) : undefined;
+    this.accessLogService.getHistoryByRange(fi, ff, ap).subscribe({
       next: (raw: unknown) => {
-        const rows = Array.isArray(raw) ? raw : [];
-        this.visits = rows as Visit[];
-        this.allRows = rows as HistoryRow[];
+        const rows = this.unwrapHistoryRows(raw);
+        this.allRows = rows;
         this.loading = false;
       },
       error: (err) => {
@@ -256,12 +261,6 @@ export class HistoryComponent implements OnInit {
 
         if (!this.accessPointOptions.length) {
           this.toastr.warning('No hay puntos de acceso configurados.');
-          this.loading = false;
-          return;
-        }
-
-        if (this.access_point == null || !this.accessPointOptions.some((o) => o.id === this.access_point)) {
-          this.access_point = this.accessPointOptions[0].id;
         }
 
         this.fetchHistory();
@@ -296,9 +295,6 @@ export class HistoryComponent implements OnInit {
   styleUrls: ['./history.component.css'],
 })
 export class DialogHistoryDetail implements OnInit {
-  visit: Visit = new Visit('', '', '', '', '', '', '');
-  visits: Visit[] = [];
-
   detailRows: HistoryRow[] = [];
 
   loading = false;
@@ -322,16 +318,21 @@ export class DialogHistoryDetail implements OnInit {
           ? rawDate.toISOString().slice(0, 10)
           : '';
 
-    if (!fecha || accessPointId == null || !doc) {
+    if (!fecha || !doc) {
       this.toastr.error('Faltan datos para cargar el detalle.');
       return;
     }
 
     this.loading = true;
-    this.accessLogService.getHistoryByDocumentDay(fecha, String(accessPointId), doc).subscribe({
+    const ap =
+      accessPointId != null && accessPointId > 0 ? String(accessPointId) : undefined;
+    this.accessLogService.getHistoryByDocumentDay(fecha, doc, ap).subscribe({
       next: (list: unknown) => {
-        const rows = Array.isArray(list) ? list : [];
-        this.visits = rows as Visit[];
+        const rows = Array.isArray(list)
+          ? list
+          : list && typeof list === 'object' && Array.isArray((list as { data?: unknown }).data)
+            ? (list as { data: HistoryRow[] }).data
+            : [];
         this.detailRows = rows as HistoryRow[];
         this.loading = false;
       },

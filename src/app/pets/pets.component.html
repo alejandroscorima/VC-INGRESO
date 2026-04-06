@@ -1,57 +1,45 @@
 <div *ngIf="true" class="p-4 dark:bg-gray-900">
-    <div class="mt-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 shadow-lg dark:border-gray-600 dark:bg-gray-800 sm:p-6">
+    <div class="vc-card bg-white dark:bg-gray-800/90 p-4 sm:p-6">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Mascotas</h2>
         <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <button type="button" (click)="newPet()" class="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2">
+            <button type="button" (click)="newPet()" class="vc-btn-primary me-2 py-1.5">
                 Nuevo
             </button>
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total mascotas: {{ pets.length }}</span>
         </div>
 
         <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center">
-            <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar por nombre, especie o raza..." class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
-            <select [(ngModel)]="selectedBlock" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto">
+            <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar por nombre, especie o raza..." class="vc-input-search md:flex-1" />
+            <select [(ngModel)]="selectedBlock" class="vc-select-sm">
                 <option value="">Mz: Todas</option>
                 <option *ngFor="let block of uniqueBlocks" [value]="block">Mz: {{block}}</option>
             </select>
-            <select [(ngModel)]="selectedLot" class="px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto">
+            <select [(ngModel)]="selectedLot" class="vc-select-sm">
                 <option value="">Lt: Todos</option>
                 <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{lot}}</option>
             </select>
         </div>
 
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-4 py-3 w-12"></th>
-                        <th scope="col" class="px-6 py-3">
-                            Nombre
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Especie
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Raza
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Casa
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Propietario
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Estado
-                        </th>
-                        <th scope="col" class="px-6 py-3">
+        <div class="vc-table-wrap">
+            <table class="vc-table text-left text-gray-600 dark:text-gray-300">
+                <thead>
+                    <tr class="vc-thead-row">
+                        <th scope="col" class="vc-th w-12"></th>
+                        <th scope="col" class="vc-th">Nombre</th>
+                        <th scope="col" class="vc-th">Especie</th>
+                        <th scope="col" class="vc-th">Raza</th>
+                        <th scope="col" class="vc-th">Casa</th>
+                        <th scope="col" class="vc-th">Propietario</th>
+                        <th scope="col" class="vc-th">Estado</th>
+                        <th scope="col" class="vc-th text-right">
                             Acciones
-                            <span class="sr-only">Edit</span>
+                            <span class="sr-only">Editar</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let p of paginatedPets" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="px-4 py-4">
+                    <tr *ngFor="let p of paginatedPets" class="vc-tbody-row bg-white dark:bg-gray-900/40">
+                        <td class="vc-td">
                             <div *ngIf="p.photo_url" class="w-10 h-10 rounded-full overflow-hidden">
                                 <img [src]="getPhotoUrl(p.photo_url)" alt="Foto" class="w-full h-full object-cover">
                             </div>
@@ -59,31 +47,28 @@
                                 <mat-icon class="!text-lg !w-5 !h-5">{{ getPetIcon(p.species) }}</mat-icon>
                             </div>
                         </td>
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 uppercase whitespace-nowrap dark:text-white">
+                        <th scope="row" class="vc-td font-medium uppercase whitespace-nowrap">
                             {{p.name}}
                         </th>
-                        <td class="px-6 py-4 uppercase">
-                            {{p.species}}
-                        </td>
-                        <td class="px-6 py-4 uppercase">
-                            {{p.breed || '-'}}
-                        </td>
-                        <td class="px-6 py-4 uppercase">
-                            {{ getHouseDisplay(p) }}
-                        </td>
-                        <td class="px-6 py-4 uppercase">
-                            {{ getOwnerName(p.owner_id) }}
-                        </td>
-                        <td class="px-6 py-4 uppercase">
-                            {{p.status_validated}}
-                        </td>
-                        <td class="px-6 py-4 text-right uppercase inline-flex items-center gap-2">
-                            <a *ngIf="p.photo_url" (click)="openViewPhoto(p)" class="font-medium text-blue-600 dark:text-blue-500 hover:text-blue-800 cursor-pointer inline-flex items-center" title="Ver foto">
-                                <mat-icon class="!text-base !w-5 !h-5">visibility</mat-icon>
-                            </a>
-                            <a (click)="editPet(p)" class="font-medium text-blue-600 dark:text-blue-500 hover:text-blue-800 cursor-pointer inline-flex items-center" title="Editar">
-                                <mat-icon class="!text-base !w-5 !h-5">edit</mat-icon>
-                            </a>
+                        <td class="vc-td uppercase">{{p.species}}</td>
+                        <td class="vc-td uppercase">{{p.breed || '-'}}</td>
+                        <td class="vc-td uppercase">{{ getHouseDisplay(p) }}</td>
+                        <td class="vc-td uppercase">{{ getOwnerName(p.owner_id) }}</td>
+                        <td class="vc-td uppercase">{{p.status_validated}}</td>
+                        <td class="vc-td text-right">
+                            <div class="inline-flex flex-wrap justify-end gap-1">
+                            <button *ngIf="p.photo_url" type="button" (click)="openViewPhoto(p)" class="vc-action-btn vc-action-btn--view" title="Ver foto" aria-label="Ver foto">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                            <button type="button" (click)="editPet(p)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -99,9 +84,9 @@
                 <span>Mostrando {{ filteredPets.length }} resultados</span>
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" (click)="previousPage()" [disabled]="currentPage === 1" class="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 dark:border-gray-500">Anterior</button>
+                <button type="button" (click)="previousPage()" [disabled]="currentPage === 1" class="vc-btn-outline">Anterior</button>
                 <span>Pagina {{ currentPage }} de {{ petsTotalPages }}</span>
-                <button type="button" (click)="nextPage()" [disabled]="currentPage >= petsTotalPages" class="px-3 py-1 border border-gray-300 rounded disabled:opacity-50 dark:border-gray-500">Siguiente</button>
+                <button type="button" (click)="nextPage()" [disabled]="currentPage >= petsTotalPages" class="vc-btn-outline">Siguiente</button>
             </div>
         </div>
     </div>

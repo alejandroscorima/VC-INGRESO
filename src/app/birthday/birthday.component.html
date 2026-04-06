@@ -1,68 +1,115 @@
-<div class="dashboard-wrap birthday-page p-4 dark:bg-gray-900 min-h-screen">
-  <div class="p-4 mt-2">
-    <div class="mb-6">
-      <h2 class="text-xl font-bold text-gray-800 dark:text-white">Cumpleaños</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Personas que cumplen años el día seleccionado</p>
-    </div>
-
-    <div class="glass-effect mb-8 overflow-hidden rounded-xl border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
-      <div class="p-6 border-b border-gray-200 dark:border-gray-700 birthday-toolbar">
-        <div class="flex flex-wrap items-center gap-4">
-          <mat-form-field appearance="fill" class="birthday-form-field min-w-[140px]">
-            <mat-label>Fecha</mat-label>
-            <input matInput [matDatepicker]="dp3" [(ngModel)]="fecha" (dateChange)="onDateChange($event)">
-            <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
-            <mat-datepicker #dp3></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="fill" class="birthday-form-field flex-1 min-w-[200px]">
-            <mat-label>Búsqueda</mat-label>
-            <input matInput (keyup)="applyFilterList($event)" placeholder="Escribe algo para buscar" #input1>
-          </mat-form-field>
+<div class="dashboard-wrap birthday-page min-h-screen dark:bg-gray-900">
+  <div class="vc-page-shell">
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <div>
+          <h1 class="vc-card-title">Cumpleaños</h1>
+          <p class="mt-0.5 text-sm text-gray-600 dark:text-gray-400">Personas que cumplen años el día seleccionado</p>
         </div>
       </div>
-      <div class="overflow-x-auto birthday-table-wrap">
-        <table class="birthday-table w-full text-sm text-left"
-               mat-table [dataSource]="dataSourceHB" matSort multiTemplateDataRows>
 
-          <ng-container matColumnDef="doc">
-            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" mat-header-cell *matHeaderCellDef mat-sort-header>N° DOCUMENTO</th>
-            <td class="py-4 px-6 text-gray-900 whitespace-nowrap dark:text-gray-200" mat-cell *matCellDef="let a">{{ a.doc_number }}</td>
-          </ng-container>
+      <div class="p-5 space-y-4">
+        <div class="vc-filter-panel">
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex flex-col gap-1 min-w-[160px]">
+              <label for="birthday-date" class="text-xs font-medium text-gray-700 dark:text-gray-300">Fecha</label>
+              <input
+                id="birthday-date"
+                type="date"
+                name="birthdayDate"
+                [ngModel]="fechaInputYmd"
+                (ngModelChange)="onDateInput($event)"
+                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-teal-500"
+              />
+            </div>
+            <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+              <label for="birthday-search" class="text-xs font-medium text-gray-700 dark:text-gray-300">Búsqueda</label>
+              <input
+                id="birthday-search"
+                type="search"
+                name="birthdaySearch"
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="currentPage = 1"
+                placeholder="Nombre, documento, domicilio…"
+                class="vc-input-search"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+        </div>
 
-          <ng-container matColumnDef="name">
-            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" mat-header-cell *matHeaderCellDef mat-sort-header>NOMBRE</th>
-            <td class="py-4 px-6 text-gray-900 whitespace-nowrap dark:text-gray-200" mat-cell *matCellDef="let a">{{ a.first_name }} {{ a.paternal_surname }}<span *ngIf="(a.maternal_surname || '').trim()"> {{ a.maternal_surname }}</span></td>
-          </ng-container>
+        <div class="vc-table-wrap bg-white dark:bg-gray-950/50">
+          <table class="vc-table w-full text-left">
+            <thead>
+              <tr class="vc-thead-row">
+                <th *ngIf="showDocColumn" class="vc-th">N° documento</th>
+                <th class="vc-th">Nombre</th>
+                <th class="vc-th">Fecha nac.</th>
+                <th class="vc-th">Domicilio</th>
+                <th class="vc-th text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let a of paginatedNeighbors" class="vc-tbody-row">
+                <td *ngIf="showDocColumn" class="vc-td whitespace-nowrap">{{ a.doc_number }}</td>
+                <td class="vc-td whitespace-nowrap">
+                  {{ a.first_name }} {{ a.paternal_surname
+                  }}<span *ngIf="(a.maternal_surname || '').trim()"> {{ a.maternal_surname }}</span>
+                </td>
+                <td class="vc-td">{{ a.birth_date | date : "d 'de' MMMM" }}</td>
+                <td class="vc-td">{{ getHouseDisplay(a) }}</td>
+                <td class="vc-td text-right whitespace-nowrap">
+                  <button
+                    type="button"
+                    (click)="felicitar(a)"
+                    class="vc-action-btn vc-action-btn--celebrate"
+                    title="Felicitar"
+                    aria-label="Felicitar"
+                  >
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h9a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                      />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!paginatedNeighbors.length">
+                <td [attr.colspan]="colCount" class="px-3 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <ng-container *ngIf="searchTerm.trim(); else noBirthdays">
+                    No hay resultados para «{{ searchTerm }}» en este día.
+                  </ng-container>
+                  <ng-template #noBirthdays>No hay cumpleaños el día seleccionado.</ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <ng-container matColumnDef="birth_date">
-            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" mat-header-cell *matHeaderCellDef mat-sort-header>FECHA NAC.</th>
-            <td class="py-4 px-6 text-gray-900 dark:text-gray-200" mat-cell *matCellDef="let a">{{ a.birth_date | date:"d 'de' MMMM" }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="house">
-            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" mat-header-cell *matHeaderCellDef mat-sort-header>DOMICILIO</th>
-            <td class="py-4 px-6 text-gray-900 dark:text-gray-200" mat-cell *matCellDef="let a">{{ getHouseDisplay(a) }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="accion">
-            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" mat-header-cell *matHeaderCellDef>ACCIÓN</th>
-            <td class="py-4 px-6 text-gray-900 dark:text-gray-200" mat-cell *matCellDef="let a">
-              <button type="button" (click)="felicitar(a)"
-                class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm border-2 border-amber-600 bg-amber-500 text-amber-950 shadow-sm hover:bg-amber-400 hover:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 dark:bg-amber-500 dark:border-amber-400 dark:text-amber-950 dark:hover:bg-amber-400">
-                Felicitar
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="birthday-header-row"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="birthday-data-row"></tr>
-          <tr class="mat-row birthday-no-data-row" *matNoDataRow>
-            <td class="py-8 px-6 text-center" [attr.colspan]="displayedColumns.length">
-              No hay cumpleaños el día seleccionado o no se encontró "{{ input1?.value }}"
-            </td>
-          </tr>
-        </table>
-        <mat-paginator class="birthday-paginator" [pageSizeOptions]="[10, 20, 50, 100]" aria-label="Página"></mat-paginator>
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-700 dark:text-gray-300"
+          *ngIf="filteredNeighbors.length > 0"
+        >
+          <div class="flex items-center gap-2">
+            <span>Filas por página</span>
+            <select
+              [(ngModel)]="pageSize"
+              (ngModelChange)="onPageSizeChange()"
+              class="rounded-lg border border-gray-300 bg-white py-1 pl-2 pr-8 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+            >
+              <option *ngFor="let n of pageSizeOptions" [ngValue]="n">{{ n }}</option>
+            </select>
+            <span>Mostrando {{ filteredNeighbors.length }} resultado(s)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" (click)="previousPage()" [disabled]="currentPage === 1" class="vc-btn-outline">Anterior</button>
+            <span>Página {{ currentPage }} de {{ totalPages }}</span>
+            <button type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages" class="vc-btn-outline">Siguiente</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

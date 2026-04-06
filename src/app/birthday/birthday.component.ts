@@ -1,24 +1,15 @@
-import { Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { UsersService } from '../users.service';
-import { User } from "../user"
+import { User } from '../user';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ThemePalette } from '@angular/material/core';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Item } from '../item';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { Sale } from '../sale';
 import { ToastrService } from 'ngx-toastr';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { Product } from '../product';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { EntranceService } from '../entrance.service';
 import { House } from '../house';
-import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -27,17 +18,45 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./birthday.component.css'],
   animations: [
     trigger('detailExpand', [
-      state('collapsed', style({height: '0px', minHeight: '0', display:'none'})),
-      state('expanded', style({height: '*'})),
+      state('collapsed', style({ height: '0px', minHeight: '0', display: 'none' })),
+      state('expanded', style({ height: '*' })),
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
   ],
 })
 export class BirthdayComponent implements OnInit {
+  expandedElement: Item;
 
-  expandedElement: Item ;
-
-  neighbor: User= new User('','','','','','','','','','','','','','',0,'','','','','','','','','','',0,'',0);
+  neighbor: User = new User(
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    0,
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    0,
+    '',
+    0
+  );
   neighbors: User[] = [];
   houses: House[] = [];
 
@@ -48,10 +67,13 @@ export class BirthdayComponent implements OnInit {
   month: string;
   year: number;
 
-  dataSourceHB = new MatTableDataSource<User>([]);
-
   /** Si es true, se muestra la columna DNI (solo para rol ADMINISTRADOR). */
   showDocColumn = false;
+
+  searchTerm = '';
+  currentPage = 1;
+  pageSize = 10;
+  readonly pageSizeOptions = [10, 20, 50, 100];
 
   /** Columnas a mostrar en la tabla (con o sin doc según rol). */
   get displayedColumns(): string[] {
@@ -60,8 +82,45 @@ export class BirthdayComponent implements OnInit {
       : ['name', 'birth_date', 'house', 'accion'];
   }
 
-  @ViewChildren(MatPaginator) paginator= new QueryList<MatPaginator>();
-  @ViewChildren(MatSort) sort= new QueryList<MatSort>();
+  get colCount(): number {
+    return this.displayedColumns.length;
+  }
+
+  get filteredNeighbors(): User[] {
+    const f = this.searchTerm.trim().toLowerCase();
+    if (!f) {
+      return this.neighbors;
+    }
+    return this.neighbors.filter((p: User | any) => {
+      const parts = [
+        p?.doc_number,
+        p?.first_name,
+        p?.paternal_surname,
+        p?.maternal_surname,
+        this.getHouseDisplay(p),
+      ]
+        .filter((x) => x != null && String(x).trim() !== '')
+        .map((x) => String(x).toLowerCase());
+      return parts.some((s) => s.includes(f));
+    });
+  }
+
+  get paginatedNeighbors(): User[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredNeighbors.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredNeighbors.length / this.pageSize));
+  }
+
+  /** yyyy-MM-dd para input type="date" (local). */
+  get fechaInputYmd(): string {
+    const y = this.fecha.getFullYear();
+    const m = String(this.fecha.getMonth() + 1).padStart(2, '0');
+    const d = String(this.fecha.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
 
   constructor(
     private usersServices: UsersService,
@@ -70,34 +129,30 @@ export class BirthdayComponent implements OnInit {
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    private router: Router,
-  ) { }
+    private router: Router
+  ) {}
 
-  searchItem(){
+  searchItem() {}
 
+  saveCheck() {}
+
+  applyFilterList(value: string): void {
+    this.searchTerm = value;
+    this.currentPage = 1;
   }
 
-  saveCheck(){
-
-  }
-
-  applyFilterList(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSourceHB.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSourceHB.paginator) {
-      this.dataSourceHB.paginator.firstPage();
+  onDateInput(ymd: string): void {
+    if (!ymd || ymd.length < 10) {
+      return;
     }
-  }
-
-
-  /** Actualiza la fecha seleccionada y recarga la lista de cumpleaños del día. */
-  onDateChange(event: MatDatepickerInputEvent<Date>) {
-    if (event.value) {
-      this.fecha = event.value;
-      this.initializeDateFields();
-      this.loadBirthdays(this.fecha_cumple);
+    const parts = ymd.split('-').map((x) => parseInt(x, 10));
+    if (parts.length !== 3 || parts.some((n) => isNaN(n))) {
+      return;
     }
+    const [y, m, d] = parts;
+    this.fecha = new Date(y, m - 1, d);
+    this.initializeDateFields();
+    this.loadBirthdays(this.fecha_cumple);
   }
 
   ngOnInit() {
@@ -111,7 +166,7 @@ export class BirthdayComponent implements OnInit {
 
   private loadHouses() {
     this.entranceService.getAllHouses().subscribe((res: any) => {
-      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      const list = Array.isArray(res) ? res : res?.data ?? [];
       this.houses = list;
     });
   }
@@ -153,21 +208,32 @@ export class BirthdayComponent implements OnInit {
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
+  onSubmit() {}
 
-  onSubmit() {
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage -= 1;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage += 1;
+    }
   }
 
   private initializeDateFields() {
     this.year = this.fecha.getFullYear();
-    this.month = (this.fecha.getMonth() + 1).toString().padStart(2, '0'); // Agrega ceros si es necesario
-    this.day = this.fecha.getDate().toString().padStart(2, '0'); // Agrega ceros si es necesario
+    this.month = (this.fecha.getMonth() + 1).toString().padStart(2, '0');
+    this.day = this.fecha.getDate().toString().padStart(2, '0');
 
     this.fecha_cumple = `${this.month}-${this.day}`;
-    this.fechaString = `${this.year}-${this.month}-${this.day}`;
-    console.log(this.fecha_cumple);
     const opciones: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'long' };
     this.fechaString = this.fecha.toLocaleDateString('es-ES', opciones);
-    console.log(this.fechaString);
   }
 
   /**
@@ -196,70 +262,53 @@ export class BirthdayComponent implements OnInit {
 
   private loadBirthdays(fecha_cumple: string) {
     this.usersServices.getPersonsByBirthday(fecha_cumple).subscribe((res: any) => {
-      const rawList = Array.isArray(res) ? res : (res?.data ?? []);
-      // Filtrar solo quienes cumplen años el día seleccionado (por si el backend devuelve más)
+      const rawList = Array.isArray(res) ? res : res?.data ?? [];
       this.neighbors = rawList.filter((p: any) => {
         const md = this.getMonthDayFromBirthDate(p.birth_date);
         return md === fecha_cumple;
       });
-      this.dataSourceHB = new MatTableDataSource(this.neighbors);
-      this.dataSourceHB.paginator = this.paginator.toArray()[0];
-      this.dataSourceHB.sort = this.sort.toArray()[0];
+      this.currentPage = 1;
     });
   }
-
 }
-
-
 
 @Component({
   selector: 'dialog-datos',
   templateUrl: 'dialog-datos.html',
-  styleUrls: ['./birthday.component.css']
+  styleUrls: ['./birthday.component.css'],
 })
 export class DialogDatos implements OnInit {
-
-
   constructor(
     public dialogRef: MatDialogRef<DialogDatos>,
-    @Inject(MAT_DIALOG_DATA) public data:Item,
+    @Inject(MAT_DIALOG_DATA) public data: Item,
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}
 
-  ngOnInit(): void {
-
-
-    //this.btnValidarEnabled=this.biometricoChecked&&this.noMultasChecked&&this.noCaducadoChecked&&this.data.seguridad_nombre;
-    //this.btnRechazarEnabled=Boolean(this.data.seguridad_nombre);
-  }
-
+  ngOnInit(): void {}
 
   onNoClick(): void {
     this.dialogRef.close();
   }
 
-  onKeyUpEvent(event:any){
+  onKeyUpEvent(event: any) {}
 
-  }
-
-  btnSave(){
-    this.data.area=this.data.area.toUpperCase();
-    this.data.codigo=this.data.codigo.toUpperCase();
-    this.data.descripcion=this.data.descripcion.toUpperCase();
-    this.data.estado=this.data.estado.toUpperCase();
-    this.data.fabricante=this.data.fabricante.toUpperCase();
-    this.data.lugar=this.data.lugar.toUpperCase();
-    this.data.marca=this.data.marca.toUpperCase();
-    this.data.modelo=this.data.modelo.toUpperCase();
-    this.data.numero=this.data.numero.toUpperCase();
-    this.data.observacion=this.data.observacion.toUpperCase();
-    this.data.propietario=this.data.propietario.toUpperCase();
-    this.data.registro=this.data.registro.toUpperCase();
-    this.data.serie=this.data.serie.toUpperCase();
-    this.data.tipo=this.data.tipo.toUpperCase();
-    this.data.ubicacion=this.data.ubicacion.toUpperCase();
+  btnSave() {
+    this.data.area = this.data.area.toUpperCase();
+    this.data.codigo = this.data.codigo.toUpperCase();
+    this.data.descripcion = this.data.descripcion.toUpperCase();
+    this.data.estado = this.data.estado.toUpperCase();
+    this.data.fabricante = this.data.fabricante.toUpperCase();
+    this.data.lugar = this.data.lugar.toUpperCase();
+    this.data.marca = this.data.marca.toUpperCase();
+    this.data.modelo = this.data.modelo.toUpperCase();
+    this.data.numero = this.data.numero.toUpperCase();
+    this.data.observacion = this.data.observacion.toUpperCase();
+    this.data.propietario = this.data.propietario.toUpperCase();
+    this.data.registro = this.data.registro.toUpperCase();
+    this.data.serie = this.data.serie.toUpperCase();
+    this.data.tipo = this.data.tipo.toUpperCase();
+    this.data.ubicacion = this.data.ubicacion.toUpperCase();
     this.dialogRef.close(this.data);
   }
-
 }

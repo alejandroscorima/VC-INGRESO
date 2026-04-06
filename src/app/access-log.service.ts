@@ -89,17 +89,22 @@ export class AccessLogService {
     return this.api.getRaw('api/v1/access-logs/history-by-date', { fecha, access_point: accessPoint });
   }
 
-  getHistoryByRange(fecha_inicial: string, fecha_final: string, access_point: string): Observable<any> {
-    return this.api.getRaw('api/v1/access-logs/history-by-range', { fecha_inicial, fecha_final, access_point });
+  /** access_point vacío u omitido = todos los puntos (access_logs + temporary_access_logs). */
+  getHistoryByRange(fecha_inicial: string, fecha_final: string, access_point?: string): Observable<any> {
+    const params: Record<string, string> = { fecha_inicial, fecha_final };
+    if (access_point != null && access_point !== '') {
+      params['access_point'] = access_point;
+    }
+    return this.api.getRaw('api/v1/access-logs/history-by-range', params);
   }
 
-  /** Movimientos del mismo documento en un día y punto (tabla detalle historial). */
-  getHistoryByDocumentDay(fecha: string, accessPoint: string, docNumber: string): Observable<any> {
-    return this.api.getRaw('api/v1/access-logs/history-by-client', {
-      fecha,
-      access_point: accessPoint,
-      doc: docNumber,
-    });
+  /** Movimientos del mismo documento en un día; accessPoint opcional (todos si vacío). */
+  getHistoryByDocumentDay(fecha: string, docNumber: string, accessPoint?: string): Observable<any> {
+    const params: Record<string, string> = { fecha, doc: docNumber };
+    if (accessPoint != null && accessPoint !== '') {
+      params['access_point'] = accessPoint;
+    }
+    return this.api.getRaw('api/v1/access-logs/history-by-client', params);
   }
 
   /** Estadísticas de aforo (dashboard) */

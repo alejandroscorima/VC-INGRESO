@@ -10,6 +10,7 @@ namespace Controllers;
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Router.php';
 require_once __DIR__ . '/../auth_middleware.php';
+require_once __DIR__ . '/../helpers/house_permissions.php';
 
 use Utils\Response;
 use Utils\Router;
@@ -251,7 +252,7 @@ class AccessLogController
     /** GET ?fecha=&access_point= (o sala= legacy) — id o nombre de punto */
     public function historyByDate()
     {
-        requireAuth();
+        $auth = requireAuth();
         $fecha = $_GET['fecha'] ?? '';
         $ap = $this->legacyAccessPointQueryValue();
         if ($fecha === '') {
@@ -269,20 +270,22 @@ class AccessLogController
                 $params[] = $ap;
             }
         }
+        $this->appendNeighborHouseFilterAccessLogsOnly($auth, $where, $params);
         $sql = "SELECT al.*, ap.name as access_point_name, p.first_name, p.paternal_surname, p.doc_number as person_doc
                 FROM {$this->table} al
                 LEFT JOIN access_points ap ON ap.id = al.access_point_id
                 LEFT JOIN persons p ON p.id = al.person_id
+                LEFT JOIN vehicles v ON v.vehicle_id = al.vehicle_id
                 WHERE " . implode(' AND ', $where) . " ORDER BY al.created_at DESC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
-    /** GET ?fecha_inicial=&fecha_final=&access_point= (id numérico o nombre de punto) */
+    /** GET ?fecha_inicial=&fecha_final=&access_point= (opcional: vacío = todos los puntos). Incluye access_logs + temporary_access_logs. */
     public function historyByRange()
     {
-        requireAuth();
+        $auth = requireAuth();
         $fi = trim((string) ($_GET['fecha_inicial'] ?? ''));
         $ff = trim((string) ($_GET['fecha_final'] ?? ''));
         $ap = trim((string) ($_GET['access_point'] ?? ''));
@@ -290,19 +293,32 @@ class AccessLogController
             Response::json(['success' => false, 'error' => 'fecha_inicial y fecha_final requeridos'], 400);
             return;
         }
-        $where = ['al.created_at BETWEEN ? AND ?'];
-        $params = [$this->normalizeHistoryRangeStart($fi), $this->normalizeHistoryRangeEnd($ff)];
-        $this->appendAccessPointFilter($ap, $where, $params);
-        $sql = $this->historyRowsSelectSql() . ' WHERE ' . implode(' AND ', $where) . ' ORDER BY al.created_at DESC';
+        $rangeStart = $this->normalizeHistoryRangeStart($fi);
+        $rangeEnd = $this->normalizeHistoryRangeEnd($ff);
+
+        $whereMain = ['al.created_at BETWEEN ? AND ?'];
+        $paramsMain = [$rangeStart, $rangeEnd];
+        $this->appendAccessPointFilter($ap, $whereMain, $paramsMain, 'al');
+
+        $whereTemp = ['tal.temp_entry_time BETWEEN ? AND ?'];
+        $paramsTemp = [$rangeStart, $rangeEnd];
+        $this->appendAccessPointFilter($ap, $whereTemp, $paramsTemp, 'tal');
+
+        $this->appendHistoryNeighborHouseScope($auth, $whereMain, $paramsMain, $whereTemp, $paramsTemp);
+
+        $sqlMain = $this->historyRowsSelectSql() . ' WHERE ' . implode(' AND ', $whereMain);
+        $sqlTemp = $this->historyTemporaryRowsSelectSql() . ' WHERE ' . implode(' AND ', $whereTemp);
+        $sql = 'SELECT * FROM ((' . $sqlMain . ') UNION ALL (' . $sqlTemp . ')) AS combined ORDER BY date_entry DESC';
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute(array_merge($paramsMain, $paramsTemp));
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
-    /** GET ?fecha=&access_point=&doc= (sala= legacy) — fecha YYYY-MM-DD */
+    /** GET ?fecha=&access_point=&doc= (sala= legacy) — fecha YYYY-MM-DD. access_point vacío = todos. Incluye access_logs + temporary_access_logs. */
     public function historyByClient()
     {
-        requireAuth();
+        $auth = requireAuth();
         $fecha = trim((string) ($_GET['fecha'] ?? ''));
         $ap = $this->legacyAccessPointQueryValue();
         $doc = trim((string) ($_GET['doc'] ?? ''));
@@ -310,17 +326,31 @@ class AccessLogController
             Response::json(['success' => false, 'error' => 'fecha requerida'], 400);
             return;
         }
-        $where = ['DATE(al.created_at) = ?'];
-        $params = [$fecha];
-        $this->appendAccessPointFilter($ap, $where, $params);
+        $whereMain = ['DATE(al.created_at) = ?'];
+        $paramsMain = [$fecha];
+        $this->appendAccessPointFilter($ap, $whereMain, $paramsMain, 'al');
         if ($doc !== '') {
-            $where[] = '(al.doc_number = ? OR p.doc_number = ?)';
-            $params[] = $doc;
-            $params[] = $doc;
+            $whereMain[] = '(al.doc_number = ? OR p.doc_number = ?)';
+            $paramsMain[] = $doc;
+            $paramsMain[] = $doc;
         }
-        $sql = $this->historyRowsSelectSql() . ' WHERE ' . implode(' AND ', $where) . ' ORDER BY al.created_at ASC';
+
+        $whereTemp = ['DATE(tal.temp_entry_time) = ?'];
+        $paramsTemp = [$fecha];
+        $this->appendAccessPointFilter($ap, $whereTemp, $paramsTemp, 'tal');
+        if ($doc !== '') {
+            $whereTemp[] = 'tv.temp_visit_doc = ?';
+            $paramsTemp[] = $doc;
+        }
+
+        $this->appendHistoryNeighborHouseScope($auth, $whereMain, $paramsMain, $whereTemp, $paramsTemp);
+
+        $sqlMain = $this->historyRowsSelectSql() . ' WHERE ' . implode(' AND ', $whereMain);
+        $sqlTemp = $this->historyTemporaryRowsSelectSql() . ' WHERE ' . implode(' AND ', $whereTemp);
+        $sql = 'SELECT * FROM ((' . $sqlMain . ') UNION ALL (' . $sqlTemp . ')) AS combined ORDER BY date_entry ASC';
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute(array_merge($paramsMain, $paramsTemp));
         Response::json($stmt->fetchAll(\PDO::FETCH_OBJ));
     }
 
@@ -389,46 +419,103 @@ class AccessLogController
     }
 
     /**
+     * Unifica collation UTF-8 para columnas de texto en UNION ALL (MySQL 1271 Illegal mix of collations).
+     */
+    private function historyUnionStr(string $exprSql): string
+    {
+        return "CONVERT(($exprSql) USING utf8mb4) COLLATE utf8mb4_unicode_ci";
+    }
+
+    /**
      * SELECT enriquecido para pantalla Historial (columnas alineadas al mat-table Angular).
      */
     private function historyRowsSelectSql(): string
     {
         $t = $this->table;
+        $s = fn (string $e) => $this->historyUnionStr($e);
 
         return "
             SELECT
                 al.id,
                 al.access_point_id,
                 al.person_id,
-                al.doc_number,
+                {$s('al.doc_number')} AS doc_number,
                 al.vehicle_id,
-                al.type AS movement_type,
-                al.observation AS observation_raw,
+                {$s('al.type')} AS movement_type,
+                {$s('al.observation')} AS observation_raw,
                 al.created_by_user_id,
                 al.created_at,
                 al.updated_at,
-                ap.name AS access_point_name,
-                CASE WHEN al.vehicle_id IS NOT NULL THEN 'VEHÍCULO' ELSE 'PERSONA' END AS type,
-                v.license_plate AS vehicle_plate,
-                CONCAT_WS(' ', NULLIF(h.block_house,''), NULLIF(CAST(h.lot AS CHAR),''), NULLIF(h.apartment,'')) AS house_address,
+                {$s('ap.name')} AS access_point_name,
+                {$s("CASE WHEN al.vehicle_id IS NOT NULL THEN 'VEHÍCULO' ELSE 'PERSONA' END")} AS type,
+                {$s('v.license_plate')} AS vehicle_plate,
+                {$s("CONCAT_WS(' ', NULLIF(h.block_house,''), NULLIF(CAST(h.lot AS CHAR),''), NULLIF(h.apartment,''))")} AS house_address,
                 al.created_at AS date_entry,
                 CASE WHEN al.type = 'EGRESO' THEN al.updated_at ELSE NULL END AS date_exit,
-                COALESCE(NULLIF(TRIM(al.observation), ''), NULLIF(p.status_validated, ''), '—') AS obs,
-                COALESCE(NULLIF(TRIM(u.username_system), ''), IF(al.created_by_user_id IS NOT NULL, CONCAT('#', al.created_by_user_id), NULL), '—') AS `operator`,
-                DATE_FORMAT(al.created_at, '%H:%i:%s') AS hour_entrance,
+                {$s("COALESCE(NULLIF(TRIM(al.observation), ''), NULLIF(p.status_validated, ''), '—')")} AS obs,
+                {$s("COALESCE(NULLIF(TRIM(u.username_system), ''), IF(al.created_by_user_id IS NOT NULL, CONCAT('#', al.created_by_user_id), NULL), '—')")} AS `operator`,
+                {$s("DATE_FORMAT(al.created_at, '%H:%i:%s')")} AS hour_entrance,
                 1 AS visits,
-                COALESCE(
+                {$s("COALESCE(
                     NULLIF(TRIM(CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.paternal_surname,''),' ',COALESCE(p.maternal_surname,''))), ''),
                     NULLIF(TRIM(v.license_plate), ''),
                     NULLIF(TRIM(al.doc_number), ''),
                     '—'
-                ) AS name
+                )")} AS name
             FROM {$t} al
             LEFT JOIN access_points ap ON ap.id = al.access_point_id
             LEFT JOIN persons p ON p.id = al.person_id
             LEFT JOIN houses h ON h.house_id = p.house_id
             LEFT JOIN vehicles v ON v.vehicle_id = al.vehicle_id
             LEFT JOIN users u ON u.user_id = al.created_by_user_id
+        ";
+    }
+
+    /**
+     * Misma forma de columnas que historyRowsSelectSql(), desde temporary_access_logs + temporary_visits.
+     * id negativo para no chocar con access_logs.id.
+     */
+    private function historyTemporaryRowsSelectSql(): string
+    {
+        $s = fn (string $e) => $this->historyUnionStr($e);
+
+        return "
+            SELECT
+                -(tal.temp_access_log_id) AS id,
+                tal.access_point_id,
+                NULL AS person_id,
+                {$s("COALESCE(NULLIF(TRIM(tv.temp_visit_doc), ''), '')")} AS doc_number,
+                NULL AS vehicle_id,
+                {$s("'INGRESO'")} AS movement_type,
+                {$s('CAST(NULL AS CHAR(1))')} AS observation_raw,
+                tal.created_by_user_id,
+                tal.temp_entry_time AS created_at,
+                COALESCE(tal.temp_exit_time, tal.temp_entry_time) AS updated_at,
+                {$s('ap.name')} AS access_point_name,
+                {$s("'VEHÍCULO'")} AS type,
+                {$s('tv.temp_visit_plate')} AS vehicle_plate,
+                {$s("CONCAT_WS(' ', NULLIF(h.block_house,''), NULLIF(CAST(h.lot AS CHAR),''), NULLIF(h.apartment,''))")} AS house_address,
+                tal.temp_entry_time AS date_entry,
+                tal.temp_exit_time AS date_exit,
+                {$s("COALESCE(NULLIF(TRIM(tal.status_validated), ''), '—')")} AS obs,
+                {$s("COALESCE(
+                    NULLIF(TRIM(u.username_system), ''),
+                    IF(COALESCE(tal.created_by_user_id, tal.operario_id) IS NOT NULL, CONCAT('#', COALESCE(tal.created_by_user_id, tal.operario_id)), NULL),
+                    '—'
+                )")} AS `operator`,
+                {$s("DATE_FORMAT(tal.temp_entry_time, '%H:%i:%s')")} AS hour_entrance,
+                1 AS visits,
+                {$s("COALESCE(
+                    NULLIF(TRIM(tv.temp_visit_name), ''),
+                    NULLIF(TRIM(tv.temp_visit_plate), ''),
+                    NULLIF(TRIM(tv.temp_visit_doc), ''),
+                    '—'
+                )")} AS name
+            FROM temporary_access_logs tal
+            LEFT JOIN temporary_visits tv ON tv.temp_visit_id = tal.temp_visit_id
+            LEFT JOIN access_points ap ON ap.id = tal.access_point_id
+            LEFT JOIN houses h ON h.house_id = tal.house_id
+            LEFT JOIN users u ON u.user_id = COALESCE(tal.created_by_user_id, tal.operario_id)
         ";
     }
 
@@ -458,14 +545,74 @@ class AccessLogController
         return $value;
     }
 
-    /** Filtro por punto: id numérico o nombre (ap.name). */
-    private function appendAccessPointFilter(string $ap, array &$where, array &$params): void
+    /** Mismo criterio de domicilio que el historial unificado, solo sobre filas de access_logs (sin temporary). */
+    private function appendNeighborHouseFilterAccessLogsOnly(array $auth, array &$where, array &$params): void
+    {
+        if (isAdminRole($auth)) {
+            return;
+        }
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+            return;
+        }
+        $ids = getAccessibleHouseIds($this->pdo, $auth);
+        if ($ids === []) {
+            $where[] = '1 = 0';
+
+            return;
+        }
+        $ph = implode(',', array_fill(0, count($ids), '?'));
+        $where[] = "COALESCE(p.house_id, v.house_id) IN ({$ph})";
+        foreach ($ids as $hid) {
+            $params[] = $hid;
+        }
+    }
+
+    /**
+     * ADMIN / ADMINISTRADOR / OPERARIO / GUARDIA: ven todo el historial.
+     * USUARIO (vecino): solo access_logs y temporary_access_logs de su(s) domicilio(s).
+     */
+    private function appendHistoryNeighborHouseScope(
+        array $auth,
+        array &$whereMain,
+        array &$paramsMain,
+        array &$whereTemp,
+        array &$paramsTemp
+    ): void {
+        if (isAdminRole($auth)) {
+            return;
+        }
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+            return;
+        }
+
+        $ids = getAccessibleHouseIds($this->pdo, $auth);
+        if ($ids === []) {
+            $whereMain[] = '1 = 0';
+            $whereTemp[] = '1 = 0';
+
+            return;
+        }
+        $ph = implode(',', array_fill(0, count($ids), '?'));
+        $whereMain[] = "COALESCE(p.house_id, v.house_id) IN ({$ph})";
+        foreach ($ids as $hid) {
+            $paramsMain[] = $hid;
+        }
+        $whereTemp[] = "tal.house_id IN ({$ph})";
+        foreach ($ids as $hid) {
+            $paramsTemp[] = $hid;
+        }
+    }
+
+    /** Filtro por punto: id numérico o nombre (ap.name). $tableAlias p.ej. al o tal. */
+    private function appendAccessPointFilter(string $ap, array &$where, array &$params, string $tableAlias = 'al'): void
     {
         if ($ap === '') {
             return;
         }
         if (ctype_digit($ap)) {
-            $where[] = 'al.access_point_id = ?';
+            $where[] = "{$tableAlias}.access_point_id = ?";
             $params[] = (int) $ap;
         } else {
             $where[] = 'ap.name = ?';

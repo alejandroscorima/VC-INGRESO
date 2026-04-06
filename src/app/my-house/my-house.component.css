@@ -60,3 +60,12 @@
 .photo-avatar mat-icon {
   font-size: 20px;
 }
+
+/* Espacio entre iconos de acción en tablas (ver / QR / editar / subir foto) */
+.myhouse-actions-cell {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.375rem;
+}

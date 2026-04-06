@@ -81,4 +81,148 @@ body {
   color: #fbbf24;
 }
 
+/* =============================================================================
+   VC — diseño unificado (tablas, tarjetas, botones de acción tipo Reservaciones)
+   ============================================================================= */
 
+@layer components {
+  /* Contenedor de página principal (opcional) */
+  .vc-page-shell {
+    @apply max-w-6xl mx-auto px-4 py-6 sm:px-6;
+  }
+
+  /* Tarjeta principal con “glass” y borde discontinuo (Inicio, Reservas, etc.) */
+  .vc-card {
+    @apply glass-effect rounded-xl border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 overflow-hidden;
+  }
+
+  .vc-card-header {
+    @apply px-5 py-4 border-b border-gray-200/80 dark:border-gray-600/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3;
+  }
+
+  .vc-card-title {
+    @apply text-lg font-semibold text-gray-800 dark:text-white;
+  }
+
+  .vc-card-subtitle {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+  }
+
+  .vc-card-body {
+    @apply p-5 space-y-6;
+  }
+
+  /* Panel de filtros / búsqueda encima de tabla */
+  .vc-filter-panel {
+    @apply mb-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/30 p-4;
+  }
+
+  /* Contenedor de tabla (misma línea que Reservaciones) */
+  .vc-table-wrap {
+    @apply overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700;
+  }
+
+  .vc-table {
+    @apply min-w-full text-sm;
+  }
+
+  .vc-thead-row {
+    @apply bg-gray-50 dark:bg-gray-800/80 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400;
+  }
+
+  .vc-th {
+    @apply px-3 py-3;
+  }
+
+  .vc-tbody-row {
+    @apply border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50/80 dark:hover:bg-gray-800/50;
+  }
+
+  .vc-td {
+    @apply px-3 py-2.5 text-gray-900 dark:text-gray-100;
+  }
+
+  /* Botón principal (Nuevo, Exportar…) — gradiente explícito: @apply + bg-gradient chocaban y dejaban el fondo sin color */
+  .vc-btn-primary {
+    @apply inline-flex items-center justify-center font-medium rounded-lg text-sm px-5 py-2 text-center text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800;
+    background: linear-gradient(to right, #2dd4bf, #14b8a6, #0d9488);
+    box-shadow: 0 10px 15px -3px rgba(20, 184, 166, 0.45);
+  }
+  .vc-btn-primary:hover:not(:disabled) {
+    filter: brightness(1.07);
+  }
+  .dark .vc-btn-primary {
+    box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.35);
+  }
+
+  /* Botón secundario / paginación */
+  .vc-btn-outline {
+    @apply rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
+  }
+
+  /* Icono de acción en tabla (cuadrado 36×36, borde suave) — estándar Reservaciones */
+  .vc-action-btn {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-teal-500/30 dark:focus:ring-offset-gray-900;
+  }
+
+  .vc-action-btn svg {
+    @apply h-5 w-5;
+  }
+
+  .vc-action-btn--edit {
+    @apply border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-900/30;
+  }
+
+  .vc-action-btn--view {
+    @apply border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/30;
+  }
+
+  .vc-action-btn--danger {
+    @apply border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20;
+  }
+
+  .vc-action-btn--celebrate {
+    @apply border-amber-200 text-amber-800 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:hover:bg-amber-900/30;
+  }
+
+  .vc-action-btn--success {
+    @apply border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/30;
+  }
+
+  .vc-action-btn--reject {
+    @apply border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/30;
+  }
+
+  .vc-action-btn--complete {
+    @apply border-sky-200 text-sky-700 hover:bg-sky-50 dark:border-sky-800 dark:text-sky-400 dark:hover:bg-sky-900/30;
+  }
+
+  .vc-action-btn--warn {
+    @apply border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-900 dark:text-orange-400 dark:hover:bg-orange-900/20;
+  }
+
+  /** Subir foto / cámara (Mi casa, etc.) */
+  .vc-action-btn--upload {
+    @apply border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/30;
+  }
+
+  /* Campo de búsqueda estándar */
+  .vc-input-search {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent;
+  }
+
+  /* Select pequeño Mz/Lt */
+  .vc-select-sm {
+    @apply px-2 py-1.5 text-xs border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-1 focus:ring-teal-500 md:w-auto;
+  }
+}
+
+/*
+ * Refuerzo fuera de @layer: preflight deja `button { background-color: transparent }` y el orden de
+ * capas puede hacer que el gradiente de `.vc-btn-primary` no se aplique (botón “transparente”).
+ */
+button.vc-btn-primary,
+a.vc-btn-primary {
+  background-color: #14b8a6;
+  background-image: linear-gradient(to right, #2dd4bf, #14b8a6, #0d9488);
+}
