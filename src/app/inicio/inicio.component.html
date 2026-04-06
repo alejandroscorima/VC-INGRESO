@@ -1,5 +1,5 @@
 <div class="dashboard-wrap p-4 dark:bg-gray-900 min-h-screen">
-  <div class="p-4 mt-14">
+  <div class="p-4 mt-2">
     <div class="mb-6">
       <h2 class="text-xl font-bold text-gray-800 dark:text-white">Dashboard</h2>
       <p class="text-sm text-gray-500 dark:text-gray-400">Resumen general del sistema</p>
@@ -7,28 +7,28 @@
 
     <!-- Boxes admin-only: registros globales -->
     <div *ngIf="isAdmin" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios registrados</span>
           <mat-icon class="text-sky-500">group</mat-icon>
         </div>
         <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ usersCount ?? '—' }}</p>
       </div>
-      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Casas registradas</span>
           <mat-icon class="text-violet-500">home</mat-icon>
         </div>
         <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ registeredHousesCount ?? '—' }}</p>
       </div>
-      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Vehículos registrados</span>
           <mat-icon class="text-amber-500">directions_car</mat-icon>
         </div>
         <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ registeredVehiclesCount ?? '—' }}</p>
       </div>
-      <div class="glass-effect rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Mascotas registradas</span>
           <mat-icon class="text-emerald-500">pets</mat-icon>
@@ -39,7 +39,7 @@
 
     <!-- Tarjetas de resumen (4 KPI) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+      <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
         <div class="flex items-center justify-between mb-4">
           <div class="dashboard-icon gradient-primary w-12 h-12 rounded-lg flex items-center justify-center">
             <mat-icon class="text-white">login</mat-icon>
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+      <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
         <div class="flex items-center justify-between mb-4">
           <div class="dashboard-icon gradient-success w-12 h-12 rounded-lg flex items-center justify-center">
             <mat-icon class="text-white">groups</mat-icon>
@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+      <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
         <div class="flex items-center justify-between mb-4">
           <div class="dashboard-icon gradient-warning w-12 h-12 rounded-lg flex items-center justify-center">
             <mat-icon class="text-white">directions_car</mat-icon>
@@ -84,7 +84,7 @@
         </div>
       </div>
 
-      <div class="dashboard-card glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700 card-hover">
+      <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
         <div class="flex items-center justify-between mb-4">
           <div class="dashboard-icon gradient-accent w-12 h-12 rounded-lg flex items-center justify-center">
             <mat-icon class="text-white">home</mat-icon>
@@ -104,7 +104,7 @@
     <!-- Gráficos y tablas (2 columnas) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Ingresos por hora -->
-      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-bold text-lg text-gray-800 dark:text-white">Ingresos por Hora</h3>
           <select class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-amber-500">
@@ -129,7 +129,7 @@
       </div>
 
       <!-- Distribución de visitantes -->
-      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <h3 class="font-bold text-lg text-gray-800 dark:text-white mb-6">Distribución de Visitantes</h3>
         <div class="grid grid-cols-2 gap-4" *ngIf="distributionVisitors.length > 0">
           <div class="flex flex-col items-center">
@@ -161,7 +161,7 @@
     </div>
 
     <!-- Últimos ingresos (tabla) -->
-    <div class="glass-effect rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+    <div class="glass-effect rounded-xl border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 overflow-hidden mb-8">
       <div class="p-6 border-b border-gray-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-lg text-gray-800 dark:text-white">Últimos Ingresos</h3>
@@ -226,7 +226,7 @@
     <!-- Tres cards inferiores: Alertas, Cumpleaños, Acciones rápidas -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <!-- Alertas activas -->
-      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center gap-4 mb-4">
           <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
             <mat-icon class="text-red-600 dark:text-red-400">warning</mat-icon>
@@ -254,7 +254,7 @@
       </div>
 
       <!-- Próximos cumpleaños -->
-      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center gap-4 mb-4">
           <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
             <mat-icon class="text-blue-600 dark:text-blue-400">cake</mat-icon>
@@ -283,7 +283,7 @@
       </div>
 
       <!-- Acciones rápidas -->
-      <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
         <div class="flex items-center gap-4 mb-4">
           <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
             <mat-icon class="text-green-600 dark:text-green-400">speed</mat-icon>
@@ -315,7 +315,7 @@
     </div>
 
     <!-- Próximas reservas (opcional, ya existía) -->
-    <div class="glass-effect rounded-xl p-6 border border-gray-100 dark:border-gray-700" *ngIf="upcomingReservations.length > 0">
+    <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600" *ngIf="upcomingReservations.length > 0">
       <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Próximas reservas</h2>
       <ul class="space-y-2">
         <li *ngFor="let r of upcomingReservations" class="text-gray-800 dark:text-white flex justify-between items-center">

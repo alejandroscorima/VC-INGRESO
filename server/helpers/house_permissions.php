@@ -167,11 +167,12 @@ function canGenerateQrForPerson(\PDO $pdo, array $auth, int $targetPersonId): bo
     if ($rel === null || $rel === '') {
         return false;
     }
+    // INVITADO: visitas registradas en Mi casa (misma regla que canUsuarioCreatePersonForHouse).
     if ($rel === 'PROPIETARIO' || $rel === 'RESIDENTE') {
-        return in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'VISITA'], true);
+        return in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'VISITA', 'INVITADO'], true);
     }
     if ($rel === 'INQUILINO') {
-        return in_array($pt, ['INQUILINO', 'VISITA'], true);
+        return in_array($pt, ['INQUILINO', 'VISITA', 'INVITADO'], true);
     }
 
     return false;

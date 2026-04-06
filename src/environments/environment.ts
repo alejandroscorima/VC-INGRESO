@@ -5,9 +5,9 @@
 export const environment = {
   production: false,
   // API en localhost:8080 (Docker o php -S). CORS y rutas en index.php + db_connection.php
-  baseUrl: "http://localhost:8080",
+  baseUrl: "http://192.168.100.11:8080",
   /** Origen donde se sirve la SPA (assets estáticos); sin barra final. */
-  publicAppUrl: "http://localhost:4200",
+  publicAppUrl: "http://192.168.100.11:4200",
   // API token para RENIEC (obtener de variable de entorno en producción)
   reniecApiToken: "e9cc47e67d492cdee675bfb2b365cvcs93611b5141144aa0da34cab5429bb5e8",
 };

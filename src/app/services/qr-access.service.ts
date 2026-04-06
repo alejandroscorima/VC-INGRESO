@@ -12,6 +12,8 @@ export interface AccessQrScanResult {
   person_id?: number | null;
   doc_number?: string | null;
   vehicle_id?: number | null;
+  /** temporary_visits.temp_visit_id (vehículo externo / delivery). */
+  temp_visit_id?: number | null;
   license_plate?: string | null;
   status_validated: string;
   allow_entry: boolean;
@@ -34,7 +36,8 @@ export interface AccessQrPersonPublic {
 }
 
 export interface AccessQrVehiclePublic {
-  vehicle_id: number;
+  /** null si es vehículo externo (temporary_visits). */
+  vehicle_id?: number | null;
   license_plate: string;
   house_id?: number | null;
   brand?: string | null;

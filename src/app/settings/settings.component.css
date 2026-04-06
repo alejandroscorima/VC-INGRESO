@@ -1,13 +1,1 @@
-/* Botones principales: siempre visibles en light y dark */
-.settings-btn-primary {
-  background-color: #d97706;
-  color: #fff;
-  border: 1px solid #b45309;
-}
-.settings-btn-primary:hover:not(:disabled) {
-  background-color: #b45309;
-}
-.settings-btn-primary:focus {
-  outline: 2px solid #d97706;
-  outline-offset: 2px;
-}
+/* Estilos de página: botones principales usan utilidades Tailwind (gradiente teal). */

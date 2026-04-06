@@ -20,7 +20,7 @@ import { QrAccessService, AccessQrScanResult } from '../services/qr-access.servi
 
 /** Preferencia opcional: último punto elegido (sin bloqueo). */
 const ACCESS_POINT_STORAGE_KEY = 'vc_scanner_access_point_id';
-const COOLDOWN_MS = 4500;
+const COOLDOWN_MS = 3000;
 
 interface AccessPointOption {
   id: number;
@@ -32,9 +32,25 @@ interface AccessPointOption {
   standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
   template: `
-    <div class="mx-auto max-w-lg px-4 py-4">
+    <div>
+      <!-- PNG de estado (allowed/denied/etc.): pantalla completa mientras dura el cooldown -->
       <div
-        class="overflow-hidden rounded-xl border-2 border-dashed border-gray-200 bg-white shadow-md dark:border-gray-600 dark:bg-gray-800">
+        *ngIf="cooldownActive && statusImageUrl"
+        class="fixed inset-0 z-[10050] flex flex-col items-center justify-center gap-4 bg-black/90 p-6 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-live="polite"
+        aria-label="Resultado del escaneo">
+        <img
+          [src]="statusImageUrl"
+          alt=""
+          class="h-auto max-h-[min(34vh,220px)] w-auto max-w-[min(72vw,240px)] object-contain drop-shadow-xl sm:max-h-[min(38vh,260px)] sm:max-w-[min(70vw,280px)]" />
+        <p class="text-center text-sm text-white/80">Podrá escanear de nuevo en unos segundos…</p>
+      </div>
+
+    <div class="w-full px-0 py-2 sm:py-3">
+      <div
+        class="overflow-hidden rounded-xl border-2 border-dashed border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800">
         <div class="border-b border-gray-200 px-4 py-4 text-center dark:border-gray-700">
           <h2 class="m-0 flex items-center justify-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
             <mat-icon class="!h-7 !w-7 text-teal-600 dark:text-teal-400">qr_code_scanner</mat-icon>
@@ -63,7 +79,10 @@ interface AccessPointOption {
             No hay puntos de acceso configurados.
           </p>
 
-          <div class="scanner-viewport" #scannerViewport [class.dimmed]="cooldownActive">
+          <div
+            class="scanner-viewport w-full md:mx-auto md:max-w-[340px] lg:max-w-[380px]"
+            #scannerViewport
+            [class.dimmed]="cooldownActive">
             <video #videoElement autoplay playsinline muted></video>
             <canvas #scanCanvas hidden></canvas>
             <div class="scan-frame" *ngIf="isScanning && !cooldownActive" aria-hidden="true"></div>
@@ -105,10 +124,7 @@ interface AccessPointOption {
           <div
             class="result-area mt-4 rounded-lg border border-teal-100 bg-teal-50/80 p-4 dark:border-teal-900/40 dark:bg-teal-950/30"
             *ngIf="lastScanSummary">
-            <div class="status-hero flex justify-center" *ngIf="statusImageUrl">
-              <img [src]="statusImageUrl" alt="" class="status-hero-img max-h-[240px] w-full max-w-[280px] object-contain drop-shadow-lg" />
-            </div>
-            <div class="result-content mt-2 text-center text-gray-900 dark:text-gray-100">
+            <div class="result-content text-center text-gray-900 dark:text-gray-100">
               <strong class="text-sm">{{ lastScanSummary }}</strong>
               <pre
                 *ngIf="lastScanDetail"
@@ -128,14 +144,16 @@ interface AccessPointOption {
           </div>
 
           <div class="manual-input mt-4">
-            <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">Entrada manual (DNI o placa)</label>
+            <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+              Entrada manual: DNI, placa o doc. responsable (veh. externo)
+            </label>
             <div class="flex gap-2">
               <input
                 type="text"
                 [(ngModel)]="manualCode"
                 (keyup.enter)="submitManualCode()"
                 [disabled]="cooldownActive"
-                placeholder="Documento o placa"
+                placeholder="DNI, placa o doc. responsable"
                 class="block min-w-0 flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-teal-500 focus:ring-teal-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-500 dark:focus:ring-teal-500" />
               <button
                 type="button"
@@ -149,7 +167,7 @@ interface AccessPointOption {
           </div>
 
           <div
-            *ngIf="cooldownActive"
+            *ngIf="cooldownActive && !statusImageUrl"
             class="mt-4 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100">
             <svg class="h-6 w-6 shrink-0 animate-spin text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -159,6 +177,7 @@ interface AccessPointOption {
           </div>
         </div>
       </div>
+    </div>
     </div>
   `,
   styles: [
@@ -315,10 +334,10 @@ export class QrScannerComponent implements OnInit, OnDestroy {
     if (this.useNativeBarcode) {
       void this.initBarcodeDetector();
       this.scanEngineHint =
-        'Lector nativo del navegador. Si falla, se usará automáticamente un lector compatible (ZXing).';
+        'Lector nativo del navegador.';
     } else {
       this.scanEngineHint =
-        'Lector ZXing (compatible con Chrome y otros navegadores). También puede usar la entrada manual.';
+        'Lector ZXing (compatible con Chrome y otros navegadores).';
     }
   }
 
@@ -527,9 +546,14 @@ export class QrScannerComponent implements OnInit, OnDestroy {
       this.heroImageUrl = url || null;
     } else if (data.kind === 'vehicle' && data.vehicle) {
       const v = data.vehicle;
-      lines.push(`Vehículo ${v.license_plate}`);
+      lines.push(
+        data.temp_visit_id ? `Vehículo externo ${v.license_plate}` : `Vehículo ${v.license_plate}`
+      );
       if (v.brand || v.model) {
         lines.push([v.brand, v.model].filter(Boolean).join(' '));
+      }
+      if (data.doc_number) {
+        lines.push(`Doc. responsable: ${data.doc_number}`);
       }
       const url = this.api.getPhotoUrl(v.photo_url ?? null);
       this.heroImageUrl = url || null;
@@ -608,11 +632,15 @@ export class QrScannerComponent implements OnInit, OnDestroy {
       body.doc_number = data.doc_number ?? data.person?.doc_number ?? null;
       body.vehicle_id = null;
     } else {
-      body.vehicle_id = data.vehicle_id ?? null;
+      const vid = data.vehicle_id != null && Number(data.vehicle_id) > 0 ? Number(data.vehicle_id) : null;
+      body.vehicle_id = vid;
       body.person_id = null;
-      body.doc_number = null;
-      if (!data.vehicle_id && data.license_plate) {
+      body.doc_number = data.doc_number ?? null;
+      if (!vid && data.license_plate) {
         body.observation = `${body.observation} | placa ${data.license_plate}`;
+      }
+      if (data.temp_visit_id) {
+        body.observation = `${body.observation} | veh.ext #${data.temp_visit_id}`;
       }
     }
 

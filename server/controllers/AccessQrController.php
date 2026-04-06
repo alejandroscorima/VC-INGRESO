@@ -200,22 +200,38 @@ class AccessQrController
             );
             $stmt->execute([$normalized]);
             $person = $stmt->fetch(\PDO::FETCH_ASSOC);
-            if (!$person) {
-                Response::success([
-                    'source' => 'manual',
-                    'kind' => 'person',
-                    'person' => null,
-                    'vehicle' => null,
-                    'doc_number' => $normalized,
-                    'status_validated' => 'DENEGADO',
-                    'allow_entry' => false,
-                    'is_birthday' => false,
-                    'message' => 'Documento no registrado',
-                ], 'OK');
+            if ($person) {
+                $data = $this->buildUnifiedFromPerson($person, 'manual');
+                Response::success($data, 'OK');
                 return;
             }
-            $data = $this->buildUnifiedFromPerson($person, 'manual');
-            Response::success($data, 'OK');
+
+            // Doc. responsable de vehículo externo (temporary_visits), mismo criterio numérico
+            $stmtTvDoc = $this->pdo->prepare(
+                'SELECT * FROM temporary_visits
+                 WHERE REPLACE(REPLACE(REPLACE(REPLACE(TRIM(temp_visit_doc), \' \', \'\'), \'-\', \'\'), \'.\', \'\'), \'/\', \'\') = ?
+                 ORDER BY temp_visit_id DESC
+                 LIMIT 1'
+            );
+            $stmtTvDoc->execute([$normalized]);
+            $tempByDoc = $stmtTvDoc->fetch(\PDO::FETCH_ASSOC);
+            if ($tempByDoc) {
+                $data = $this->buildUnifiedFromTemporaryVisit($tempByDoc, 'manual');
+                Response::success($data, 'OK');
+                return;
+            }
+
+            Response::success([
+                'source' => 'manual',
+                'kind' => 'person',
+                'person' => null,
+                'vehicle' => null,
+                'doc_number' => $normalized,
+                'status_validated' => 'DENEGADO',
+                'allow_entry' => false,
+                'is_birthday' => false,
+                'message' => 'Documento no registrado',
+            ], 'OK');
             return;
         }
 
@@ -225,22 +241,35 @@ class AccessQrController
         );
         $stmt->execute([$plate]);
         $vehicle = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if (!$vehicle) {
-            Response::success([
-                'source' => 'manual',
-                'kind' => 'vehicle',
-                'person' => null,
-                'vehicle' => null,
-                'license_plate' => $plate,
-                'status_validated' => 'DENEGADO',
-                'allow_entry' => false,
-                'is_birthday' => false,
-                'message' => 'Placa no registrada',
-            ], 'OK');
+        if ($vehicle) {
+            $data = $this->buildUnifiedFromVehicle($vehicle, 'manual');
+            Response::success($data, 'OK');
             return;
         }
-        $data = $this->buildUnifiedFromVehicle($vehicle, 'manual');
-        Response::success($data, 'OK');
+
+        // Vehículos externos (Mi casa → Vehículos externos): tabla temporary_visits
+        $stmtTv = $this->pdo->prepare(
+            'SELECT * FROM temporary_visits WHERE UPPER(TRIM(temp_visit_plate)) = ? ORDER BY temp_visit_id DESC LIMIT 1'
+        );
+        $stmtTv->execute([$plate]);
+        $tempVisit = $stmtTv->fetch(\PDO::FETCH_ASSOC);
+        if ($tempVisit) {
+            $data = $this->buildUnifiedFromTemporaryVisit($tempVisit, 'manual');
+            Response::success($data, 'OK');
+            return;
+        }
+
+        Response::success([
+            'source' => 'manual',
+            'kind' => 'vehicle',
+            'person' => null,
+            'vehicle' => null,
+            'license_plate' => $plate,
+            'status_validated' => 'DENEGADO',
+            'allow_entry' => false,
+            'is_birthday' => false,
+            'message' => 'Placa no registrada',
+        ], 'OK');
     }
 
     private function looksLikeJwt(string $s): bool
@@ -373,6 +402,55 @@ class AccessQrController
             'allow_entry' => $allow,
             'is_birthday' => false,
             'birth_date' => null,
+        ];
+    }
+
+    /**
+     * Visita temporal / vehículo externo (temporary_visits), mismo shape unificado que vehículo residente.
+     *
+     * @param array<string,mixed> $tv
+     * @return array<string,mixed>
+     */
+    private function buildUnifiedFromTemporaryVisit(array $tv, string $source): array
+    {
+        $status = strtoupper(trim((string) ($tv['status_validated'] ?? 'PERMITIDO')));
+        if ($status === '') {
+            $status = 'PERMITIDO';
+        }
+        $sys = strtoupper(trim((string) ($tv['status_system'] ?? 'ACTIVO')));
+        if ($sys !== '' && $sys !== 'ACTIVO') {
+            $status = 'DENEGADO';
+        }
+        $allow = $status !== 'DENEGADO';
+
+        $plate = strtoupper(trim((string) ($tv['temp_visit_plate'] ?? '')));
+        $doc = trim((string) ($tv['temp_visit_doc'] ?? ''));
+
+        $vehiclePublic = [
+            'vehicle_id' => null,
+            'license_plate' => $plate,
+            'house_id' => null,
+            'brand' => $tv['temp_visit_type'] ?? null,
+            'model' => $tv['temp_visit_name'] ?? null,
+            'photo_url' => null,
+            'status_validated' => $tv['status_validated'] ?? null,
+        ];
+
+        return [
+            'source' => $source,
+            'kind' => 'vehicle',
+            'person' => null,
+            'vehicle' => $vehiclePublic,
+            'person_id' => null,
+            'doc_number' => $doc !== '' ? $doc : null,
+            'vehicle_id' => null,
+            'temp_visit_id' => isset($tv['temp_visit_id']) ? (int) $tv['temp_visit_id'] : null,
+            'license_plate' => $plate,
+            'status_validated' => $status,
+            'allow_entry' => $allow,
+            'is_birthday' => false,
+            'birth_date' => null,
+            'message' => null,
         ];
     }
 

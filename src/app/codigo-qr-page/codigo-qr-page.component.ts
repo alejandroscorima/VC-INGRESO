@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { initFlowbite } from 'flowbite';
 import * as QRCode from 'qrcode';
 import { ToastrService } from 'ngx-toastr';
@@ -13,25 +11,19 @@ import { QrScannerComponent } from '../qr-scanner/qr-scanner.component';
 @Component({
   selector: 'app-codigo-qr-page',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    QrScannerComponent,
-  ],
+  imports: [CommonModule, MatIconModule, QrScannerComponent],
   template: `
-    <div class="codigo-qr-page px-4 pb-8 dark:bg-gray-900 min-h-screen">
-      <div class="max-w-xl mx-auto pt-16 sm:pt-20">
+    <div class="codigo-qr-page min-h-screen bg-gray-50 px-4 pb-8 pt-2 dark:bg-gray-900 sm:pt-3">
+      <div class="mx-auto max-w-4xl">
         <ng-container *ngIf="auth.isStaff()">
           <app-qr-scanner />
         </ng-container>
 
         <div
           *ngIf="auth.canGenerateHouseAccessQr()"
-          class="mt-6 rounded-xl border-2 border-dashed border-gray-200 bg-white p-6 shadow-lg dark:border-gray-600 dark:bg-gray-800/80">
+          class="mt-4 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 shadow-lg dark:border-gray-600 dark:bg-gray-800 sm:mt-6 sm:p-6">
           <h2 class="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
-            <mat-icon class="text-violet-600 dark:text-violet-300">qr_code_2</mat-icon>
+            <mat-icon class="!h-6 !w-6 text-teal-600 dark:text-teal-400">qr_code_2</mat-icon>
             Mi código QR de ingreso
           </h2>
           <p class="mb-4 text-sm text-gray-600 dark:text-gray-300">
@@ -39,12 +31,11 @@ import { QrScannerComponent } from '../qr-scanner/qr-scanner.component';
             <strong>Mi casa</strong> para familiares, visitas o vehículos.
           </p>
           <button
-            mat-flat-button
-            color="primary"
-            class="!w-full sm:!w-auto"
+            type="button"
             (click)="openMyQr()"
-            [disabled]="myQrLoading">
-            <mat-icon class="mr-1">qr_code</mat-icon>
+            [disabled]="myQrLoading"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-teal-500/50 hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:shadow-teal-800/80 dark:focus:ring-teal-800">
+            <mat-icon class="!h-5 !w-5">qr_code</mat-icon>
             {{ myQrLoading ? 'Generando…' : 'Mostrar mi QR' }}
           </button>
         </div>
