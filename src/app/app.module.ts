@@ -15,7 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
-import { InicioComponent } from './inicio/inicio.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { MatTableModule } from '@angular/material/table';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { DialogHistoryDetail, HistoryComponent } from './history/history.component';
@@ -30,7 +30,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 //import { DialogRevisar } from './lista-activos/lista-activos.component';
-import { DialogRevalidar} from './inicio/inicio.component';
+import { DialogRevalidar} from './dashboard/dashboard.component';
 import {MatCardModule} from '@angular/material/card';
 
 import { ToastrModule } from 'ngx-toastr';
@@ -73,7 +73,7 @@ Chart.register(...registerables);
 
 @NgModule({ declarations: [
         AppComponent,
-        InicioComponent,
+        DashboardComponent,
         HistoryComponent,
         BirthdayComponent,
         DialogRevalidar,

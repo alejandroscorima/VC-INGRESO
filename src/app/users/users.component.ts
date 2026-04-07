@@ -6,6 +6,7 @@ import { House } from '../house';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
+import { isStaffRoleSystemValue } from '../system-roles';
 
 @Component({
   selector: 'app-users',
@@ -437,6 +438,17 @@ export class UsersComponent implements OnInit, AfterViewInit{
     document.getElementById('users-edit-user-button')?.click();
   }
 
+  /** Expuesto a la plantilla: roles staff no requieren domicilio obligatorio. */
+  isStaffRole(role: string | undefined | null): boolean {
+    return isStaffRoleSystemValue(role);
+  }
+
+  /** Categoría en domicilio solo si hay casa seleccionada. */
+  hasSelectedHouseId(u: User): boolean {
+    const hid = Number(u?.house_id) || 0;
+    return hid > 0;
+  }
+
   saveNewUser() {
     if (this.modalMode === 'persons') {
       this.saveNewPerson();
@@ -447,6 +459,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
     if (validationMsg) {
       this.toastr.error(validationMsg);
       return;
+    }
+    const hidAdd = Number(this.userToAdd.house_id) || 0;
+    if (hidAdd <= 0 && isStaffRoleSystemValue(this.userToAdd.role_system) && !this.trim(this.userToAdd.property_category)) {
+      this.userToAdd.property_category = 'TRABAJADOR';
     }
     // Configurar valores predeterminados
     this.userToAdd.password_system = this.userToAdd.doc_number;
@@ -517,6 +533,10 @@ export class UsersComponent implements OnInit, AfterViewInit{
     }
 
     const hid = Number(this.userToAdd.house_id) || 0;
+    let personType = this.trim(this.userToAdd.property_category) || 'RESIDENTE';
+    if (hid <= 0 && isStaffRoleSystemValue(this.userToAdd.role_system) && !this.trim(this.userToAdd.property_category)) {
+      personType = 'TRABAJADOR';
+    }
     const personPayload: any = {
       type_doc: this.userToAdd.type_doc || 'DNI',
       doc_number: this.userToAdd.doc_number,
@@ -528,7 +548,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
       cel_number: this.userToAdd.cel_number || undefined,
       email: this.userToAdd.email || undefined,
       house_id: hid > 0 ? hid : undefined,
-      person_type: this.trim(this.userToAdd.property_category) || 'RESIDENTE',
+      person_type: personType,
       status_validated: this.userToAdd.status_validated || 'PERMITIDO',
       status_reason: this.userToAdd.status_reason || '',
       status_system: 'ACTIVO'
@@ -593,8 +613,8 @@ export class UsersComponent implements OnInit, AfterViewInit{
     return origin ? `${origin}${path}` : path;
   }
 
-  /** Campos person obligatorios en modal Nuevo (pestaña Usuarios o Personas). */
-  private validateCommonRequiredPersonFields(u: User): string | null {
+  /** Datos civiles mínimos (sin domicilio; usado en alta de usuario sistema). */
+  private validatePersonCoreRequired(u: User): string | null {
     if (!this.trim(u.type_doc)) {
       return 'Seleccione el tipo de documento.';
     }
@@ -610,13 +630,6 @@ export class UsersComponent implements OnInit, AfterViewInit{
     if (!this.trim(u.first_name)) {
       return 'Los nombres son obligatorios.';
     }
-    const hid = Number(u.house_id) || 0;
-    if (hid <= 0) {
-      return 'Seleccione el domicilio.';
-    }
-    if (!this.trim(u.property_category)) {
-      return 'Seleccione la categoría.';
-    }
     if (!this.trim(u.status_validated)) {
       return 'Seleccione el estado de validación.';
     }
@@ -625,9 +638,16 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
   /** Pestaña Usuarios: Nuevo usuario + bloque USERS (usuario y rol). */
   private validateNewUserAdminModal(): string | null {
-    const common = this.validateCommonRequiredPersonFields(this.userToAdd);
-    if (common) {
-      return common;
+    const core = this.validatePersonCoreRequired(this.userToAdd);
+    if (core) {
+      return core;
+    }
+    const hid = Number(this.userToAdd.house_id) || 0;
+    if (hid <= 0 && !isStaffRoleSystemValue(this.userToAdd.role_system)) {
+      return 'Seleccione el domicilio (obligatorio para rol USUARIO / vecinos).';
+    }
+    if (hid > 0 && !this.trim(this.userToAdd.property_category)) {
+      return 'Seleccione la categoría en el domicilio.';
     }
     if (!this.trim(this.userToAdd.username_system)) {
       return 'Indique el usuario de acceso al sistema.';

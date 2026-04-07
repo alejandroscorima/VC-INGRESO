@@ -1,4 +1,8 @@
-/* Dashboard: estilos específicos de inicio (glass-effect y variantes están en styles.css) */
+/* Dashboard: estilos específicos (glass-effect y variantes están en styles.css) */
+.dashboard-table-compact th,
+.dashboard-table-compact td {
+  vertical-align: middle;
+}
 .dashboard-quick-btn {
   text-decoration: none;
 }

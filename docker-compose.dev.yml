@@ -7,6 +7,7 @@ services:
     env_file:
       - .env
     environment:
+      - TZ=America/Lima
       - MYSQL_ROOT_PASSWORD=${DB_PASS:-change_me}
       - MYSQL_DATABASE=${DB_NAME:-vc_db}
       - MYSQL_CHARSET=${DB_CHARSET:-utf8mb4}
@@ -64,6 +65,7 @@ services:
     ports:
       - "4200:4200"
     environment:
+      - TZ=America/Lima
       - CHOKIDAR_USEPOLLING=true
       - CI=1
       - NG_CLI_ANALYTICS=false

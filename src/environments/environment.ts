@@ -4,6 +4,8 @@
 
 export const environment = {
   production: false,
+  /** IANA: debe coincidir con `date_default_timezone_set` en PHP y preferiblemente con MySQL/session. */
+  appTimeZone: 'America/Lima',
   // API en localhost:8080 (Docker o php -S). CORS y rutas en index.php + db_connection.php
   baseUrl: "http://192.168.100.11:8080",
   /** Origen donde se sirve la SPA (assets estáticos); sin barra final. */

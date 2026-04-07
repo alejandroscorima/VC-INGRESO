@@ -1,0 +1,414 @@
+<div class="dashboard-wrap p-4 dark:bg-gray-900 min-h-screen">
+  <input type="file" id="neighbor-dashboard-photo-input" accept="image/jpeg,image/png,image/gif" class="hidden"
+    (change)="onNeighborPhotoChange($event)" />
+
+  <div class="p-4 mt-2">
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">Dashboard</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        <ng-container *ngIf="isStaffView">Panel operativo — zona horaria Lima (Perú).</ng-container>
+        <ng-container *ngIf="isNeighborView && !isStaffView">Tu resumen — zona horaria Lima (Perú).</ng-container>
+        <ng-container *ngIf="!isStaffView && !isNeighborView">Resumen</ng-container>
+      </p>
+    </div>
+
+    <!-- STAFF + VECINOS: conteos globales del condominio -->
+    <div *ngIf="showRegistrationStats" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios registrados</span>
+          <mat-icon class="text-sky-500">group</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white" *ngIf="!loadingSummary">{{ usersCount ?? '—' }}</p>
+        <p class="text-gray-400 text-sm" *ngIf="loadingSummary">…</p>
+      </div>
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Casas registradas / totales</span>
+          <mat-icon class="text-violet-500">home</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white" *ngIf="!loadingSummary">{{ registeredHousesCount ?? '—' }} / {{ housesCount ?? '—' }}</p>
+        <p class="text-gray-400 text-sm" *ngIf="loadingSummary">…</p>
+      </div>
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Vehículos registrados</span>
+          <mat-icon class="text-amber-500">directions_car</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white" *ngIf="!loadingSummary">{{ registeredVehiclesCount ?? '—' }}</p>
+        <p class="text-gray-400 text-sm" *ngIf="loadingSummary">…</p>
+      </div>
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Mascotas registradas</span>
+          <mat-icon class="text-emerald-500">pets</mat-icon>
+        </div>
+        <p class="text-2xl font-bold text-gray-800 dark:text-white" *ngIf="!loadingSummary">{{ petsCount ?? '—' }}</p>
+        <p class="text-gray-400 text-sm" *ngIf="loadingSummary">…</p>
+      </div>
+    </div>
+
+    <!-- ========== VECINO ========== -->
+    <ng-container *ngIf="isNeighborView && !isStaffView">
+      <div class="flex flex-wrap gap-2 mb-6">
+        <a *ngIf="auth.canGenerateHouseAccessQr()" routerLink="/codigo-qr"
+          class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700">
+          <mat-icon class="!w-5 !h-5 text-[1.25rem]">qr_code_2</mat-icon>
+          Mi QR
+        </a>
+        <a routerLink="/history"
+          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700">
+          <mat-icon class="!w-5 !h-5 text-[1.25rem]">history</mat-icon>
+          Ver historial
+        </a>
+        <a routerLink="/reservations"
+          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700">
+          <mat-icon class="!w-5 !h-5 text-[1.25rem]">event</mat-icon>
+          Hacer reserva
+        </a>
+        <button type="button" (click)="triggerNeighborPhotoInput()" [disabled]="uploadingNeighborPhoto"
+          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700">
+          <mat-icon class="!w-5 !h-5 text-[1.25rem]">photo_camera</mat-icon>
+          {{ uploadingNeighborPhoto ? '…' : 'Cambiar foto de perfil' }}
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <a *ngIf="auth.canGenerateHouseAccessQr()" routerLink="/codigo-qr"
+          class="dashboard-card glass-effect rounded-xl p-5 border-2 border-dashed border-amber-200 shadow-lg dark:border-amber-900/40 card-hover flex flex-col justify-between">
+          <div class="flex items-center gap-3">
+            <div class="dashboard-icon gradient-primary w-11 h-11 rounded-lg flex items-center justify-center shrink-0">
+              <mat-icon class="text-white">qr_code_2</mat-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800 dark:text-white">Mi código QR</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Mostrar para ingreso</p>
+            </div>
+          </div>
+          <span class="text-sm text-amber-600 mt-3 font-medium">Abrir →</span>
+        </a>
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center gap-3 mb-2">
+            <mat-icon class="text-violet-500">home</mat-icon>
+            <h3 class="font-bold text-gray-800 dark:text-white">Mi casa</h3>
+          </div>
+          <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ neighborHouseLabel }}</p>
+          <a routerLink="/my-house" class="text-xs text-amber-600 hover:underline mt-2 inline-block">Ver Mi casa</a>
+        </div>
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center gap-3 mb-2">
+            <mat-icon class="text-emerald-500">login</mat-icon>
+            <h3 class="font-bold text-gray-800 dark:text-white">Mis visitas hoy</h3>
+          </div>
+          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400" *ngIf="!loadingLogs">{{ neighborVisitsTodayCount }}</p>
+          <p class="text-gray-400" *ngIf="loadingLogs">…</p>
+          <p class="text-xs text-gray-500 mt-1">Ingresos del día vinculados a tu domicilio</p>
+        </div>
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 sm:col-span-2 lg:col-span-1">
+          <div class="flex items-center gap-3 mb-2">
+            <mat-icon class="text-gray-400">info</mat-icon>
+            <h3 class="font-bold text-gray-800 dark:text-white">Historial</h3>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Consulta movimientos de tus casas.</p>
+          <a routerLink="/history" class="text-sm text-amber-600 hover:underline mt-2 inline-block">Ir al historial</a>
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-xl border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 overflow-hidden mb-6">
+        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+          <h3 class="font-bold text-gray-800 dark:text-white">Últimas visitas</h3>
+          <a routerLink="/history" class="text-amber-600 text-sm hover:underline">Ver todo</a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full dashboard-table-compact text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Quién</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Punto</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Hora</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Estado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+              <tr *ngFor="let log of neighborLastVisitLogs" class="hover:bg-gray-50 dark:hover:bg-gray-800/80">
+                <td class="py-2 px-3 font-medium text-gray-800 dark:text-white">{{ log.name || '—' }}</td>
+                <td class="py-2 px-3 text-gray-600 dark:text-gray-300">{{ log.access_point_name || '—' }}</td>
+                <td class="py-2 px-3 text-gray-600 dark:text-gray-300">{{ log.hour_entrance || (log.date_entry | date:'shortTime') }}</td>
+                <td class="py-2 px-3"><span class="text-xs">{{ log.obs || '—' }}</span></td>
+              </tr>
+              <tr *ngIf="!loadingLogs && neighborLastVisitLogs.length === 0">
+                <td colspan="4" class="py-6 px-3 text-center text-gray-500">Sin visitas registradas hoy.</td>
+              </tr>
+              <tr *ngIf="loadingLogs">
+                <td colspan="4" class="py-6 px-3 text-center text-gray-500">Cargando…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center gap-3 mb-3">
+            <mat-icon class="text-blue-500">cake</mat-icon>
+            <div>
+              <h4 class="font-bold text-gray-800 dark:text-white">Cumpleaños de la semana</h4>
+              <p class="text-xs text-gray-500">Incluye ayer, hoy y mañana cuando caen en la semana</p>
+            </div>
+          </div>
+          <div class="space-y-2 max-h-56 overflow-y-auto" *ngIf="!loadingNeighborBirthdays && neighborWeekBirthdays.length">
+            <div *ngFor="let p of neighborWeekBirthdays" class="flex justify-between gap-2 py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+              <span class="text-gray-800 dark:text-gray-200">{{ p.first_name }} {{ p.paternal_surname || '' }}</span>
+              <span class="text-xs text-amber-600 shrink-0 text-right">
+                <span class="font-medium">{{ p.birth_date | date:'dd/MM' }}</span>
+                <span class="text-gray-500 dark:text-gray-400"> · {{ p.dayLabel }}</span>
+              </span>
+            </div>
+          </div>
+          <p *ngIf="loadingNeighborBirthdays" class="text-sm text-gray-500 py-4">Cargando…</p>
+          <p *ngIf="!loadingNeighborBirthdays && !neighborWeekBirthdays.length" class="text-sm text-gray-500 py-4">Nadie cumple esta semana.</p>
+          <a routerLink="/hb" class="text-xs text-amber-600 hover:underline mt-2 inline-block">Ver cumpleaños</a>
+        </div>
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-gray-800 dark:text-white">Próximas reservas</h4>
+            <a routerLink="/reservations" class="text-amber-600 text-sm hover:underline">Ver todas</a>
+          </div>
+          <ul class="space-y-2 text-sm" *ngIf="neighborUpcomingReservations.length">
+            <li *ngFor="let r of neighborUpcomingReservations" class="flex justify-between gap-2 text-gray-800 dark:text-white">
+              <span>{{ r.reservation_date }} — {{ r.area_name ?? 'Área' }}</span>
+              <span class="text-gray-500 shrink-0">{{ r.status }}</span>
+            </li>
+          </ul>
+          <p *ngIf="!neighborUpcomingReservations.length" class="text-sm text-gray-500 py-4">Sin reservas próximas.</p>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ========== STAFF (admin, operario, guardia) ========== -->
+    <ng-container *ngIf="isStaffView">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <div class="dashboard-icon gradient-primary w-12 h-12 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white">login</mat-icon>
+            </div>
+            <span class="text-2xl font-bold text-amber-600 dark:text-amber-400" *ngIf="!loadingLogs">{{ accessLogsCountToday }}</span>
+            <span class="text-gray-400" *ngIf="loadingLogs">…</span>
+          </div>
+          <h3 class="font-bold text-gray-800 dark:text-white mb-1">Ingresos hoy</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Todos los puntos, todos los tipos (ingresos del día)</p>
+          <a routerLink="/history" class="text-sm text-amber-600 hover:underline mt-2 inline-block" *ngIf="accessLogsCountToday > 0">Ver historial</a>
+        </div>
+        <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <div class="dashboard-icon gradient-success w-12 h-12 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white">person</mat-icon>
+            </div>
+            <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400" *ngIf="!loadingLogs">{{ personsTodayCount }}</span>
+            <span class="text-gray-400" *ngIf="loadingLogs">…</span>
+          </div>
+          <h3 class="font-bold text-gray-800 dark:text-white mb-1">Personas hoy</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Solo movimientos de ingreso tipo persona</p>
+        </div>
+        <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <div class="dashboard-icon gradient-warning w-12 h-12 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white">directions_car</mat-icon>
+            </div>
+            <span class="text-2xl font-bold text-amber-600 dark:text-amber-400" *ngIf="!loadingLogs">{{ vehiclesTodayCount }}</span>
+            <span class="text-gray-400" *ngIf="loadingLogs">…</span>
+          </div>
+          <h3 class="font-bold text-gray-800 dark:text-white mb-1">Vehículos hoy</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Solo movimientos de ingreso tipo vehículo</p>
+        </div>
+        <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <div class="dashboard-icon gradient-accent w-12 h-12 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white">pool</mat-icon>
+            </div>
+            <div class="text-right" *ngIf="!loadingPool && poolOccupancy">
+              <span class="text-2xl font-bold text-sky-600 dark:text-sky-400">{{ poolOccupancy.current }}</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400" *ngIf="poolOccupancy.max != null"> / {{ poolOccupancy.max }}</span>
+            </div>
+            <span class="text-gray-400 text-sm" *ngIf="loadingPool">…</span>
+            <span class="text-gray-400 text-sm" *ngIf="!loadingPool && !poolOccupancy">—</span>
+          </div>
+          <h3 class="font-bold text-gray-800 dark:text-white mb-1">Piscina</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <ng-container *ngIf="poolOccupancy">Ocupación actual — {{ poolOccupancy.name }}</ng-container>
+            <ng-container *ngIf="!poolOccupancy && !loadingPool">Sin punto con aforo</ng-container>
+            <ng-container *ngIf="loadingPool">Cargando…</ng-container>
+          </p>
+          <p class="text-xs text-gray-400 mt-2" *ngIf="poolOccupancy?.percent != null">{{ poolOccupancy.percent }}% del aforo máximo</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 class="font-bold text-lg text-gray-800 dark:text-white">Ingresos por hora</h3>
+            <select [(ngModel)]="hourChartPreset" (ngModelChange)="reloadHourIngresos()"
+              class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-white">
+              <option value="today">Hoy</option>
+              <option value="yesterday">Ayer</option>
+              <option value="week">Esta semana (lun–hoy)</option>
+            </select>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Cantidad de ingresos por hora para ver horas punta.</p>
+          <p class="text-xs font-medium text-amber-700 dark:text-amber-300 mb-2" *ngIf="!loadingHourChart && ingresosHoraTotalCount > 0">Total: {{ ingresosHoraTotalCount }} ingresos en el período</p>
+          <div class="flex items-end h-52 gap-0.5 pt-2" *ngIf="!loadingHourChart && ingresosHoraTotalCount > 0">
+            <div *ngFor="let bar of chartIngresosPorHora" class="flex-1 flex flex-col items-center min-w-0" [title]="(bar.count ?? 0) + ' ingresos'">
+              <div class="w-full max-w-[14px] mx-auto bg-gradient-to-t from-amber-400 to-amber-600 rounded-t transition-all min-h-[2px]" [style.height.%]="(bar.count ?? 0) > 0 && bar.value < 6 ? 6 : bar.value"></div>
+              <span class="text-[10px] text-gray-500 mt-1 truncate w-full text-center">{{ bar.label }}</span>
+            </div>
+          </div>
+          <div *ngIf="loadingHourChart" class="h-52 flex items-center justify-center text-gray-500">Cargando…</div>
+          <div *ngIf="!loadingHourChart && ingresosHoraTotalCount === 0" class="h-52 flex items-center justify-center text-gray-500 text-sm text-center px-2">Sin ingresos en el período (o sin datos). Cambia «Hoy / Ayer / Semana» o revisa el historial.</div>
+        </div>
+
+        <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <h3 class="font-bold text-lg text-gray-800 dark:text-white mb-2">Distribución de ingresos (personas)</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Hoy: residentes, inquilinos, visitas y visitas externas (temporales).</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" *ngIf="distributionVisitors.length && distributionVisitorsTotal > 0">
+            <div class="flex flex-col items-center justify-center">
+              <div class="relative w-36 h-36 rounded-full border-4 border-gray-200 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                <div class="text-center z-10">
+                  <span class="text-xl font-bold text-gray-800 dark:text-white">{{ distributionVisitorsTotal }}</span>
+                  <p class="text-xs text-gray-500">Ingresos hoy</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div *ngFor="let d of distributionVisitors" class="flex items-center">
+                <div class="w-3 h-3 rounded-full mr-2 shrink-0" [ngClass]="d.colorClass"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-sm dark:text-white truncate">{{ d.label }}</p>
+                  <p class="text-xs text-gray-500">{{ d.percent }}% · {{ d.count }} ingresos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!distributionVisitors.length || distributionVisitorsTotal === 0" class="h-40 flex items-center justify-center text-gray-500 text-sm">
+            Sin ingresos de personas hoy para clasificar.
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 mb-8">
+        <div class="flex flex-wrap items-end gap-3 mb-4">
+          <h3 class="font-bold text-lg text-gray-800 dark:text-white w-full sm:w-auto">Ingresos por día</h3>
+          <div class="flex flex-wrap items-center gap-2 text-sm">
+            <label class="text-gray-500">Desde</label>
+            <input type="date" [(ngModel)]="dayTrendStart" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-gray-800 dark:text-white" />
+            <label class="text-gray-500">Hasta</label>
+            <input type="date" [(ngModel)]="dayTrendEnd" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-gray-800 dark:text-white" />
+            <button type="button" (click)="reloadDayTrend()"
+              class="rounded-lg bg-amber-600 px-3 py-1.5 text-white text-sm font-medium hover:bg-amber-700">Actualizar</button>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mb-3">Compara días con mayor afluencia en el rango elegido.</p>
+        <div class="flex items-end h-48 gap-1 overflow-x-auto pb-2" *ngIf="!loadingDayTrend && chartIngresosPorDia.length">
+          <div *ngFor="let bar of chartIngresosPorDia" class="flex flex-col items-center shrink-0 w-10" [title]="bar.label + ': ' + bar.count">
+            <div class="w-6 bg-gradient-to-t from-violet-400 to-violet-600 rounded-t" [style.height.px]="8 + (bar.value * 1.4)"></div>
+            <span class="text-[9px] text-gray-500 mt-1 rotate-0">{{ bar.label.slice(5) }}</span>
+          </div>
+        </div>
+        <div *ngIf="loadingDayTrend" class="h-48 flex items-center justify-center text-gray-500">Cargando…</div>
+        <div *ngIf="!loadingDayTrend && chartIngresosPorDia.length === 0" class="h-32 flex items-center justify-center text-gray-500 text-sm">
+          Pulsa «Actualizar» para cargar el rango (por defecto ~últimas 2 semanas).
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-xl border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 overflow-hidden mb-8">
+        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+          <h3 class="font-bold text-gray-800 dark:text-white">Últimos ingresos (hoy)</h3>
+          <a routerLink="/history" class="text-amber-600 text-sm font-medium hover:underline">Ver todo</a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full dashboard-table-compact text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Punto</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Hora</th>
+                <th class="text-left py-2 px-3 text-xs font-medium text-gray-500 uppercase">Estado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+              <tr *ngFor="let log of lastAccessLogs" class="hover:bg-gray-50 dark:hover:bg-gray-800/80">
+                <td class="py-2 px-3 font-medium text-gray-800 dark:text-white">{{ log.name || '—' }}</td>
+                <td class="py-2 px-3 text-gray-600 dark:text-gray-300">{{ log.access_point_name || '—' }}</td>
+                <td class="py-2 px-3 text-gray-600 dark:text-gray-300">{{ log.type || '—' }}</td>
+                <td class="py-2 px-3 text-gray-600 dark:text-gray-300">{{ log.hour_entrance || (log.date_entry | date:'shortTime') }}</td>
+                <td class="py-2 px-3"><span class="text-xs">{{ log.obs || '—' }}</span></td>
+              </tr>
+              <tr *ngIf="!loadingLogs && lastAccessLogs.length === 0">
+                <td colspan="5" class="py-6 px-3 text-center text-gray-500">Sin ingresos hoy.</td>
+              </tr>
+              <tr *ngIf="loadingLogs">
+                <td colspan="5" class="py-6 px-3 text-center text-gray-500">Cargando…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center gap-3 mb-3">
+            <mat-icon class="text-red-500">warning</mat-icon>
+            <div>
+              <h4 class="font-bold text-gray-800 dark:text-white">Alertas activas</h4>
+              <p class="text-xs text-gray-500">Últimos 5 ingresos de persona no permitidos (observado / denegado / restringido)</p>
+            </div>
+          </div>
+          <div class="space-y-2" *ngIf="activeAlerts.length">
+            <div *ngFor="let a of activeAlerts" class="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm">
+              <div class="flex justify-between gap-2">
+                <span class="font-medium text-gray-900 dark:text-white">{{ a.name }}</span>
+                <span class="text-xs text-red-700 dark:text-red-300 shrink-0">{{ a.status }}</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-1" *ngIf="a.doc_number">Doc. {{ a.doc_number }}</p>
+              <p class="text-xs text-gray-500 mt-1" *ngIf="a.at">{{ a.at | date:'short' }}</p>
+            </div>
+          </div>
+          <p *ngIf="!activeAlerts.length" class="text-sm text-gray-500 py-4">Sin alertas recientes (últimos 7 días).</p>
+        </div>
+        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600">
+          <div class="flex items-center gap-3 mb-3">
+            <mat-icon class="text-blue-500">cake</mat-icon>
+            <div>
+              <h4 class="font-bold text-gray-800 dark:text-white">Cumpleaños del mes</h4>
+              <p class="text-xs text-gray-500">Personas con cumpleaños en el mes actual</p>
+            </div>
+          </div>
+          <div class="space-y-2 max-h-64 overflow-y-auto" *ngIf="!loadingStaffBirthdays && staffBirthdaysMonth.length">
+            <div *ngFor="let p of staffBirthdaysMonth" class="flex justify-between gap-2 py-2 border-b border-gray-100 dark:border-gray-700 text-sm">
+              <span class="text-gray-800 dark:text-gray-200">{{ p.first_name }} {{ p.paternal_surname || '' }}</span>
+              <span class="text-xs text-amber-700 dark:text-amber-300 shrink-0 font-medium">{{ p.birth_date | date:'dd/MM' }}</span>
+            </div>
+          </div>
+          <p *ngIf="loadingStaffBirthdays" class="text-sm text-gray-500 py-4">Cargando…</p>
+          <p *ngIf="!loadingStaffBirthdays && !staffBirthdaysMonth.length" class="text-sm text-gray-500 py-4">Nadie cumple este mes en el registro.</p>
+          <a routerLink="/hb" class="text-xs text-amber-600 hover:underline mt-1 inline-block">Ver módulo cumpleaños</a>
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 mb-8">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold text-gray-800 dark:text-white">Próximas reservas</h3>
+          <a routerLink="/reservations" class="text-amber-600 text-sm hover:underline">Ver reservaciones</a>
+        </div>
+        <ul class="space-y-2 text-sm" *ngIf="upcomingReservations.length">
+          <li *ngFor="let r of upcomingReservations" class="flex justify-between gap-2 text-gray-800 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0">
+            <span>{{ r.reservation_date }} — {{ r.area_name ?? 'Área' }}</span>
+            <span class="text-gray-500 shrink-0">{{ r.status }}</span>
+          </li>
+        </ul>
+        <p *ngIf="!upcomingReservations.length" class="text-sm text-gray-500">Sin reservas en el rango cargado.</p>
+      </div>
+    </ng-container>
+  </div>
+</div>

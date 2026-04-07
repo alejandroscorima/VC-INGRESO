@@ -461,12 +461,13 @@ class AccessLogController
                     NULLIF(TRIM(v.license_plate), ''),
                     NULLIF(TRIM(al.doc_number), ''),
                     '—'
-                )")} AS name
+                )")} AS name,
+                {$s("COALESCE(NULLIF(UPPER(TRIM(p.person_type)), ''), '')")} AS person_category
             FROM {$t} al
             LEFT JOIN access_points ap ON ap.id = al.access_point_id
             LEFT JOIN persons p ON p.id = al.person_id
-            LEFT JOIN houses h ON h.house_id = p.house_id
             LEFT JOIN vehicles v ON v.vehicle_id = al.vehicle_id
+            LEFT JOIN houses h ON h.house_id = COALESCE(p.house_id, v.house_id)
             LEFT JOIN users u ON u.user_id = al.created_by_user_id
         ";
     }
@@ -510,7 +511,8 @@ class AccessLogController
                     NULLIF(TRIM(tv.temp_visit_plate), ''),
                     NULLIF(TRIM(tv.temp_visit_doc), ''),
                     '—'
-                )")} AS name
+                )")} AS name,
+                {$s("'VISITA_EXTERNA'")} AS person_category
             FROM temporary_access_logs tal
             LEFT JOIN temporary_visits tv ON tv.temp_visit_id = tal.temp_visit_id
             LEFT JOIN access_points ap ON ap.id = tal.access_point_id

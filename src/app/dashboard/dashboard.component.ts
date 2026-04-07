@@ -26,16 +26,22 @@ import { Console } from 'console';
 import { initFlowbite } from 'flowbite';
 import { AccessLogService } from '../access-log.service';
 import { ReservationsService } from '../reservations.service';
-import { PetsService } from '../pets.service';
-import { PublicRegistrationService } from '../public-registration/public-registration.service';
+import { ApiService } from '../api.service';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import {
+  todayYmdInAppTimeZone,
+  addDaysYmd,
+  mondayOfWeekYmd,
+} from '../app-date.util';
 
 
 @Component({
-  selector: 'app-inicio',
-  templateUrl: './inicio.component.html',
-  styleUrls: ['./inicio.component.css']
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
 })
-export class InicioComponent implements OnInit {
+export class DashboardComponent implements OnInit {
 
   barChartData = {
     labels: ['January', 'February', 'March', 'April', 'May'],
@@ -225,35 +231,55 @@ export class InicioComponent implements OnInit {
 
   accessPoints: AccessPoint[] = [];
 
-  /** Dashboard: cumpleaños del día (API by-birthday) */
-  birthdaysToday: any[] = [];
-  loadingBirthdays = false;
-  /** Dashboard: cantidad de ingresos hoy (access-logs) */
+  /** Staff: cumpleaños del mes (persons?fecha_cumple=-MM-) */
+  staffBirthdaysMonth: any[] = [];
+  loadingStaffBirthdays = false;
+  /** Vecino: cumpleaños de la semana (Lun–Dom) con énfasis ayer/hoy/mañana */
+  neighborWeekBirthdays: any[] = [];
+  loadingNeighborBirthdays = false;
+  /** Dashboard: ingresos (movement INGRESO) hoy — mismo origen que Historial, todos los puntos */
   accessLogsCountToday = 0;
   loadingLogs = false;
-  /** Dashboard: últimos ingresos (lista para tabla) */
+  /** Dashboard: últimos ingresos del día (INGRESO) */
   lastAccessLogs: any[] = [];
   /** Dashboard: total casas registradas */
   housesCount: number | null = null;
-  /** Dashboard: vehículos ingresados hoy (si el API lo permite; si no, null = "No data") */
-  vehiclesCountToday: number | null = null;
+  /** Dashboard: ingresos de personas hoy (tipo PERSONA, movement INGRESO) */
+  personsTodayCount = 0;
+  /** Dashboard: ingresos de vehículos hoy (tipo VEHÍCULO, movement INGRESO) */
+  vehiclesTodayCount = 0;
+  /** Primer punto con controla_aforo (prioridad nombre "piscina") */
+  poolOccupancy: { name: string; current: number; max: number | null; percent: number | null } | null = null;
+  loadingPool = false;
   /** Dashboard: alertas activas (restringidos/observados); sin endpoint por ahora */
   activeAlerts: any[] = [];
   /** Dashboard: ingresos por hora para gráfico (opcional) */
-  chartIngresosPorHora: { label: string; value: number }[] = [];
-  /** Dashboard: distribución visitantes (Residentes/Visitantes/Proveedores); sin endpoint por ahora */
-  distributionVisitors: { label: string; percent: number; count: number }[] = [];
-  /** Dashboard: próximos cumpleaños (este mes); usamos birthdaysToday + lugar para ampliar */
-  upcomingBirthdays: any[] = [];
+  chartIngresosPorHora: { label: string; value: number; count: number }[] = [];
+  ingresosHoraTotalCount = 0;
+  /** Staff: pastel ingresos por categoría de persona */
+  distributionVisitors: { label: string; percent: number; count: number; colorClass: string }[] = [];
   /** Dashboard: próximas reservas (primeras 5) */
   upcomingReservations: any[] = [];
 
-  /** Dashboard admin-only: boxes de registros globales */
   isAdmin = false;
+  loadingSummary = false;
   usersCount: number | null = null;
   registeredHousesCount: number | null = null;
   registeredVehiclesCount: number | null = null;
   petsCount: number | null = null;
+
+  /** Vecino: métricas del día (historial filtrado por sus casas en API) */
+  neighborVisitsTodayCount = 0;
+  neighborLastVisitLogs: any[] = [];
+  neighborUpcomingReservations: any[] = [];
+
+  hourChartPreset: 'today' | 'yesterday' | 'week' = 'today';
+  loadingHourChart = false;
+  dayTrendStart = '';
+  dayTrendEnd = '';
+  chartIngresosPorDia: { label: string; count: number; value: number }[] = [];
+  loadingDayTrend = false;
+  uploadingNeighborPhoto = false;
 
   
 
@@ -501,14 +527,41 @@ export class InicioComponent implements OnInit {
     private snackBar: MatSnackBar, private router: Router,
     public dialog: MatDialog,
     private toastr: ToastrService,
-    private auth: AuthService,
+    public auth: AuthService,
     private userService: UsersService,
     private entranceService: EntranceService,
     private accessLogService: AccessLogService,
     private reservationsService: ReservationsService,
-    private petsService: PetsService,
-    private publicRegistrationService: PublicRegistrationService,
+    private api: ApiService,
   ) { }
+
+  get isStaffView(): boolean {
+    return this.auth.isStaff();
+  }
+
+  get isNeighborView(): boolean {
+    return this.auth.isNeighbor();
+  }
+
+  get showRegistrationStats(): boolean {
+    return this.isStaffView || this.isNeighborView;
+  }
+
+  get neighborHouseLabel(): string {
+    const u = this.actualUser;
+    if (!u) {
+      return '—';
+    }
+    const mz = (u.block_house ?? '').toString().trim();
+    const lt = u.lot != null && String(u.lot).trim() !== '' ? String(u.lot) : '';
+    if (mz && lt) {
+      return `Mz ${mz} — Lt ${lt}`;
+    }
+    if (mz) {
+      return `Mz ${mz}`;
+    }
+    return '—';
+  }
 
   get distributionVisitorsTotal(): number {
     return (this.distributionVisitors || []).reduce((s, d) => s + (d.count || 0), 0);
@@ -524,118 +577,493 @@ export class InicioComponent implements OnInit {
     return `${m}-${day}`;
   }
 
+  /** Misma forma que Historial: array o { data }. */
+  private unwrapHistoryRows(raw: unknown): any[] {
+    if (Array.isArray(raw)) {
+      return raw;
+    }
+    if (raw && typeof raw === 'object' && 'data' in raw && Array.isArray((raw as { data: unknown }).data)) {
+      return (raw as { data: any[] }).data;
+    }
+    return [];
+  }
+
   private loadDashboardData(): void {
-    const today = new Date();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = today.getFullYear() + '-' + mm + '-' + dd;
-    const fechaCumple = mm + '-' + dd;
+    const todayStr = todayYmdInAppTimeZone();
+    const today = new Date(todayStr + 'T12:00:00');
 
-    this.loadingBirthdays = true;
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const mmTomorrow = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const ddTomorrow = String(tomorrow.getDate()).padStart(2, '0');
-    const fechaCumpleTomorrow = mmTomorrow + '-' + ddTomorrow;
+    this.dayTrendEnd = todayStr;
+    this.dayTrendStart = addDaysYmd(todayStr, -13);
 
-    this.userService.getPersonsByBirthday(fechaCumple).subscribe({
-      next: (resHoy: any) => {
-        const rawHoy = (resHoy?.data && Array.isArray(resHoy.data)) ? resHoy.data : (Array.isArray(resHoy) ? resHoy : []);
-        const listHoy = (rawHoy || []).filter((p: any) => this.getMonthDayFromBirthDate(p.birth_date) === fechaCumple);
-        this.birthdaysToday = listHoy;
-        this.userService.getPersonsByBirthday(fechaCumpleTomorrow).subscribe({
-          next: (resManana: any) => {
-            const rawManana = (resManana?.data && Array.isArray(resManana.data)) ? resManana.data : (Array.isArray(resManana) ? resManana : []);
-            const listManana = (rawManana || []).filter((p: any) => this.getMonthDayFromBirthDate(p.birth_date) === fechaCumpleTomorrow);
-            const withLabelHoy = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const }));
-            const withLabelManana = (listManana || []).map((p: any) => ({ ...p, dayLabel: 'Mañana' as const }));
-            this.upcomingBirthdays = [...withLabelHoy, ...withLabelManana].slice(0, 8);
-            this.loadingBirthdays = false;
-          },
-          error: () => {
-            this.upcomingBirthdays = (listHoy || []).map((p: any) => ({ ...p, dayLabel: 'Hoy' as const })).slice(0, 8);
-            this.loadingBirthdays = false;
-          }
-        });
-      },
-      error: () => { this.loadingBirthdays = false; }
-    });
+    if (this.isStaffView) {
+      const mm = todayStr.slice(5, 7);
+      this.loadStaffMonthBirthdays(mm);
+      this.loadStaffAlerts(todayStr);
+      this.reloadHourIngresos();
+    }
+
+    if (this.isNeighborView) {
+      this.loadNeighborWeekBirthdays(todayStr);
+      const hid = Number(this.actualUser?.house_id ?? 0);
+      if (hid > 0) {
+        const endR = addDaysYmd(todayStr, 90);
+        this.reservationsService
+          .getReservations({ house_id: hid, start_date: todayStr, end_date: endR, limit: 20 })
+          .subscribe({
+            next: (res: any) => {
+              const list = res?.data && Array.isArray(res.data) ? res.data : [];
+              const sorted = [...list].sort((a: any, b: any) =>
+                String(a.reservation_date ?? '').localeCompare(String(b.reservation_date ?? ''))
+              );
+              this.neighborUpcomingReservations = sorted.slice(0, 8);
+            },
+            error: () => {
+              this.neighborUpcomingReservations = [];
+            },
+          });
+      } else {
+        this.neighborUpcomingReservations = [];
+      }
+    }
 
     this.loadingLogs = true;
-    this.accessLogService.getAccessLogs({ start_date: todayStr, end_date: todayStr }).subscribe({
-      next: (res: any) => {
-        const list = (res?.data && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
-        this.accessLogsCountToday = list.length;
-        this.lastAccessLogs = (list || []).slice(0, 5);
-        const withType = list && list.some((x: any) => x.type != null || x.access_type != null);
-        if (withType && list.length) {
-          this.vehiclesCountToday = list.filter((x: any) => (x.type || x.access_type || '').toString().toUpperCase().includes('VEHÍCULO') || (x.type || x.access_type || '').toString().toUpperCase().includes('VEHICULO')).length;
-        } else {
-          this.vehiclesCountToday = null;
+    this.accessLogService.getHistoryByRange(todayStr, todayStr).subscribe({
+      next: (raw: unknown) => {
+        const list = this.unwrapHistoryRows(raw);
+        const ingreso = list.filter((r: any) => this.rowIsIngressMovement(r));
+        this.accessLogsCountToday = ingreso.length;
+        this.personsTodayCount = ingreso.filter(
+          (r: any) => String(r?.type ?? '').toUpperCase() === 'PERSONA'
+        ).length;
+        const isVehicleType = (t: unknown) => {
+          const x = String(t ?? '').toUpperCase();
+          return x === 'VEHÍCULO' || x === 'VEHICULO';
+        };
+        this.vehiclesTodayCount = ingreso.filter((r: any) => isVehicleType(r?.type)).length;
+
+        if (this.isStaffView) {
+          this.buildDistributionFromRows(ingreso);
         }
+
+        if (this.isNeighborView) {
+          this.neighborVisitsTodayCount = ingreso.length;
+          const visitRows = ingreso
+            .filter((r: any) => this.isNeighborVisitRow(r))
+            .sort((a: any, b: any) => {
+              const ta = new Date(String(a?.date_entry ?? a?.created_at ?? 0)).getTime();
+              const tb = new Date(String(b?.date_entry ?? b?.created_at ?? 0)).getTime();
+              return tb - ta;
+            });
+          this.neighborLastVisitLogs = visitRows.slice(0, 8);
+        }
+
+        const sorted = [...ingreso].sort((a: any, b: any) => {
+          const ta = new Date(String(a?.date_entry ?? a?.created_at ?? 0)).getTime();
+          const tb = new Date(String(b?.date_entry ?? b?.created_at ?? 0)).getTime();
+          return tb - ta;
+        });
+        this.lastAccessLogs = sorted.slice(0, 8);
         this.loadingLogs = false;
       },
-      error: () => { this.loadingLogs = false; }
+      error: () => {
+        this.loadingLogs = false;
+      },
     });
 
-    this.entranceService.getAllHouses().subscribe({
-      next: (res: any) => {
-        const list = Array.isArray(res) ? res : (res?.data ?? []);
-        this.housesCount = list.length;
-      }
-    });
+    if (this.isStaffView) {
+      this.loadingPool = true;
+      this.entranceService.getAllAccessPoints().subscribe({
+        next: (pts: any) => {
+          const arr = Array.isArray(pts) ? pts : [];
+          const byPoolName = arr.find(
+            (p: any) => Number(p?.controla_aforo) === 1 && /piscina/i.test(String(p?.name ?? ''))
+          );
+          const anyAforo = arr.find((p: any) => Number(p?.controla_aforo) === 1);
+          const pool = byPoolName || anyAforo || null;
+          if (pool) {
+            const cur = Number(pool.current_capacity ?? 0);
+            const maxRaw = pool.max_capacity;
+            const max = maxRaw != null && maxRaw !== '' ? Number(maxRaw) : null;
+            this.poolOccupancy = {
+              name: String(pool.name ?? 'Piscina'),
+              current: cur,
+              max,
+              percent: max != null && max > 0 ? Math.min(100, Math.round((cur / max) * 100)) : null,
+            };
+          } else {
+            this.poolOccupancy = null;
+          }
+          this.loadingPool = false;
+        },
+        error: () => {
+          this.poolOccupancy = null;
+          this.loadingPool = false;
+        },
+      });
+    } else {
+      this.poolOccupancy = null;
+      this.loadingPool = false;
+    }
 
     const endDate = new Date(today);
     endDate.setDate(endDate.getDate() + 30);
-    const endStr = endDate.getFullYear() + '-' + String(endDate.getMonth() + 1).padStart(2, '0') + '-' + String(endDate.getDate()).padStart(2, '0');
-    this.reservationsService.getByDateRange(todayStr, endStr).subscribe({
-      next: (list: any[]) => {
-        this.upcomingReservations = (list || []).slice(0, 5);
-      }
+    const endStr =
+      endDate.getFullYear() +
+      '-' +
+      String(endDate.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(endDate.getDate()).padStart(2, '0');
+    if (this.isStaffView) {
+      this.reservationsService.getByDateRange(todayStr, endStr).subscribe({
+        next: (list: any[]) => {
+          const sorted = [...(list || [])].sort((a: any, b: any) =>
+            String(a.reservation_date ?? '').localeCompare(String(b.reservation_date ?? ''))
+          );
+          this.upcomingReservations = sorted.slice(0, 6);
+        },
+      });
+      this.reloadDayTrend();
+    }
+  }
+
+  private loadRegistrationSummary(): void {
+    if (!this.showRegistrationStats) {
+      return;
+    }
+    this.loadingSummary = true;
+    this.api.getRaw('api/v1/catalog/dashboard-summary').subscribe({
+      next: (res: any) => {
+        const d = res?.data ?? res;
+        this.usersCount = d?.users_count ?? null;
+        this.housesCount = d?.houses_total ?? null;
+        this.registeredHousesCount = d?.houses_registered ?? null;
+        this.registeredVehiclesCount = d?.vehicles_count ?? null;
+        this.petsCount = d?.pets_count ?? null;
+        this.loadingSummary = false;
+      },
+      error: () => {
+        this.loadingSummary = false;
+        this.usersCount = null;
+        this.housesCount = null;
+        this.registeredHousesCount = null;
+        this.registeredVehiclesCount = null;
+        this.petsCount = null;
+      },
     });
   }
 
-  /** Carga conteos globales para boxes visibles solo a rol administrador. */
-  private loadAdminCounts(): void {
-    this.userService.getAllUsers().subscribe({
+  private loadStaffMonthBirthdays(mm: string): void {
+    this.loadingStaffBirthdays = true;
+    this.userService.getPersons({ fecha_cumple: `-${mm}-` }).subscribe({
       next: (res: any) => {
-        const list = Array.isArray(res) ? res : (res?.data ?? []);
-        this.usersCount = list.length;
+        const raw = res?.data && Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [];
+        const sorted = [...raw].sort((a: any, b: any) =>
+          String(a.birth_date ?? '').localeCompare(String(b.birth_date ?? ''))
+        );
+        this.staffBirthdaysMonth = sorted.slice(0, 48);
+        this.loadingStaffBirthdays = false;
       },
-      error: () => { this.usersCount = null; }
+      error: () => {
+        this.loadingStaffBirthdays = false;
+        this.staffBirthdaysMonth = [];
+      },
     });
+  }
 
-    this.entranceService.getAllHouses().subscribe({
-      next: (res: any) => {
-        const allHouses = Array.isArray(res) ? res : (res?.data ?? []);
-        const totalHouses = allHouses.length;
-        this.publicRegistrationService.getHouses().subscribe({
-          next: (publicRes: any) => {
-            const availableInForm = Array.isArray(publicRes) ? publicRes : (publicRes?.data ?? []);
-            // Casas registradas en formulario = total casas - casas disponibles en listado público.
-            this.registeredHousesCount = Math.max(0, totalHouses - availableInForm.length);
-          },
-          error: () => { this.registeredHousesCount = null; }
+  private loadNeighborWeekBirthdays(todayStr: string): void {
+    this.loadingNeighborBirthdays = true;
+    const mon = mondayOfWeekYmd(todayStr);
+    const yYesterday = addDaysYmd(todayStr, -1);
+    const yTomorrow = addDaysYmd(todayStr, 1);
+    const dowShort = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const reqs: Observable<any>[] = [];
+    const meta: { ymd: string; label: string }[] = [];
+    for (let i = 0; i < 7; i++) {
+      const ymd = addDaysYmd(mon, i);
+      const mmdd = `${ymd.slice(5, 7)}-${ymd.slice(8, 10)}`;
+      let label = dowShort[i] ?? '';
+      if (ymd === todayStr) {
+        label = 'Hoy';
+      } else if (ymd === yYesterday) {
+        label = 'Ayer';
+      } else if (ymd === yTomorrow) {
+        label = 'Mañana';
+      }
+      meta.push({ ymd, label });
+      reqs.push(
+        this.userService.getPersonsByBirthday(mmdd).pipe(
+          map((r: any) => {
+            const raw = r?.data && Array.isArray(r.data) ? r.data : Array.isArray(r) ? r : [];
+            return raw.map((p: any) => ({ ...p, dayLabel: label, sortYmd: ymd }));
+          }),
+          catchError(() => of([]))
+        )
+      );
+    }
+    forkJoin(reqs).subscribe({
+      next: (arrays: any[][]) => {
+        const merged = ([] as any[]).concat(...arrays);
+        merged.sort((a, b) => String(a.sortYmd).localeCompare(String(b.sortYmd)));
+        this.neighborWeekBirthdays = merged.slice(0, 32);
+        this.loadingNeighborBirthdays = false;
+      },
+      error: () => {
+        this.loadingNeighborBirthdays = false;
+        this.neighborWeekBirthdays = [];
+      },
+    });
+  }
+
+  private loadStaffAlerts(todayStr: string): void {
+    const start = addDaysYmd(todayStr, -7);
+    this.accessLogService.getHistoryByRange(start, todayStr).subscribe({
+      next: (raw: unknown) => {
+        const list = this.unwrapHistoryRows(raw);
+        const rows = list.filter(
+          (r: any) =>
+            this.rowIsIngressMovement(r) &&
+            String(r?.type ?? '').toUpperCase() === 'PERSONA' &&
+            this.isAlertIngressObs(r?.obs)
+        );
+        rows.sort((a: any, b: any) => {
+          const ta = new Date(String(a?.date_entry ?? 0)).getTime();
+          const tb = new Date(String(b?.date_entry ?? 0)).getTime();
+          return tb - ta;
         });
+        this.activeAlerts = rows.slice(0, 5).map((r: any) => ({
+          name: r.name,
+          doc_number: r.doc_number,
+          status: r.obs,
+          at: r.date_entry,
+        }));
       },
-      error: () => { this.registeredHousesCount = null; }
+      error: () => {
+        this.activeAlerts = [];
+      },
     });
+  }
 
-    this.entranceService.getAllVehicles().subscribe({
-      next: (res: any) => {
-        const list = Array.isArray(res) ? res : (res?.data ?? []);
-        this.registeredVehiclesCount = list.length;
-      },
-      error: () => { this.registeredVehiclesCount = null; }
-    });
+  /**
+   * Solo ingresos con estado de validación / observación explícitamente de riesgo.
+   * Evita tratar como alerta textos libres o estados permitidos (p. ej. notas de cumpleaños).
+   */
+  private isAlertIngressObs(obs: unknown): boolean {
+    const raw = String(obs ?? '').trim();
+    if (!raw || raw === '—' || raw === '-') {
+      return false;
+    }
+    const u = raw.toUpperCase();
+    const risk = [
+      'DENEGADO',
+      'OBSERVADO',
+      'RESTRINGIDO',
+      'RECHAZADO',
+      'NO PERMITIDO',
+      'NO AUTORIZADO',
+      'BLOQUEADO',
+    ];
+    return risk.some((k) => u === k || u.startsWith(k + ' ') || u.startsWith(k + ':') || u.includes(' ' + k));
+  }
 
-    this.petsService.getPets().subscribe({
-      next: (res: any) => {
-        const list = Array.isArray(res) ? res : (res?.data ?? []);
-        this.petsCount = list.length;
+  /** INGRESO/EGRESO viene en `movement_type` (columna al.type en BD). */
+  private rowIsIngressMovement(r: any): boolean {
+    const m = String(r?.movement_type ?? r?.MOVEMENT_TYPE ?? '').trim().toUpperCase();
+    return m === 'INGRESO';
+  }
+
+  private isNeighborVisitRow(r: any): boolean {
+    if (!this.rowIsIngressMovement(r)) {
+      return false;
+    }
+    const id = Number(r?.id ?? 0);
+    if (id < 0) {
+      return true;
+    }
+    const pc = String(r?.person_category ?? '').toUpperCase();
+    return pc === 'VISITA' || pc === 'VISITA_TEMPORAL' || pc === 'VISITA_EXTERNA';
+  }
+
+  private buildDistributionFromRows(ingreso: any[]): void {
+    let residentes = 0;
+    let inquilinos = 0;
+    let visitas = 0;
+    let externas = 0;
+    for (const r of ingreso) {
+      if (!this.rowIsIngressMovement(r)) {
+        continue;
+      }
+      const id = Number(r?.id ?? 0);
+      const pc = String(r?.person_category ?? '').toUpperCase();
+      if (id < 0 || pc === 'VISITA_EXTERNA') {
+        externas++;
+        continue;
+      }
+      if (String(r?.type ?? '').toUpperCase() !== 'PERSONA') {
+        continue;
+      }
+      if (pc === 'INQUILINO') {
+        inquilinos++;
+        continue;
+      }
+      if (pc === 'VISITA' || pc === 'VISITA_TEMPORAL') {
+        visitas++;
+        continue;
+      }
+      residentes++;
+    }
+    const total = residentes + inquilinos + visitas + externas;
+    const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
+    this.distributionVisitors = [
+      {
+        label: 'Residentes / propietarios',
+        count: residentes,
+        percent: pct(residentes),
+        colorClass: 'bg-emerald-500',
       },
-      error: () => { this.petsCount = null; }
+      {
+        label: 'Inquilinos',
+        count: inquilinos,
+        percent: pct(inquilinos),
+        colorClass: 'bg-sky-500',
+      },
+      {
+        label: 'Visitas',
+        count: visitas,
+        percent: pct(visitas),
+        colorClass: 'bg-amber-500',
+      },
+      {
+        label: 'Visitas externas',
+        count: externas,
+        percent: pct(externas),
+        colorClass: 'bg-violet-500',
+      },
+    ];
+  }
+
+  private hourFromHistoryRow(r: any): number {
+    const he = String(r?.hour_entrance ?? r?.HOUR_ENTRANCE ?? '').trim();
+    const m1 = he.match(/^(\d{1,2})/);
+    if (m1) {
+      return Math.min(23, Math.max(0, parseInt(m1[1], 10)));
+    }
+    const s = String(r?.date_entry ?? r?.created_at ?? r?.DATE_ENTRY ?? '').trim();
+    const m2 = s.match(/(?:T|\s)(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (m2) {
+      return Math.min(23, Math.max(0, parseInt(m2[1], 10)));
+    }
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? 0 : d.getHours();
+  }
+
+  reloadHourIngresos(): void {
+    if (!this.isStaffView) {
+      return;
+    }
+    const todayStr = todayYmdInAppTimeZone();
+    let start: string;
+    let end: string;
+    if (this.hourChartPreset === 'today') {
+      start = end = todayStr;
+    } else if (this.hourChartPreset === 'yesterday') {
+      start = end = addDaysYmd(todayStr, -1);
+    } else {
+      start = mondayOfWeekYmd(todayStr);
+      end = todayStr;
+    }
+    this.loadingHourChart = true;
+    this.accessLogService.getHistoryByRange(start, end).subscribe({
+      next: (raw: unknown) => {
+        const list = this.unwrapHistoryRows(raw).filter((r: any) => this.rowIsIngressMovement(r));
+        const buckets = new Array(24).fill(0);
+        for (const r of list) {
+          const h = this.hourFromHistoryRow(r);
+          if (h >= 0 && h < 24) {
+            buckets[h]++;
+          }
+        }
+        this.ingresosHoraTotalCount = buckets.reduce((a, b) => a + b, 0);
+        const max = Math.max(...buckets, 1);
+        this.chartIngresosPorHora = buckets.map((c, h) => ({
+          label: `${h}h`,
+          count: c,
+          value: max > 0 ? Math.round((c / max) * 100) : 0,
+        }));
+        this.loadingHourChart = false;
+      },
+      error: () => {
+        this.loadingHourChart = false;
+        this.chartIngresosPorHora = [];
+        this.ingresosHoraTotalCount = 0;
+      },
     });
+  }
+
+  reloadDayTrend(): void {
+    if (!this.isStaffView) {
+      return;
+    }
+    const a = this.dayTrendStart;
+    const b = this.dayTrendEnd;
+    if (!a || !b || a > b) {
+      this.toastr.warning('Indica un rango de fechas válido (desde ≤ hasta).');
+      return;
+    }
+    this.loadingDayTrend = true;
+    this.accessLogService.getHistoryByRange(a, b).subscribe({
+      next: (raw: unknown) => {
+        const list = this.unwrapHistoryRows(raw).filter((r: any) => this.rowIsIngressMovement(r));
+        const byDay = new Map<string, number>();
+        for (const r of list) {
+          const ds = String(r?.date_entry ?? r?.created_at ?? '').slice(0, 10);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(ds)) {
+            byDay.set(ds, (byDay.get(ds) || 0) + 1);
+          }
+        }
+        const keys = [...byDay.keys()].sort();
+        const max = Math.max(1, ...keys.map((k) => byDay.get(k) || 0));
+        this.chartIngresosPorDia = keys.map((k) => {
+          const c = byDay.get(k) || 0;
+          return { label: k, count: c, value: Math.round((c / max) * 100) };
+        });
+        this.loadingDayTrend = false;
+      },
+      error: () => {
+        this.loadingDayTrend = false;
+        this.chartIngresosPorDia = [];
+      },
+    });
+  }
+
+  onNeighborPhotoChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      input.value = '';
+      return;
+    }
+    this.uploadingNeighborPhoto = true;
+    this.api.uploadProfilePhoto(file).subscribe({
+      next: (res: any) => {
+        this.uploadingNeighborPhoto = false;
+        input.value = '';
+        const user = res?.data;
+        if (user) {
+          this.auth.updateCurrentUser(user);
+          this.toastr.success('Foto de perfil actualizada.');
+        }
+      },
+      error: () => {
+        this.uploadingNeighborPhoto = false;
+        input.value = '';
+      },
+    });
+  }
+
+  triggerNeighborPhotoInput(): void {
+    const el = document.getElementById('neighbor-dashboard-photo-input') as HTMLInputElement;
+    el?.click();
   }
 
   applyFilterCompra(event: Event) {
@@ -675,7 +1103,7 @@ export class InicioComponent implements OnInit {
 
     initFlowbite();
 
-    // Dashboard (inicio): cargar gráficos al final; por ahora no llamar para poder probar el resto
+    // Dashboard: gráficos legacy desactivados; por ahora no llamar getEntrances
     // this.getEntrances();
 
     if (this.auth.checkToken('user_id')) {
@@ -722,8 +1150,8 @@ export class InicioComponent implements OnInit {
         });
 
         this.loadDashboardData();
-        if (this.isAdmin) {
-          this.loadAdminCounts();
+        if (this.showRegistrationStats) {
+          this.loadRegistrationSummary();
         }
       });
     }
@@ -1333,7 +1761,7 @@ addSheet(workbook: XLSX.WorkBook, sheetName: string, data: any, columns: any): v
 @Component({
   selector: 'dialog-revalidar',
   templateUrl: 'dialog-revalidar.html',
-  styleUrls: ['./inicio.component.css']
+  styleUrls: ['./dashboard.component.css']
 })
 export class DialogRevalidar implements OnInit {
 
@@ -1387,7 +1815,7 @@ export class DialogRevalidar implements OnInit {
 @Component({
   selector: 'dialog-select-sala',
   templateUrl: 'dialog-select-sala.html',
-  styleUrls: ['./inicio.component.css']
+  styleUrls: ['./dashboard.component.css']
 })
 export class DialogSelectSala implements OnInit {
 

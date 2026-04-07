@@ -16,6 +16,35 @@ use Utils\Response;
 class CatalogController
 {
     /**
+     * GET /api/v1/catalog/dashboard-summary
+     * Conteos globales del condominio (cualquier usuario autenticado: staff y vecinos).
+     */
+    public static function dashboardSummary(): void
+    {
+        requireAuth();
+        $pdo = getDbConnection();
+        $usersCount = (int) $pdo->query('SELECT COUNT(*) FROM users WHERE COALESCE(is_active, 1) = 1')->fetchColumn();
+        $housesTotal = (int) $pdo->query('SELECT COUNT(*) FROM houses')->fetchColumn();
+        $stmtAv = $pdo->query("
+            SELECT COUNT(*) FROM houses h
+            WHERE NOT EXISTS (
+                SELECT 1 FROM persons p WHERE p.house_id = h.house_id AND p.person_type = 'PROPIETARIO'
+            )
+        ");
+        $housesAvailable = (int) $stmtAv->fetchColumn();
+        $housesRegistered = max(0, $housesTotal - $housesAvailable);
+        $vehiclesCount = (int) $pdo->query('SELECT COUNT(*) FROM vehicles')->fetchColumn();
+        $petsCount = (int) $pdo->query('SELECT COUNT(*) FROM pets')->fetchColumn();
+        Response::success([
+            'users_count' => $usersCount,
+            'houses_total' => $housesTotal,
+            'houses_registered' => $housesRegistered,
+            'vehicles_count' => $vehiclesCount,
+            'pets_count' => $petsCount,
+        ], 'Resumen dashboard');
+    }
+
+    /**
      * GET /api/v1/catalog/areas - Lista de áreas (access_points)
      */
     public static function areas(): void

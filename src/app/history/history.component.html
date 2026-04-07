@@ -61,7 +61,7 @@
           type="search"
           [ngModel]="filterQuery"
           (ngModelChange)="onFilterInput($event)"
-          placeholder="Documento, nombre, domicilio…"
+          placeholder="Documento, nombre, domicilio, punto de acceso…"
           class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-teal-500 dark:focus:ring-teal-500" />
       </div>
       <button
@@ -89,6 +89,9 @@
             <th scope="col" class="vc-th cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600" (click)="toggleSort('house_address')">
               Domicilio {{ sortIndicator('house_address') }}
             </th>
+            <th scope="col" class="vc-th cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600" (click)="toggleSort('access_point_name')">
+              Punto de acceso {{ sortIndicator('access_point_name') }}
+            </th>
             <th scope="col" class="vc-th cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600" (click)="toggleSort('date_entry')">
               Ingreso {{ sortIndicator('date_entry') }}
             </th>
@@ -114,6 +117,7 @@
             <th scope="row" class="vc-td whitespace-nowrap font-medium">{{ a.doc_number }}</th>
             <td class="vc-td">{{ a.name }}</td>
             <td class="vc-td">{{ a.house_address }}</td>
+            <td class="vc-td max-w-[200px] truncate" [title]="a.access_point_name || ''">{{ a.access_point_name || '—' }}</td>
             <td class="vc-td whitespace-nowrap">{{ a.date_entry | date : 'dd/MM/yyyy HH:mm' }}</td>
             <td class="vc-td whitespace-nowrap">
               <ng-container *ngIf="a.date_exit; else noExit">{{ a.date_exit | date : 'dd/MM/yyyy HH:mm' }}</ng-container>
@@ -155,7 +159,7 @@
             </td>
           </tr>
           <tr *ngIf="!pagedRows.length">
-            <td colspan="10" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+            <td colspan="11" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
               <ng-container *ngIf="filterQuery.trim(); else emptyState">
                 No hay filas que coincidan con «{{ filterQuery }}».
               </ng-container>

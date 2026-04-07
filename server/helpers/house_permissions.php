@@ -85,7 +85,8 @@ function isAdminRole(array $auth): bool {
 }
 
 /**
- * Personal operativo (portería, etc.): listados amplios sin ser vecino.
+ * Personal operativo (portería, administración de accesos): historial global, etc.
+ * Mantener alineado con `src/app/system-roles.ts` (STAFF_ROLE_SYSTEM_VALUES).
  */
 function isStaffRole(array $auth): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));

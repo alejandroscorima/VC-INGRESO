@@ -287,18 +287,16 @@
                     <input [(ngModel)]="userToAdd.email" type="email" name="emailNew" id="users-emailNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="correo@dominio.com" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="users-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." [required]="modalMode !== 'persons'">
-                        <option *ngIf="modalMode === 'persons'" [ngValue]="null">Sin domicilio (opcional)</option>
+                    <label for="users-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio <span class="text-gray-400 font-normal text-xs">(obligatorio solo para rol USUARIO)</span></label>
+                    <select [(ngModel)]="userToAdd.house_id" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." [required]="modalMode === 'users' && !isStaffRole(userToAdd.role_system)">
+                        <option [ngValue]="null">Sin domicilio (administración / portería)</option>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="users-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <!-- <input [(ngModel)]="userToAdd.house_id" type="text" name="houseIdNew" id="users-houseIdNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Domicilio..." required /> -->
-                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="users-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." [required]="modalMode !== 'persons'">
-                        <option *ngIf="modalMode === 'persons'" [ngValue]="''">Seleccione categoría…</option>
+                    <label for="users-property_categoryNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría <span class="text-gray-400 font-normal text-xs">(si elige casa)</span></label>
+                    <select [(ngModel)]="userToAdd.property_category" name="property_categoryNew" id="users-property_categoryNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." [required]="hasSelectedHouseId(userToAdd)">
+                        <option [ngValue]="''">—</option>
                         <option *ngFor="let c of categoriesNewUser" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>
@@ -423,14 +421,16 @@
                     <input [(ngModel)]="userToEdit.email" type="email" name="emailEdit" id="users-emailEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="correo@dominio.com" />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="users-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
-                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="users-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." required>
+                    <label for="users-houseIdEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio <span class="text-gray-400 font-normal text-xs" *ngIf="modalMode === 'users'">(opcional staff)</span></label>
+                    <select [(ngModel)]="userToEdit.house_id" name="houseIdEdit" id="users-houseIdEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Domicilio..." [required]="modalMode === 'users' && !isStaffRole(userToEdit.role_system)">
+                        <option [ngValue]="null">Sin domicilio</option>
                         <option *ngFor="let h of houses" [ngValue]="h.house_id">Mz:{{h.block_house}} Lt:{{h.lot}} Dpt:{{h.apartment}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="users-property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoria</label>
-                    <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="users-property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." required>
+                    <label for="users-property_categoryEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
+                    <select [(ngModel)]="userToEdit.property_category" name="property_categoryEdit" id="users-property_categoryEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Categoria..." [required]="hasSelectedHouseId(userToEdit)">
+                        <option [ngValue]="''">—</option>
                         <option *ngFor="let c of categories" [ngValue]="c">{{c}}</option>
                     </select>
                 </div>

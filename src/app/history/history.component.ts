@@ -6,6 +6,7 @@ import { Item } from '../item';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { EntranceService } from '../entrance.service';
+import { todayYmdInAppTimeZone } from '../app-date.util';
 import * as XLSX from 'xlsx';
 
 export interface HistoryAccessPointOption {
@@ -174,6 +175,7 @@ export class HistoryComponent implements OnInit {
       DOCUMENTO: r['doc_number'],
       DATOS: r['name'],
       DOMICILIO: r['house_address'],
+      PUNTO_ACCESO: r['access_point_name'],
       INGRESO: r['date_entry'],
       SALIDA: r['date_exit'],
       RESULTADO: r['obs'],
@@ -247,7 +249,9 @@ export class HistoryComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const today = new Date();
+    const ymd = todayYmdInAppTimeZone();
+    const [y, m, d] = ymd.split('-').map((n) => Number(n));
+    const today = new Date(y, m - 1, d);
     this.fecha_inicial = today;
     this.fecha_final = today;
 

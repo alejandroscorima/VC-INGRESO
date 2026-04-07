@@ -10,6 +10,7 @@ services:
     env_file:
       - .env
     environment:
+      - TZ=America/Lima
       - MYSQL_ROOT_PASSWORD=${DB_PASS}
       - MYSQL_DATABASE=${DB_NAME:-vc_db}
       - MYSQL_CHARSET=${DB_CHARSET:-utf8mb4}
@@ -36,6 +37,7 @@ services:
     env_file:
       - .env
     environment:
+      - TZ=America/Lima
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_NAME=${DB_NAME:-vc_db}
@@ -57,6 +59,8 @@ services:
       - nginx-proxy-manager_default
 
   frontend:
+    environment:
+      - TZ=America/Lima
     build:
       context: .
       dockerfile: Dockerfile.frontend

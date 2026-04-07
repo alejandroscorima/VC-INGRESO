@@ -1,7 +1,7 @@
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { InicioComponent } from './inicio/inicio.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { HistoryComponent } from './history/history.component';
 import { BirthdayComponent } from './birthday/birthday.component';
 import { LoginComponent } from './login/login.component';
@@ -22,7 +22,7 @@ import { CodigoQrGuard } from './qr/codigo-qr.guard';
 const routes: Routes = [
   { path: "login", component: LoginComponent },
   { path: "registro", component: PublicRegistrationComponent },
-  { path: "", component: InicioComponent, canActivate: [AuthGuard] },
+  { path: "", component: DashboardComponent, canActivate: [AuthGuard] },
   { path: "history", component: HistoryComponent, canActivate: [AuthGuard] },
   { path: "hb", component: BirthdayComponent, canActivate: [AuthGuard] },
   { path: "settings", component: SettingsComponent, canActivate: [AuthGuard] },

@@ -24,6 +24,8 @@ if ($envFile && is_readable($envFile)) {
     }
 }
 
+date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'America/Lima');
+
 // CORS: enviar siempre desde PHP (funciona con servidor integrado PHP o Apache)
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -104,6 +106,7 @@ if (str_starts_with($uri, '/api/v1/')) {
     // ==================== CATALOG (areas, salas, prioridad, stubs) ====================
     if (str_starts_with($path, 'catalog/')) {
         require_once __DIR__ . '/controllers/CatalogController.php';
+        if ($path === 'catalog/dashboard-summary' && $method === 'GET') { \Controllers\CatalogController::dashboardSummary(); exit; }
         if ($path === 'catalog/access-points' && $method === 'POST') { \Controllers\CatalogController::accessPointsStore(); exit; }
         if (preg_match('#^catalog/access-points/(\d+)$#', $path, $m) && $method === 'PUT') { \Controllers\CatalogController::accessPointsUpdate($m[1]); exit; }
         if ($path === 'catalog/areas' && $method === 'GET') { \Controllers\CatalogController::areas(); exit; }

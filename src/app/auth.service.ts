@@ -5,6 +5,7 @@ import { environment } from '../environments/environment';
 import { tap, map } from 'rxjs/operators';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { User } from './user';
+import { isNeighborRoleSystemValue, isStaffRoleSystemValue } from './system-roles';
 
 const STORAGE_KEY = 'auth_user';
 const TOKEN_KEY = 'auth_token';
@@ -101,7 +102,7 @@ export class AuthService {
 
   /** ADMIN / ADMINISTRADOR de aplicación (no implica solo portería). */
   isAdministratorRole(): boolean {
-    const r = String(this.getUser()?.role_system ?? '').toUpperCase();
+    const r = String(this.getUser()?.role_system ?? '').trim().toUpperCase();
     return r === 'ADMIN' || r === 'ADMINISTRADOR';
   }
 
