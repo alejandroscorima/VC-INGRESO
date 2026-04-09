@@ -192,9 +192,9 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     }
     const cat = this.normalizeCategory(row.property_category || row.person_type || row.relation_type);
     if (this.isTenantRestrictedInMyHouse) {
-      return ['INQUILINO', 'VISITA', 'INVITADO'].includes(cat);
+      return ['INQUILINO', 'INVITADO'].includes(cat);
     }
-    return ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'VISITA', 'INVITADO', 'ADMINISTRADOR'].includes(cat);
+    return ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'INVITADO'].includes(cat);
   }
 
   canShowQrForVehicleRow(v: Vehicle): boolean {
@@ -325,10 +325,12 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
           };
         });
 
-        this.myFamily = list.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'ADMINISTRADOR'].includes(u.property_category));
-        this.myResidents = list.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'ADMINISTRADOR'].includes(u.property_category));
+        this.myFamily = list.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category));
+        this.myResidents = list.filter((u: any) => ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category));
         this.myTenants = list.filter((u: any) => u.property_category === 'INQUILINO');
-        this.myVisits = list.filter((u: any) => ['INVITADO', 'VISITA'].includes(this.normalizeCategory(u.property_category || u.person_type || u.relation_type)));
+        this.myVisits = list.filter((u: any) =>
+          ['INVITADO', 'VISITA'].includes(this.normalizeCategory(u.property_category || u.person_type || u.relation_type))
+        );
 
         // fallback a persons?house_id=... si no hay datos en house_members
         if (this.myFamily.length === 0) {
@@ -347,7 +349,9 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
               this.myFamily = list2.filter((u: any) => ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'].includes(u.property_category));
               this.myResidents = list2.filter((u: any) => ['PROPIETARIO', 'RESIDENTE'].includes(u.property_category));
               this.myTenants = list2.filter((u: any) => u.property_category === 'INQUILINO');
-              this.myVisits = list2.filter((u: any) => ['INVITADO', 'VISITA'].includes(this.normalizeCategory(u.property_category || u.person_type || u.relation_type)));
+              this.myVisits = list2.filter((u: any) =>
+                ['INVITADO', 'VISITA'].includes(this.normalizeCategory(u.property_category || u.person_type || u.relation_type))
+              );
             },
             error: () => {
               // no action
@@ -629,10 +633,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     const catEdit = this.normalizeCategory(
       (user as any).property_category || (user as any).person_type || (user as any).relation_type
     );
-    if (
-      this.isTenantRestrictedInMyHouse &&
-      ['PROPIETARIO', 'RESIDENTE', 'ADMINISTRADOR'].includes(catEdit)
-    ) {
+    if (this.isTenantRestrictedInMyHouse && ['PROPIETARIO', 'RESIDENTE'].includes(catEdit)) {
       this.toastr.warning('No tienes permiso para editar datos de propietarios o residentes.');
       return;
     }
@@ -1241,15 +1242,15 @@ saveNewVehicle(): void {
       next: (resUpdateExternalVehicle: any) => {
         if (resUpdateExternalVehicle.success) {
           this.toastr.success(resUpdateExternalVehicle.message);
-          this.toastr.success('Vehículo externo actualizado correctamente');
+          this.toastr.success('Visita externa actualizada correctamente');
           this.handleSuccess();
         } else {
-          this.toastr.error('Error al actualizar el vehículo externo');
+          this.toastr.error('Error al actualizar la visita externa');
         }
       },
       error: (err) => {
         console.error(err);
-        this.toastr.error('Error al actualizar el vehículo externo');
+        this.toastr.error('Error al actualizar la visita externa');
       },
     });
   }
@@ -1275,12 +1276,12 @@ saveNewVehicle(): void {
           this.toastr.success(res.message);
           this.handleSuccess();
         } else {
-          this.toastr.error('Error al guardar el vehículo externo');
+          this.toastr.error('Error al guardar la visita externa');
         }
       },
       error: (err) => {
         console.error(err);
-        this.toastr.error('Error al guardar el vehículo externo');
+        this.toastr.error('Error al guardar la visita externa');
       },
     });
   }

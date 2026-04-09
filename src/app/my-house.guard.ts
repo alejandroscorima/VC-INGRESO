@@ -4,8 +4,8 @@ import { AuthService } from './auth.service';
 import { ToastrService } from 'ngx-toastr';
 
 /**
- * Mi casa: solo USUARIO / ADMINISTRADOR / OPERARIO con persona PROPIETARIO, RESIDENTE o INQUILINO
- * y con house_id asignado (incluye admin u operario que viven en el barrio).
+ * Mi casa: USUARIO / ADMINISTRADOR / OPERARIO con persona PROPIETARIO, RESIDENTE o INQUILINO
+ * y con house_id asignado (staff que también vive en el barrio).
  */
 @Injectable({ providedIn: 'root' })
 export class MyHouseGuard implements CanActivate {
@@ -24,7 +24,7 @@ export class MyHouseGuard implements CanActivate {
       return this.router.parseUrl('/login');
     }
     const role = (u.role_system || '').trim().toUpperCase();
-    const allowedRoles = ['USUARIO', 'ADMINISTRADOR', 'OPERARIO', 'ADMIN'];
+    const allowedRoles = ['USUARIO', 'ADMINISTRADOR', 'OPERARIO'];
     if (!allowedRoles.includes(role)) {
       this.toastr.warning('No tienes acceso a Mi casa.');
       return this.router.parseUrl('/');

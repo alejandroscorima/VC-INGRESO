@@ -554,7 +554,7 @@ class ReservationController
     }
 
     /**
-     * Listado: administradores ven todo; OPERARIO/GUARDIA ven todo; vecinos solo reservas de sus casas.
+     * Listado: administradores ven todo; OPERARIO ven todo; vecinos solo reservas de sus casas.
      */
     private function applyIndexRoleScope(array &$where, array &$values, array $auth): void
     {
@@ -562,7 +562,7 @@ class ReservationController
             return;
         }
         $role = strtoupper(trim($auth['role_system'] ?? ''));
-        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+        if ($role === 'OPERARIO') {
             return;
         }
 
@@ -588,7 +588,7 @@ class ReservationController
             return true;
         }
         $role = strtoupper(trim($auth['role_system'] ?? ''));
-        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+        if ($role === 'OPERARIO') {
             return true;
         }
         $hid = (int) ($reservation['house_id'] ?? 0);

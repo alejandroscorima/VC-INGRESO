@@ -10,13 +10,11 @@
  * - DENEGADO: No puede acceder
  * - OBSERVADO: Requiere atencion especial
  * 
- * Tipos de persona:
- * - PROPIETARIO: Dueño de domicilio
- * - RESIDENTE: Vive en el condominio
- * - VISITA: Visita registrada
- * - INQUILINO: Alquila un domicilio
- * - VISITA_TEMPORAL: Taxi, delivery, etc.
- * - TRABAJADOR: Personal del condominio
+ * Tipos de persona (`persons.person_type`):
+ * - PROPIETARIO, RESIDENTE, INQUILINO: pueden tener usuario (`USUARIO`) según reglas de negocio
+ * - INVITADO: persona en el padrón del hogar sin cuenta de sistema (no fila en `users`)
+ * - VISITA_TEMPORAL: uso en accesos (no confundir con INVITADO)
+ * Staff sin casa: `role_system` OPERARIO/ADMINISTRADOR y `person_type` NULL
  */
 
 namespace Controllers;

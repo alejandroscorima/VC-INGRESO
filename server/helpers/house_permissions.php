@@ -6,7 +6,7 @@
 
 /**
  * Verifica si el usuario autenticado puede operar sobre la casa $houseId.
- * - role_system ADMIN/ADMINISTRADOR: acceso global (sin necesidad de ser miembro).
+ * - role_system ADMINISTRADOR: acceso global (sin necesidad de ser miembro).
  * - Resto: debe ser miembro activo de la casa (house_members) vía user.person_id.
  *
  * @param PDO $pdo
@@ -16,7 +16,7 @@
  */
 function canAccessHouse(\PDO $pdo, array $auth, int $houseId): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
-    if ($role === 'ADMIN' || $role === 'ADMINISTRADOR') {
+    if ($role === 'ADMINISTRADOR') {
         return true;
     }
 
@@ -81,7 +81,7 @@ function validateOwnerInHouse(\PDO $pdo, int $houseId, ?int $ownerId): bool {
 function isAdminRole(array $auth): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
 
-    return $role === 'ADMIN' || $role === 'ADMINISTRADOR';
+    return $role === 'ADMINISTRADOR';
 }
 
 /**
@@ -91,20 +91,20 @@ function isAdminRole(array $auth): bool {
 function isStaffRole(array $auth): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
 
-    return $role === 'ADMIN' || $role === 'ADMINISTRADOR' || $role === 'OPERARIO' || $role === 'GUARDIA';
+    return $role === 'ADMINISTRADOR' || $role === 'OPERARIO';
 }
 
 /**
- * OPERARIO / GUARDIA: solo escanean en portería, no generan QR de hogar.
+ * OPERARIO: solo escanea en portería, no genera QR de hogar.
  */
 function isOperarioOrGuardiaRole(array $auth): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
 
-    return $role === 'OPERARIO' || $role === 'GUARDIA';
+    return $role === 'OPERARIO';
 }
 
 /**
- * Puede generar JWT QR de ingreso: USUARIO o ADMIN/ADMINISTRADOR con person_id vinculada.
+ * Puede generar JWT QR de ingreso: USUARIO o ADMINISTRADOR con person_id vinculada.
  * (Administrador que también es residente del barrio — misma regla que Mi casa.)
  */
 function canGenerateAccessQr(array $auth): bool {
@@ -116,7 +116,7 @@ function canGenerateAccessQr(array $auth): bool {
     if ($role === 'USUARIO') {
         return true;
     }
-    if ($role === 'ADMIN' || $role === 'ADMINISTRADOR') {
+    if ($role === 'ADMINISTRADOR') {
         return true;
     }
 
@@ -170,10 +170,10 @@ function canGenerateQrForPerson(\PDO $pdo, array $auth, int $targetPersonId): bo
     }
     // INVITADO: visitas registradas en Mi casa (misma regla que canUsuarioCreatePersonForHouse).
     if ($rel === 'PROPIETARIO' || $rel === 'RESIDENTE') {
-        return in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'VISITA', 'INVITADO'], true);
+        return in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'INVITADO'], true);
     }
     if ($rel === 'INQUILINO') {
-        return in_array($pt, ['INQUILINO', 'VISITA', 'INVITADO'], true);
+        return in_array($pt, ['INQUILINO', 'INVITADO'], true);
     }
 
     return false;
@@ -330,14 +330,14 @@ function canUsuarioCreatePersonForHouse(\PDO $pdo, array $auth, int $houseId, st
         $pt = 'RESIDENTE';
     }
 
-    $byOwner = ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'INVITADO', 'VISITA'];
-    $byResident = ['RESIDENTE', 'INQUILINO', 'INVITADO', 'VISITA'];
-    $byTenant = ['INQUILINO', 'INVITADO', 'VISITA'];
+    $byOwner = ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'INVITADO'];
+    $byResident = ['RESIDENTE', 'INQUILINO', 'INVITADO'];
+    $byTenant = ['INQUILINO', 'INVITADO'];
 
     if ($rel === 'PROPIETARIO') {
         return in_array($pt, $byOwner, true);
     }
-    if ($rel === 'RESIDENTE' || $rel === 'ADMINISTRADOR') {
+    if ($rel === 'RESIDENTE') {
         return in_array($pt, $byResident, true);
     }
     if ($rel === 'INQUILINO') {

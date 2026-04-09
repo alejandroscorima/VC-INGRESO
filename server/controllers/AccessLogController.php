@@ -554,7 +554,7 @@ class AccessLogController
             return;
         }
         $role = strtoupper(trim($auth['role_system'] ?? ''));
-        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+        if ($role === 'OPERARIO') {
             return;
         }
         $ids = getAccessibleHouseIds($this->pdo, $auth);
@@ -571,7 +571,7 @@ class AccessLogController
     }
 
     /**
-     * ADMIN / ADMINISTRADOR / OPERARIO / GUARDIA: ven todo el historial.
+     * ADMINISTRADOR / OPERARIO: ven todo el historial.
      * USUARIO (vecino): solo access_logs y temporary_access_logs de su(s) domicilio(s).
      */
     private function appendHistoryNeighborHouseScope(
@@ -585,7 +585,7 @@ class AccessLogController
             return;
         }
         $role = strtoupper(trim($auth['role_system'] ?? ''));
-        if ($role === 'OPERARIO' || $role === 'GUARDIA') {
+        if ($role === 'OPERARIO') {
             return;
         }
 

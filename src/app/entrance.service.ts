@@ -75,23 +75,23 @@ export class EntranceService {
    * Listado global de visitas temporales (administración / operario en pantalla Vehículos).
    */
   getAllExternalVehicles() {
-    return this.http.get(`${this.baseUrl}/api/v1/external-vehicles`);
+    return this.http.get(`${this.baseUrl}/api/v1/external-visits`);
   }
 
   /**
    * Solo las visitas que registró el usuario en sesión (Mi casa; incluye admin/operario como residentes).
    */
   getMyExternalVehicles() {
-    return this.http.get(`${this.baseUrl}/api/v1/external-vehicles?mine=1`);
+    return this.http.get(`${this.baseUrl}/api/v1/external-visits?mine=1`);
   }
 
   addExternalVehicle(externalVehicle: ExternalVehicle) {
-    return this.http.post(`${this.baseUrl}/api/v1/external-vehicles`, externalVehicle);
+    return this.http.post(`${this.baseUrl}/api/v1/external-visits`, externalVehicle);
   }
 
   updateExternalVehicle(externalVehicle: ExternalVehicle) {
     const id = (externalVehicle as any).id ?? (externalVehicle as any).temp_visit_id;
-    return this.http.put(`${this.baseUrl}/api/v1/external-vehicles/${id}`, externalVehicle);
+    return this.http.put(`${this.baseUrl}/api/v1/external-visits/${id}`, externalVehicle);
   }
 
   getAllAreas() {

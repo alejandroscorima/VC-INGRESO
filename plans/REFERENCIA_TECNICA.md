@@ -497,7 +497,7 @@ API externa para autocompletar datos del propietario. Ejemplo: [my.apidev.pro](h
 
 ### External vehicles
 
-CRUD bajo `/api/v1/external-vehicles`.
+CRUD bajo `/api/v1/external-visits`.
 
 ### Pets
 
@@ -577,7 +577,7 @@ CRUD bajo `/api/v1/external-vehicles`.
 | houses | Sí | :id/members |
 | vehicles | Sí | by-house |
 | persons | Sí | by-doc-number, observed, restricted, validate |
-| external-vehicles | Sí | — |
+| external-visits | Sí | — |
 | pets | Sí | person/:id, validate, photo |
 | access-logs | List/Create/Show | access-points, stats/daily, reportes |
 | reservations | Sí | areas, availability, status |

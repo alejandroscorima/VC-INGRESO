@@ -694,7 +694,7 @@ INSERT INTO `persons` (
 (6, 'DNI', '10000002', 'Ana', 'Residente', 'Dos', 'F', '1985-07-22', '987654322', 'ana@email.com', 'PROPIETARIO', 2, 'PERMITIDO', 'ACTIVO'),
 (7, 'DNI', '10000003', 'Luis', 'Residente', 'Tres', 'M', '1975-11-05', '987654323', 'luis@email.com', 'RESIDENTE', 3, 'PERMITIDO', 'ACTIVO'),
 (8, 'DNI', '10000004', 'Rosa', 'Inquilina', 'Cuatro', 'F', '1990-09-14', '987654324', 'rosa@email.com', 'INQUILINO', 1, 'PERMITIDO', 'ACTIVO'),
-(9, 'DNI', '10000005', 'Visitante', 'Prueba', 'Uno', 'M', '1982-01-20', '987654325', 'visita@email.com', 'VISITA', 1, 'PERMITIDO', 'ACTIVO');
+(9, 'DNI', '10000005', 'Visitante', 'Prueba', 'Uno', 'M', '1982-01-20', '987654325', 'visita@email.com', 'INVITADO', 1, 'PERMITIDO', 'ACTIVO');
 
 -- -----------------------------------------------------------------------------
 -- 3. USUARIOS (users) - Solo sistema (login, rol, estado). Identidad en persons.
@@ -705,19 +705,19 @@ INSERT INTO `users` (
 ) VALUES
 (1, 1, 'ADMINISTRADOR', 'admin', 'demo123', NULL, 'PERMITIDO', 'ACTIVO', 1),
 (2, 2, 'OPERARIO', 'operario', 'demo123', 1, 'PERMITIDO', 'ACTIVO', 1),
-(3, 3, 'GUARDIA', 'guardia', 'demo123', 2, 'PERMITIDO', 'ACTIVO', 1),
+(3, 3, 'OPERARIO', 'guardia', 'demo123', 2, 'PERMITIDO', 'ACTIVO', 1),
 (4, 4, 'USUARIO', 'pedro', 'demo123', 1, 'PERMITIDO', 'ACTIVO', 1);
 
 -- -----------------------------------------------------------------------------
 -- 4. HOUSE MEMBERS (house_members) - Pertenencia a casas
 -- -----------------------------------------------------------------------------
 INSERT INTO `house_members` (`house_id`, `person_id`, `relation_type`, `is_active`, `is_primary`) VALUES
--- Casa 1: Juan (Prop), Pedro (Inq), Carlos (Prop), Rosa (Inq), Visitante (Visita)
+-- Casa 1: Juan (Prop), Pedro (Inq), Carlos (Prop), Rosa (Inq), Visitante (INVITADO)
 (1, 2, 'PROPIETARIO', 1, 1),
 (1, 4, 'INQUILINO', 1, 0),
 (1, 5, 'PROPIETARIO', 1, 0),
 (1, 8, 'INQUILINO', 1, 0),
-(1, 9, 'VISITA', 1, 0),
+(1, 9, 'INVITADO', 1, 0),
 -- Casa 2: María (Res), Ana (Prop)
 (2, 3, 'RESIDENTE', 1, 0),
 (2, 6, 'PROPIETARIO', 1, 1),
@@ -765,7 +765,7 @@ INSERT INTO `access_logs` (
     `access_point_id`, `person_id`, `doc_number`, `vehicle_id`, `type`, 
     `observation`, `created_by_user_id`
 ) VALUES
-(1, 2, NULL, 1, 'INGRESO', 'Ingreso Juan con vehículo', 3), -- Registrado por Guardia (user 3)
+(1, 2, NULL, 1, 'INGRESO', 'Ingreso Juan con vehículo', 3), -- Registrado por operario (user 3)
 (1, NULL, '10000002', NULL, 'INGRESO', 'Visita a pie (Ana)', 3),
 (2, 3, NULL, NULL, 'INGRESO', 'Entrada peatonal María', 3),
 (1, 2, NULL, 1, 'EGRESO', NULL, 3);
@@ -779,5 +779,5 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ------------|----------|----------|---------------|-------------------|----------
 -- Admin       | admin    | demo123  | ADMINISTRADOR | NULL              | 1
 -- Operario    | operario | demo123  | OPERARIO      | 1                 | 2
--- Guardia     | guardia  | demo123  | GUARDIA       | 2                 | 3
+-- Operario 2  | guardia  | demo123  | OPERARIO      | 2                 | 3
 -- Pedro       | pedro    | demo123  | USUARIO       | 1                 | 4

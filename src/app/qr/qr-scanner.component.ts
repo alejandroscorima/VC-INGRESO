@@ -547,7 +547,7 @@ export class QrScannerComponent implements OnInit, OnDestroy {
     } else if (data.kind === 'vehicle' && data.vehicle) {
       const v = data.vehicle;
       lines.push(
-        data.temp_visit_id ? `Vehículo externo ${v.license_plate}` : `Vehículo ${v.license_plate}`
+        data.temp_visit_id ? `Visita externa ${v.license_plate}` : `Vehículo ${v.license_plate}`
       );
       if (v.brand || v.model) {
         lines.push([v.brand, v.model].filter(Boolean).join(' '));

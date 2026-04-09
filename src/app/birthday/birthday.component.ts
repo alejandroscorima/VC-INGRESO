@@ -157,7 +157,7 @@ export class BirthdayComponent implements OnInit {
 
   ngOnInit() {
     const currentUser = this.auth.getUser();
-    this.showDocColumn = currentUser?.role_system === 'ADMINISTRADOR' || currentUser?.role_system === 'ADMIN';
+    this.showDocColumn = currentUser?.role_system === 'ADMINISTRADOR';
     this.fecha = new Date();
     this.initializeDateFields();
     this.loadHouses();

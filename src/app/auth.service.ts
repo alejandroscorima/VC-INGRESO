@@ -86,7 +86,7 @@ export class AuthService {
   /** Personal de puerta / administración (puede usar escáner y validar QR). */
   isStaff(): boolean {
     const r = String(this.getUser()?.role_system ?? '').toUpperCase();
-    return r === 'ADMIN' || r === 'ADMINISTRADOR' || r === 'OPERARIO' || r === 'GUARDIA';
+    return r === 'ADMINISTRADOR' || r === 'OPERARIO';
   }
 
   /** Vecino con rol USUARIO (Mi casa, generar QR). */
@@ -100,15 +100,15 @@ export class AuthService {
     return Number(u?.person_id ?? 0) > 0;
   }
 
-  /** ADMIN / ADMINISTRADOR de aplicación (no implica solo portería). */
+  /** ADMINISTRADOR de aplicación (no implica solo portería). */
   isAdministratorRole(): boolean {
     const r = String(this.getUser()?.role_system ?? '').trim().toUpperCase();
-    return r === 'ADMIN' || r === 'ADMINISTRADOR';
+    return r === 'ADMINISTRADOR';
   }
 
   /**
    * Generar QR de ingreso propio o de Mi casa: USUARIO o admin con persona vinculada.
-   * OPERARIO/GUARDIA no (solo escanean).
+   * OPERARIO no (solo escanea).
    */
   canGenerateHouseAccessQr(): boolean {
     if (!this.hasLinkedPerson()) {

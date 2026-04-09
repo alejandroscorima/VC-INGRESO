@@ -38,7 +38,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
   typeDocs: string[] = ['DNI','CE'];
   genders: string[] = ['MASCULINO','FEMENINO'];
-  roles: string[] = ['USUARIO','ADMINISTRADOR','OPERARIO','GUARDIA'];
+  roles: string[] = ['USUARIO', 'ADMINISTRADOR', 'OPERARIO'];
   status: string[] = ['ACTIVO', 'INACTIVO']
   houses: House[] = [];
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
@@ -460,10 +460,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
       this.toastr.error(validationMsg);
       return;
     }
-    const hidAdd = Number(this.userToAdd.house_id) || 0;
-    if (hidAdd <= 0 && isStaffRoleSystemValue(this.userToAdd.role_system) && !this.trim(this.userToAdd.property_category)) {
-      this.userToAdd.property_category = 'TRABAJADOR';
-    }
+    // Staff sin casa: sin person_type (equivalente a OPERARIO/ADMINISTRADOR + NULL en BD).
     // Configurar valores predeterminados
     this.userToAdd.password_system = this.userToAdd.doc_number;
     const photoNew = this.optionalPhotoUrlByGender(this.userToAdd.gender);
@@ -534,8 +531,8 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
     const hid = Number(this.userToAdd.house_id) || 0;
     let personType = this.trim(this.userToAdd.property_category) || 'RESIDENTE';
-    if (hid <= 0 && isStaffRoleSystemValue(this.userToAdd.role_system) && !this.trim(this.userToAdd.property_category)) {
-      personType = 'TRABAJADOR';
+    if (hid <= 0 && isStaffRoleSystemValue(this.userToAdd.role_system)) {
+      personType = '';
     }
     const personPayload: any = {
       type_doc: this.userToAdd.type_doc || 'DNI',
@@ -548,7 +545,7 @@ export class UsersComponent implements OnInit, AfterViewInit{
       cel_number: this.userToAdd.cel_number || undefined,
       email: this.userToAdd.email || undefined,
       house_id: hid > 0 ? hid : undefined,
-      person_type: personType,
+      person_type: (personType || null) as string | null,
       status_validated: this.userToAdd.status_validated || 'PERMITIDO',
       status_reason: this.userToAdd.status_reason || '',
       status_system: 'ACTIVO'
@@ -655,6 +652,9 @@ export class UsersComponent implements OnInit, AfterViewInit{
     if (!this.trim(this.userToAdd.role_system)) {
       return 'Seleccione el rol en el sistema.';
     }
+    if (this.trim(this.userToAdd.property_category).toUpperCase() === 'INVITADO') {
+      return 'INVITADO no puede tener usuario de sistema. Use PROPIETARIO, RESIDENTE o INQUILINO.';
+    }
     return null;
   }
 
@@ -687,6 +687,9 @@ export class UsersComponent implements OnInit, AfterViewInit{
       return 'Seleccione el estado de validación.';
     }
     if (this.enableSystemAccessNew) {
+      if (this.trim(this.userToAdd.property_category).toUpperCase() === 'INVITADO') {
+        return 'No se puede dar acceso al sistema a INVITADO. Cambie primero el tipo a PROPIETARIO, RESIDENTE o INQUILINO.';
+      }
       if (!this.trim(this.userToAdd.username_system)) {
         return 'Indique el usuario de acceso al sistema.';
       }
@@ -739,6 +742,15 @@ export class UsersComponent implements OnInit, AfterViewInit{
     const personId = Number((this.userToEdit as any).id || (this.userToEdit as any).person_id || 0);
     if (!personId) {
       this.toastr.error('No se encontró el ID de la persona para editar.');
+      return;
+    }
+    if (
+      this.enableSystemAccessEdit &&
+      this.trim(this.userToEdit.property_category).toUpperCase() === 'INVITADO'
+    ) {
+      this.toastr.error(
+        'No se puede dar acceso al sistema a INVITADO. Cambie primero el tipo a PROPIETARIO, RESIDENTE o INQUILINO.'
+      );
       return;
     }
 
@@ -865,6 +877,15 @@ export class UsersComponent implements OnInit, AfterViewInit{
   saveGiveAccess() {
     if (!this.giveAccessPerson || !this.giveAccessUsername?.trim() || !this.giveAccessPassword?.trim()) {
       this.toastr.error('Complete usuario y contraseña.');
+      return;
+    }
+    const pt = String(this.giveAccessPerson?.property_category || this.giveAccessPerson?.person_type || '')
+      .trim()
+      .toUpperCase();
+    if (pt === 'INVITADO') {
+      this.toastr.error(
+        'No se puede dar acceso a INVITADO. Edite la persona y cambie el tipo a PROPIETARIO, RESIDENTE o INQUILINO.'
+      );
       return;
     }
     this.savingGiveAccess = true;

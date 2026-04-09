@@ -1,21 +1,20 @@
 /**
  * Definición única de roles (`users.role_system` / JWT) para alinear front y back.
  *
- * ## Staff (personal del condominio)
- * Historial y dashboard **globales**, gestión de usuarios/casas/puntos según permisos del API.
- * - **ADMIN** / **ADMINISTRADOR**: administración de la aplicación.
- * - **OPERARIO** / **GUARDIA**: operación en portería (escaneo, registros de acceso).
- *
- * Domicilio (`house_id`) **no es obligatorio** para estos roles al dar de alta un usuario.
+ * ## Staff
+ * - **ADMINISTRADOR**: administración global.
+ * - **OPERARIO**: portería / escaneo / historial según API.
+ * Domicilio (`house_id`) no es obligatorio para staff.
  *
  * ## Vecino
- * - **USUARIO**: acceso a Mi casa, QR de ingreso (si tiene `person_id`), historial y reservas
- *   **acotados a su(s) domicilio(s)** en el backend.
+ * - **USUARIO**: Mi casa, QR, datos acotados a su(s) casa(s).
  *
- * Otros valores legacy deben migrarse a esta lista; el API (`auth_middleware` / controladores)
- * es la fuente de verdad para permisos finos.
+ * `persons.person_type` (PROPIETARIO, RESIDENTE, INQUILINO, INVITADO) define el vínculo al hogar;
+ * INVITADO no debe tener fila en `users` (sin login).
  */
-export const STAFF_ROLE_SYSTEM_VALUES = ['ADMIN', 'ADMINISTRADOR', 'OPERARIO', 'GUARDIA'] as const;
+export const ROLE_SYSTEM_VALUES = ['USUARIO', 'OPERARIO', 'ADMINISTRADOR'] as const;
+
+export const STAFF_ROLE_SYSTEM_VALUES = ['ADMINISTRADOR', 'OPERARIO'] as const;
 
 export const NEIGHBOR_ROLE_SYSTEM_VALUES = ['USUARIO'] as const;
 
@@ -30,4 +29,10 @@ export function isStaffRoleSystemValue(role: string | null | undefined): boolean
 export function isNeighborRoleSystemValue(role: string | null | undefined): boolean {
   const r = String(role ?? '').trim().toUpperCase();
   return (NEIGHBOR_ROLE_SYSTEM_VALUES as readonly string[]).includes(r);
+}
+
+/** USUARIO con vínculo de hogar para lógica "vecino" (excluye INVITADO). */
+export function isResidentPersonType(personType: string | null | undefined): boolean {
+  const p = String(personType ?? '').trim().toUpperCase();
+  return p === 'PROPIETARIO' || p === 'RESIDENTE' || p === 'INQUILINO';
 }

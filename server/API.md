@@ -155,15 +155,15 @@ Documentación alineada al enrutado en [`index.php`](index.php). Base URL: **`/a
 
 ---
 
-## External vehicles
+## Visitas externas (`temporary_visits`)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/api/v1/external-vehicles` | Listar. |
-| GET | `/api/v1/external-vehicles/:id` | Uno. |
-| POST | `/api/v1/external-vehicles` | Crear. |
-| PUT | `/api/v1/external-vehicles/:id` | Actualizar. |
-| DELETE | `/api/v1/external-vehicles/:id` | Eliminar. |
+| GET | `/api/v1/external-visits` | Listar. |
+| GET | `/api/v1/external-visits/:id` | Uno. |
+| POST | `/api/v1/external-visits` | Crear. |
+| PUT | `/api/v1/external-visits/:id` | Actualizar. |
+| DELETE | `/api/v1/external-visits/:id` | Eliminar. |
 
 ---
 
@@ -206,7 +206,7 @@ Documentación alineada al enrutado en [`index.php`](index.php). Base URL: **`/a
 
 ## Access QR (ingreso por JWT / lectura en portería)
 
-Autenticación con token. **Generar:** **USUARIO** o **ADMIN** / **ADMINISTRADOR** con `person_id` en el token (residente o admin vinculado a una persona), y permisos Mi casa sobre la persona o el vehículo; **OPERARIO** y **GUARDIA** no generan QR de hogar. **Validar / escanear:** solo **staff** (`ADMIN`, `ADMINISTRADOR`, `OPERARIO`, `GUARDIA`).
+Autenticación con token. **Generar:** **USUARIO** o **ADMINISTRADOR** con `person_id` en el token (residente o administrador vinculado a una persona), y permisos Mi casa sobre la persona o el vehículo; **OPERARIO** no genera QR de hogar. **Validar / escanear:** solo **staff** (`ADMINISTRADOR`, `OPERARIO`).
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|

@@ -168,7 +168,19 @@ class UserController extends Controller {
             $this->db->prepare("INSERT INTO persons ($cols) VALUES ($ph)")->execute(array_values($pData));
             $personId = (int) $this->db->lastInsertId();
         }
-        
+
+        $stmtPt = $this->db->prepare('SELECT person_type FROM persons WHERE id = ? LIMIT 1');
+        $stmtPt->execute([$personId]);
+        $rowPt = $stmtPt->fetch(\PDO::FETCH_ASSOC);
+        if ($rowPt && strtoupper(trim((string) ($rowPt['person_type'] ?? ''))) === 'INVITADO') {
+            Response::error(
+                'No se puede crear usuario para una persona INVITADO. Cambie primero el tipo a PROPIETARIO, RESIDENTE o INQUILINO.',
+                400
+            );
+
+            return;
+        }
+
         $uData = ['person_id' => $personId];
         foreach ($userAllowed as $f) {
             if (isset($data[$f])) $uData[$f] = $data[$f];
@@ -176,8 +188,19 @@ class UserController extends Controller {
         if (isset($uData['password_system']) && $uData['password_system'] !== '') {
             $uData['password_system'] = password_hash($uData['password_system'], PASSWORD_DEFAULT);
         }
-        if (empty($uData['role_system'])) $uData['role_system'] = 'RESIDENTE';
-        if (empty($uData['username_system'])) $uData['username_system'] = trim($data['doc_number']);
+        if (empty($uData['role_system'])) {
+            $uData['role_system'] = 'USUARIO';
+        }
+        $roleCheck = strtoupper(trim((string) $uData['role_system']));
+        if (!in_array($roleCheck, ['USUARIO', 'OPERARIO', 'ADMINISTRADOR'], true)) {
+            Response::error('Rol no válido. Use USUARIO, OPERARIO o ADMINISTRADOR.', 400);
+
+            return;
+        }
+        $uData['role_system'] = $roleCheck;
+        if (empty($uData['username_system'])) {
+            $uData['username_system'] = trim($data['doc_number']);
+        }
         if ($this->exists('username_system', $uData['username_system'])) {
             Response::error('El nombre de usuario ya existe', 409);
         }
@@ -312,11 +335,28 @@ class UserController extends Controller {
                 Response::error("Campo requerido: $f", 400);
             }
         }
+        $roleNorm = strtoupper(trim((string) $data['role_system']));
+        $allowedRoles = ['USUARIO', 'OPERARIO', 'ADMINISTRADOR'];
+        if (!in_array($roleNorm, $allowedRoles, true)) {
+            Response::error('Rol no válido. Use USUARIO, OPERARIO o ADMINISTRADOR.', 400);
+
+            return;
+        }
+        $data['role_system'] = $roleNorm;
         $stmt = $this->db->prepare('SELECT * FROM persons WHERE id = ? LIMIT 1');
         $stmt->execute([$personId]);
         $personRow = $stmt->fetch(\PDO::FETCH_ASSOC);
         if (!$personRow) {
             Response::error('Persona no encontrada', 404);
+        }
+        $personTypeUpper = strtoupper(trim((string) ($personRow['person_type'] ?? '')));
+        if ($personTypeUpper === 'INVITADO') {
+            Response::error(
+                'No se puede dar acceso al sistema a una persona con categoría INVITADO. Cambie primero el tipo a PROPIETARIO, RESIDENTE o INQUILINO.',
+                400
+            );
+
+            return;
         }
         if (!isStaffRole($auth)) {
             if (strtoupper(trim($auth['role_system'] ?? '')) !== 'USUARIO') {

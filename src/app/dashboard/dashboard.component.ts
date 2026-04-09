@@ -880,7 +880,7 @@ export class DashboardComponent implements OnInit {
       return true;
     }
     const pc = String(r?.person_category ?? '').toUpperCase();
-    return pc === 'VISITA' || pc === 'VISITA_TEMPORAL' || pc === 'VISITA_EXTERNA';
+    return pc === 'INVITADO' || pc === 'VISITA_TEMPORAL' || pc === 'VISITA_EXTERNA';
   }
 
   private buildDistributionFromRows(ingreso: any[]): void {
@@ -905,7 +905,7 @@ export class DashboardComponent implements OnInit {
         inquilinos++;
         continue;
       }
-      if (pc === 'VISITA' || pc === 'VISITA_TEMPORAL') {
+      if (pc === 'INVITADO' || pc === 'VISITA_TEMPORAL') {
         visitas++;
         continue;
       }
@@ -1113,7 +1113,7 @@ export class DashboardComponent implements OnInit {
 
       this.userService.getUserById(Number(this.auth.getTokenItem('user_id'))).subscribe((user: User) => {
         this.actualUser = user;
-        this.isAdmin = (this.actualUser?.role_system || '').toUpperCase() === 'ADMINISTRADOR' || (this.actualUser?.role_system || '').toUpperCase() === 'ADMIN';
+        this.isAdmin = (this.actualUser?.role_system || '').toUpperCase() === 'ADMINISTRADOR';
         this.entranceService.getAllAccessPoints().subscribe((campList: AccessPoint[]) => {
           if (campList && campList.length) {
             this.accessPoints = campList;

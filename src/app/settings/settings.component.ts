@@ -52,13 +52,13 @@ export class SettingsComponent implements OnInit {
   ngOnInit() {
     this.auth.user$.subscribe((u) => {
       this.user = u || null;
-      this.isAdmin = !!(this.user?.role_system === 'ADMINISTRADOR' || this.user?.role_system === 'ADMIN');
+      this.isAdmin = this.user?.role_system === 'ADMINISTRADOR';
       this.fillPersonForm();
     });
     const stored = this.auth.getUser();
     if (stored) {
       this.user = stored;
-      this.isAdmin = !!(this.user?.role_system === 'ADMINISTRADOR' || this.user?.role_system === 'ADMIN');
+      this.isAdmin = this.user?.role_system === 'ADMINISTRADOR';
       this.fillPersonForm();
     }
   }

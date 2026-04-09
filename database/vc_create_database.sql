@@ -118,7 +118,7 @@ CREATE TABLE `persons` (
     `status_validated` ENUM('PERMITIDO', 'OBSERVADO', 'DENEGADO') DEFAULT 'PERMITIDO',
     `status_reason` VARCHAR(255) DEFAULT NULL,
     `status_system` VARCHAR(50) DEFAULT NULL,
-    `person_type` VARCHAR(50) DEFAULT NULL COMMENT 'PROPIETARIO, RESIDENTE, VISITA, etc.',
+    `person_type` VARCHAR(50) DEFAULT NULL COMMENT 'PROPIETARIO, RESIDENTE, INQUILINO, INVITADO (sin login)',
     `house_id` INT UNSIGNED DEFAULT NULL,
     `photo_url` VARCHAR(255) DEFAULT NULL,
     `origin_list` VARCHAR(255) DEFAULT NULL,
@@ -185,7 +185,7 @@ CREATE TABLE `vehicles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Vehículos registrados';
 
 -- -----------------------------------------------------------------------------
--- 6. VISITAS TEMPORALES (temporary_visits)
+-- 6. VISITAS EXTERNAS / TEMPORALES (temporary_visits: vehículo o persona)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `temporary_visits` (
     `temp_visit_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,

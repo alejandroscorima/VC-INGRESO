@@ -388,12 +388,12 @@ if (str_starts_with($uri, '/api/v1/')) {
         }
     }
     
-    // ==================== EXTERNAL VEHICLES ====================
-    if (str_starts_with($path, 'external-vehicles')) {
+    // ==================== EXTERNAL VISITS (temporary_visits) ====================
+    if (str_starts_with($path, 'external-visits')) {
         require_once __DIR__ . '/controllers/ExternalVehicleController.php';
         $controller = new \Controllers\ExternalVehicleController();
         
-        if (preg_match('#^external-vehicles(?:/(\d+))?#', $path, $matches)) {
+        if (preg_match('#^external-visits(?:/(\d+))?#', $path, $matches)) {
             $id = $matches[1] ?? null;
             
             switch ($method) {
@@ -668,11 +668,11 @@ echo json_encode([
             'PUT /api/v1/persons/:id/validate' => 'Cambiar estado validación',
             
             // External Vehicles
-            'GET /api/v1/external-vehicles' => 'Listar vehículos externos',
-            'GET /api/v1/external-vehicles/:id' => 'Obtener vehículo externo',
-            'POST /api/v1/external-vehicles' => 'Crear vehículo externo',
-            'PUT /api/v1/external-vehicles/:id' => 'Actualizar vehículo externo',
-            'DELETE /api/v1/external-vehicles/:id' => 'Eliminar vehículo externo',
+            'GET /api/v1/external-visits' => 'Listar visitas externas',
+            'GET /api/v1/external-visits/:id' => 'Obtener visita externa',
+            'POST /api/v1/external-visits' => 'Crear visita externa',
+            'PUT /api/v1/external-visits/:id' => 'Actualizar visita externa',
+            'DELETE /api/v1/external-visits/:id' => 'Eliminar visita externa',
             
             // Pets (Mascotas)
             'GET /api/v1/pets' => 'Listar todas las mascotas',

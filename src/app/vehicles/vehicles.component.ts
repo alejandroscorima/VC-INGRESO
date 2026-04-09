@@ -73,7 +73,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   get showStaffExternalVehiclesTab(): boolean {
     const r = (this.auth.getUser()?.role_system ?? '').toString().trim().toUpperCase();
 
-    return ['ADMINISTRADOR', 'ADMIN', 'OPERARIO'].includes(r);
+    return ['ADMINISTRADOR', 'OPERARIO'].includes(r);
   }
 
   ngOnInit(): void {
@@ -357,12 +357,12 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
           this.handleSuccess();
         } else {
           console.log(resUpdateExternalVehicle.message);
-          this.toastr.error('Error al actualizar el vehículo externo');
+          this.toastr.error('Error al actualizar la visita externa');
         }
       },
       error: (err) => {
         console.error(err);
-        this.toastr.error('Error al actualizar el vehículo externo');
+        this.toastr.error('Error al actualizar la visita externa');
       },
     });
   }
@@ -389,12 +389,12 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
           this.handleSuccess();
         } else {
           console.log(res.message);
-          this.toastr.error('Error al guardar el vehículo externo');
+          this.toastr.error('Error al guardar la visita externa');
         }
       },
       error: (err) => {
         console.error(err);
-        this.toastr.error('Error al guardar el vehículo externo');
+        this.toastr.error('Error al guardar la visita externa');
       },
     });
   }
