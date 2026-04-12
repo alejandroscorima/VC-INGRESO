@@ -32,6 +32,10 @@ class VehicleController extends Controller {
             Response::success($vehicles, 'Vehículos obtenidos correctamente');
             return;
         }
+        if (!isStaffRole($auth)) {
+            Response::error('Sin permiso', 403);
+            return;
+        }
         $vehicles = $this->getAll([], 'vehicle_id DESC');
         Response::success($vehicles, 'Vehículos obtenidos correctamente');
     }
@@ -96,6 +100,10 @@ class VehicleController extends Controller {
      */
     public function store($params = []) {
         $auth = requireAuth();
+        if (isOperarioPorteriaSinVecindad($this->db, $auth)) {
+            Response::error('Sin permiso para registrar vehículos (solo lectura)', 403);
+            return;
+        }
         $data = $this->getInput();
         
         $required = ['license_plate', 'house_id'];
@@ -169,6 +177,10 @@ class VehicleController extends Controller {
      */
     public function updateVehicle($params = []) {
         $auth = requireAuth();
+        if (isOperarioPorteriaSinVecindad($this->db, $auth)) {
+            Response::error('Sin permiso para editar vehículos (solo lectura)', 403);
+            return;
+        }
         $vehicleId = $params['id'] ?? null;
         
         if (!$vehicleId) {
@@ -234,6 +246,10 @@ class VehicleController extends Controller {
      */
     public function destroy($params = []) {
         $auth = requireAuth();
+        if (isOperarioPorteriaSinVecindad($this->db, $auth)) {
+            Response::error('Sin permiso para eliminar vehículos (solo lectura)', 403);
+            return;
+        }
         $vehicleId = $params['id'] ?? null;
         
         if (!$vehicleId) {

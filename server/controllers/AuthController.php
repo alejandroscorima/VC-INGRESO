@@ -9,6 +9,7 @@ namespace Controllers;
 require_once __DIR__ . '/../db_connection.php';
 require_once __DIR__ . '/../token.php';
 require_once __DIR__ . '/../utils/Response.php';
+require_once __DIR__ . '/../helpers/role_policy.php';
 
 use Utils\Response;
 
@@ -75,7 +76,7 @@ class AuthController
                 SELECT h.house_id, h.house_type, h.block_house, h.lot, h.apartment, hm.relation_type, hm.is_primary
                 FROM house_members hm
                 JOIN houses h ON h.house_id = hm.house_id
-                WHERE hm.person_id = ? AND hm.is_active = 1
+                WHERE hm.person_id = ? AND COALESCE(hm.is_active, 1) = 1
                 ORDER BY hm.is_primary DESC, hm.id
             ");
             $stmtHouses->execute([$user->person_id]);
@@ -110,14 +111,28 @@ class AuthController
             $user->lot = $primaryHouse->lot ?? null;
             $user->apartment = $primaryHouse->apartment ?? null;
             $user->house_id = (int)$primaryHouse->house_id;
-        } elseif (!empty($person->house_id)) {
+        } elseif ($person && !empty($person->house_id)) {
             $user->house_id = (int)$person->house_id;
+        }
+
+        $loginPersonType = null;
+        if ($person) {
+            $loginPersonType = rpNormalizePersonType($person->person_type ?? null);
+        } elseif (!empty($user->person_id)) {
+            Response::error('Datos de persona inconsistentes', 500);
+            return;
+        }
+        $pairErr = rpValidateLoginRolePerson((string) ($user->role_system ?? ''), $loginPersonType);
+        if ($pairErr !== null) {
+            Response::error($pairErr, 403);
+            return;
         }
 
         $tokenPayload = [
             'user_id' => $user->user_id,
             'role_system' => $user->role_system,
             'house_id' => !empty($user->house_id) ? (int)$user->house_id : null,
+            'person_type' => $loginPersonType,
         ];
         if (!empty($user->person_id)) {
             $tokenPayload['person_id'] = (int) $user->person_id;

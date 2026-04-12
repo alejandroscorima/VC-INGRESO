@@ -3,6 +3,7 @@ import { House } from '../house';
 import { EntranceService } from '../entrance.service';
 import { initFlowbite } from 'flowbite';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-houses',
@@ -26,7 +27,13 @@ export class HousesComponent implements OnInit, AfterViewInit{
   constructor(
     private entranceService: EntranceService,
     private toastr: ToastrService,
-  ){}
+    private auth: AuthService,
+  ) {}
+
+  /** Gestión global: solo administrador crea/edita. Operario: solo lectura. */
+  get canManageHousesCrud(): boolean {
+    return this.auth.isAdministratorRole();
+  }
 
   ngOnInit(){
 

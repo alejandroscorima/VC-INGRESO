@@ -37,6 +37,10 @@ class ReservationController
     public function index()
     {
         $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $params = Router::getParams();
         $where = [];
@@ -129,6 +133,10 @@ class ReservationController
     public function show($id)
     {
         $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $stmt = $this->pdo->prepare("
             SELECT r.*, ap.name as area_name, ap.type as area_type 
@@ -159,6 +167,10 @@ class ReservationController
     public function store()
     {
         $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -248,6 +260,10 @@ class ReservationController
     public function update($id)
     {
         $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -351,6 +367,10 @@ class ReservationController
     public function updateStatus($id)
     {
         $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);
@@ -429,6 +449,10 @@ class ReservationController
     public function destroy($id)
     {
         $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         if (!isAdminRole($auth)) {
             Response::json(['success' => false, 'error' => 'Solo un administrador puede eliminar reservaciones'], 403);
@@ -458,7 +482,11 @@ class ReservationController
      */
     public function areas()
     {
-        requireAuth();
+        $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $stmt = $this->pdo->query("
             SELECT * FROM {$this->accessPointsTable}
@@ -476,7 +504,11 @@ class ReservationController
      */
     public function availability()
     {
-        requireAuth();
+        $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
 
         $accessPointId = $_GET['access_point_id'] ?? null;
         $date = $_GET['date'] ?? null;
@@ -554,15 +586,11 @@ class ReservationController
     }
 
     /**
-     * Listado: administradores ven todo; OPERARIO ven todo; vecinos solo reservas de sus casas.
+     * Listado: administradores ven todo; vecinos y OPERARIO con casa solo reservas de sus casas.
      */
     private function applyIndexRoleScope(array &$where, array &$values, array $auth): void
     {
         if (isAdminRole($auth)) {
-            return;
-        }
-        $role = strtoupper(trim($auth['role_system'] ?? ''));
-        if ($role === 'OPERARIO') {
             return;
         }
 
@@ -580,15 +608,11 @@ class ReservationController
     }
 
     /**
-     * Ver detalle: misma regla que applyIndexRoleScope (admin/staff global; vecino por casa).
+     * Ver detalle: administrador global; resto solo si la reserva es de una casa a la que tiene acceso.
      */
     private function canViewReservation(array $auth, array $reservation): bool
     {
         if (isAdminRole($auth)) {
-            return true;
-        }
-        $role = strtoupper(trim($auth['role_system'] ?? ''));
-        if ($role === 'OPERARIO') {
             return true;
         }
         $hid = (int) ($reservation['house_id'] ?? 0);

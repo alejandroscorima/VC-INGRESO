@@ -143,23 +143,39 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Usuario con `role_system` USUARIO y persona INQUILINO: no gestiona la pestaña Residentes
-   * (propietarios y residentes) para no exponer edición sobre datos del domicilio.
+   * Persona INQUILINO (USUARIO u OPERARIO con casa): sin pestaña Residentes; gestión acotada.
    */
   get isTenantRestrictedInMyHouse(): boolean {
-    const role = (this.userOnSes.role_system ?? '').toString().trim().toUpperCase();
-    if (role !== 'USUARIO') {
-      return false;
-    }
     const cat = this.normalizeCategory(
       (this.userOnSes as any).property_category || (this.userOnSes as any).person_type || ''
     );
     return cat === 'INQUILINO';
   }
 
+  /** Solicitante RESIDENTE: no crea/edita PROPIETARIO (sí lista y QR según reglas). */
+  get isResidentOnlyMyHouse(): boolean {
+    return (
+      this.normalizeCategory(
+        (this.userOnSes as any).property_category || (this.userOnSes as any).person_type || ''
+      ) === 'RESIDENTE'
+    );
+  }
+
+  /** En pestaña Residentes: ocultar editar si el residente no puede modificar esa fila. */
+  canEditResidentRow(row: any): boolean {
+    if (this.isTenantRestrictedInMyHouse) {
+      return false;
+    }
+    const cat = this.normalizeCategory(row?.property_category || row?.person_type || row?.relation_type);
+    if (this.isResidentOnlyMyHouse && cat === 'PROPIETARIO') {
+      return false;
+    }
+    return true;
+  }
+
   private assertCanManageResidents(): boolean {
     if (this.isTenantRestrictedInMyHouse) {
-      this.toastr.warning('No tienes permiso para gestionar propietarios ni residentes.');
+      this.toastr.warning('Como inquilino no puedes gestionar la pestaña Residentes.');
       return false;
     }
     return true;
@@ -610,7 +626,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     }
     this.userToAdd = User.empty();
     this.enableSystemAccessNew = false;
-    this.currentCategoryOptions = [...this.residentCategories];
+    this.currentCategoryOptions = this.isResidentOnlyMyHouse ? ['RESIDENTE'] : [...this.residentCategories];
     this.userToAdd.property_category = 'RESIDENTE';
     this.userToAdd.role_system = 'USUARIO';
     this.userToAdd.house_id = this.userOnSes.house_id ?? 0;
@@ -637,12 +653,19 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       this.toastr.warning('No tienes permiso para editar datos de propietarios o residentes.');
       return;
     }
+    if (this.isResidentOnlyMyHouse && catEdit === 'PROPIETARIO') {
+      this.toastr.warning('Como residente no puedes editar datos de propietarios.');
+      return;
+    }
     this.userToEdit = { ...user } as User;
     this.userToEdit.house_id = this.userOnSes.house_id ?? this.userToEdit.house_id;
     this.enableSystemAccessEdit = this.hasSystemAccess(this.userToEdit);
-    this.currentCategoryOptions = ((this.userToEdit.property_category || '').toUpperCase() === 'INQUILINO')
-      ? [...this.tenantCategories]
-      : [...this.residentCategories];
+    this.currentCategoryOptions =
+      ((this.userToEdit.property_category || '').toUpperCase() === 'INQUILINO')
+        ? [...this.tenantCategories]
+        : this.isResidentOnlyMyHouse
+          ? ['RESIDENTE']
+          : [...this.residentCategories];
     this.userToEdit.force_password_change = Number((this.userToEdit as any).force_password_change || 0);
     const g = (this.userToEdit.gender || '').toString().toUpperCase();
     this.userToEdit.gender = (g === 'FEMENINO' || g === 'F') ? 'F' : (g === 'MASCULINO' || g === 'M') ? 'M' : g || '';

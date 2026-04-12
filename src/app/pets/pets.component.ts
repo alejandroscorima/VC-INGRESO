@@ -8,6 +8,7 @@ import { UsersService } from '../users.service';
 import { User } from '../user';
 import { EntranceService } from '../entrance.service';
 import { House } from '../house';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-pets',
@@ -39,8 +40,13 @@ export class PetsComponent implements OnInit, AfterViewInit {
     private petsService: PetsService,
     private usersService: UsersService,
     private entranceService: EntranceService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private auth: AuthService
   ) {}
+
+  get canManagePetsCrud(): boolean {
+    return this.auth.isAdministratorRole();
+  }
 
   ngOnInit(): void {
     this.loadPets();

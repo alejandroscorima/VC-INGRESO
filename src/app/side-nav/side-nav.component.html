@@ -61,7 +61,7 @@
             <span>Mi casa</span>
           </a>
         </li>
-        <li>
+        <li *ngIf="showReservationsNav()">
           <a routerLink="/reservations" routerLinkActive="nav-item-active"
             class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
             <mat-icon class="nav-item-icon">event</mat-icon>
@@ -73,7 +73,7 @@
       <div class="my-4 border-t border-gray-200 dark:border-gray-700"></div>
 
       <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Gestión</p>
-      <ul class="space-y-0.5" *ngIf="user?.role_system === 'ADMINISTRADOR'">
+      <ul class="space-y-0.5" *ngIf="showGestionNav()">
         <li>
           <a routerLink="/users" routerLinkActive="nav-item-active"
             class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">
@@ -102,6 +102,8 @@
             <span>Mascotas</span>
           </a>
         </li>
+      </ul>
+      <ul class="space-y-0.5" *ngIf="showAccessPointsNav()">
         <li>
           <a routerLink="/access-points" routerLinkActive="nav-item-active"
             class="nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 hover:bg-gray-100">

@@ -70,8 +70,9 @@ export class ReservationsComponent implements OnInit {
     return this.auth.isAdministratorRole();
   }
 
+  /** Vista vecino (USUARIO u OPERARIO con vínculo de hogar), no staff sin casa. */
   get isNeighbor(): boolean {
-    return this.auth.isNeighbor();
+    return this.auth.isReservationsNeighborUi();
   }
 
   /** Residente con casa en sesión: puede enviar solicitudes. */
@@ -79,11 +80,7 @@ export class ReservationsComponent implements OnInit {
     if (this.isAdmin) {
       return true;
     }
-    if (!this.isNeighbor) {
-      return false;
-    }
-    const u = this.auth.getUser();
-    return Number((u as { house_id?: number })?.house_id ?? 0) > 0;
+    return this.auth.isReservationsNeighborUi();
   }
 
   get monthTitle(): string {

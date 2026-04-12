@@ -5,7 +5,7 @@ import { environment } from '../environments/environment';
 import { tap, map } from 'rxjs/operators';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { User } from './user';
-import { isNeighborRoleSystemValue, isStaffRoleSystemValue } from './system-roles';
+import { isResidentPersonType, isValidRolePersonPair, normalizePersonType } from './system-roles';
 
 const STORAGE_KEY = 'auth_user';
 const TOKEN_KEY = 'auth_token';
@@ -41,9 +41,17 @@ export class AuthService {
         throw new Error(res?.error || 'Credenciales inválidas');
       }),
       tap((res) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(res.user));
+        const u = res.user as User & { house_id?: number };
+        const myHouses = (res as { my_houses?: Array<{ house_id?: number }> }).my_houses;
+        let stored: User = u;
+        const hid = Number(u.house_id ?? 0);
+        if (hid <= 0 && Array.isArray(myHouses) && myHouses.length > 0 && myHouses[0]?.house_id) {
+          stored = { ...(u as object), house_id: Number(myHouses[0].house_id) } as User;
+        }
+        (res as { user: User }).user = stored;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
         localStorage.setItem(TOKEN_KEY, res.token);
-        this.userSubject.next(res.user);
+        this.userSubject.next(stored);
       })
     ).pipe(map((res) => res.user));
   }
@@ -94,6 +102,38 @@ export class AuthService {
     return String(this.getUser()?.role_system ?? '').toUpperCase() === 'USUARIO';
   }
 
+  /**
+   * Contexto de hogar en sesión, alineado con `authHasNeighborHouseContext` (PHP):
+   * `house_id` en usuario o persona vecina con tipo PROPIETARIO/RESIDENTE/INQUILINO
+   * (la API valida membresía real).
+   */
+  hasNeighborHouseContextInSession(): boolean {
+    const u = this.getUser() as { house_id?: number } | null;
+    if (Number(u?.house_id ?? 0) > 0) {
+      return true;
+    }
+    return this.hasLinkedPerson() && isResidentPersonType(this.personTypeUpper());
+  }
+
+  /**
+   * Vista “vecino” en reservaciones: USUARIO u OPERARIO con tipo de hogar y contexto de casa
+   * (no la vista staff global de administrador).
+   */
+  isReservationsNeighborUi(): boolean {
+    const u = this.getUser();
+    if (!u || this.isAdministratorRole()) {
+      return false;
+    }
+    const role = String(u.role_system ?? '').toUpperCase();
+    if (role !== 'USUARIO' && role !== 'OPERARIO') {
+      return false;
+    }
+    if (!isResidentPersonType(this.personTypeUpper())) {
+      return false;
+    }
+    return this.hasNeighborHouseContextInSession();
+  }
+
   /** persons.id en JWT / usuario en sesión (login fusiona user + person). */
   hasLinkedPerson(): boolean {
     const u = this.getUser() as { person_id?: number } | null;
@@ -106,18 +146,64 @@ export class AuthService {
     return r === 'ADMINISTRADOR';
   }
 
-  /**
-   * Generar QR de ingreso propio o de Mi casa: USUARIO o admin con persona vinculada.
-   * OPERARIO no (solo escanea).
-   */
-  canGenerateHouseAccessQr(): boolean {
-    if (!this.hasLinkedPerson()) {
+  /** persons.person_type (o property_category del login). */
+  personTypeUpper(): string | null {
+    const u = this.getUser() as { person_type?: string; property_category?: string } | null;
+    return normalizePersonType(u?.person_type ?? u?.property_category ?? null);
+  }
+
+  /** Combinación JWT / sesión permitida (bloquea p. ej. ADMINISTRADOR + INQUILINO). */
+  isSessionRolePersonValid(): boolean {
+    const u = this.getUser();
+    if (!u) {
       return false;
     }
-    if (this.isNeighbor()) {
+    return isValidRolePersonPair(u.role_system, this.personTypeUpper());
+  }
+
+  /**
+   * Generar "Mi código QR": persona vinculada, combinación válida y casa asociada.
+   * ADMIN/OPERARIO + sin tipo/casa no aplican.
+   */
+  canGenerateHouseAccessQr(): boolean {
+    if (!this.hasLinkedPerson() || !this.isSessionRolePersonValid()) {
+      return false;
+    }
+    if (!this.hasNeighborHouseContextInSession()) {
+      return false;
+    }
+    const role = String(this.getUser()?.role_system ?? '').toUpperCase();
+    const pt = this.personTypeUpper();
+    if (role === 'USUARIO') {
+      return pt === 'PROPIETARIO' || pt === 'RESIDENTE' || pt === 'INQUILINO';
+    }
+    if (role === 'ADMINISTRADOR') {
+      return pt === 'PROPIETARIO' || pt === 'RESIDENTE';
+    }
+    if (role === 'OPERARIO') {
+      return pt === 'PROPIETARIO' || pt === 'RESIDENTE' || pt === 'INQUILINO';
+    }
+    return false;
+  }
+
+  /** Módulo reservaciones (bloquea OPERARIO + NULL). */
+  canAccessReservationsPage(): boolean {
+    const u = this.getUser();
+    if (!u || !this.isSessionRolePersonValid()) {
+      return false;
+    }
+    const role = String(u.role_system ?? '').toUpperCase();
+    const pt = this.personTypeUpper();
+    if (role === 'ADMINISTRADOR') {
       return true;
     }
-    return this.isAdministratorRole();
+    if (role === 'OPERARIO' && pt === null) {
+      return false;
+    }
+    if (role === 'USUARIO' || role === 'OPERARIO') {
+      return isResidentPersonType(pt) && this.hasNeighborHouseContextInSession();
+    }
+    return false;
   }
 
   // ========== Métodos Migrados de CookiesService ==========

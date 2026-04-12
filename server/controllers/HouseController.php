@@ -20,7 +20,7 @@ class HouseController extends Controller {
      */
     public function index($params = []) {
         $auth = requireAuth();
-        if (isAdminRole($auth)) {
+        if (isStaffRole($auth)) {
             $houses = $this->getAll([], 'house_id DESC');
             Response::success($houses, 'Casas obtenidas correctamente');
             return;

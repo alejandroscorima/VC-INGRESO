@@ -31,6 +31,10 @@ export class MyHouseGuard implements CanActivate {
     }
     const pt = (u.property_category || u.person_type || '').trim().toUpperCase();
     const allowedTypes = ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'];
+    if (!this.auth.isSessionRolePersonValid()) {
+      this.toastr.warning('Tu perfil no permite acceder a Mi casa.');
+      return this.router.parseUrl('/');
+    }
     if (!allowedTypes.includes(pt)) {
       this.toastr.warning('Mi casa solo está disponible para propietarios, residentes o inquilinos con acceso al sistema.');
       return this.router.parseUrl('/');

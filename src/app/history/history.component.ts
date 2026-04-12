@@ -6,6 +6,7 @@ import { Item } from '../item';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { EntranceService } from '../entrance.service';
+import { AuthService } from '../auth.service';
 import { todayYmdInAppTimeZone } from '../app-date.util';
 import * as XLSX from 'xlsx';
 
@@ -52,11 +53,15 @@ export class HistoryComponent implements OnInit {
 
   readonly pageSizeOptions = [25, 50, 100, 200];
 
+  /** Columna documento: solo personal (admin/operario), no vecinos USUARIO. */
+  showDocColumn = true;
+
   constructor(
     private accessLogService: AccessLogService,
     private entranceService: EntranceService,
     public dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private auth: AuthService
   ) {}
 
   get filteredRows(): HistoryRow[] {
@@ -172,7 +177,7 @@ export class HistoryComponent implements OnInit {
     }
     const data = rows.map((r) => ({
       TIPO: r['type'],
-      DOCUMENTO: r['doc_number'],
+      ...(this.showDocColumn ? { DOCUMENTO: r['doc_number'] } : {}),
       DATOS: r['name'],
       DOMICILIO: r['house_address'],
       PUNTO_ACCESO: r['access_point_name'],
@@ -249,6 +254,7 @@ export class HistoryComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.showDocColumn = this.auth.isStaff();
     const ymd = todayYmdInAppTimeZone();
     const [y, m, d] = ymd.split('-').map((n) => Number(n));
     const today = new Date(y, m - 1, d);
@@ -288,6 +294,9 @@ export class HistoryComponent implements OnInit {
   }
 
   canOpenDayDetail(row: HistoryRow): boolean {
+    if (!this.showDocColumn) {
+      return false;
+    }
     const doc = String(row?.['doc_number'] ?? '').trim();
     return doc.length > 0 && doc !== '—';
   }

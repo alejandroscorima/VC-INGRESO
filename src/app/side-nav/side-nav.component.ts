@@ -127,6 +127,20 @@ export class SideNavComponent extends AppComponent implements OnInit {
     return this.auth.isStaff() || this.auth.canGenerateHouseAccessQr();
   }
 
+  showReservationsNav(): boolean {
+    return this.auth.canAccessReservationsPage();
+  }
+
+  /** Listados de gestión (admin u operario con combinación válida en sesión). */
+  showGestionNav(): boolean {
+    const r = String(this.user?.role_system ?? '').toUpperCase();
+    return (r === 'ADMINISTRADOR' || r === 'OPERARIO') && this.auth.isSessionRolePersonValid();
+  }
+
+  showAccessPointsNav(): boolean {
+    return this.auth.isAdministratorRole() && this.auth.isSessionRolePersonValid();
+  }
+
   private removeMobileDrawerBackdrops(): void {
     // Limpia backdrops residuales del drawer móvil que pueden bloquear clics.
     const backdropSelectors = [

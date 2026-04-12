@@ -46,6 +46,11 @@ class UserController extends Controller {
         foreach ($users as $u) {
             unset($u->password_system);
         }
+        if (strtoupper(trim($auth['role_system'] ?? '')) === 'OPERARIO') {
+            foreach ($users as $u) {
+                unset($u->type_doc, $u->doc_number);
+            }
+        }
         Response::success($users, 'Usuarios obtenidos correctamente');
     }
     
@@ -114,7 +119,10 @@ class UserController extends Controller {
             // Asegurar que el usuario devuelto tenga la casa principal correcta
             $user->house_id = (int) $houseId;
         }
-        
+        if (strtoupper(trim($auth['role_system'] ?? '')) === 'OPERARIO') {
+            unset($user->type_doc, $user->doc_number);
+        }
+
         Response::success($user);
     }
     
@@ -124,8 +132,8 @@ class UserController extends Controller {
      */
     public function store($params = []) {
         $auth = requireAuth();
-        if (!isStaffRole($auth)) {
-            Response::error('Sin permiso', 403);
+        if (!isAdminRole($auth)) {
+            Response::error('Solo administradores pueden crear usuarios', 403);
             return;
         }
         $data = $this->getInput();
@@ -201,6 +209,15 @@ class UserController extends Controller {
         if (empty($uData['username_system'])) {
             $uData['username_system'] = trim($data['doc_number']);
         }
+        $stmtPair = $this->db->prepare('SELECT UPPER(TRIM(COALESCE(person_type,\'\'))) AS pt FROM persons WHERE id = ? LIMIT 1');
+        $stmtPair->execute([$personId]);
+        $rowPair = $stmtPair->fetch(\PDO::FETCH_ASSOC);
+        $pairPt = rpNormalizePersonType($rowPair['pt'] ?? null);
+        if (!isValidRolePersonPair((string) $uData['role_system'], $pairPt)) {
+            Response::error('Combinación de rol de sistema y tipo de persona no permitida', 400);
+
+            return;
+        }
         if ($this->exists('username_system', $uData['username_system'])) {
             Response::error('El nombre de usuario ya existe', 409);
         }
@@ -236,7 +253,11 @@ class UserController extends Controller {
             Response::error('Usuario no encontrado', 404);
             return;
         }
-        
+        if (strtoupper(trim($auth['role_system'] ?? '')) === 'OPERARIO') {
+            Response::error('Sin permiso para modificar usuarios', 403);
+            return;
+        }
+
         $data = $this->getInput();
         if (empty($data)) {
             Response::error('No hay datos para actualizar', 400);
@@ -355,6 +376,12 @@ class UserController extends Controller {
                 'No se puede dar acceso al sistema a una persona con categoría INVITADO. Cambie primero el tipo a PROPIETARIO, RESIDENTE o INQUILINO.',
                 400
             );
+
+            return;
+        }
+        $pairPt = rpNormalizePersonType($personRow['person_type'] ?? null);
+        if (!isValidRolePersonPair($roleNorm, $pairPt)) {
+            Response::error('Combinación de rol de sistema y tipo de persona no permitida', 400);
 
             return;
         }

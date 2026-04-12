@@ -76,6 +76,11 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     return ['ADMINISTRADOR', 'OPERARIO'].includes(r);
   }
 
+  /** Alta/edición en gestión: solo administrador. */
+  get canManageVehiclesCrud(): boolean {
+    return this.auth.isAdministratorRole();
+  }
+
   ngOnInit(): void {
     this.entranceService.getAllVehicles().subscribe({
       next: (res: any) => {

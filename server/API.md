@@ -11,6 +11,56 @@ Documentación alineada al enrutado en [`index.php`](index.php). Base URL: **`/a
 
 ---
 
+## Política de roles (`role_system` × `person_type`)
+
+Las reglas de negocio se aplican en PHP (`server/helpers/role_policy.php`, `house_permissions.php`, controladores) y en el front (guards, `AuthService`). Esta sección resume el **contrato funcional**; el detalle de pantallas está en [`../README.md`](../README.md) (matriz completa).
+
+### Valores
+
+- **`role_system`:** `ADMINISTRADOR`, `OPERARIO`, `USUARIO`.
+- **`person_type`** (persona vinculada al usuario): `PROPIETARIO`, `RESIDENTE`, `INQUILINO`, `INVITADO`, `NULL`.
+
+`INVITADO` es tipo de persona en padrón **sin fila en `users`** (no inicia sesión). `NULL` = sin tipo en BD (p. ej. portería sin ficha vecinal).
+
+### Combinaciones válidas en login y negocio
+
+Solo tres familias; **todo lo demás se rechaza** (no es caso de uso):
+
+| | role_system | person_type permitidos |
+|---|----------------|-------------------------|
+| **1 + 2** | `ADMINISTRADOR` | `PROPIETARIO`, `RESIDENTE`, `NULL` |
+| **3 + 4** | `OPERARIO` | `PROPIETARIO`, `RESIDENTE`, `INQUILINO`, `NULL` |
+| **5 + 6** | `USUARIO` | `PROPIETARIO`, `RESIDENTE`, `INQUILINO` |
+
+**Restricciones transversales**
+
+- **ADMINISTRADOR + INQUILINO:** no permitido.
+- **OPERARIO + NULL** y **ADMINISTRADOR + NULL:** sin contexto vecinal — no generan **QR de hogar** ni entran a **Mi casa**; sí pueden usar endpoints de **staff** (escáner, listados globales donde la política lo indique).
+- Listados **staff** (historial, cumpleaños, usuarios, viviendas, vehículos, mascotas): suelen exigir `isStaffRole` en el token; el alcance (global vs casa) depende del controlador.
+
+### Resumen por ámbito (API / producto)
+
+| Ámbito | Notas para implementadores |
+|--------|----------------------------|
+| **Escáner / manual doc-placa** | Staff: `ADMINISTRADOR` (person: PROP/RES/NULL), `OPERARIO` (PROP/RES/INQ/NULL). |
+| **Generar QR de ingreso (hogar)** | Requiere `person_id` y casa asociada. **ADMIN/OPERARIO/USUARIO** con **PROPIETARIO/RESIDENTE**; **USUARIO/OPERARIO** con **INQUILINO**. No aplica a **ADMIN/OPER + NULL**. |
+| **Dashboard** | Staff: admin + operario (combinaciones arriba). Vecino: solo `USUARIO` + PROP/RES/INQ con casa. |
+| **Historial / cumpleaños** | Staff ve global; vecino solo su casa; UI vecino **sin** documento en columnas sensibles. |
+| **Mi casa** | Requiere contexto de hogar; jerarquía PROP > RES > INQ para crear/editar y QR (ver README). |
+| **Reservaciones** | Calendario admin: `ADMINISTRADOR`. Vecino: `USUARIO`/`OPERARIO` + PROP/RES/INQ con casa. **OPERARIO + NULL** excluido de ambos flujos. |
+| **Users / persons** | CRUD cuentas: típicamente solo **ADMINISTRADOR**. Listado `persons?without_user=1`: staff (`isStaffRole`). Operario: lectura sin datos de documento en UI según README. |
+| **Houses** | CRUD: admin. Listado: también operario (lectura). |
+| **Vehicles / pets (módulos gestión)** | Listado global staff: admin y operario. CRUD: admin (operario solo lectura en producto). |
+| **Access points** | Solo **ADMINISTRADOR** + combinación admin válida. |
+| **Configuración** | Todas las combinaciones válidas; permisos finos por pantalla. |
+
+### Documentación ampliada
+
+- Matriz detallada (pestañas Mi casa, reservas, cancelaciones, etc.): [`../README.md`](../README.md).
+- Esquema y flujos BD: [`../plans/REFERENCIA_TECNICA.md`](../plans/REFERENCIA_TECNICA.md).
+
+---
+
 ## Archivos estáticos (no son `/api/v1`)
 
 | Método | Ruta | Descripción |
@@ -206,7 +256,16 @@ Documentación alineada al enrutado en [`index.php`](index.php). Base URL: **`/a
 
 ## Access QR (ingreso por JWT / lectura en portería)
 
-Autenticación con token. **Generar:** **USUARIO** o **ADMINISTRADOR** con `person_id` en el token (residente o administrador vinculado a una persona), y permisos Mi casa sobre la persona o el vehículo; **OPERARIO** no genera QR de hogar. **Validar / escanear:** solo **staff** (`ADMINISTRADOR`, `OPERARIO`).
+Autenticación con token.
+
+- **Validar / escanear / entrada manual (documento o placa):** solo **staff** — `ADMINISTRADOR` o `OPERARIO` (con `person_type` según combinaciones válidas: admin PROP/RES/NULL; operario PROP/RES/INQ/NULL).
+
+- **Generar “Mi código QR” de hogar:** requiere `person_id`, combinación **válida** y **contexto de casa** (`house_id` o membresías en `house_members`, según `canGenerateAccessQr` en `house_permissions.php`). Pueden generar:
+  - **ADMINISTRADOR**, **OPERARIO** o **USUARIO** con **PROPIETARIO** o **RESIDENTE**;
+  - **USUARIO** u **OPERARIO** con **INQUILINO**.
+  - **No** generan QR de hogar: **ADMINISTRADOR + NULL** ni **OPERARIO + NULL** (sin vecindad).
+
+- **INVITADO** no tiene login; no genera QR desde la app.
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|

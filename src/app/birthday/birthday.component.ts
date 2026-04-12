@@ -67,7 +67,7 @@ export class BirthdayComponent implements OnInit {
   month: string;
   year: number;
 
-  /** Si es true, se muestra la columna DNI (solo para rol ADMINISTRADOR). */
+  /** Columna documento: personal de puerta (admin/operario), no vecinos USUARIO. */
   showDocColumn = false;
 
   searchTerm = '';
@@ -157,7 +157,7 @@ export class BirthdayComponent implements OnInit {
 
   ngOnInit() {
     const currentUser = this.auth.getUser();
-    this.showDocColumn = currentUser?.role_system === 'ADMINISTRADOR';
+    this.showDocColumn = this.auth.isStaff();
     this.fecha = new Date();
     this.initializeDateFields();
     this.loadHouses();

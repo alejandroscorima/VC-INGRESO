@@ -7,6 +7,7 @@ import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
 import { isStaffRoleSystemValue } from '../system-roles';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-users',
@@ -61,7 +62,18 @@ export class UsersComponent implements OnInit, AfterViewInit{
     private usersService: UsersService,
     private entranceService: EntranceService,
     private toastr: ToastrService,
-  ){}
+    private auth: AuthService,
+  ) {}
+
+  /** Crear/editar usuarios y personas (solo administrador; operario solo lectura). */
+  get canManageUsers(): boolean {
+    return this.auth.isAdministratorRole();
+  }
+
+  /** Operario u otro staff sin rol administrador (listados de gestión en solo lectura). */
+  get isStaffReadOnlyUsers(): boolean {
+    return this.auth.isStaff() && !this.auth.isAdministratorRole();
+  }
 
   ngOnInit(){
     this.usersService.getAllUsers().subscribe((res: any) => {

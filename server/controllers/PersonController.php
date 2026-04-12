@@ -29,13 +29,13 @@ class PersonController extends Controller {
 
     /**
      * Listar personas. USUARIO: solo vínculos a sus casas. Admin/operario: listado completo.
-     * Query: without_user=1 → solo sin usuario (solo administración).
+     * Query: without_user=1 → solo sin usuario (staff: consulta; alta/edición sigue solo administración en UI/API).
      */
     public function index($params = []) {
         $auth = requireAuth();
         $withoutUser = isset($params['without_user']) && ($params['without_user'] === '1' || $params['without_user'] === true);
         if ($withoutUser) {
-            if (!isAdminRole($auth)) {
+            if (!isStaffRole($auth)) {
                 Response::error('Sin permiso', 403);
                 return;
             }
@@ -257,9 +257,10 @@ class PersonController extends Controller {
             $requestedType = 'RESIDENTE';
         }
 
-        if (isStaffRole($auth)) {
-            // Admin / operario: sin restricción de vecino
-        } elseif ($role === 'USUARIO') {
+        $vecinoMiCasa = ($role === 'USUARIO')
+            || ($role === 'OPERARIO' && rpPersonTypeFromAuth($this->db, $auth) !== null);
+
+        if ($vecinoMiCasa) {
             $hid = isset($filtered['house_id']) ? (int) $filtered['house_id'] : 0;
             if ($hid <= 0) {
                 Response::error('Debe indicar house_id para registrar la persona', 400);
@@ -269,11 +270,12 @@ class PersonController extends Controller {
                 Response::error('Sin permiso para crear este tipo de persona en esta casa', 403);
                 return;
             }
-            // Vecinos: alta estándar Mi casa (sin privilegios de portería)
             $filtered['person_type'] = $requestedType;
             $filtered['status_validated'] = 'PERMITIDO';
             $filtered['status_system'] = 'ACTIVO';
             unset($filtered['status_reason'], $filtered['origin_list'], $filtered['motivo'], $filtered['sala_list'], $filtered['fecha_list'], $filtered['fecha_registro'], $filtered['sala_registro'], $filtered['condicion']);
+        } elseif (isAdminRole($auth)) {
+            // Solo administrador: altas desde gestión global (no operario de portería).
         } else {
             Response::error('Sin permiso para crear personas', 403);
             return;
@@ -314,11 +316,29 @@ class PersonController extends Controller {
         if (!$person) {
             Response::notFound('Persona no encontrada');
         }
-        if (!isStaffRole($auth) && !canAccessPersonRecord($this->db, $auth, $person)) {
+
+        $role = strtoupper(trim($auth['role_system'] ?? ''));
+        $vecinoMiCasa = ($role === 'USUARIO')
+            || ($role === 'OPERARIO' && rpPersonTypeFromAuth($this->db, $auth) !== null);
+
+        if (!isAdminRole($auth) && !$vecinoMiCasa) {
+            Response::error('Sin permiso para editar personas', 403);
+            return;
+        }
+
+        if (!canAccessPersonRecord($this->db, $auth, $person)) {
             Response::error('Persona no encontrada', 404);
             return;
         }
-        
+
+        if ($vecinoMiCasa) {
+            $hid = resolvePersonHouseIdForPerson($this->db, (int) $id);
+            if ($hid <= 0 || !canNeighborEditPersonInHouse($this->db, $auth, $person, $hid)) {
+                Response::error('Sin permiso para editar esta persona', 403);
+                return;
+            }
+        }
+
         $data = $this->getInput();
         
         // Campos permitidos
@@ -337,7 +357,7 @@ class PersonController extends Controller {
             }
         }
 
-        if (!isStaffRole($auth)) {
+        if ($vecinoMiCasa) {
             foreach (['status_validated', 'status_reason', 'status_system', 'person_type', 'house_id', 'doc_number', 'type_doc'] as $priv) {
                 unset($filtered[$priv]);
             }

@@ -28,8 +28,8 @@ class AccessQrController
     public function generate(): void
     {
         $auth = requireAuth();
-        if (!canGenerateAccessQr($auth)) {
-            Response::error('No autorizado para generar QR (requiere persona vinculada y rol USUARIO o administrador de sistema).', 403);
+        if (!canGenerateAccessQr($this->pdo, $auth)) {
+            Response::error('No autorizado para generar QR de ingreso (persona vinculada, combinación rol/tipo válida y casa asociada).', 403);
             return;
         }
 

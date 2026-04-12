@@ -36,3 +36,27 @@ export function isResidentPersonType(personType: string | null | undefined): boo
   const p = String(personType ?? '').trim().toUpperCase();
   return p === 'PROPIETARIO' || p === 'RESIDENTE' || p === 'INQUILINO';
 }
+
+/** Alineado con `server/helpers/role_policy.php` (NULL = sin tipo en BD). */
+export function normalizePersonType(personType: string | null | undefined): string | null {
+  const p = String(personType ?? '').trim().toUpperCase();
+  if (p === '' || p === 'NULL') {
+    return null;
+  }
+  return p;
+}
+
+export function isValidRolePersonPair(role: string | null | undefined, personType: string | null | undefined): boolean {
+  const r = String(role ?? '').trim().toUpperCase();
+  const pt = normalizePersonType(personType);
+  if (r === 'ADMINISTRADOR') {
+    return pt === null || pt === 'PROPIETARIO' || pt === 'RESIDENTE';
+  }
+  if (r === 'OPERARIO') {
+    return pt === null || pt === 'PROPIETARIO' || pt === 'RESIDENTE' || pt === 'INQUILINO';
+  }
+  if (r === 'USUARIO') {
+    return pt === 'PROPIETARIO' || pt === 'RESIDENTE' || pt === 'INQUILINO';
+  }
+  return false;
+}

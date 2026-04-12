@@ -4,6 +4,46 @@
  * Requiere migraciones 001 (house_members, users.person_id).
  */
 
+require_once __DIR__ . '/role_policy.php';
+
+/**
+ * Usuario con contexto de hogar (JWT house_id o membresías en house_members / persons.house_id).
+ */
+function authHasNeighborHouseContext(\PDO $pdo, array $auth): bool
+{
+    if ((int) ($auth['house_id'] ?? 0) > 0) {
+        return true;
+    }
+
+    return !empty(getAccessibleHouseIds($pdo, $auth));
+}
+
+/**
+ * Módulo reservaciones: admin (vista global); vecino con casa (USUARIO u OPERARIO con vínculo).
+ * OPERARIO sin tipo/casa (NULL sin hogar) no entra.
+ */
+function canAccessReservationsModule(\PDO $pdo, array $auth): bool
+{
+    $role = strtoupper(trim($auth['role_system'] ?? ''));
+    $pt = rpPersonTypeFromAuth($pdo, $auth);
+    if (!isValidRolePersonPair($role, $pt)) {
+        return false;
+    }
+    if ($role === 'ADMINISTRADOR') {
+        return true;
+    }
+    if ($role === 'OPERARIO' && $pt === null) {
+        return false;
+    }
+    if ($role === 'USUARIO' || $role === 'OPERARIO') {
+        return $pt !== null
+            && in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'], true)
+            && authHasNeighborHouseContext($pdo, $auth);
+    }
+
+    return false;
+}
+
 /**
  * Verifica si el usuario autenticado puede operar sobre la casa $houseId.
  * - role_system ADMINISTRADOR: acceso global (sin necesidad de ser miembro).
@@ -104,20 +144,31 @@ function isOperarioOrGuardiaRole(array $auth): bool {
 }
 
 /**
- * Puede generar JWT QR de ingreso: USUARIO o ADMINISTRADOR con person_id vinculada.
- * (Administrador que también es residente del barrio — misma regla que Mi casa.)
+ * Generar "Mi código QR" de ingreso: persona vinculada, combinación válida y contexto de hogar.
+ * ADMINISTRADOR/OPERARIO + NULL (sin casa) no generan QR de hogar.
  */
-function canGenerateAccessQr(array $auth): bool {
+function canGenerateAccessQr(\PDO $pdo, array $auth): bool
+{
     $pid = isset($auth['person_id']) ? (int) $auth['person_id'] : 0;
     if ($pid <= 0) {
         return false;
     }
     $role = strtoupper(trim($auth['role_system'] ?? ''));
+    $pt = rpPersonTypeFromAuth($pdo, $auth);
+    if (!isValidRolePersonPair($role, $pt)) {
+        return false;
+    }
+    if (!authHasNeighborHouseContext($pdo, $auth)) {
+        return false;
+    }
     if ($role === 'USUARIO') {
-        return true;
+        return $pt !== null && in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'], true);
     }
     if ($role === 'ADMINISTRADOR') {
-        return true;
+        return $pt !== null && in_array($pt, ['PROPIETARIO', 'RESIDENTE'], true);
+    }
+    if ($role === 'OPERARIO') {
+        return $pt !== null && in_array($pt, ['PROPIETARIO', 'RESIDENTE', 'INQUILINO'], true);
     }
 
     return false;
@@ -127,10 +178,7 @@ function canGenerateAccessQr(array $auth): bool {
  * Puede generar QR para otra persona en Mi casa (reglas propietario/residente/inquilino).
  */
 function canGenerateQrForPerson(\PDO $pdo, array $auth, int $targetPersonId): bool {
-    if (!canGenerateAccessQr($auth)) {
-        return false;
-    }
-    if (isOperarioOrGuardiaRole($auth)) {
+    if (!canGenerateAccessQr($pdo, $auth)) {
         return false;
     }
     $stmt = $pdo->prepare('SELECT * FROM persons WHERE id = ? LIMIT 1');
@@ -183,10 +231,7 @@ function canGenerateQrForPerson(\PDO $pdo, array $auth, int $targetPersonId): bo
  * Puede generar QR para un vehículo de una casa a la que tiene acceso (vecino).
  */
 function canGenerateQrForVehicle(\PDO $pdo, array $auth, int $vehicleId): bool {
-    if (!canGenerateAccessQr($auth)) {
-        return false;
-    }
-    if (isOperarioOrGuardiaRole($auth)) {
+    if (!canGenerateAccessQr($pdo, $auth)) {
         return false;
     }
     $stmt = $pdo->prepare('SELECT vehicle_id, house_id, license_plate FROM vehicles WHERE vehicle_id = ? LIMIT 1');
@@ -228,6 +273,9 @@ function getFirstPropietarioPersonIdForHouse(\PDO $pdo, int $houseId): ?int {
 /**
  * Usuario de sistema USUARIO cuya persona es INQUILINO (persons.person_type).
  * Usado para restringir Mi casa: solo activos de owner_id = person_id y vehículos categoría INQUILINO.
+ *
+ * OPERARIO con person_type INQUILINO sigue siendo staff en portería: listados globales de vehículos/mascotas
+ * ven todas las casas (solo lectura en UI); no usar esta bandera para OPERARIO.
  */
 function isTenantUser(\PDO $pdo, array $auth): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
@@ -309,9 +357,89 @@ function getRelationTypeForHouse(\PDO $pdo, int $personId, int $houseId): ?strin
  * USUARIO vecino: puede crear esta persona en esta casa según su vínculo (Mi casa).
  * Staff (isStaffRole) no usa esta función; va por otra rama.
  */
+/**
+ * OPERARIO de portería (sin tipo de persona / sin hogar en JWT): solo lectura en pantallas de gestión.
+ */
+function isOperarioPorteriaSinVecindad(\PDO $pdo, array $auth): bool
+{
+    $r = strtoupper(trim($auth['role_system'] ?? ''));
+
+    return $r === 'OPERARIO' && rpPersonTypeFromAuth($pdo, $auth) === null;
+}
+
+/**
+ * Resuelve house_id principal de una persona (persons.house_id o house_members).
+ */
+function resolvePersonHouseIdForPerson(\PDO $pdo, int $personId): int
+{
+    if ($personId <= 0) {
+        return 0;
+    }
+    $stmt = $pdo->prepare('SELECT house_id FROM persons WHERE id = ? LIMIT 1');
+    $stmt->execute([$personId]);
+    $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+    if ($row && !empty($row['house_id'])) {
+        return (int) $row['house_id'];
+    }
+    $stmt2 = $pdo->prepare(
+        'SELECT house_id FROM house_members WHERE person_id = ? AND COALESCE(is_active, 1) = 1 ORDER BY is_primary DESC, id ASC LIMIT 1'
+    );
+    $stmt2->execute([$personId]);
+    $r2 = $stmt2->fetch(\PDO::FETCH_ASSOC);
+
+    return ($r2 && !empty($r2['house_id'])) ? (int) $r2['house_id'] : 0;
+}
+
+/**
+ * Vecino (USUARIO u OPERARIO con casa): puede editar esta persona en esta casa según jerarquía Mi casa.
+ */
+function canNeighborEditPersonInHouse(\PDO $pdo, array $auth, $targetPerson, int $houseId): bool
+{
+    $role = strtoupper(trim($auth['role_system'] ?? ''));
+    if ($role !== 'USUARIO' && $role !== 'OPERARIO') {
+        return false;
+    }
+    if ($role === 'OPERARIO' && rpPersonTypeFromAuth($pdo, $auth) === null) {
+        return false;
+    }
+    if (!canAccessHouse($pdo, $auth, $houseId)) {
+        return false;
+    }
+    $requestorPid = (int) ($auth['person_id'] ?? 0);
+    if ($requestorPid <= 0) {
+        return false;
+    }
+    $rel = getRelationTypeForHouse($pdo, $requestorPid, $houseId);
+    $targetPt = strtoupper(trim(
+        is_object($targetPerson) ? ($targetPerson->person_type ?? '') : ($targetPerson['person_type'] ?? '')
+    ));
+    if ($targetPt === '') {
+        return false;
+    }
+
+    $byOwner = ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'INVITADO'];
+    $byResident = ['RESIDENTE', 'INQUILINO', 'INVITADO'];
+    $byTenant = ['INQUILINO', 'INVITADO'];
+
+    if ($rel === 'PROPIETARIO') {
+        return in_array($targetPt, $byOwner, true);
+    }
+    if ($rel === 'RESIDENTE') {
+        return in_array($targetPt, $byResident, true);
+    }
+    if ($rel === 'INQUILINO') {
+        return in_array($targetPt, $byTenant, true);
+    }
+
+    return false;
+}
+
 function canUsuarioCreatePersonForHouse(\PDO $pdo, array $auth, int $houseId, string $personType): bool {
     $role = strtoupper(trim($auth['role_system'] ?? ''));
-    if ($role !== 'USUARIO') {
+    if ($role !== 'USUARIO' && $role !== 'OPERARIO') {
+        return false;
+    }
+    if ($role === 'OPERARIO' && rpPersonTypeFromAuth($pdo, $auth) === null) {
         return false;
     }
     if (!canAccessHouse($pdo, $auth, $houseId)) {

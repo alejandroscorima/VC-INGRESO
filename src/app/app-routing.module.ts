@@ -18,6 +18,8 @@ import { CodigoQrPageComponent } from './qr/codigo-qr-page.component';
 import { AuthGuard } from './auth.guard';
 import { MyHouseGuard } from './my-house.guard';
 import { CodigoQrGuard } from './qr/codigo-qr.guard';
+import { ReservationsGuard } from './reservations.guard';
+import { AccessPointsGuard } from './access-points.guard';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
@@ -31,8 +33,8 @@ const routes: Routes = [
   { path: "vehicles", component: VehiclesComponent, canActivate: [AuthGuard] },
   { path: "my-house", component: MyHouseComponent, canActivate: [AuthGuard, MyHouseGuard] },
   { path: "pets", component: PetsComponent, canActivate: [AuthGuard] },
-  { path: "access-points", component: AccessPointsComponent, canActivate: [AuthGuard] },
-  { path: "reservations", component: ReservationsComponent, canActivate: [AuthGuard] },
+  { path: "access-points", component: AccessPointsComponent, canActivate: [AuthGuard, AccessPointsGuard] },
+  { path: "reservations", component: ReservationsComponent, canActivate: [AuthGuard, ReservationsGuard] },
   { path: "calendar", redirectTo: "reservations", pathMatch: "full" },
   { path: "codigo-qr", component: CodigoQrPageComponent, canActivate: [AuthGuard, CodigoQrGuard] },
   { path: "scanner", redirectTo: "codigo-qr", pathMatch: "full" },

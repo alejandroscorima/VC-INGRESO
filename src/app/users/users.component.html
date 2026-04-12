@@ -16,7 +16,7 @@
         <!-- Tab Usuarios -->
         <div *ngIf="activeTab === 'users'">
         <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <button type="button" (click)="newUser()" class="vc-btn-primary me-2 py-1.5">
+            <button *ngIf="canManageUsers" type="button" (click)="newUser()" class="vc-btn-primary me-2 py-1.5">
                 Nuevo
             </button>
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total usuarios: {{ users.length }}</span>
@@ -68,7 +68,7 @@
                         <td class="vc-td">{{ (u.status_system || 'ACTIVO').toUpperCase() }}</td>
                         <td class="vc-td">{{u.cel_number || '-'}}</td>
                         <td class="vc-td text-right">
-                            <button type="button" (click)="editUser(u)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
+                            <button *ngIf="canManageUsers" type="button" (click)="editUser(u)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -97,9 +97,12 @@
 
         <!-- Tab Personas (misma estructura visual que Usuarios) -->
         <div *ngIf="activeTab === 'persons'">
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Personas registradas sin acceso al sistema. Desde Nuevo/Editar puede activar «Dar acceso al sistema».</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                <ng-container *ngIf="canManageUsers">Personas registradas sin acceso al sistema. Desde Nuevo/Editar puede activar «Dar acceso al sistema».</ng-container>
+                <ng-container *ngIf="isStaffReadOnlyUsers">Personas registradas sin acceso al sistema (solo lectura; alta y edición corresponde a administración).</ng-container>
+            </p>
             <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <button type="button" (click)="newPerson()" class="vc-btn-primary me-2 py-1.5">
+                <button *ngIf="canManageUsers" type="button" (click)="newPerson()" class="vc-btn-primary me-2 py-1.5">
                     Nuevo
                 </button>
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total personas sin acceso: {{ personsWithoutUser.length }}</span>
@@ -142,7 +145,7 @@
                             <td class="vc-td">{{ getHouseLocation(p) }}</td>
                             <td class="vc-td">{{ p.cel_number || '-' }} / {{ p.email || '-' }}</td>
                             <td class="vc-td">
-                                <button type="button" (click)="editPerson(p)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
+                                <button *ngIf="canManageUsers" type="button" (click)="editPerson(p)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>

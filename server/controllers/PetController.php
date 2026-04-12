@@ -48,6 +48,12 @@ class PetController {
     public function index($params = []) {
         try {
             $auth = requireAuth();
+            if (!isStaffRole($auth) && !isTenantUser($this->pdo, $auth)) {
+                if (empty($params['house_id']) || $params['house_id'] === '') {
+                    Response::json(['success' => false, 'error' => 'Indique house_id para listar mascotas'], 403);
+                    return;
+                }
+            }
             // Si filtra por casa, debe tener acceso a esa casa
             if (isset($params['house_id']) && $params['house_id'] !== '' && $params['house_id'] !== null) {
                 if (!canAccessHouse($this->pdo, $auth, (int) $params['house_id'])) {
@@ -209,6 +215,10 @@ class PetController {
     public function store($data = []) {
         try {
             $auth = requireAuth();
+            if (isOperarioPorteriaSinVecindad($this->pdo, $auth)) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para registrar mascotas (solo lectura)'], 403);
+                return;
+            }
             $data = $data ?: $this->getInput();
 
             // Validar datos requeridos (gestión por casa)
@@ -279,6 +289,10 @@ class PetController {
     public function update($id, $data = []) {
         try {
             $auth = requireAuth();
+            if (isOperarioPorteriaSinVecindad($this->pdo, $auth)) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para editar mascotas (solo lectura)'], 403);
+                return;
+            }
             $data = $data ?: $this->getInput();
 
             $stmt = $this->pdo->prepare("SELECT id, house_id, owner_id FROM pets WHERE id = ?");
@@ -417,6 +431,10 @@ class PetController {
     public function destroy($id) {
         try {
             $auth = requireAuth();
+            if (isOperarioPorteriaSinVecindad($this->pdo, $auth)) {
+                Response::json(['success' => false, 'error' => 'Sin permiso para eliminar mascotas (solo lectura)'], 403);
+                return;
+            }
             $stmt = $this->pdo->prepare("SELECT id, house_id, owner_id FROM pets WHERE id = ?");
             $stmt->execute([$id]);
             $pet = $stmt->fetch(\PDO::FETCH_ASSOC);
