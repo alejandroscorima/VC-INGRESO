@@ -79,8 +79,30 @@ export class AuthService {
 
   /** Actualiza el usuario actual en sesión (p. ej. tras cambiar foto de perfil). */
   updateCurrentUser(user: User): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    this.userSubject.next(user);
+    const prevUser = this.getUser();
+    const prev = prevUser as unknown as Record<string, unknown> | null;
+    const next = user as unknown as Record<string, unknown>;
+
+    /** El login puede completar `house_id` desde `my_houses`; el endpoint de foto solo devuelve `users.house_id`. */
+    let toStore = user;
+    if (prev) {
+      const merged = { ...prev, ...next } as Record<string, unknown>;
+      const prevH = Number(prev['house_id'] ?? 0);
+      const incH = Number(merged['house_id'] ?? 0);
+      if (prevH > 0 && incH <= 0) {
+        merged['house_id'] = prev['house_id'];
+      }
+      for (const k of ['block_house', 'lot', 'apartment', 'person_type', 'property_category'] as const) {
+        const v = merged[k];
+        if ((v === undefined || v === null || v === '') && prev[k] != null && prev[k] !== '') {
+          merged[k] = prev[k];
+        }
+      }
+      toStore = merged as unknown as User;
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+    this.userSubject.next(toStore);
   }
 
   getToken(): string | null {
