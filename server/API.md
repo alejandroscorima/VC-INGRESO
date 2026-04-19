@@ -310,14 +310,29 @@ Parámetros query según `CatalogController.php`.
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/api/v1/reservations` | Listar. |
+| GET | `/api/v1/reservations` | Listar (vecinos: solo casas a las que tienen acceso; admin: todas). Con `start_date` y `end_date` (YYYY-MM-DD) devuelve reservas que **intersectan** ese rango calendario. |
+| GET | `/api/v1/reservations/calendar` | Vista calendario comunitaria: todas las reservas que intersectan `start_date`–`end_date`. Para filas de **otras** casas el JSON es **mínimo** (`id`, `access_point_id`, `area_name`, `area_type`, `reservation_date`, `end_date`, `status`, `house_label`), sin observación ni teléfono. |
 | GET | `/api/v1/reservations/:id` | Una reservación. |
-| POST | `/api/v1/reservations` | Crear. |
-| PUT | `/api/v1/reservations/:id` | Actualizar. |
-| PUT | `/api/v1/reservations/:id/status` | Cambiar estado. |
+| POST | `/api/v1/reservations` | Crear. Cuerpo recomendado: `reservation_day` (YYYY-MM-DD), `access_point_id`, `house_id`, opcionales `observation`, `num_guests`, `contact_phone`. El servidor fija `reservation_date` = día a las **08:00:00** y `end_date` = día siguiente a las **08:00:00** (ventana 8–8). También se acepta `reservation_date` legacy: se usa la parte fecha (YYYY-MM-DD) para la misma normalización. |
+| PUT | `/api/v1/reservations/:id` | Actualizar campos de contenido (área, día, invitados, etc.). **Administrador:** solo si la reserva es de **su** `house_id` en sesión; no puede editar solicitudes de otros domicilios (solo confirmar/rechazar/completar vía `status`). Sin `house_id` en el token, el admin no puede usar este PUT en ninguna fila. **Estado:** no se modifica por este endpoint; usar `PUT .../status`. |
+| PUT | `/api/v1/reservations/:id/status` | Cambiar estado (confirmar, rechazar, completar, cancelar según reglas). **`COMPLETADA`:** solo si el estado actual es **`CONFIRMADA`**. |
 | DELETE | `/api/v1/reservations/:id` | Eliminar. |
 | GET | `/api/v1/reservations/areas` | Áreas (p. ej. PISCINA, CASA_CLUB). |
-| GET | `/api/v1/reservations/availability` | Disponibilidad (parámetros en query). |
+| GET | `/api/v1/reservations/availability` | Query: `access_point_id`, `date` (YYYY-MM-DD). Respuesta: `available` (boolean) para el **día lógico 8–8** que comienza ese día; `logical_window_start` / `logical_window_end`. |
+
+**Reglas de negocio (resumen):**
+
+- Una sola reserva en estado **PENDIENTE** o **CONFIRMADA** por `access_point_id` y misma ventana 8–8 (mismo `reservation_date` de inicio normalizado).
+- Tope mensual de activas por casa: `RESERVATION_MAX_ACTIVE_PER_MONTH_PER_HOUSE` en `server/config/reservation_business_rules.php` (mes calendario según `reservation_date`).
+- **Cierre automático al fin de ventana:** el **EVENT** `ev_vc_complete_expired_reservations` en [`database/vc_create_database.sql`](../database/vc_create_database.sql) ejecuta cada día a las **08:02** (zona `America/Lima` vía `--default-time-zone` en MySQL en Docker). Actualiza a `COMPLETADA` las filas `CONFIRMADA` con `end_date < NOW()`. Requiere `event_scheduler=ON` (activado en `docker-compose` del servicio `mysql`). **Refuerzo:** la misma lógica se llama en el **login** de `ADMINISTRADOR` mediante [`server/helpers/reservation_auto_complete.php`](helpers/reservation_auto_complete.php). Bases ya creadas sin el evento: ejecutar manualmente en MySQL el bloque `DROP EVENT` / `SET GLOBAL event_scheduler` / `CREATE EVENT` de ese SQL (o recrear volumen de datos en desarrollo).
+
+**Checklist manual sugerido:**
+
+1. Vecino A crea solicitud con `reservation_day`; aparece **PENDIENTE** en calendario para vecino B (tag) sin datos sensibles de A.
+2. Vecino B no puede crear otra **PENDIENTE**/confirmada la misma área y mismo día lógico (error 400).
+3. Admin confirma/rechaza solicitud de otra casa vía `PUT .../status`; el mismo admin **no** puede `PUT /reservations/:id` sobre esa fila (403).
+4. Admin **con** `house_id` en sesión puede `PUT` solo reservas de esa casa; cancelación como admin solo su domicilio (ya existente).
+5. Lista `GET /reservations` para vecino sigue acotada a sus casas; el calendario usa `GET .../calendar`.
 
 ---
 

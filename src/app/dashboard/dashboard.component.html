@@ -104,13 +104,25 @@
           <p class="text-gray-400" *ngIf="loadingLogs">…</p>
           <p class="text-xs text-gray-500 mt-1">Ingresos del día vinculados a tu domicilio</p>
         </div>
-        <div class="glass-effect rounded-xl p-5 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 sm:col-span-2 lg:col-span-1">
-          <div class="flex items-center gap-3 mb-2">
-            <mat-icon class="text-gray-400">info</mat-icon>
-            <h3 class="font-bold text-gray-800 dark:text-white">Historial</h3>
+        <div class="dashboard-card glass-effect rounded-xl p-6 border-2 border-dashed border-gray-200 shadow-lg dark:border-gray-600 card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <div class="dashboard-icon gradient-accent w-12 h-12 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white">pool</mat-icon>
+            </div>
+            <div class="text-right" *ngIf="!loadingPool && poolOccupancy">
+              <span class="text-2xl font-bold text-sky-600 dark:text-sky-400">{{ poolOccupancy.current }}</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400" *ngIf="poolOccupancy.max != null"> / {{ poolOccupancy.max }}</span>
+            </div>
+            <span class="text-gray-400 text-sm" *ngIf="loadingPool">…</span>
+            <span class="text-gray-400 text-sm" *ngIf="!loadingPool && !poolOccupancy">—</span>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Consulta movimientos de tus casas.</p>
-          <a routerLink="/history" class="text-sm text-amber-600 hover:underline mt-2 inline-block">Ir al historial</a>
+          <h3 class="font-bold text-gray-800 dark:text-white mb-1">Piscina</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <ng-container *ngIf="poolOccupancy">Ocupación actual — {{ poolOccupancy.name }}</ng-container>
+            <ng-container *ngIf="!poolOccupancy && !loadingPool">Sin punto con aforo</ng-container>
+            <ng-container *ngIf="loadingPool">Cargando…</ng-container>
+          </p>
+          <p class="text-xs text-gray-400 mt-2" *ngIf="poolOccupancy?.percent != null">{{ poolOccupancy.percent }}% del aforo máximo</p>
         </div>
       </div>
 

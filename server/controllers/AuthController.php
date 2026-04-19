@@ -10,6 +10,7 @@ require_once __DIR__ . '/../db_connection.php';
 require_once __DIR__ . '/../token.php';
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../helpers/role_policy.php';
+require_once __DIR__ . '/../helpers/reservation_auto_complete.php';
 
 use Utils\Response;
 
@@ -138,6 +139,15 @@ class AuthController
             $tokenPayload['person_id'] = (int) $user->person_id;
         }
         $token = generateToken($tokenPayload);
+
+        // Reservas vencidas en CONFIRMADA: cerrar en segundo plano al entrar un administrador (no bloquea login).
+        if (strtoupper(trim((string) ($user->role_system ?? ''))) === 'ADMINISTRADOR') {
+            try {
+                complete_expired_confirmed_reservations($pdo);
+            } catch (\Throwable $e) {
+                error_log('complete_expired_confirmed_reservations on admin login: ' . $e->getMessage());
+            }
+        }
 
         Response::json([
             'user' => $user,

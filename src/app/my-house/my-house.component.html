@@ -1197,6 +1197,15 @@
                     <input [(ngModel)]="petToAdd.age_years" type="number" name="petAgeNew" id="myhouse-petAgeNew" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Edad (opcional)" />
                 </div>
                 <div>
+                    <label for="myhouse-petPhotoNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Foto (opcional)</label>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Puede adjuntar una imagen de la mascota; no es obligatorio.</p>
+                    <input type="file" id="myhouse-petPhotoNew" accept="image/jpeg,image/png,image/gif" class="block w-full text-sm text-gray-900 dark:text-gray-300" (change)="onNewPetPhotoPick($event)" [disabled]="uploadingNewPetPhoto" />
+                    <div class="flex items-center gap-2 mt-2 flex-wrap">
+                      <span *ngIf="petToAdd.photo_url" class="text-xs text-green-700 dark:text-green-400">Foto lista para guardar.</span>
+                      <button *ngIf="petToAdd.photo_url" type="button" class="text-xs text-red-600 hover:underline" (click)="clearNewPetPhoto()">Quitar foto</button>
+                    </div>
+                </div>
+                <div>
                     <label for="myhouse-petStatusNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
                     <select [(ngModel)]="petToAdd.status_validated" name="petStatusNew" id="myhouse-petStatusNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option *ngFor="let st of petStatusList" [ngValue]="st">{{ st }}</option>

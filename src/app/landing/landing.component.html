@@ -1,11 +1,15 @@
 <div class="vl-root">
   <nav class="vl-Navbar" aria-label="Principal">
     <div class="vl-nav-container">
-      <a routerLink="/landing" class="vl-Logo" (click)="closeMenu()">VC-INGRESO</a>
+      <a routerLink="/landing" class="vl-Logo vl-Logo--brand" (click)="closeMenu()">
+        <img [src]="logoUrl" alt="VC-Ingreso" class="vl-logo-img" />
+      </a>
 
       <div id="vl-menu" class="vl-menu" [class.vl-menu-open]="menuOpen">
         <div class="vl-menu-header">
-          <span class="vl-Logo vl-Logo--sm">VC-I</span>
+          <span class="vl-Logo vl-Logo--brand vl-Logo--sm">
+            <img [src]="logoUrl" alt="" class="vl-logo-img vl-logo-img--sm" />
+          </span>
           <button type="button" class="vl-icon-btn" (click)="closeMenu()" aria-label="Cerrar menú">
             <i class="ri-close-line" aria-hidden="true"></i>
           </button>
@@ -36,10 +40,13 @@
             Acceso inteligente
           </div>
           <p class="vl-hero-kicker">VC-Ingreso</p>
-          <h1 id="vl-hero-heading" class="vl-hero-title">
-            La tranquilidad<br />
-            <span class="vl-highlight">de tu condominio</span>
-          </h1>
+          <div class="vl-hero-heading-wrap">
+            <h1 id="vl-hero-heading" class="vl-hero-title">
+              La tranquilidad<br />
+              <span class="vl-highlight">de tu Villa</span>
+            </h1>
+            <span class="vl-hero-mega" aria-hidden="true">5</span>
+          </div>
           <p class="vl-subhead">
             Digitaliza accesos, visitas, reservas y aforo. Elimina las llamadas, los cuadernos y la incertidumbre.
           </p>
@@ -133,7 +140,7 @@
                 </tr>
                 <tr>
                   <td>Información</td>
-                  <td>Dispersa, no centralizada ni auditable</td>
+                  <td>Dispersa, sin un registro centralizado</td>
                 </tr>
               </tbody>
             </table>
@@ -171,7 +178,7 @@
             <ul class="vl-Card-list">
               <li>Piscina y áreas comunes con conteo automático</li>
               <li>Ingresos y salidas registrados</li>
-              <li>Cumplimiento de normas del condominio</li>
+              <li>Cumplimiento de normas de la Villa</li>
             </ul>
           </div>
         </article>
@@ -215,10 +222,10 @@
         <article class="vl-Card">
           <i class="ri-bar-chart-2-line vl-Card-icon" aria-hidden="true"></i>
           <div>
-            <h3 class="vl-Card-title">Reportes y auditoría</h3>
+            <h3 class="vl-Card-title">Reportes</h3>
             <ul class="vl-Card-list">
               <li>Historial de accesos consultable</li>
-              <li>Base para decisiones y auditorías</li>
+              <li>Base para decisiones con respaldo de datos</li>
               <li>Transparencia para administración</li>
             </ul>
           </div>

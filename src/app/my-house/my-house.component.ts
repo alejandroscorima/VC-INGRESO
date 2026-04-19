@@ -84,7 +84,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
   externalVehicles: ExternalVehicle[] = [];
 
-  petToAdd: Partial<Pet> = { name: '', species: 'PERRO', breed: '', color: '', age_years: undefined, house_id: 0, status_validated: 'PERMITIDO' };
+  petToAdd: Partial<Pet> = { name: '', species: 'PERRO', breed: '', color: '', age_years: undefined, house_id: 0, status_validated: 'PERMITIDO', photo_url: undefined };
   petToEdit: Partial<Pet> & { id?: number } = {};
   petSpecies: { value: string; label: string }[] = [
     { value: 'PERRO', label: 'Perro' },
@@ -103,6 +103,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   uploadingNewVehiclePhoto = false;
   /** Índice de la mascota cuya foto se está subiendo (-1 = ninguna) */
   uploadingPetIndex: number = -1;
+  /** Foto del modal «nueva mascota» (opcional, antes de crear el registro) */
+  uploadingNewPetPhoto = false;
 
   constructor(
     private entranceService: EntranceService,
@@ -842,7 +844,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     this.vehicleToEdit = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'RESIDENTE', '', '', '');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
     this.externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
-    this.petToAdd = { name: '', species: 'PERRO', breed: '', color: '', house_id: 0, status_validated: 'PERMITIDO' };
+    this.petToAdd = { name: '', species: 'PERRO', breed: '', color: '', house_id: 0, status_validated: 'PERMITIDO', photo_url: undefined };
     this.petToEdit = {};
   }
 
@@ -853,9 +855,41 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       breed: '',
       color: '',
       house_id: this.userOnSes.house_id ?? 0,
-      status_validated: 'PERMITIDO'
+      status_validated: 'PERMITIDO',
+      photo_url: undefined
     };
     document.getElementById('myhouse-new-pet-button')?.click();
+  }
+
+  onNewPetPhotoPick(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+    this.uploadingNewPetPhoto = true;
+    this.publicReg.uploadPetPhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingNewPetPhoto = false;
+        if (res.success && res.photo_url) {
+          this.petToAdd = { ...this.petToAdd, photo_url: res.photo_url };
+          this.toastr.success('Foto cargada.');
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingNewPetPhoto = false;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
+
+  clearNewPetPhoto(): void {
+    this.petToAdd = { ...this.petToAdd, photo_url: undefined };
   }
 
   editPet(pet: Pet){
@@ -880,7 +914,11 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       }
       this.petToAdd.owner_id = pid;
     }
-    this.petsService.createPet(this.petToAdd).subscribe({
+    const petPayload: Partial<Pet> = { ...this.petToAdd };
+    if (!petPayload.photo_url?.trim()) {
+      delete petPayload.photo_url;
+    }
+    this.petsService.createPet(petPayload).subscribe({
       next: () => {
         this.toastr.success('Mascota registrada correctamente.');
         this.handleSuccess();

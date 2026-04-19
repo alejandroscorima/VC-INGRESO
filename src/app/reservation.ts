@@ -5,7 +5,9 @@ export interface Reservation {
   id?: number;
   access_point_id: number;
   person_id?: number;
-  house_id: number;
+  house_id?: number;
+  /** Día lógico YYYY-MM-DD (servidor deriva ventana 8:00–8:00). */
+  reservation_day?: string;
   reservation_date: string;
   end_date?: string;
   status: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA' | 'RECHAZADA' | 'COMPLETADA';
@@ -18,6 +20,8 @@ export interface Reservation {
   // Joined fields
   area_name?: string;
   area_type?: string;
+  /** Solo en feed de calendario para casas ajenas (payload mínimo). */
+  house_label?: string;
 }
 
 /**
@@ -41,10 +45,19 @@ export const AREA_TYPES = [
 ];
 
 /**
- * Horario disponible
+ * Horario disponible (legacy; el API puede devolver solo día libre/ocupado).
  */
 export interface TimeSlot {
   start: string;
   end: string;
   available: boolean;
+}
+
+/** Respuesta de GET /reservations/availability (día lógico 8–8). */
+export interface ReservationDayAvailability {
+  date: string;
+  access_point_id: number;
+  available: boolean;
+  logical_window_start?: string;
+  logical_window_end?: string;
 }

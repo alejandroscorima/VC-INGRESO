@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { ReservationsService } from '../reservations.service';
 import { Reservation } from '../reservation';
 import { AccessPoint } from '../accessPoint';
@@ -9,11 +10,16 @@ import { AuthService } from '../auth.service';
 import { EntranceService } from '../entrance.service';
 import { ToastrService } from 'ngx-toastr';
 
+interface CalendarTag {
+  short: string;
+  badgeClass: string;
+}
+
 interface MonthCell {
   date: Date;
   inMonth: boolean;
   isToday: boolean;
-  dots: string[];
+  tags: CalendarTag[];
   extraCount: number;
 }
 
@@ -25,7 +31,10 @@ interface MonthCell {
 })
 export class ReservationsComponent implements OnInit {
   viewMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  monthReservations: Reservation[] = [];
+  /** Feed calendario (todas las casas; payload mínimo en ajenas). */
+  monthCalendarReservations: Reservation[] = [];
+  /** Lista del mes acotada al alcance del rol (vecino = su casa). */
+  monthTableReservations: Reservation[] = [];
   areas: AccessPoint[] = [];
   houses: House[] = [];
   loading = false;
@@ -37,12 +46,11 @@ export class ReservationsComponent implements OnInit {
 
   formAccessPointId: number | null = null;
   formHouseId: number | null = null;
-  formStart = '';
-  formEnd = '';
+  /** Día lógico de reserva (YYYY-MM-DD); servidor aplica ventana 8:00–8:00. */
+  formReservationDay = '';
   formGuests = 1;
   formObservation = '';
   formPhone = '';
-  formStatus = 'PENDIENTE';
 
   /** Filtros tabla de solicitudes (misma lógica que Usuarios / Vehículos) */
   tableSearch = '';
@@ -52,7 +60,9 @@ export class ReservationsComponent implements OnInit {
   /** Vista calendario + tabla: 'ALL' o id de access_point */
   calendarAreaFilter: 'ALL' | number = 'ALL';
 
-  readonly maxEventHours = 8;
+  /** Grilla mensual (no usar getter: evita reconstruir en cada ciclo de detección de cambios). */
+  monthCells: MonthCell[] = [];
+
   readonly weekDayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   private readonly monthNames = [
     'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -87,17 +97,26 @@ export class ReservationsComponent implements OnInit {
     return `${this.monthNames[this.viewMonth.getMonth()]} ${this.viewMonth.getFullYear()}`;
   }
 
-  /** Reservas del mes acotadas al área elegida (calendario y tabla). */
-  get reservationsForMonthView(): Reservation[] {
+  private filterByCalendarArea(list: Reservation[]): Reservation[] {
     if (this.calendarAreaFilter === 'ALL') {
-      return this.monthReservations;
+      return list;
     }
     const apId = this.calendarAreaFilter as number;
-    return this.monthReservations.filter((r) => Number(r.access_point_id) === apId);
+    return list.filter((r) => Number(r.access_point_id) === apId);
+  }
+
+  /** Reservas del mes para la grilla (calendario comunitario). */
+  get reservationsForMonthView(): Reservation[] {
+    return this.filterByCalendarArea(this.monthCalendarReservations);
+  }
+
+  /** Reservas del mes para la tabla (solo “mis” casas según API). */
+  get tableReservationsForMonth(): Reservation[] {
+    return this.filterByCalendarArea(this.monthTableReservations);
   }
 
   get tableRows(): Reservation[] {
-    const sorted = [...this.reservationsForMonthView].sort(
+    const sorted = [...this.tableReservationsForMonth].sort(
       (a, b) =>
         new Date(b.reservation_date).getTime() - new Date(a.reservation_date).getTime()
     );
@@ -160,7 +179,8 @@ export class ReservationsComponent implements OnInit {
     return haystack.includes(q);
   }
 
-  get monthCells(): MonthCell[] {
+  /** Reconstruye la grilla solo cuando cambian mes o datos cargados (ver `loadMonth`). */
+  private rebuildMonthCells(): void {
     const y = this.viewMonth.getFullYear();
     const m = this.viewMonth.getMonth();
     const first = new Date(y, m, 1);
@@ -181,22 +201,30 @@ export class ReservationsComponent implements OnInit {
       next.setDate(next.getDate() + 1);
       cells.push(this.makeCell(next, false));
     }
-    return cells;
+    this.monthCells = cells;
   }
 
   private makeCell(date: Date, inMonth: boolean): MonthCell {
-    const list = this.reservationsForDay(date)
-      .sort((a, b) => new Date(a.reservation_date).getTime() - new Date(b.reservation_date).getTime());
-    const maxDots = 3;
-    const dots = list.slice(0, maxDots).map((r) => this.statusDotClass(r.status));
-    const extraCount = Math.max(0, list.length - maxDots);
+    const list = this.reservationsForDay(date).sort(
+      (a, b) => new Date(a.reservation_date).getTime() - new Date(b.reservation_date).getTime()
+    );
+    const maxTags = 3;
+    const tags = list.slice(0, maxTags).map((r) => ({
+      short: this.statusTagShort(r.status),
+      badgeClass: this.statusBadgeClass(r.status ?? ''),
+    }));
+    const extraCount = Math.max(0, list.length - maxTags);
     return {
       date,
       inMonth,
       isToday: this.isSameDay(date, new Date()),
-      dots,
+      tags,
       extraCount,
     };
+  }
+
+  onCalendarAreaFilterChange(): void {
+    this.loadMonth();
   }
 
   ngOnInit(): void {
@@ -252,14 +280,21 @@ export class ReservationsComponent implements OnInit {
     const start = this.formatYmd(new Date(y, mo, 1));
     const end = this.formatYmd(new Date(y, mo + 1, 0));
     this.loading = true;
-    this.reservationsService.getReservationsInRange(start, end, 250).subscribe({
-      next: (rows) => {
-        this.monthReservations = rows;
+    const apFilter = this.calendarAreaFilter === 'ALL' ? undefined : (this.calendarAreaFilter as number);
+    forkJoin({
+      calendar: this.reservationsService.getCalendarReservations(start, end, 500, apFilter),
+      table: this.reservationsService.getReservationsInRange(start, end, 250),
+    }).subscribe({
+      next: ({ calendar, table }) => {
+        this.monthCalendarReservations = calendar;
+        this.monthTableReservations = table;
         this.loading = false;
+        this.rebuildMonthCells();
       },
       error: () => {
         this.loading = false;
         this.toastr.error('No se pudieron cargar las reservas del mes.');
+        this.rebuildMonthCells();
       },
     });
   }
@@ -300,19 +335,12 @@ export class ReservationsComponent implements OnInit {
     this.formObservation = '';
     this.formPhone = '';
     this.formGuests = 1;
-    this.formStatus = 'PENDIENTE';
+    this.formReservationDay = this.formatYmd(day);
     if (this.calendarAreaFilter !== 'ALL') {
       this.formAccessPointId = this.calendarAreaFilter as number;
     } else {
       this.formAccessPointId = this.areas.length ? this.areaId(this.areas[0]) : null;
     }
-
-    const start = new Date(day);
-    start.setHours(9, 0, 0, 0);
-    const end = new Date(day);
-    end.setHours(17, 0, 0, 0);
-    this.formStart = this.toDatetimeLocalValue(start);
-    this.formEnd = this.toDatetimeLocalValue(end);
 
     const u = this.auth.getUser();
     if (this.isAdmin) {
@@ -331,13 +359,11 @@ export class ReservationsComponent implements OnInit {
     this.modalMode = 'edit';
     this.editingId = r.id;
     this.formAccessPointId = r.access_point_id;
-    this.formHouseId = r.house_id;
-    this.formStart = this.toDatetimeLocalValue(this.parseApiDate(r.reservation_date));
-    this.formEnd = r.end_date ? this.toDatetimeLocalValue(this.parseApiDate(r.end_date)) : '';
+    this.formHouseId = r.house_id ?? null;
+    this.formReservationDay = (r.reservation_date || '').substring(0, 10);
     this.formGuests = r.num_guests ?? 1;
     this.formObservation = r.observation ?? '';
     this.formPhone = r.contact_phone ?? '';
-    this.formStatus = r.status;
     this.modalOpen = true;
   }
 
@@ -350,23 +376,12 @@ export class ReservationsComponent implements OnInit {
     if (this.saving) {
       return;
     }
-    if (this.formAccessPointId == null || !this.formStart || !this.formEnd) {
-      this.toastr.warning('Completa área, inicio y fin.');
+    if (this.formAccessPointId == null || !this.formReservationDay) {
+      this.toastr.warning('Completa área y día de la reserva.');
       return;
     }
-    const start = new Date(this.formStart);
-    const end = new Date(this.formEnd);
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      this.toastr.warning('Fechas no válidas.');
-      return;
-    }
-    if (end <= start) {
-      this.toastr.warning('La hora de fin debe ser posterior al inicio.');
-      return;
-    }
-    const hours = (end.getTime() - start.getTime()) / 3600000;
-    if (hours - this.maxEventHours > 1e-6) {
-      this.toastr.warning(`La duración máxima es ${this.maxEventHours} horas.`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(this.formReservationDay)) {
+      this.toastr.warning('Fecha no válida (use AAAA-MM-DD).');
       return;
     }
 
@@ -382,8 +397,7 @@ export class ReservationsComponent implements OnInit {
     const payload: Partial<Reservation> = {
       access_point_id: this.formAccessPointId,
       house_id: houseId,
-      reservation_date: this.toMysqlDateTime(start),
-      end_date: this.toMysqlDateTime(end),
+      reservation_day: this.formReservationDay,
       num_guests: this.formGuests,
       observation: this.formObservation?.trim() || undefined,
       contact_phone: this.formPhone?.trim() || undefined,
@@ -391,10 +405,6 @@ export class ReservationsComponent implements OnInit {
     const pid = (u as { person_id?: number })?.person_id;
     if (pid && pid > 0) {
       payload.person_id = pid;
-    }
-
-    if (this.isAdmin && this.modalMode === 'edit' && this.formStatus) {
-      payload.status = this.formStatus as Reservation['status'];
     }
 
     this.saving = true;
@@ -448,8 +458,13 @@ export class ReservationsComponent implements OnInit {
   }
 
   canEdit(r: Reservation): boolean {
+    const hid = Number(r.house_id ?? 0);
     if (this.isAdmin) {
-      return true;
+      const sessionHid = this.getSessionHouseId();
+      if (sessionHid <= 0 || hid !== sessionHid) {
+        return false;
+      }
+      return r.status === 'PENDIENTE' || r.status === 'CONFIRMADA';
     }
     if (!this.isNeighbor) {
       return false;
@@ -563,29 +578,25 @@ export class ReservationsComponent implements OnInit {
     }
   }
 
-  private statusDotClass(status: string): string {
+  private statusTagShort(status: string): string {
     const s = (status || '').toUpperCase();
-    switch (s) {
-      case 'CONFIRMADA':
-        return 'bg-emerald-500';
-      case 'PENDIENTE':
-        return 'bg-amber-500';
-      case 'CANCELADA':
-        return 'bg-red-400';
-      case 'RECHAZADA':
-        return 'bg-violet-500';
-      case 'COMPLETADA':
-        return 'bg-sky-500';
-      default:
-        return 'bg-gray-400';
-    }
+    const map: Record<string, string> = {
+      CONFIRMADA: 'CONF',
+      PENDIENTE: 'PEND',
+      CANCELADA: 'CANC',
+      RECHAZADA: 'RECH',
+      COMPLETADA: 'COMP',
+    };
+    return map[s] ?? (s.slice(0, 4) || '—');
   }
 
   private reservationsForDay(d: Date): Reservation[] {
-    const key = this.formatYmd(d);
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).getTime();
+    const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, 0).getTime();
     return this.reservationsForMonthView.filter((r) => {
-      const rd = (r.reservation_date || '').substring(0, 10);
-      return rd === key;
+      const rs = this.parseApiDate(r.reservation_date).getTime();
+      const re = this.parseApiDate(r.end_date ?? r.reservation_date).getTime();
+      return rs < dayEnd && re > dayStart;
     });
   }
 
@@ -602,25 +613,6 @@ export class ReservationsComponent implements OnInit {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
-  }
-
-  private toMysqlDateTime(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const h = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    const s = String(d.getSeconds()).padStart(2, '0');
-    return `${y}-${m}-${day} ${h}:${min}:${s}`;
-  }
-
-  private toDatetimeLocalValue(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const h = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${y}-${m}-${day}T${h}:${min}`;
   }
 
   private parseApiDate(s: string): Date {

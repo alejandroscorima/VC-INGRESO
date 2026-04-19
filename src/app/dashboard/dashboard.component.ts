@@ -670,7 +670,7 @@ export class DashboardComponent implements OnInit {
       },
     });
 
-    if (this.isStaffView) {
+    if (this.isStaffView || this.isNeighborView) {
       this.loadingPool = true;
       this.entranceService.getAllAccessPoints().subscribe({
         next: (pts: any) => {

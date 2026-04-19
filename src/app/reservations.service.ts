@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { Reservation, TimeSlot } from './reservation';
+import { Reservation, ReservationDayAvailability } from './reservation';
 import { ApiService } from './api.service';
 import { AccessPoint } from './accessPoint';
 
@@ -92,12 +92,36 @@ export class ReservationsService {
   /**
    * Consulta disponibilidad de un área
    */
-  getAvailability(accessPointId: number, date: string): Observable<{ date: string; access_point_id: number; slots: TimeSlot[] }> {
+  getAvailability(accessPointId: number, date: string): Observable<ReservationDayAvailability> {
     const params = {
       access_point_id: accessPointId,
       date
     };
-    return this.api.getRaw('api/v1/reservations/availability', params);
+    return this.api.getRaw('api/v1/reservations/availability', params).pipe(
+      map((res: any) => (res && res.data ? res.data : res) as ReservationDayAvailability)
+    );
+  }
+
+  /**
+   * Vista calendario (todas las casas); filas ajenas pueden traer solo house_label + campos mínimos.
+   */
+  getCalendarReservations(
+    startDate: string,
+    endDate: string,
+    limit = 500,
+    accessPointId?: number
+  ): Observable<Reservation[]> {
+    const params: Record<string, string | number> = {
+      start_date: startDate,
+      end_date: endDate,
+      limit,
+    };
+    if (accessPointId != null) {
+      params.access_point_id = accessPointId;
+    }
+    return this.api.getRaw('api/v1/reservations/calendar', params).pipe(
+      map((res: any) => (res && res.data ? res.data : Array.isArray(res) ? res : []))
+    );
   }
 
   /**

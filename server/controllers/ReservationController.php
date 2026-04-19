@@ -1,8 +1,9 @@
 <?php
 /**
  * ReservationController - Controlador de Reservaciones
- * 
- * Maneja las reservaciones de la Casa Club y áreas comunes
+ *
+ * Maneja las reservaciones de la Casa Club y áreas comunes.
+ * Política de ventana fija: día D desde las 08:00 hasta día D+1 08:00 (día lógico 8–8).
  */
 
 namespace Controllers;
@@ -21,6 +22,7 @@ class ReservationController
     private $pdo;
     private $table = 'reservations';
     private $accessPointsTable = 'access_points';
+    private $housesTable = 'houses';
 
     /** Estados que bloquean el hueco en el calendario (PENDIENTE reserva hasta decisión o fin de evento si confirma). */
     private const BLOCKING_STATUSES = ['PENDIENTE', 'CONFIRMADA'];
@@ -46,44 +48,37 @@ class ReservationController
         $where = [];
         $values = [];
 
-        // Filtro por access_point_id (área)
         if (isset($params['access_point_id']) && $params['access_point_id']) {
             $where[] = 'r.access_point_id = ?';
             $values[] = $params['access_point_id'];
         }
 
-        // Filtro por person_id (propietario)
         if (isset($params['person_id']) && $params['person_id']) {
             $where[] = 'r.person_id = ?';
             $values[] = $params['person_id'];
         }
 
-        // Filtro por fecha específica
         if (isset($params['date']) && $params['date']) {
             $where[] = 'DATE(r.reservation_date) = ?';
             $values[] = $params['date'];
         }
 
-        // Filtro por rango de fechas
         if (isset($params['start_date']) && isset($params['end_date'])) {
-            $where[] = 'r.reservation_date BETWEEN ? AND ?';
-            $values[] = $params['start_date'] . ' 00:00:00';
+            $where[] = 'r.reservation_date <= ? AND r.end_date >= ?';
             $values[] = $params['end_date'] . ' 23:59:59';
+            $values[] = $params['start_date'] . ' 00:00:00';
         }
 
-        // Filtro por estado
         if (isset($params['status']) && $params['status']) {
             $where[] = 'r.status = ?';
             $values[] = strtoupper($params['status']);
         }
 
-        // Filtro por casa (house_id)
         if (isset($params['house_id']) && $params['house_id']) {
             $where[] = 'r.house_id = ?';
             $values[] = $params['house_id'];
         }
 
-        // Vecinos: todas las de sus casas. Admin y personal (portería, etc.): listado completo.
         $this->applyIndexRoleScope($where, $values, $auth);
 
         $sql = "SELECT r.*, ap.name as area_name, ap.type as area_type 
@@ -95,9 +90,8 @@ class ReservationController
         }
         $sql .= ' ORDER BY r.reservation_date DESC';
 
-        // Pagination
-        $page = isset($params['page']) ? max(1, (int)$params['page']) : 1;
-        $limit = isset($params['limit']) ? min(100, max(1, (int)$params['limit'])) : 50;
+        $page = isset($params['page']) ? max(1, (int) $params['page']) : 1;
+        $limit = isset($params['limit']) ? min(100, max(1, (int) $params['limit'])) : 50;
         $offset = ($page - 1) * $limit;
         $sql .= " LIMIT {$limit} OFFSET {$offset}";
 
@@ -105,7 +99,6 @@ class ReservationController
         $stmt->execute($values);
         $reservations = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Get total count
         $countSql = "SELECT COUNT(*) FROM {$this->table} r";
         if (!empty($where)) {
             $countSql .= ' WHERE ' . implode(' AND ', $where);
@@ -121,14 +114,77 @@ class ReservationController
                 'page' => $page,
                 'limit' => $limit,
                 'total' => $total,
-                'total_pages' => ceil($total / $limit)
-            ]
+                'total_pages' => ceil($total / $limit),
+            ],
         ]);
     }
 
     /**
+     * GET /api/v1/reservations/calendar
+     * Vista mensual para todos los domicilios; filas ajenas con payload mínimo (sin observación ni teléfono).
+     */
+    public function calendar()
+    {
+        $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
+
+        $params = Router::getParams();
+        $start = isset($params['start_date']) ? trim((string) $params['start_date']) : '';
+        $end = isset($params['end_date']) ? trim((string) $params['end_date']) : '';
+        if ($start === '' || $end === '') {
+            Response::json(['success' => false, 'error' => 'start_date y end_date son requeridos (YYYY-MM-DD)'], 400);
+            return;
+        }
+
+        $where = ['r.reservation_date <= ?', 'r.end_date >= ?'];
+        $values = [$end . ' 23:59:59', $start . ' 00:00:00'];
+
+        if (isset($params['access_point_id']) && $params['access_point_id'] !== '' && $params['access_point_id'] !== null) {
+            $where[] = 'r.access_point_id = ?';
+            $values[] = (int) $params['access_point_id'];
+        }
+
+        $sql = "SELECT r.*, ap.name as area_name, ap.type as area_type,
+                h.block_house, h.lot, h.apartment
+                FROM {$this->table} r
+                LEFT JOIN {$this->accessPointsTable} ap ON r.access_point_id = ap.id
+                LEFT JOIN {$this->housesTable} h ON r.house_id = h.house_id
+                WHERE " . implode(' AND ', $where) . '
+                ORDER BY r.reservation_date ASC, r.id ASC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $out = [];
+        foreach ($rows as $row) {
+            $hid = (int) ($row['house_id'] ?? 0);
+            $full = isAdminRole($auth) || ($hid > 0 && canAccessHouse($this->pdo, $auth, $hid));
+            if ($full) {
+                unset($row['block_house'], $row['lot'], $row['apartment']);
+                $out[] = $row;
+            } else {
+                $out[] = [
+                    'id' => (int) $row['id'],
+                    'access_point_id' => (int) $row['access_point_id'],
+                    'area_name' => $row['area_name'] ?? null,
+                    'area_type' => $row['area_type'] ?? null,
+                    'reservation_date' => $row['reservation_date'],
+                    'end_date' => $row['end_date'],
+                    'status' => $row['status'],
+                    'house_label' => $this->formatHouseLabel($row),
+                ];
+            }
+        }
+
+        Response::json(['success' => true, 'data' => $out]);
+    }
+
+    /**
      * GET /api/v1/reservations/:id
-     * Obtener reservación por ID
      */
     public function show($id)
     {
@@ -162,7 +218,6 @@ class ReservationController
 
     /**
      * POST /api/v1/reservations
-     * Crear nueva reservación
      */
     public function store()
     {
@@ -179,14 +234,20 @@ class ReservationController
             return;
         }
 
-        // Validar campos requeridos (end_date necesario para límites de duración y solapes)
-        $required = ['access_point_id', 'reservation_date', 'end_date', 'house_id'];
-        foreach ($required as $field) {
+        foreach (['access_point_id', 'house_id'] as $field) {
             if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                 Response::json(['success' => false, 'error' => "Campo requerido: {$field}"], 400);
                 return;
             }
         }
+
+        $resolved = $this->resolveEightToEightWindow($data);
+        if ($resolved['error'] !== null) {
+            Response::json(['success' => false, 'error' => $resolved['error']], 400);
+            return;
+        }
+        $data['reservation_date'] = $resolved['start'];
+        $data['end_date'] = $resolved['end'];
 
         $validStatuses = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'RECHAZADA', 'COMPLETADA'];
         $data['status'] = isset($data['status']) ? strtoupper($data['status']) : 'PENDIENTE';
@@ -194,7 +255,6 @@ class ReservationController
             Response::json(['success' => false, 'error' => 'Estado inválido'], 400);
             return;
         }
-        // Solo administrador puede crear con estado distinto de PENDIENTE
         if (!isAdminRole($auth)) {
             $data['status'] = 'PENDIENTE';
         }
@@ -219,7 +279,7 @@ class ReservationController
             return;
         }
 
-        $createdByUserId = isset($auth['user_id']) ? (int)$auth['user_id'] : null;
+        $createdByUserId = isset($auth['user_id']) ? (int) $auth['user_id'] : null;
 
         try {
             $stmt = $this->pdo->prepare("
@@ -239,14 +299,14 @@ class ReservationController
                 $data['observation'] ?? null,
                 $data['num_guests'] ?? 1,
                 $data['contact_phone'] ?? null,
-                $createdByUserId
+                $createdByUserId,
             ]);
 
             $id = $this->pdo->lastInsertId();
 
             Response::json([
                 'success' => true,
-                'data' => ['id' => $id, 'message' => 'Reservación creada correctamente']
+                'data' => ['id' => $id, 'message' => 'Reservación creada correctamente'],
             ], 201);
         } catch (\PDOException $e) {
             Response::json(['success' => false, 'error' => 'Error al crear: ' . $e->getMessage()], 500);
@@ -255,7 +315,6 @@ class ReservationController
 
     /**
      * PUT /api/v1/reservations/:id
-     * Actualizar reservación
      */
     public function update($id)
     {
@@ -283,6 +342,16 @@ class ReservationController
             Response::json(['success' => false, 'error' => 'Sin permiso para editar esta reservación'], 403);
             return;
         }
+
+        if (isAdminRole($auth)) {
+            $authHouseId = isset($auth['house_id']) ? (int) $auth['house_id'] : 0;
+            $resHouseId = (int) ($reservation['house_id'] ?? 0);
+            if ($authHouseId <= 0 || $resHouseId !== $authHouseId) {
+                Response::json(['success' => false, 'error' => 'Solo puedes editar solicitudes de tu propio domicilio'], 403);
+                return;
+            }
+        }
+
         if (!isAdminRole($auth) && !in_array($reservation['status'], ['PENDIENTE', 'CONFIRMADA'], true)) {
             Response::json(['success' => false, 'error' => 'No se puede modificar esta reservación en su estado actual'], 400);
             return;
@@ -298,17 +367,33 @@ class ReservationController
             }
         }
 
-        if (!isAdminRole($auth)) {
-            unset($data['status']);
-        }
+        unset($data['status']);
 
         $fields = [];
         $values = [];
 
         $allowedFields = [
-            'access_point_id', 'person_id', 'house_id', 'reservation_date',
-            'end_date', 'status', 'observation', 'num_guests', 'contact_phone',
+            'access_point_id', 'person_id', 'house_id',
+            'observation', 'num_guests', 'contact_phone',
         ];
+
+        $datePayload = $data;
+        if (
+            array_key_exists('reservation_day', $data)
+            || array_key_exists('reservation_date', $data)
+            || array_key_exists('end_date', $data)
+        ) {
+            $mergedForResolve = array_merge($reservation, $data);
+            $resolved = $this->resolveEightToEightWindow($mergedForResolve);
+            if ($resolved['error'] !== null) {
+                Response::json(['success' => false, 'error' => $resolved['error']], 400);
+                return;
+            }
+            $data['reservation_date'] = $resolved['start'];
+            $data['end_date'] = $resolved['end'];
+            $allowedFields[] = 'reservation_date';
+            $allowedFields[] = 'end_date';
+        }
 
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {
@@ -330,6 +415,7 @@ class ReservationController
         if (
             isset($data['house_id']) || isset($data['access_point_id'])
             || isset($data['reservation_date']) || isset($data['end_date'])
+            || isset($data['reservation_day'])
         ) {
             $err = $this->validateReservationBusinessRules(
                 $mergedHouse,
@@ -347,7 +433,7 @@ class ReservationController
         $values[] = $id;
 
         try {
-            $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . " WHERE id = ?";
+            $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . ' WHERE id = ?';
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($values);
 
@@ -362,7 +448,6 @@ class ReservationController
 
     /**
      * PUT /api/v1/reservations/:id/status
-     * Cambiar estado de reservación
      */
     public function updateStatus($id)
     {
@@ -411,6 +496,11 @@ class ReservationController
             return;
         }
 
+        if ($newStatus === 'COMPLETADA' && $current !== 'CONFIRMADA') {
+            Response::json(['success' => false, 'error' => 'Solo se puede completar una reserva confirmada'], 400);
+            return;
+        }
+
         if ($newStatus === 'CANCELADA') {
             if (!in_array($current, ['PENDIENTE', 'CONFIRMADA'], true)) {
                 Response::json(['success' => false, 'error' => 'No se puede cancelar en este estado'], 400);
@@ -444,7 +534,6 @@ class ReservationController
 
     /**
      * DELETE /api/v1/reservations/:id
-     * Eliminar reservación
      */
     public function destroy($id)
     {
@@ -478,7 +567,6 @@ class ReservationController
 
     /**
      * GET /api/v1/reservations/areas
-     * Listar áreas disponibles para reservación
      */
     public function areas()
     {
@@ -500,7 +588,7 @@ class ReservationController
 
     /**
      * GET /api/v1/reservations/availability
-     * Consultar disponibilidad de un área
+     * Indica si el día lógico 8–8 que contiene `date` está libre para reservar en el área.
      */
     public function availability()
     {
@@ -536,58 +624,37 @@ class ReservationController
             return;
         }
 
-        // PENDIENTE y CONFIRMADA bloquean el hueco; RECHAZADA/CANCELADA liberan; COMPLETADA no aplica a nuevas reservas.
+        $resolved = $this->windowStringsFromDayYmd((string) $date);
+        if ($resolved['error'] !== null) {
+            Response::json(['success' => false, 'error' => $resolved['error']], 400);
+            return;
+        }
+        $winStart = $resolved['start'];
+        $winEnd = $resolved['end'];
+
         $placeholders = implode(',', array_fill(0, count(self::BLOCKING_STATUSES), '?'));
         $stmt = $this->pdo->prepare("
-            SELECT reservation_date, end_date 
-            FROM {$this->table} 
-            WHERE access_point_id = ? 
+            SELECT COUNT(*) FROM {$this->table}
+            WHERE access_point_id = ?
             AND status IN ({$placeholders})
-            AND DATE(reservation_date) = ?
-            ORDER BY reservation_date
+            AND reservation_date = ?
         ");
-        $execParams = array_merge([$accessPointId], self::BLOCKING_STATUSES, [$date]);
-        $stmt->execute($execParams);
-        $bookings = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        // Generar horarios disponibles (假设 8:00 - 22:00)
-        $availableSlots = [];
-        $startHour = 8;
-        $endHour = 22;
-
-        for ($hour = $startHour; $hour < $endHour; $hour++) {
-            $slotStart = $date . ' ' . str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00:00';
-            $slotEnd = $date . ' ' . str_pad($hour + 1, 2, '0', STR_PAD_LEFT) . ':00:00';
-
-            // Verificar si hay conflicto
-            $isAvailable = true;
-            foreach ($bookings as $booking) {
-                if ($slotStart < $booking['end_date'] && $slotEnd > $booking['reservation_date']) {
-                    $isAvailable = false;
-                    break;
-                }
-            }
-
-            $availableSlots[] = [
-                'start' => $slotStart,
-                'end' => $slotEnd,
-                'available' => $isAvailable
-            ];
-        }
+        $params = array_merge([(int) $accessPointId], self::BLOCKING_STATUSES, [$winStart]);
+        $stmt->execute($params);
+        $blocked = (int) $stmt->fetchColumn() > 0;
 
         Response::json([
             'success' => true,
             'data' => [
                 'date' => $date,
-                'access_point_id' => $accessPointId,
-                'slots' => $availableSlots
-            ]
+                'access_point_id' => (int) $accessPointId,
+                'available' => !$blocked,
+                'logical_window_start' => $winStart,
+                'logical_window_end' => $winEnd,
+            ],
         ]);
     }
 
-    /**
-     * Listado: administradores ven todo; vecinos y OPERARIO con casa solo reservas de sus casas.
-     */
     private function applyIndexRoleScope(array &$where, array &$values, array $auth): void
     {
         if (isAdminRole($auth)) {
@@ -607,9 +674,6 @@ class ReservationController
         }
     }
 
-    /**
-     * Ver detalle: administrador global; resto solo si la reserva es de una casa a la que tiene acceso.
-     */
     private function canViewReservation(array $auth, array $reservation): bool
     {
         if (isAdminRole($auth)) {
@@ -624,12 +688,59 @@ class ReservationController
     }
 
     /**
-     * Duración máxima, tope mensual de activas por casa y solape en el mismo área.
-     * Límites numéricos: server/config/reservation_business_rules.php
+     * @return array{start: string, end: string, error: ?string}
+     */
+    private function resolveEightToEightWindow(array $data): array
+    {
+        if (!empty($data['reservation_day'])) {
+            return $this->windowStringsFromDayYmd(trim((string) $data['reservation_day']));
+        }
+
+        if (!empty($data['reservation_date'])) {
+            $raw = trim((string) $data['reservation_date']);
+            $dayPart = strlen($raw) >= 10 ? substr($raw, 0, 10) : $raw;
+
+            return $this->windowStringsFromDayYmd($dayPart);
+        }
+
+        return ['start' => '', 'end' => '', 'error' => 'Indique reservation_day (YYYY-MM-DD) o reservation_date'];
+    }
+
+    /**
+     * @return array{start: string, end: string, error: ?string}
+     */
+    private function windowStringsFromDayYmd(string $dayYmd): array
+    {
+        $d = \DateTime::createFromFormat('Y-m-d', $dayYmd);
+        if (!$d || $d->format('Y-m-d') !== $dayYmd) {
+            return ['start' => '', 'end' => '', 'error' => 'Fecha de día inválida (use YYYY-MM-DD)'];
+        }
+        $h = (int) RESERVATION_DAY_START_HOUR;
+        $d->setTime($h, 0, 0);
+        $start = $d->format('Y-m-d H:i:s');
+        $d->modify('+1 day');
+        $end = $d->format('Y-m-d H:i:s');
+
+        return ['start' => $start, 'end' => $end, 'error' => null];
+    }
+
+    private function formatHouseLabel(array $row): string
+    {
+        $mz = strtoupper(trim((string) ($row['block_house'] ?? '')));
+        $lt = trim((string) ($row['lot'] ?? ''));
+        $apt = trim((string) ($row['apartment'] ?? ''));
+        $out = 'MZ:' . ($mz !== '' ? $mz : '-') . ' LT:' . ($lt !== '' ? $lt : '-');
+        if ($apt !== '') {
+            $out .= ' DPTO:' . strtoupper($apt);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Ventana 8–8 exacta, tope mensual por casa y una reserva bloqueante por área y día lógico.
      *
-     * @param int|null $excludeReservationId id actual al editar (no contar solape consigo mismo)
-     *
-     * @return string|null mensaje de error o null si OK
+     * @param int|null $excludeReservationId id al editar
      */
     private function validateReservationBusinessRules(
         int $houseId,
@@ -664,19 +775,22 @@ class ReservationController
         }
 
         if ($end <= $start) {
-            return 'La fecha y hora de fin deben ser posteriores al inicio';
+            return 'La fecha de fin debe ser posterior al inicio';
         }
 
-        $diffSeconds = $end->getTimestamp() - $start->getTimestamp();
-        $maxSeconds = (int) (RESERVATION_MAX_EVENT_HOURS * 3600);
-        if ($diffSeconds > $maxSeconds) {
-            return 'La duración máxima por evento es ' . RESERVATION_MAX_EVENT_HOURS . ' horas';
+        $expected = clone $start;
+        $expected->modify('+1 day');
+        $h = (int) RESERVATION_DAY_START_HOUR;
+        if ((int) $start->format('H') !== $h || (int) $start->format('i') !== 0 || (int) $start->format('s') !== 0) {
+            return 'La reserva debe comenzar a las ' . $h . ':00 del día elegido';
+        }
+        if ($end->format('Y-m-d H:i:s') !== $expected->format('Y-m-d H:i:s')) {
+            return 'La reserva debe cubrir exactamente 24 horas hasta las ' . $h . ':00 del día siguiente';
         }
 
         $year = (int) $start->format('Y');
         $month = (int) $start->format('n');
 
-        /** Tope mensual y solape solo si la reserva bloquea hueco (PENDIENTE/CONFIRMADA). */
         $blockingRulesApply = true;
         if ($excludeReservationId !== null && $excludeReservationId !== '') {
             $stmtSt = $this->pdo->prepare("SELECT status FROM {$this->table} WHERE id = ? LIMIT 1");
@@ -716,10 +830,9 @@ class ReservationController
             SELECT COUNT(*) FROM {$this->table}
             WHERE access_point_id = ?
             AND status IN ('PENDIENTE', 'CONFIRMADA')
-            AND reservation_date < ?
-            AND end_date > ?
+            AND reservation_date = ?
         ";
-        $overlapParams = [$accessPointId, $endDateStr, $reservationDateStr];
+        $overlapParams = [$accessPointId, $reservationDateStr];
         if ($excludeReservationId !== null && $excludeReservationId !== '') {
             $overlapSql .= ' AND id != ?';
             $overlapParams[] = (int) $excludeReservationId;
@@ -727,7 +840,7 @@ class ReservationController
         $stmtO = $this->pdo->prepare($overlapSql);
         $stmtO->execute($overlapParams);
         if ((int) $stmtO->fetchColumn() > 0) {
-            return 'El horario se solapa con otra reserva pendiente o confirmada en esta área';
+            return 'Ya existe una reserva pendiente o confirmada en esta área para ese día (política 8:00 a 8:00)';
         }
 
         return null;

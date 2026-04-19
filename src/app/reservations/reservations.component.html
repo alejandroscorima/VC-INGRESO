@@ -28,6 +28,7 @@
             id="calendar-area"
             name="calendarAreaFilter"
             [(ngModel)]="calendarAreaFilter"
+            (change)="onCalendarAreaFilterChange()"
             class="block w-full min-w-[12rem] rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-white focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
           >
             <option [ngValue]="'ALL'">Todas las áreas</option>
@@ -83,12 +84,13 @@
             >
               {{ cell.date.getDate() }}
             </span>
-            <div class="mt-1 flex flex-wrap gap-0.5">
+            <div class="mt-1 flex flex-wrap gap-0.5 items-center">
               <span
-                *ngFor="let dot of cell.dots"
-                class="inline-block h-1.5 w-1.5 rounded-full shrink-0"
-                [ngClass]="dot"
-              ></span>
+                *ngFor="let tag of cell.tags"
+                class="inline-flex shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold leading-tight"
+                [ngClass]="tag.badgeClass"
+                >{{ tag.short }}</span
+              >
               <span *ngIf="cell.extraCount > 0" class="text-[10px] text-gray-500 dark:text-gray-400">+{{ cell.extraCount }}</span>
             </div>
           </button>
@@ -238,17 +240,17 @@
                   </div>
                 </td>
               </tr>
-              <tr *ngIf="!loading && monthReservations.length === 0">
+              <tr *ngIf="!loading && monthTableReservations.length === 0">
                 <td [attr.colspan]="isAdmin ? 7 : 6" class="px-3 py-8 text-center text-gray-500 dark:text-gray-400">
-                  No hay solicitudes en este mes.
+                  {{ isAdmin ? 'No hay solicitudes en este mes.' : 'No hay solicitudes de tu domicilio en este mes.' }}
                 </td>
               </tr>
-              <tr *ngIf="!loading && monthReservations.length > 0 && reservationsForMonthView.length === 0">
+              <tr *ngIf="!loading && monthTableReservations.length > 0 && tableReservationsForMonth.length === 0">
                 <td [attr.colspan]="isAdmin ? 7 : 6" class="px-3 py-8 text-center text-gray-600 dark:text-gray-400">
                   No hay solicitudes para el área seleccionada en este mes.
                 </td>
               </tr>
-              <tr *ngIf="!loading && reservationsForMonthView.length > 0 && tableRows.length === 0">
+              <tr *ngIf="!loading && tableReservationsForMonth.length > 0 && tableRows.length === 0">
                 <td [attr.colspan]="isAdmin ? 7 : 6" class="px-3 py-8 text-center text-amber-700 dark:text-amber-300">
                   Ninguna solicitud coincide con la búsqueda o los filtros de domicilio (Mz / Lt).
                 </td>
@@ -307,29 +309,19 @@
         </select>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Inicio *</label>
-          <input
-            type="datetime-local"
-            name="start"
-            [(ngModel)]="formStart"
-            required
-            class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
-          />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fin *</label>
-          <input
-            type="datetime-local"
-            name="end"
-            [(ngModel)]="formEnd"
-            required
-            class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
-          />
-        </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Día de la reserva *</label>
+        <input
+          type="date"
+          name="reservationDay"
+          [(ngModel)]="formReservationDay"
+          required
+          class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
+        />
+        <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+          Ventana fija: desde las 8:00 de ese día hasta las 8:00 del día siguiente (entrega del ambiente). El uso interno no lo gestiona el sistema.
+        </p>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400">Duración máxima {{ maxEventHours }} horas por evento (política del condominio).</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -361,21 +353,6 @@
           rows="2"
           class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
         ></textarea>
-      </div>
-
-      <div *ngIf="isAdmin && modalMode === 'edit'">
-        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
-        <select
-          name="st"
-          [(ngModel)]="formStatus"
-          class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
-        >
-          <option value="PENDIENTE">PENDIENTE</option>
-          <option value="CONFIRMADA">CONFIRMADA</option>
-          <option value="CANCELADA">CANCELADA</option>
-          <option value="RECHAZADA">RECHAZADA</option>
-          <option value="COMPLETADA">COMPLETADA</option>
-        </select>
       </div>
 
       <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">

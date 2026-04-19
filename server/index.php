@@ -580,6 +580,14 @@ if (str_starts_with($uri, '/api/v1/')) {
             }
             exit;
         }
+
+        // reservations/calendar (vista comunitaria; payload mínimo para casas ajenas)
+        if (str_contains($path, 'calendar')) {
+            if ($method === 'GET') {
+                $controller->calendar();
+            }
+            exit;
+        }
         
         // reservations/:id/status
         if (str_contains($path, 'status') && preg_match('#^reservations/(\d+)/status#', $path, $m)) {
@@ -704,6 +712,7 @@ echo json_encode([
             'PUT /api/v1/reservations/:id/status' => 'Cambiar estado',
             'DELETE /api/v1/reservations/:id' => 'Eliminar reservación',
             'GET /api/v1/reservations/areas' => 'Listar áreas disponibles',
-            'GET /api/v1/reservations/availability' => 'Consultar disponibilidad'
+            'GET /api/v1/reservations/availability' => 'Día lógico 8–8 libre u ocupado',
+            'GET /api/v1/reservations/calendar' => 'Calendario comunitario (payload mínimo en ajenas)'
         ]
 ]);

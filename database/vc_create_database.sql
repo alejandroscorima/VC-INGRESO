@@ -369,3 +369,24 @@ INSERT INTO `access_points` (`name`, `type`, `location`, `is_active`, `controla_
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================================
+-- EVENT SCHEDULER: cierre diario reservas vencidas (08:02 hora Lima / TZ servidor)
+-- Requiere mysqld con --event-scheduler=ON (ver docker-compose) y --default-time-zone=America/Lima.
+-- =============================================================================
+SET GLOBAL event_scheduler = ON;
+
+DROP EVENT IF EXISTS ev_vc_complete_expired_reservations;
+
+CREATE EVENT ev_vc_complete_expired_reservations
+ON SCHEDULE EVERY 1 DAY
+STARTS (TIMESTAMP(CURDATE()) + INTERVAL 8 HOUR + INTERVAL 2 MINUTE)
+ON COMPLETION PRESERVE
+ENABLE
+COMMENT 'CONFIRMADA->COMPLETADA si end_date<NOW(); diario 08:02 (America/Lima vía --default-time-zone)'
+DO
+  UPDATE reservations
+  SET status = 'COMPLETADA'
+  WHERE status = 'CONFIRMADA'
+    AND end_date IS NOT NULL
+    AND end_date < NOW();

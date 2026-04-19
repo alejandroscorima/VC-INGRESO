@@ -21,6 +21,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Misma imagen institucional que el login (`src/assets/BG-INGRESO-VC5.png`). */
   readonly condoBackgroundUrl = 'assets/BG-INGRESO-VC5.png';
 
+  readonly logoUrl = 'assets/logo_VC5.png';
+
   menuOpen = false;
   impactWord = 'SEGURIDAD';
 
