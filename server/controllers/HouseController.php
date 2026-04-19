@@ -20,8 +20,12 @@ class HouseController extends Controller {
      */
     public function index($params = []) {
         $auth = requireAuth();
+        $ownerExistsSql = "(EXISTS (SELECT 1 FROM persons p WHERE p.house_id = h.house_id AND p.person_type = 'PROPIETARIO')) AS owner_registered";
+
         if (isStaffRole($auth)) {
-            $houses = $this->getAll([], 'house_id DESC');
+            $sql = "SELECT h.*, {$ownerExistsSql} FROM {$this->tableName} h ORDER BY h.house_id DESC";
+            $stmt = $this->db->query($sql);
+            $houses = $stmt->fetchAll(\PDO::FETCH_OBJ);
             Response::success($houses, 'Casas obtenidas correctamente');
             return;
         }
@@ -31,7 +35,7 @@ class HouseController extends Controller {
             return;
         }
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $stmt = $this->db->prepare("SELECT * FROM {$this->tableName} WHERE house_id IN ($placeholders) ORDER BY house_id DESC");
+        $stmt = $this->db->prepare("SELECT h.*, {$ownerExistsSql} FROM {$this->tableName} h WHERE h.house_id IN ($placeholders) ORDER BY h.house_id DESC");
         $stmt->execute($ids);
         $houses = $stmt->fetchAll(\PDO::FETCH_OBJ);
         Response::success($houses, 'Casas obtenidas correctamente');

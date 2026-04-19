@@ -4,10 +4,17 @@
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Viviendas</h2>
 
         <div class="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <button *ngIf="canManageHousesCrud" type="button" (click)="newHouse()" class="vc-btn-primary me-2 py-1.5">
-                Nuevo
-            </button>
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total viviendas: {{ houses.length }}</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <button *ngIf="canManageHousesCrud" type="button" (click)="newHouse()" class="vc-btn-primary py-1.5">
+                    Nuevo
+                </button>
+                <button type="button" (click)="exportHousesExcel()" class="vc-btn-outline py-1.5">
+                    Exportar Excel
+                </button>
+            </div>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Registradas: {{ filteredRegisteredCount }} · Total viviendas: {{ filteredHouses.length }}
+            </span>
         </div>
 
         <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center">
@@ -20,6 +27,11 @@
                 <option value="">Lt: Todos</option>
                 <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{lot}}</option>
             </select>
+            <select [(ngModel)]="selectedRegistered" (ngModelChange)="onRegisteredFilterChange()" class="vc-select-sm">
+                <option value="">Registrada: Todas</option>
+                <option value="yes">Registrada: Sí</option>
+                <option value="no">Registrada: No</option>
+            </select>
         </div>
 
         <div class="vc-table-wrap">
@@ -30,6 +42,7 @@
                         <th scope="col" class="vc-th">Lote</th>
                         <th scope="col" class="vc-th">Departamento</th>
                         <th scope="col" class="vc-th">Estado</th>
+                        <th scope="col" class="vc-th text-center">Registrada</th>
                         <th scope="col" class="vc-th text-right">
                             Acciones
                             <span class="sr-only">Editar</span>
@@ -42,6 +55,18 @@
                         <td class="vc-td">{{h.lot}}</td>
                         <td class="vc-td">{{h.apartment}}</td>
                         <td class="vc-td">{{h.status_system.toUpperCase()}}</td>
+                        <td class="vc-td text-center align-middle">
+                            <span *ngIf="isOwnerRegistered(h)" class="inline-flex text-green-600 dark:text-green-400" title="Tiene propietario registrado" aria-label="Sí, registrada">
+                                <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </span>
+                            <span *ngIf="!isOwnerRegistered(h)" class="inline-flex text-red-600 dark:text-red-400" title="Sin propietario registrado" aria-label="No registrada">
+                                <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </span>
+                        </td>
                         <td class="vc-td text-right">
                             <button *ngIf="canManageHousesCrud" type="button" (click)="editHouse(h)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

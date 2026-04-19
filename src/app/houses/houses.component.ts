@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
+import * as XLSX from 'xlsx';
 import { House } from '../house';
 import { EntranceService } from '../entrance.service';
 import { initFlowbite } from 'flowbite';
@@ -20,6 +21,8 @@ export class HousesComponent implements OnInit, AfterViewInit{
   searchTerm: string = '';
   selectedBlock: string = '';
   selectedLot: string = '';
+  /** '' = todas, 'yes' = con propietario, 'no' = sin propietario */
+  selectedRegistered: '' | 'yes' | 'no' = '';
   currentPage: number = 1;
   pageSize: number = 10;
   pageSizeOptions: number[] = [10, 25, 50, 100];
@@ -107,27 +110,65 @@ export class HousesComponent implements OnInit, AfterViewInit{
 
   private handleSuccess() {
     this.clean();
-    this.entranceService.getAllHouses().subscribe((res: any[]) => {
-      this.houses = res;
+    this.entranceService.getAllHouses().subscribe((res: any) => {
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      this.houses = list;
     });
   }
 
-  get filteredHouses(): House[] {
-    if (!this.searchTerm.trim() && !this.selectedBlock && !this.selectedLot) {
-      return this.houses;
+  /** Coherente con API (0/1, boolean o undefined). */
+  isOwnerRegistered(h: House): boolean {
+    const v = h.owner_registered as unknown;
+    return v === true || v === 1 || v === '1';
+  }
+
+  get filteredRegisteredCount(): number {
+    return this.filteredHouses.filter(h => this.isOwnerRegistered(h)).length;
+  }
+
+  exportHousesExcel(): void {
+    const rows = this.filteredHouses.map(h => ({
+      Manzana: h.block_house,
+      Lote: h.lot,
+      Departamento: h.apartment ?? '',
+      Estado: (h.status_system || '').toString().toUpperCase(),
+      'Tipo vivienda': h.house_type ?? '',
+      Registrada: this.isOwnerRegistered(h) ? 'Sí' : 'No',
+    }));
+    if (rows.length === 0) {
+      this.toastr.warning('No hay viviendas para exportar con el filtro actual');
+      return;
     }
-    const search = this.searchTerm.toLowerCase();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Viviendas');
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14);
+    XLSX.writeFile(wb, `viviendas_${stamp}.xlsx`);
+  }
+
+  get filteredHouses(): House[] {
+    const search = this.searchTerm.trim().toLowerCase();
     return this.houses.filter(h => {
-      const matchesSearch = !this.searchTerm.trim() ||
+      const matchesSearch = !search ||
         h.block_house.toString().toLowerCase().includes(search) ||
         h.lot.toString().toLowerCase().includes(search) ||
         (h.apartment && h.apartment.toLowerCase().includes(search));
-      
+
       const matchesBlock = !this.selectedBlock || h.block_house.toString() === this.selectedBlock;
       const matchesLot = !this.selectedLot || h.lot.toString() === this.selectedLot;
-      
-      return matchesSearch && matchesBlock && matchesLot;
+
+      const reg = this.isOwnerRegistered(h);
+      const matchesRegistered =
+        !this.selectedRegistered ||
+        (this.selectedRegistered === 'yes' && reg) ||
+        (this.selectedRegistered === 'no' && !reg);
+
+      return matchesSearch && matchesBlock && matchesLot && matchesRegistered;
     });
+  }
+
+  onRegisteredFilterChange(): void {
+    this.currentPage = 1;
   }
 
   get uniqueBlocks(): string[] {
