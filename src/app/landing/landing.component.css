@@ -12,7 +12,7 @@
   --vl-text-2: oklch(0.71 0.01 260);
   --vl-brand-1: oklch(0.75 0.18 75);
   --vl-brand-2: oklch(0.85 0.15 85);
-  --vl-nav-h: 6rem;
+  --vl-nav-h: 11.5rem;
   --vl-radius: 12px;
   --vl-gap: 2rem;
   --vl-container: min(1200px, 100% - 2rem);
@@ -81,9 +81,9 @@
 
 .vl-logo-img {
   display: block;
-  height: 4rem;
+  height: 10rem;
   width: auto;
-  max-width: min(340px, 72vw);
+  max-width: min(560px, 92vw);
   object-fit: contain;
 }
 
