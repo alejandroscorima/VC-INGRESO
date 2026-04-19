@@ -11,6 +11,7 @@ namespace Controllers;
 
 require_once __DIR__ . '/../auth_middleware.php';
 require_once __DIR__ . '/../helpers/house_permissions.php';
+require_once __DIR__ . '/../helpers/license_plate.php';
 
 use Utils\Response;
 
@@ -124,6 +125,10 @@ class ExternalVehicleController extends Controller {
                 $filtered[$field] = $data[$field];
             }
         }
+        if (array_key_exists('temp_visit_plate', $filtered)) {
+            $pn = normalize_license_plate((string) $filtered['temp_visit_plate']);
+            $filtered['temp_visit_plate'] = $pn === '' ? null : $pn;
+        }
         $filtered['registered_by_user_id'] = $uid;
 
         $id = $this->create($filtered);
@@ -163,6 +168,10 @@ class ExternalVehicleController extends Controller {
             if (isset($data[$field])) {
                 $filtered[$field] = $data[$field];
             }
+        }
+        if (array_key_exists('temp_visit_plate', $filtered)) {
+            $pn = normalize_license_plate((string) $filtered['temp_visit_plate']);
+            $filtered['temp_visit_plate'] = $pn === '' ? null : $pn;
         }
 
         if (empty($filtered)) {

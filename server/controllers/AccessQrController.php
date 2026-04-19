@@ -6,6 +6,7 @@
 namespace Controllers;
 
 require_once __DIR__ . '/../helpers/house_permissions.php';
+require_once __DIR__ . '/../helpers/license_plate.php';
 require_once __DIR__ . '/../token.php';
 require_once __DIR__ . '/../auth_middleware.php';
 require_once __DIR__ . '/../utils/Response.php';
@@ -110,11 +111,11 @@ class AccessQrController
         );
         $stmt->execute([$vehicleId]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if (!$row || $row['license_plate'] === null || $row['license_plate'] === '') {
+        if (!$row) {
             Response::error('Vehículo no encontrado', 404);
             return;
         }
-        $plate = strtoupper(trim((string) $row['license_plate']));
+        $plate = normalize_license_plate((string) ($row['license_plate'] ?? ''));
         $hid = (int) $row['house_id'];
         $payload = [
             'typ' => self::QR_TYP,
@@ -235,11 +236,25 @@ class AccessQrController
             return;
         }
 
-        $plate = strtoupper(preg_replace('/\s+/', '', $input));
+        $plateNorm = normalize_license_plate($input);
+        if ($plateNorm === '') {
+            Response::success([
+                'source' => 'manual',
+                'kind' => 'vehicle',
+                'person' => null,
+                'vehicle' => null,
+                'license_plate' => null,
+                'status_validated' => 'DENEGADO',
+                'allow_entry' => false,
+                'is_birthday' => false,
+                'message' => 'Placa no registrada',
+            ], 'OK');
+            return;
+        }
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM vehicles WHERE UPPER(TRIM(license_plate)) = ? LIMIT 1'
+            'SELECT * FROM vehicles WHERE license_plate = ? LIMIT 1'
         );
-        $stmt->execute([$plate]);
+        $stmt->execute([$plateNorm]);
         $vehicle = $stmt->fetch(\PDO::FETCH_ASSOC);
         if ($vehicle) {
             $data = $this->buildUnifiedFromVehicle($vehicle, 'manual');
@@ -249,9 +264,12 @@ class AccessQrController
 
         // Vehículos externos (Mi casa → Vehículos externos): tabla temporary_visits
         $stmtTv = $this->pdo->prepare(
-            'SELECT * FROM temporary_visits WHERE UPPER(TRIM(temp_visit_plate)) = ? ORDER BY temp_visit_id DESC LIMIT 1'
+            "SELECT * FROM temporary_visits
+             WHERE temp_visit_plate IS NOT NULL AND temp_visit_plate <> ''
+               AND REGEXP_REPLACE(UPPER(TRIM(temp_visit_plate)), '[^A-Z0-9]', '') = ?
+             ORDER BY temp_visit_id DESC LIMIT 1"
         );
-        $stmtTv->execute([$plate]);
+        $stmtTv->execute([$plateNorm]);
         $tempVisit = $stmtTv->fetch(\PDO::FETCH_ASSOC);
         if ($tempVisit) {
             $data = $this->buildUnifiedFromTemporaryVisit($tempVisit, 'manual');
@@ -264,7 +282,7 @@ class AccessQrController
             'kind' => 'vehicle',
             'person' => null,
             'vehicle' => null,
-            'license_plate' => $plate,
+            'license_plate' => $plateNorm,
             'status_validated' => 'DENEGADO',
             'allow_entry' => false,
             'is_birthday' => false,
@@ -317,7 +335,7 @@ class AccessQrController
         }
         if ($k === 'vehicle') {
             $vid = isset($payload['vid']) ? (int) $payload['vid'] : 0;
-            $plateTok = strtoupper(trim((string) ($payload['plate'] ?? '')));
+            $plateTok = normalize_license_plate((string) ($payload['plate'] ?? ''));
             if ($vid <= 0 || $plateTok === '') {
                 return null;
             }
@@ -327,7 +345,7 @@ class AccessQrController
             if (!$vehicle) {
                 return null;
             }
-            if (strtoupper(trim((string) $vehicle['license_plate'])) !== $plateTok) {
+            if (normalize_license_plate((string) $vehicle['license_plate']) !== $plateTok) {
                 return null;
             }
             $hidTok = isset($payload['hid']) ? (int) $payload['hid'] : 0;
@@ -397,7 +415,7 @@ class AccessQrController
             'person_id' => null,
             'doc_number' => null,
             'vehicle_id' => (int) $vehicle['vehicle_id'],
-            'license_plate' => strtoupper(trim((string) $vehicle['license_plate'])),
+            'license_plate' => normalize_license_plate((string) $vehicle['license_plate']),
             'status_validated' => $status,
             'allow_entry' => $allow,
             'is_birthday' => false,
@@ -423,7 +441,7 @@ class AccessQrController
         }
         $allow = $status !== 'DENEGADO';
 
-        $plate = strtoupper(trim((string) ($tv['temp_visit_plate'] ?? '')));
+        $plate = normalize_license_plate((string) ($tv['temp_visit_plate'] ?? ''));
         $doc = trim((string) ($tv['temp_visit_doc'] ?? ''));
 
         $vehiclePublic = [
@@ -482,7 +500,7 @@ class AccessQrController
     {
         return [
             'vehicle_id' => (int) $v['vehicle_id'],
-            'license_plate' => (string) $v['license_plate'],
+            'license_plate' => normalize_license_plate((string) $v['license_plate']),
             'house_id' => isset($v['house_id']) ? (int) $v['house_id'] : null,
             'brand' => $v['brand'] ?? null,
             'model' => $v['model'] ?? null,

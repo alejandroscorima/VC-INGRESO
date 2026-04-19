@@ -10,6 +10,8 @@ namespace Controllers;
 
 require_once __DIR__ . '/../auth_middleware.php';
 require_once __DIR__ . '/../helpers/house_permissions.php';
+require_once __DIR__ . '/../helpers/license_plate.php';
+require_once __DIR__ . '/../helpers/vehicle_type_rules.php';
 
 use Utils\Response;
 
@@ -105,16 +107,43 @@ class VehicleController extends Controller {
             return;
         }
         $data = $this->getInput();
-        
-        $required = ['license_plate', 'house_id'];
-        foreach ($required as $field) {
+
+        foreach (['house_id', 'type_vehicle'] as $field) {
             if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) {
                 Response::error("Campo requerido faltante: $field", 400);
             }
         }
-        if ($this->exists('license_plate', $data['license_plate'])) {
-            Response::error('Ya existe un vehículo con esta placa', 409);
+        $typeNorm = mb_strtoupper(trim((string) $data['type_vehicle']), 'UTF-8');
+        if (!vehicle_type_is_known($typeNorm)) {
+            Response::error('type_vehicle no válido', 400);
+            return;
         }
+        $data['type_vehicle'] = $typeNorm;
+
+        $needsPlate = vehicle_type_requires_license_plate($typeNorm);
+        $photoTrim = trim((string) ($data['photo_url'] ?? ''));
+        if ($needsPlate) {
+            if (!isset($data['license_plate']) || trim((string) $data['license_plate']) === '') {
+                Response::error('Campo requerido faltante: license_plate', 400);
+                return;
+            }
+            $plateNorm = normalize_license_plate((string) $data['license_plate']);
+            if ($plateNorm === '') {
+                Response::error('Placa inválida: debe incluir al menos una letra o número', 400);
+                return;
+            }
+            if ($this->exists('license_plate', $plateNorm)) {
+                Response::error('Ya existe un vehículo con esta placa', 409);
+            }
+            $data['license_plate'] = $plateNorm;
+        } else {
+            $data['license_plate'] = null;
+            if ($photoTrim === '') {
+                Response::error('Para bicicleta y moto eléctrica debe adjuntar la foto del vehículo.', 400);
+                return;
+            }
+        }
+
         $houseId = (int) $data['house_id'];
         if (!canAccessHouse($this->db, $auth, $houseId)) {
             Response::error('Sin permiso para crear vehículos en esta casa', 403);
@@ -161,10 +190,11 @@ class VehicleController extends Controller {
         $allowed = ['license_plate', 'type_vehicle', 'house_id', 'owner_id', 'status_validated', 'status_reason', 'status_system', 'category_entry', 'color', 'brand', 'model', 'year', 'photo_url'];
         $filtered = [];
         foreach ($allowed as $field) {
-            if (isset($data[$field])) {
+            if (array_key_exists($field, $data)) {
                 $filtered[$field] = $data[$field];
             }
         }
+        $filtered['license_plate'] = $data['license_plate'];
         $filtered['created_by_user_id'] = $createdBy;
 
         $vehicleId = $this->create($filtered);
@@ -227,11 +257,55 @@ class VehicleController extends Controller {
         $allowed = ['license_plate', 'type_vehicle', 'house_id', 'owner_id', 'status_validated', 'status_reason', 'status_system', 'category_entry', 'color', 'brand', 'model', 'year', 'photo_url'];
         $filtered = [];
         foreach ($allowed as $field) {
-            if (isset($data[$field])) {
+            if (array_key_exists($field, $data)) {
                 $filtered[$field] = $data[$field];
             }
         }
         $filtered['updated_by_user_id'] = $updatedBy;
+
+        $mergedType = isset($filtered['type_vehicle'])
+            ? mb_strtoupper(trim((string) $filtered['type_vehicle']), 'UTF-8')
+            : mb_strtoupper(trim((string) ($vehicle->type_vehicle ?? '')), 'UTF-8');
+        if (isset($filtered['type_vehicle']) && !vehicle_type_is_known($mergedType)) {
+            Response::error('type_vehicle no válido', 400);
+            return;
+        }
+        if (isset($filtered['type_vehicle'])) {
+            $filtered['type_vehicle'] = $mergedType;
+        }
+
+        $mergedPhoto = array_key_exists('photo_url', $filtered)
+            ? trim((string) $filtered['photo_url'])
+            : trim((string) ($vehicle->photo_url ?? ''));
+
+        if (!vehicle_type_requires_license_plate($mergedType)) {
+            $filtered['license_plate'] = null;
+            if ($mergedPhoto === '') {
+                Response::error('Para bicicleta y moto eléctrica la foto del vehículo es obligatoria.', 400);
+                return;
+            }
+        } else {
+            if (array_key_exists('license_plate', $filtered)) {
+                $plateNorm = normalize_license_plate((string) ($filtered['license_plate'] ?? ''));
+                if ($plateNorm === '') {
+                    Response::error('Placa inválida: debe incluir al menos una letra o número', 400);
+                    return;
+                }
+                $stmt = $this->db->prepare('SELECT 1 FROM vehicles WHERE license_plate = ? AND vehicle_id != ? LIMIT 1');
+                $stmt->execute([$plateNorm, $vehicleId]);
+                if ($stmt->fetch() !== false) {
+                    Response::error('Ya existe un vehículo con esta placa', 409);
+                    return;
+                }
+                $filtered['license_plate'] = $plateNorm;
+            } else {
+                $existing = normalize_license_plate((string) ($vehicle->license_plate ?? ''));
+                if ($existing === '') {
+                    Response::error('Este tipo de vehículo requiere placa.', 400);
+                    return;
+                }
+            }
+        }
 
         if (empty($filtered)) {
             Response::error('No hay datos para actualizar', 400);

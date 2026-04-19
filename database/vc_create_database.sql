@@ -162,7 +162,7 @@ CREATE TABLE `house_members` (
 -- -----------------------------------------------------------------------------
 CREATE TABLE `vehicles` (
     `vehicle_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `license_plate` VARCHAR(15) NOT NULL,
+    `license_plate` VARCHAR(15) NULL DEFAULT NULL,
     `type_vehicle` VARCHAR(15) DEFAULT NULL,
     `house_id` INT UNSIGNED DEFAULT NULL,
     `owner_id` INT UNSIGNED DEFAULT NULL,

@@ -7,6 +7,12 @@ import { ExternalVehicle } from '../externalVehicle';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { AuthService } from '../auth.service';
+import { PublicRegistrationService } from '../public-registration/public-registration.service';
+import {
+  VEHICLE_TYPE_VALUES,
+  vehicleTypeRequiresLicensePlate,
+  vehicleTypeRequiresVehiclePhoto
+} from '../vehicle-types';
 
 @Component({
   selector: 'app-vehicles',
@@ -16,22 +22,27 @@ import { AuthService } from '../auth.service';
 export class VehiclesComponent implements OnInit, AfterViewInit{
 
   vehicles: Vehicle[] = [];
-  vehicleToAdd: Vehicle = new Vehicle('','',0,'','','','');
-  vehicleToEdit: Vehicle = new Vehicle('','',0,'','','','');
+  vehicleToAdd: Vehicle = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'PROPIETARIO', '', '', '');
+  vehicleToEdit: Vehicle = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'PROPIETARIO', '', '', '');
 
-  types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
+  types: string[] = [...VEHICLE_TYPE_VALUES];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
   status: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   
   vehicleTypeIcons: { [key: string]: string } = {
     'MOTOCICLETA': 'two_wheeler',
     'MOTOTAXI': 'two_wheeler',
+    'MOTO ELECTRICA': 'two_wheeler',
     'AUTOMOVIL': 'directions_car',
     'CAMIONETA': 'local_shipping',
+    'CAMION': 'local_shipping',
     'MINIVAN': 'directions_bus',
+    'MINI BUS': 'directions_bus',
     'BICICLETA': 'two_wheeler',
     'FURGONETA': 'local_shipping'
   };
+
+  uploadingNewVehiclePhoto = false;
   
   houses: House[] = [];
   
@@ -67,6 +78,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     private toastr: ToastrService,
     private api: ApiService,
     private auth: AuthService,
+    private publicReg: PublicRegistrationService,
   ){}
 
   /** Administración y operarios: pestaña global de visitas temporales (todos los registros). */
@@ -120,6 +132,55 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }
 //VEHÍCULOS DE RESIDENTES
 
+  requiresVehiclePlateType(type: string | undefined): boolean {
+    return vehicleTypeRequiresLicensePlate(type);
+  }
+
+  requiresVehiclePhotoType(type: string | undefined): boolean {
+    return vehicleTypeRequiresVehiclePhoto(type);
+  }
+
+  onNewVehicleTypeChange(): void {
+    if (vehicleTypeRequiresLicensePlate(this.vehicleToAdd.type_vehicle)) {
+      return;
+    }
+    this.vehicleToAdd.license_plate = '';
+  }
+
+  onEditVehicleTypeChange(): void {
+    if (vehicleTypeRequiresLicensePlate(this.vehicleToEdit.type_vehicle)) {
+      return;
+    }
+    this.vehicleToEdit.license_plate = '';
+  }
+
+  onNewVehiclePhotoPick(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+    this.uploadingNewVehiclePhoto = true;
+    this.publicReg.uploadVehiclePhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingNewVehiclePhoto = false;
+        if (res.success && res.photo_url) {
+          this.vehicleToAdd.photo_url = res.photo_url;
+          this.toastr.success('Foto del vehículo cargada.');
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingNewVehiclePhoto = false;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
+
   newVehicle(){
     document.getElementById('vehicles-new-vehicle-button')?.click();
   }
@@ -137,7 +198,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
     return this.vehicles.filter(v => {
       const matchesSearch = !this.searchTerm.trim() ||
         v.type_vehicle.toLowerCase().includes(search) ||
-        v.license_plate.toLowerCase().includes(search);
+        (v.license_plate ?? '').toString().toLowerCase().includes(search);
       
       const house = this.houses.find(h => h.house_id === v.house_id);
       const blockVal = (house?.block_house ?? '').toString();
@@ -247,7 +308,8 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
 
   openViewPhoto(vehicle: Vehicle): void {
     this.viewPhotoUrl = this.api.getPhotoUrl(vehicle.photo_url!);
-    this.viewPhotoTitle = vehicle.license_plate ? `Vehículo ${vehicle.license_plate}` : 'Foto';
+    const pl = (vehicle.license_plate ?? '').toString().trim();
+    this.viewPhotoTitle = pl ? `Vehículo ${pl}` : `Vehículo (${vehicle.type_vehicle || '—'})`;
     this.showViewPhotoDialog = true;
   }
 
@@ -281,12 +343,27 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }
 
   saveEditVehicle(){
-    if(!this.vehicleToEdit.license_plate || !this.vehicleToEdit.house_id||!this.vehicleToEdit.type_vehicle){
+    if (!this.vehicleToEdit.house_id || !this.vehicleToEdit.type_vehicle) {
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');
       this.clean();
       return;
     }
-    this.entranceService.updateVehicle(this.vehicleToEdit).subscribe({
+    const t = this.vehicleToEdit.type_vehicle;
+    if (vehicleTypeRequiresLicensePlate(t)) {
+      if (!(this.vehicleToEdit.license_plate ?? '').toString().trim()) {
+        this.toastr.error('La placa es obligatoria para este tipo de vehículo.');
+        this.clean();
+        return;
+      }
+    } else if (!(this.vehicleToEdit.photo_url ?? '').toString().trim()) {
+      this.toastr.error('Para bicicleta y moto eléctrica debe tener foto del vehículo.');
+      return;
+    }
+    const payloadEdit = { ...this.vehicleToEdit } as Vehicle;
+    if (!vehicleTypeRequiresLicensePlate(t)) {
+      (payloadEdit as any).license_plate = null;
+    }
+    this.entranceService.updateVehicle(payloadEdit).subscribe({
       next:(resUpdate:any)=>{
         if(resUpdate.success){
           this.toastr.success(resUpdate.message);
@@ -305,18 +382,31 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }
 
   saveNewVehicle(): void {
-    //CAMPOS OBLIGATORIOS
-    if(!this.vehicleToAdd.license_plate || !this.vehicleToAdd.house_id||!this.vehicleToAdd.type_vehicle){
+    if (!this.vehicleToAdd.house_id || !this.vehicleToAdd.type_vehicle) {
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');
       this.clean();
       return;
     }
-    //HASTA AQUÍ
+    const tv = this.vehicleToAdd.type_vehicle;
+    if (vehicleTypeRequiresLicensePlate(tv)) {
+      if (!(this.vehicleToAdd.license_plate ?? '').toString().trim()) {
+        this.toastr.error('La placa es obligatoria para este tipo de vehículo.');
+        this.clean();
+        return;
+      }
+    } else if (!(this.vehicleToAdd.photo_url ?? '').toString().trim()) {
+      this.toastr.error('Para bicicleta y moto eléctrica debe subir una foto del vehículo.');
+      return;
+    }
     this.vehicleToAdd.status_system='ACTIVO'
     if (!this.vehicleToAdd.status_validated){
       this.vehicleToAdd.status_validated='PERMITIDO'
     }
-    this.entranceService.addVehicle(this.vehicleToAdd).subscribe({
+    const payloadNew = { ...this.vehicleToAdd } as Vehicle;
+    if (!vehicleTypeRequiresLicensePlate(tv)) {
+      (payloadNew as any).license_plate = null;
+    }
+    this.entranceService.addVehicle(payloadNew).subscribe({
       next:(res:any)=>{
         if(res.success){
           this.toastr.success(res.message);
@@ -414,8 +504,8 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   }
   
   public clean(){
-    this.vehicleToAdd = new Vehicle('','',0,'','','','');
-    this.vehicleToEdit = new Vehicle('','',0,'','','','');
+    this.vehicleToAdd = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'PROPIETARIO', '', '', '');
+    this.vehicleToEdit = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'PROPIETARIO', '', '', '');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
     this.externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
   }

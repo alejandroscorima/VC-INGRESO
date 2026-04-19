@@ -45,13 +45,17 @@ export class UsersComponent implements OnInit, AfterViewInit{
   status_validated: string[] = ['PERMITIDO','DENEGADO','OBSERVADO'];
   categories: string[] = ['PROPIETARIO','RESIDENTE','INVITADO','INQUILINO'];
   categoriesNewUser: string[] = ['PROPIETARIO','RESIDENTE','INQUILINO'];
+  /** Filtro y listados en pestaña Personas (orden solicitado). */
+  categoriesPersonsFilter: string[] = ['PROPIETARIO', 'RESIDENTE', 'INQUILINO', 'INVITADO'];
   
   searchTerm: string = '';
   selectedBlock: string = '';
   selectedLot: string = '';
+  selectedUserCategory: string = '';
   personsSearchTerm: string = '';
   personsSelectedBlock: string = '';
   personsSelectedLot: string = '';
+  personsSelectedCategory: string = '';
   usersCurrentPage: number = 1;
   usersPageSize: number = 10;
   personsCurrentPage: number = 1;
@@ -88,6 +92,12 @@ export class UsersComponent implements OnInit, AfterViewInit{
 
   ngAfterViewInit(){
     initFlowbite();
+  }
+
+  /** Categoría de domicilio para listados (person_type / property_category). */
+  listCategoryLabel(u: User | any): string {
+    const raw = (u?.property_category ?? u?.person_type ?? '').toString().trim().toUpperCase();
+    return raw || '-';
   }
 
   getHouseLocation(u: User): string {
@@ -135,7 +145,12 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   get filteredUsers(): User[] {
-    if (!this.searchTerm.trim() && !this.selectedBlock && !this.selectedLot) {
+    if (
+      !this.searchTerm.trim() &&
+      !this.selectedBlock &&
+      !this.selectedLot &&
+      !this.selectedUserCategory
+    ) {
       return this.users;
     }
     const search = this.searchTerm.toLowerCase();
@@ -151,8 +166,12 @@ export class UsersComponent implements OnInit, AfterViewInit{
       
       const matchesBlock = !this.selectedBlock || blockVal === this.selectedBlock;
       const matchesLot = !this.selectedLot || lotVal === this.selectedLot;
+      const cat = this.listCategoryLabel(u);
+      const matchesCategory =
+        !this.selectedUserCategory ||
+        (cat !== '-' && cat === this.selectedUserCategory);
       
-      return matchesSearch && matchesBlock && matchesLot;
+      return matchesSearch && matchesBlock && matchesLot && matchesCategory;
     });
   }
 
@@ -194,7 +213,12 @@ export class UsersComponent implements OnInit, AfterViewInit{
   }
 
   get filteredPersonsWithoutUser(): any[] {
-    if (!this.personsSearchTerm.trim() && !this.personsSelectedBlock && !this.personsSelectedLot) {
+    if (
+      !this.personsSearchTerm.trim() &&
+      !this.personsSelectedBlock &&
+      !this.personsSelectedLot &&
+      !this.personsSelectedCategory
+    ) {
       return this.personsWithoutUser;
     }
 
@@ -212,12 +236,20 @@ export class UsersComponent implements OnInit, AfterViewInit{
       const lotVal = (house?.lot ?? p.lot ?? '').toString();
       const matchesBlock = !this.personsSelectedBlock || blockVal === this.personsSelectedBlock;
       const matchesLot = !this.personsSelectedLot || lotVal === this.personsSelectedLot;
+      const cat = this.listCategoryLabel(p);
+      const matchesCategory =
+        !this.personsSelectedCategory ||
+        (cat !== '-' && cat === this.personsSelectedCategory);
 
-      return matchesSearch && matchesBlock && matchesLot;
+      return matchesSearch && matchesBlock && matchesLot && matchesCategory;
     });
   }
 
   onUsersPageSizeChange(): void {
+    this.usersCurrentPage = 1;
+  }
+
+  onUsersFiltersChange(): void {
     this.usersCurrentPage = 1;
   }
 

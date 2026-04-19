@@ -246,7 +246,7 @@
                                     {{vh?.type_vehicle}}
                                 </th>
                                 <td class="px-6 py-4 uppercase">
-                                    {{vh?.license_plate}}
+                                    {{ (vh?.license_plate || '').trim() ? vh?.license_plate : '—' }}
                                 </td>
                                 <td class="px-6 py-4 uppercase">
                                     {{vh?.category_entry}}
@@ -876,13 +876,17 @@
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-type_vehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
-                    <select [(ngModel)]="vehicleToAdd.type_vehicle" name="type_vehicleNew" id="myhouse-type_vehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo ..." required>
+                    <select [(ngModel)]="vehicleToAdd.type_vehicle" (ngModelChange)="onNewVehicleTypeChange()" name="type_vehicleNew" id="myhouse-type_vehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo ..." required>
                         <option *ngFor="let t of types">{{t}}</option>
                     </select>
                 </div>
-                <div class="col-span-1 mb-2 mx-1">
-                    <label for="myhouse-license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
-                    <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="myhouse-license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
+                <div class="col-span-1 mb-2 mx-1" *ngIf="requiresVehiclePlateType(vehicleToAdd.type_vehicle)">
+                    <label for="myhouse-license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa <span class="text-red-600">*</span></label>
+                    <input [(ngModel)]="vehicleToAdd.license_plate" type="text" name="license_plateNew" id="myhouse-license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1" *ngIf="!requiresVehiclePlateType(vehicleToAdd.type_vehicle)">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No aplica (identificación por foto)</p>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-brandNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>
@@ -898,6 +902,12 @@
                         <option value="">Seleccione un color</option>
                         <option *ngFor="let c of vehicleColors" [ngValue]="c">{{ c }}</option>
                     </select>
+                </div>
+                <div class="col-span-2 mb-2 mx-1">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Foto del vehículo <span *ngIf="requiresVehiclePhotoType(vehicleToAdd.type_vehicle)" class="text-red-600">*</span></label>
+                    <p *ngIf="requiresVehiclePhotoType(vehicleToAdd.type_vehicle)" class="text-xs text-gray-600 dark:text-gray-400 mb-1">Obligatoria para bicicleta y moto eléctrica.</p>
+                    <input type="file" accept="image/jpeg,image/png,image/gif" class="block w-full text-sm text-gray-900 dark:text-gray-300" (change)="onNewVehiclePhotoPick($event)" [disabled]="uploadingNewVehiclePhoto" />
+                    <p *ngIf="vehicleToAdd.photo_url" class="text-xs text-green-700 dark:text-green-400 mt-1">Foto lista para guardar.</p>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-houseIdNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Domicilio</label>
@@ -954,13 +964,17 @@
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="myhouse-typeEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de vehiculo</label>
-                    <select [(ngModel)]="vehicleToEdit.type_vehicle" name="typeEdit" id="myhouse-typeEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <select [(ngModel)]="vehicleToEdit.type_vehicle" (ngModelChange)="onEditVehicleTypeChange()" name="typeEdit" id="myhouse-typeEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
                         <option *ngFor="let t of types">{{t}}</option>
                     </select>
                 </div>
-                <div class="col-span-1 mb-2 mx-1">
+                <div class="col-span-1 mb-2 mx-1" *ngIf="requiresVehiclePlateType(vehicleToEdit.type_vehicle)">
                     <label for="myhouse-license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
-                    <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="myhouse-license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." required />
+                    <input disabled [(ngModel)]="vehicleToEdit.license_plate" type="text" name="license_plateEdit" id="myhouse-license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-300" placeholder="Número de placa..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1" *ngIf="!requiresVehiclePlateType(vehicleToEdit.type_vehicle)">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nº de placa</label>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No aplica</p>
                 </div>
                    <div class="col-span-1 mb-2 mx-1">
                        <label for="myhouse-brandEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Marca</label>

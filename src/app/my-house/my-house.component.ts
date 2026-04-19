@@ -13,6 +13,11 @@ import { environment } from '../../environments/environment';
 import { PetsService } from '../pets.service';
 import { Pet } from '../pet';
 import { PublicRegistrationService } from '../public-registration/public-registration.service';
+import {
+  VEHICLE_TYPE_VALUES,
+  vehicleTypeRequiresLicensePlate,
+  vehicleTypeRequiresVehiclePhoto
+} from '../vehicle-types';
 import { QrAccessService } from '../qr/qr-access.service';
 import * as QRCode from 'qrcode';
 
@@ -61,7 +66,7 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   tenantCategories: string[] = ['INQUILINO'];
   currentCategoryOptions: string[] = ['PROPIETARIO','RESIDENTE'];
   categories_visits: string[] = ['INVITADO'];
-  types: string[] = ['MOTOCICLETA','MOTOTAXI','AUTOMOVIL','CAMIONETA','MINIVAN','BICICLETA','FURGONETA'];
+  types: string[] = [...VEHICLE_TYPE_VALUES];
   temp_visit_type:string[]=['DELIVERY','COLECTIVO','TAXI'];
   enableSystemAccessNew = false;
   enableSystemAccessEdit = false;
@@ -72,8 +77,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   // Colores para mascotas
   petColors: string[] = ['Blanco', 'Negro', 'Café', 'Gris', 'Crema', 'Atigrado', 'Otro'];
   
-  vehicleToAdd = new Vehicle('','',0,'','','','','','','');
-  vehicleToEdit = new Vehicle('','',0,'','','','','','','');
+  vehicleToAdd = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'RESIDENTE', '', '', '');
+  vehicleToEdit = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'RESIDENTE', '', '', '');
   vehicles: Vehicle[] = [];
   externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
   externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
@@ -94,6 +99,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
 
   /** Índice del vehículo cuya foto se está subiendo (-1 = ninguno) */
   uploadingVehicleIndex: number = -1;
+  /** Foto del modal “nuevo vehículo” (antes de existir vehicle_id) */
+  uploadingNewVehiclePhoto = false;
   /** Índice de la mascota cuya foto se está subiendo (-1 = ninguna) */
   uploadingPetIndex: number = -1;
 
@@ -235,7 +242,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
       return;
     }
     const vid = Number(v.vehicle_id ?? 0);
-    this.myQrDialogTitle = `QR ingreso — vehículo ${v.license_plate || ''}`.trim();
+    const pl = (v.license_plate ?? '').toString().trim();
+    this.myQrDialogTitle = `QR ingreso — vehículo ${pl || v.type_vehicle || ''}`.trim();
     this.myQrLoading = true;
     this.qrAccess.generateVehicleQr(vid).subscribe({
       next: (res) => {
@@ -830,8 +838,8 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
     this.enableSystemAccessNew = false;
     this.enableSystemAccessEdit = false;
     this.currentCategoryOptions = [...this.residentCategories];
-    this.vehicleToAdd = new Vehicle('','',0,'','','','');
-    this.vehicleToEdit = new Vehicle('','',0,'','','','');
+    this.vehicleToAdd = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'RESIDENTE', '', '', '');
+    this.vehicleToEdit = new Vehicle('', 'AUTOMOVIL', 0, 'PERMITIDO', '', '', 'RESIDENTE', '', '', '');
     this.externalVehicleToAdd = new ExternalVehicle('','','','','','','','',);
     this.externalVehicleToEdit = new ExternalVehicle('','','','','','','','',);
     this.petToAdd = { name: '', species: 'PERRO', breed: '', color: '', house_id: 0, status_validated: 'PERMITIDO' };
@@ -1123,8 +1131,57 @@ export class MyHouseComponent implements OnInit, AfterViewInit {
   }
 // VEHÍCULOS DE RESIDENTES
 
-newVehicle(){
-  const houseId = this.userOnSes.house_id ?? 0;
+  requiresVehiclePlateType(type: string | undefined): boolean {
+    return vehicleTypeRequiresLicensePlate(type);
+  }
+
+  requiresVehiclePhotoType(type: string | undefined): boolean {
+    return vehicleTypeRequiresVehiclePhoto(type);
+  }
+
+  onNewVehicleTypeChange(): void {
+    if (vehicleTypeRequiresLicensePlate(this.vehicleToAdd.type_vehicle)) {
+      return;
+    }
+    this.vehicleToAdd.license_plate = '';
+  }
+
+  onEditVehicleTypeChange(): void {
+    if (vehicleTypeRequiresLicensePlate(this.vehicleToEdit.type_vehicle)) {
+      return;
+    }
+    this.vehicleToEdit.license_plate = '';
+  }
+
+  onNewVehiclePhotoPick(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.toastr.warning('Seleccione una imagen (JPG, PNG o GIF).');
+      return;
+    }
+    this.uploadingNewVehiclePhoto = true;
+    this.publicReg.uploadVehiclePhoto(file).subscribe({
+      next: (res) => {
+        this.uploadingNewVehiclePhoto = false;
+        if (res.success && res.photo_url) {
+          this.vehicleToAdd.photo_url = res.photo_url;
+          this.toastr.success('Foto del vehículo cargada.');
+        } else {
+          this.toastr.error(res.error || 'Error al subir la foto.');
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploadingNewVehiclePhoto = false;
+        this.toastr.error(err?.error?.error || err?.message || 'Error al subir la foto.');
+        input.value = '';
+      }
+    });
+  }
+
+  newVehicle(): void {
+    const houseId = this.userOnSes.house_id ?? 0;
   this.vehicleToAdd.house_id = houseId;
   if (!this.vehicleToAdd.type_vehicle) this.vehicleToAdd.type_vehicle = 'AUTOMOVIL';
   if (this.isTenantRestrictedInMyHouse) {
@@ -1159,9 +1216,20 @@ editVehicle(vehicle:Vehicle){
 }
 
 saveEditVehicle(){
-  if(!this.vehicleToEdit.license_plate || !this.vehicleToEdit.house_id||!this.vehicleToEdit.type_vehicle){
+  if (!this.vehicleToEdit.house_id || !this.vehicleToEdit.type_vehicle) {
     this.toastr.error('Los campos obligatorios no pueden estar vacíos');
     this.clean();
+    return;
+  }
+  const t = this.vehicleToEdit.type_vehicle;
+  if (vehicleTypeRequiresLicensePlate(t)) {
+    if (!(this.vehicleToEdit.license_plate ?? '').toString().trim()) {
+      this.toastr.error('La placa es obligatoria para este tipo de vehículo.');
+      this.clean();
+      return;
+    }
+  } else if (!(this.vehicleToEdit.photo_url ?? '').toString().trim()) {
+    this.toastr.error('Para bicicleta y moto eléctrica debe tener foto del vehículo.');
     return;
   }
   if (!this.canTenantEditVehicle(this.vehicleToEdit)) {
@@ -1175,7 +1243,11 @@ saveEditVehicle(){
     }
     this.vehicleToEdit.category_entry = 'INQUILINO';
   }
-  this.entranceService.updateVehicle(this.vehicleToEdit).subscribe({
+  const payloadEdit = { ...this.vehicleToEdit } as Vehicle;
+  if (!vehicleTypeRequiresLicensePlate(t)) {
+    (payloadEdit as any).license_plate = null;
+  }
+  this.entranceService.updateVehicle(payloadEdit).subscribe({
     next:(resUpdate:any)=>{
       if(resUpdate.success){
         this.toastr.success(resUpdate.message);
@@ -1196,10 +1268,20 @@ saveNewVehicle(): void {
   const houseId = this.userOnSes.house_id ?? 0;
   this.vehicleToAdd.house_id = houseId;
 
-  //CAMPOS OBLIGATORIOS
-  if(!this.vehicleToAdd.license_plate || !this.vehicleToAdd.house_id||!this.vehicleToAdd.type_vehicle){
+  if (!this.vehicleToAdd.house_id || !this.vehicleToAdd.type_vehicle) {
     this.toastr.error('Los campos obligatorios no pueden estar vacíos');
     this.clean();
+    return;
+  }
+  const tv = this.vehicleToAdd.type_vehicle;
+  if (vehicleTypeRequiresLicensePlate(tv)) {
+    if (!(this.vehicleToAdd.license_plate ?? '').toString().trim()) {
+      this.toastr.error('La placa es obligatoria para este tipo de vehículo.');
+      this.clean();
+      return;
+    }
+  } else if (!(this.vehicleToAdd.photo_url ?? '').toString().trim()) {
+    this.toastr.error('Para bicicleta y moto eléctrica debe subir una foto del vehículo.');
     return;
   }
   if (this.isTenantRestrictedInMyHouse) {
@@ -1221,7 +1303,11 @@ saveNewVehicle(): void {
   if (!this.vehicleToAdd.status_validated){
     this.vehicleToAdd.status_validated='PERMITIDO'
   }
-  this.entranceService.addVehicle(this.vehicleToAdd).subscribe({
+  const payloadNew = { ...this.vehicleToAdd } as Vehicle;
+  if (!vehicleTypeRequiresLicensePlate(tv)) {
+    (payloadNew as any).license_plate = null;
+  }
+  this.entranceService.addVehicle(payloadNew).subscribe({
     next:(res:any)=>{
       if(res.success){
         this.toastr.success(res.message);

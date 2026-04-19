@@ -213,15 +213,20 @@
                   <label class="required">Tipo de vehículo</label>
                   <div class="choice-buttons choice-buttons-sm">
                     <button type="button" *ngFor="let t of vehicleTypeOptions" [class.selected]="v.get('type_vehicle')?.value === t.value"
-                      (click)="v.patchValue({ type_vehicle: t.value })" class="choice-btn">
+                      (click)="v.patchValue({ type_vehicle: t.value }); onVehicleTypeChange(i)" class="choice-btn">
                       <span class="choice-icon">{{ t.icon }}</span>
                       <span class="choice-label">{{ t.label }}</span>
                     </button>
                   </div>
-                  <input *ngIf="v.get('type_vehicle')?.value === 'OTRO'" type="text" formControlName="type_vehicle_other" class="input-field mt-2" placeholder="Escriba el tipo de vehículo" />
                 </div>
-                <div class="form-group"><label class="required">Placa</label>
-                  <input type="text" formControlName="license_plate" class="input-field uppercase-input" placeholder="ABC123" (input)="toUpperCaseField(v.get('license_plate'))" /></div>
+                <div class="form-group" *ngIf="requiresVehiclePlate(v.get('type_vehicle')?.value)">
+                  <label class="required">Placa</label>
+                  <input type="text" formControlName="license_plate" class="input-field uppercase-input" placeholder="ABC123" (input)="toUpperCaseField(v.get('license_plate'))" />
+                </div>
+                <div class="form-group full-width" *ngIf="!requiresVehiclePlate(v.get('type_vehicle')?.value)">
+                  <label>Placa</label>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">No aplica (identificación por foto)</p>
+                </div>
                 <div class="form-group"><label class="required">Marca</label>
                   <input type="text" formControlName="brand" class="input-field uppercase-input" (input)="toUpperCaseField(v.get('brand'))" /></div>
                 <div class="form-group"><label>Modelo</label>
@@ -235,7 +240,8 @@
                   <input type="text" formControlName="color" class="input-field mt-2" placeholder="O escriba el color" />
                 </div>
                 <div class="form-group full-width">
-                  <label>Foto del vehículo</label>
+                  <label [class.required]="!requiresVehiclePlate(v.get('type_vehicle')?.value)">Foto del vehículo</label>
+                  <p *ngIf="!requiresVehiclePlate(v.get('type_vehicle')?.value)" class="text-xs text-gray-600 dark:text-gray-400 mb-1">Obligatoria para bicicleta y moto eléctrica.</p>
                   <input type="file" #vehiclePhotoInput accept="image/jpeg,image/png,image/gif" (change)="onVehiclePhotoSelect(i, $event)" [attr.id]="'vehicle-photo-' + i" class="hidden" />
                   <div class="flex items-center gap-2 flex-wrap">
                     <label [attr.for]="'vehicle-photo-' + i" class="btn-photo-placeholder cursor-pointer inline-flex items-center gap-2" [class.opacity-50]="uploadingVehicleIndex === i">

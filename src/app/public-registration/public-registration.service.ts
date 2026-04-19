@@ -40,7 +40,8 @@ export interface PublicRegisterOwner {
 }
 
 export interface PublicRegisterVehicle {
-  license_plate: string;
+  /** Obligatoria salvo BICICLETA / MOTO ELECTRICA (entonces null y foto obligatoria). */
+  license_plate?: string | null;
   type_vehicle?: string;
   brand?: string;
   model?: string;

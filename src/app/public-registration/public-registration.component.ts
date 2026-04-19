@@ -14,22 +14,15 @@ import {
   HouseFromApi
 } from './public-registration.service';
 import { switchMap, of } from 'rxjs';
+import {
+  VEHICLE_TYPE_OPTIONS,
+  vehicleTypeRequiresLicensePlate,
+  normalizeLicensePlateClient
+} from '../vehicle-types';
 
 const DOC_TYPES = ['DNI', 'CE', 'Otros'];
 /** Estado civil (guardado en mayúsculas en BD, alineado con apidev/Nuevo Residente) */
 const CIVIL_STATUS_OPTIONS = ['SOLTERO', 'CASADO', 'CONVIVIENTE', 'VIUDO', 'DIVORCIADO', 'OTRO'];
-/** Tipos de vehículo: botones con ícono + texto; OTROS permite ingresar manualmente */
-const VEHICLE_TYPE_OPTIONS: { value: string; label: string; icon: string }[] = [
-  { value: 'AUTO', label: 'Auto', icon: '🚗' },
-  { value: 'MOTOCICLETA', label: 'Motocicleta', icon: '🏍️' },
-  { value: 'CAMIONETA', label: 'Camioneta', icon: '🛻' },
-  { value: 'CAMION', label: 'Camion', icon: '🚚' },
-  { value: 'MINIVAN', label: 'Minivan', icon: '🚌' },
-  { value: 'MOTOTAXI', label: 'Mototaxi', icon: '🛵' },
-  { value: 'MINI BUS', label: 'Minibus', icon: '🚌' },
-  { value: 'FURGONETA', label: 'Furgoneta', icon: '🚐' },
-  { value: 'OTRO', label: 'Otros', icon: '📝' }
-];
 /** Categoría de mascota (plan: PERRO, GATO, AVE, pequeño mamífero, Acuático, EXÓTICO, OTROS) */
 const PET_CATEGORY_OPTIONS: { value: string; label: string; icon: string }[] = [
   { value: 'PERRO', label: 'Perro', icon: '🐕' },
@@ -293,15 +286,42 @@ export class PublicRegistrationComponent implements OnInit {
   }
 
   private buildVehicleGroup(): FormGroup {
-    return this.fb.group({
-      type_vehicle: ['AUTO', Validators.required],
-      type_vehicle_other: [''], // cuando type_vehicle === 'OTRO'
-      license_plate: ['', Validators.required],
+    const g = this.fb.group({
+      type_vehicle: ['AUTOMOVIL', Validators.required],
+      license_plate: [''],
       brand: ['', Validators.required],
       model: [''],
       color: ['', Validators.required],
       photo_url: [null as string | null]
     });
+    this.applyVehicleValidators(g);
+    return g;
+  }
+
+  /** Expuesto a la plantilla */
+  requiresVehiclePlate(type: unknown): boolean {
+    return vehicleTypeRequiresLicensePlate(String(type ?? ''));
+  }
+
+  onVehicleTypeChange(index: number): void {
+    const g = this.vehicles.at(index) as FormGroup;
+    this.applyVehicleValidators(g);
+  }
+
+  private applyVehicleValidators(g: FormGroup): void {
+    const type = g.get('type_vehicle')?.value as string;
+    const plateCtrl = g.get('license_plate');
+    const photoCtrl = g.get('photo_url');
+    if (vehicleTypeRequiresLicensePlate(type)) {
+      plateCtrl?.setValidators([Validators.required]);
+      photoCtrl?.clearValidators();
+    } else {
+      plateCtrl?.clearValidators();
+      plateCtrl?.setValue('', { emitEvent: false });
+      photoCtrl?.setValidators([Validators.required]);
+    }
+    plateCtrl?.updateValueAndValidity({ emitEvent: false });
+    photoCtrl?.updateValueAndValidity({ emitEvent: false });
   }
 
   private buildPetGroup(): FormGroup {
@@ -581,16 +601,20 @@ export class PublicRegistrationComponent implements OnInit {
 
   private vehicleToPayload(g: FormGroup): PublicRegisterVehicle {
     const v = g.value;
-    const typeVehicle = v.type_vehicle === 'OTRO' && v.type_vehicle_other?.trim()
-      ? v.type_vehicle_other.trim() : (v.type_vehicle || undefined);
-    return {
-      license_plate: String(v.license_plate).trim(),
+    const typeVehicle = String(v.type_vehicle ?? '').trim();
+    const out: PublicRegisterVehicle = {
       type_vehicle: typeVehicle,
       brand: v.brand?.trim() || undefined,
       model: v.model?.trim() || undefined,
       color: v.color?.trim() || undefined,
       photo_url: v.photo_url?.trim() || null
     };
+    if (vehicleTypeRequiresLicensePlate(typeVehicle)) {
+      out.license_plate = String(v.license_plate ?? '').trim();
+    } else {
+      out.license_plate = null;
+    }
+    return out;
   }
 
   private petToPayload(g: FormGroup): PublicRegisterPet {
@@ -630,7 +654,10 @@ export class PublicRegistrationComponent implements OnInit {
     if (!this.wantVehicles || this.vehicles.length < 2) return false;
     const plates = this.vehicles.controls.map(c => {
       const v = (c as FormGroup).value;
-      return String(v?.license_plate ?? '').trim().toUpperCase();
+      if (!vehicleTypeRequiresLicensePlate(v?.type_vehicle)) {
+        return '';
+      }
+      return normalizeLicensePlateClient(String(v?.license_plate ?? ''));
     });
     const seen = new Set<string>();
     for (const p of plates) {

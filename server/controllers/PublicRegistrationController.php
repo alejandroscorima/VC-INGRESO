@@ -11,6 +11,8 @@ namespace Controllers;
 
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../db_connection.php';
+require_once __DIR__ . '/../helpers/license_plate.php';
+require_once __DIR__ . '/../helpers/vehicle_type_rules.php';
 
 use Utils\Response;
 
@@ -135,12 +137,34 @@ class PublicRegistrationController
             return;
         }
 
-        // Vehículos duplicados en el mismo envío (misma placa más de una vez)
-        $plates = array_map(function ($v) {
-            return strtoupper(trim((string) ($v['license_plate'] ?? '')));
-        }, $vehicles);
-        $uniquePlates = array_unique(array_filter($plates));
-        if (count($uniquePlates) < count($plates)) {
+        foreach ($vehicles as $i => $v) {
+            $typeV = mb_strtoupper(trim((string) ($v['type_vehicle'] ?? '')), 'UTF-8');
+            if (!vehicle_type_is_known($typeV)) {
+                Response::json(['success' => false, 'error' => 'Vehículo ' . ($i + 1) . ': type_vehicle no válido'], 400);
+                return;
+            }
+            if (vehicle_type_requires_license_plate($typeV)) {
+                $np = normalize_license_plate((string) ($v['license_plate'] ?? ''));
+                if ($np === '') {
+                    Response::json(['success' => false, 'error' => 'Vehículo ' . ($i + 1) . ': se requiere una placa válida (letras y números)'], 400);
+                    return;
+                }
+            } elseif (trim((string) ($v['photo_url'] ?? '')) === '') {
+                Response::json(['success' => false, 'error' => 'Vehículo ' . ($i + 1) . ': para bicicleta o moto eléctrica debe subir la foto del vehículo'], 400);
+                return;
+            }
+        }
+
+        // Vehículos duplicados en el mismo envío (misma placa más de una vez; solo tipos con placa)
+        $plates = [];
+        foreach ($vehicles as $v) {
+            $typeV = mb_strtoupper(trim((string) ($v['type_vehicle'] ?? '')), 'UTF-8');
+            if (!vehicle_type_requires_license_plate($typeV)) {
+                continue;
+            }
+            $plates[] = normalize_license_plate((string) ($v['license_plate'] ?? ''));
+        }
+        if (count(array_unique($plates)) < count($plates)) {
             Response::json(['success' => false, 'error' => 'Vehículo duplicado: no puede registrar la misma placa más de una vez.'], 400);
             return;
         }
@@ -152,13 +176,6 @@ class PublicRegistrationController
         if (count(array_unique($petKeys)) < count($petKeys)) {
             Response::json(['success' => false, 'error' => 'Mascota duplicada: no puede registrar la misma mascota (especie y nombre) más de una vez.'], 400);
             return;
-        }
-
-        foreach ($vehicles as $i => $v) {
-            if (empty($v['license_plate'])) {
-                Response::json(['success' => false, 'error' => "Vehículo " . ($i + 1) . ": se requiere license_plate"], 400);
-                return;
-            }
         }
 
         foreach ($pets as $i => $p) {
@@ -299,13 +316,17 @@ class PublicRegistrationController
             $firstOwnerId = $personIds[0] ?? null;
             $vehicleIds = [];
             foreach ($vehicles as $v) {
-                $plate = trim($v['license_plate']);
-                $stmt = $this->pdo->prepare("SELECT vehicle_id FROM vehicles WHERE license_plate = ? LIMIT 1");
-                $stmt->execute([$plate]);
-                if ($stmt->fetch()) {
-                    $this->pdo->rollBack();
-                    Response::json(['success' => false, 'error' => 'Ya existe un vehículo con la placa ' . $plate], 409);
-                    return;
+                $typeV = mb_strtoupper(trim((string) ($v['type_vehicle'] ?? '')), 'UTF-8');
+                $plate = null;
+                if (vehicle_type_requires_license_plate($typeV)) {
+                    $plate = normalize_license_plate((string) ($v['license_plate'] ?? ''));
+                    $stmt = $this->pdo->prepare('SELECT vehicle_id FROM vehicles WHERE license_plate = ? LIMIT 1');
+                    $stmt->execute([$plate]);
+                    if ($stmt->fetch()) {
+                        $this->pdo->rollBack();
+                        Response::json(['success' => false, 'error' => 'Ya existe un vehículo con la placa ' . $plate], 409);
+                        return;
+                    }
                 }
                 $stmt = $this->pdo->prepare("
                     INSERT INTO vehicles (license_plate, type_vehicle, house_id, owner_id, brand, model, color, photo_url, status_validated, status_system)
@@ -313,7 +334,7 @@ class PublicRegistrationController
                 ");
                 $stmt->execute([
                     $plate,
-                    $v['type_vehicle'] ?? null,
+                    $typeV,
                     $houseId,
                     $firstOwnerId,
                     $v['brand'] ?? null,

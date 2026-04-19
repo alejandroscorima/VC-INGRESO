@@ -23,14 +23,18 @@
         </div>
 
         <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center">
-            <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar por nombre, usuario o celular..." class="vc-input-search md:flex-1" />
-            <select [(ngModel)]="selectedBlock" class="vc-select-sm">
+            <input [(ngModel)]="searchTerm" (ngModelChange)="onUsersFiltersChange()" type="text" placeholder="Buscar por nombre, usuario o celular..." class="vc-input-search md:flex-1" />
+            <select [(ngModel)]="selectedBlock" (ngModelChange)="onUsersFiltersChange()" class="vc-select-sm">
                 <option value="">Mz: Todas</option>
                 <option *ngFor="let block of uniqueBlocks" [value]="block">Mz: {{block}}</option>
             </select>
-            <select [(ngModel)]="selectedLot" class="vc-select-sm">
+            <select [(ngModel)]="selectedLot" (ngModelChange)="onUsersFiltersChange()" class="vc-select-sm">
                 <option value="">Lt: Todos</option>
                 <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{lot}}</option>
+            </select>
+            <select [(ngModel)]="selectedUserCategory" (ngModelChange)="onUsersFiltersChange()" class="vc-select-sm">
+                <option value="">Categoría: Todas</option>
+                <option *ngFor="let c of categoriesNewUser" [value]="c">{{ c }}</option>
             </select>
         </div>
 
@@ -42,6 +46,7 @@
                         <th scope="col" class="vc-th">Nombre</th>
                         <th scope="col" class="vc-th">Usuario</th>
                         <th scope="col" class="vc-th">Domicilio</th>
+                        <th scope="col" class="vc-th">Categoría</th>
                         <th scope="col" class="vc-th">Estado</th>
                         <th scope="col" class="vc-th">Número</th>
                         <th scope="col" class="vc-th text-right">
@@ -65,6 +70,7 @@
                         </th>
                         <td class="vc-td">{{u.username_system.toUpperCase()}}</td>
                         <td class="vc-td">{{ getHouseLocation(u) }}</td>
+                        <td class="vc-td">{{ listCategoryLabel(u) }}</td>
                         <td class="vc-td">{{ (u.status_system || 'ACTIVO').toUpperCase() }}</td>
                         <td class="vc-td">{{u.cel_number || '-'}}</td>
                         <td class="vc-td text-right">
@@ -117,6 +123,10 @@
                     <option value="">Lt: Todos</option>
                     <option *ngFor="let lot of uniqueLots" [value]="lot">Lt: {{lot}}</option>
                 </select>
+                <select [(ngModel)]="personsSelectedCategory" (ngModelChange)="onPersonsFiltersChange()" class="vc-select-sm">
+                    <option value="">Categoría: Todas</option>
+                    <option *ngFor="let c of categoriesPersonsFilter" [value]="c">{{ c }}</option>
+                </select>
             </div>
             <div class="vc-table-wrap" *ngIf="personsWithoutUser.length > 0">
                 <table class="vc-table text-left text-gray-600 dark:text-gray-300">
@@ -126,6 +136,7 @@
                             <th class="vc-th">Documento</th>
                             <th class="vc-th">Nombre</th>
                             <th class="vc-th">Domicilio</th>
+                            <th class="vc-th">Categoría</th>
                             <th class="vc-th">Cel / Email</th>
                             <th class="vc-th">Acciones</th>
                         </tr>
@@ -143,6 +154,7 @@
                             <td class="vc-td">{{ p.doc_number }}</td>
                             <td class="vc-td">{{ p.paternal_surname }} {{ p.maternal_surname }} {{ p.first_name }}</td>
                             <td class="vc-td">{{ getHouseLocation(p) }}</td>
+                            <td class="vc-td">{{ listCategoryLabel(p) }}</td>
                             <td class="vc-td">{{ p.cel_number || '-' }} / {{ p.email || '-' }}</td>
                             <td class="vc-td">
                                 <button *ngIf="canManageUsers" type="button" (click)="editPerson(p)" class="vc-action-btn vc-action-btn--edit" title="Editar" aria-label="Editar">
@@ -161,7 +173,7 @@
                     <select [(ngModel)]="personsPageSize" (ngModelChange)="onPersonsPageSizeChange()" class="px-2 py-1 border border-gray-300 rounded dark:bg-gray-600 dark:border-gray-500 dark:text-white">
                         <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
                     </select>
-                    <span>Mostrando {{ personsWithoutUser.length }} resultados</span>
+                    <span>Mostrando {{ filteredPersonsWithoutUser.length }} resultados</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <button type="button" (click)="previousPersonsPage()" [disabled]="personsCurrentPage === 1" class="vc-btn-outline">Anterior</button>
