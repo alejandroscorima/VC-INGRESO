@@ -2,6 +2,7 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { currentInternalPath, isPublicGuestPath } from './public-route.utils';
 
 /**
  * ErrorInterceptor - Manejo centralizado de errores HTTP
@@ -29,10 +30,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
           case 401:
             errorMessage = 'No autorizado';
-            // Redirigir a login si no está autenticado
-            localStorage.removeItem('auth_user');
-            localStorage.removeItem('auth_token');
-            router.navigate(['/login']);
+            {
+              const path = currentInternalPath(router);
+              const publicNoRedirect = isPublicGuestPath(path);
+              if (!publicNoRedirect) {
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_token');
+                router.navigate(['/login']);
+              }
+            }
             break;
           case 403:
             errorMessage = 'Acceso prohibido';

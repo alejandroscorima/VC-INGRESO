@@ -13,6 +13,11 @@ import { Collaborator } from './collaborator';
 import { ApiService } from './api.service';
 
 import { initFlowbite } from 'flowbite';
+import {
+  currentInternalPath,
+  isPublicGuestPath,
+  skipLicenseBootstrapPath,
+} from './public-route.utils';
 
 @Component({
   selector: 'app-root',
@@ -55,12 +60,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     protected api: ApiService,
   ){}
 
-  /** Rutas accesibles sin sesión (alineado con HashLocationStrategy: path interno). */
-  private isPublicGuestRoute(url: string): boolean {
-    const path = (url || '').split('?')[0];
-    return path === '/login' || path === '/registro' || path === '/landing';
-  }
-
   logout(){
     this.auth.deleteToken('user_id');
     this.auth.deleteToken('user_role');
@@ -93,12 +92,25 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
+    const bootPath = currentInternalPath(this.router);
+
+    // Landing y registro: solo reflejan sesión ya cargada en storage; sin getPayment (no redirige a login).
+    if (skipLicenseBootstrapPath(bootPath)) {
+      const storedUser = this.auth.getUser();
+      this.logged = !!storedUser;
+      if (storedUser) {
+        this.user = storedUser;
+        this.usersService.setUsr(storedUser);
+      }
+      return;
+    }
+
     // Si no hay sesión activa (ni token ni cookie heredada), no llames al backend: evita bucles de navegación
     const storedUser = this.auth.getUser();
     const cookieUserId = this.auth.checkToken('user_id') ? parseInt(this.auth.getTokenItem('user_id'), 10) : null;
     if (!storedUser && !cookieUserId) {
       this.logged = false;
-      if (!this.isPublicGuestRoute(this.router.url)) {
+      if (!isPublicGuestPath(bootPath)) {
         this.router.navigateByUrl('/login');
       }
       return;
