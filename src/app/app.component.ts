@@ -55,6 +55,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     protected api: ApiService,
   ){}
 
+  /** Rutas accesibles sin sesión (alineado con HashLocationStrategy: path interno). */
+  private isPublicGuestRoute(url: string): boolean {
+    const path = (url || '').split('?')[0];
+    return path === '/login' || path === '/registro' || path === '/landing';
+  }
+
   logout(){
     this.auth.deleteToken('user_id');
     this.auth.deleteToken('user_role');
@@ -92,7 +98,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     const cookieUserId = this.auth.checkToken('user_id') ? parseInt(this.auth.getTokenItem('user_id'), 10) : null;
     if (!storedUser && !cookieUserId) {
       this.logged = false;
-      if (this.router.url !== '/login') {
+      if (!this.isPublicGuestRoute(this.router.url)) {
         this.router.navigateByUrl('/login');
       }
       return;

@@ -1,0 +1,274 @@
+<div class="vl-root">
+  <nav class="vl-Navbar" aria-label="Principal">
+    <div class="vl-nav-container">
+      <a routerLink="/landing" class="vl-Logo" (click)="closeMenu()">VC-INGRESO</a>
+
+      <div id="vl-menu" class="vl-menu" [class.vl-menu-open]="menuOpen">
+        <div class="vl-menu-header">
+          <span class="vl-Logo vl-Logo--sm">VC-I</span>
+          <button type="button" class="vl-icon-btn" (click)="closeMenu()" aria-label="Cerrar menú">
+            <i class="ri-close-line" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <a href="#" class="vl-NavLink" (click)="scrollToSection($event, 'vl-home')">Inicio</a>
+        <a href="#" class="vl-NavLink" (click)="scrollToSection($event, 'vl-problematica')">Problemática</a>
+        <a href="#" class="vl-NavLink" (click)="scrollToSection($event, 'vl-ventajas')">Ventajas</a>
+        <a href="#" class="vl-NavLink" (click)="scrollToSection($event, 'vl-impacto')">Impacto</a>
+      </div>
+
+      <button type="button" class="vl-icon-btn vl-menu-toggle" (click)="openMenu()" aria-label="Abrir menú" [attr.aria-expanded]="menuOpen">
+        <i class="ri-menu-line" aria-hidden="true"></i>
+      </button>
+    </div>
+  </nav>
+
+  <main class="vl-main" role="main">
+    <section id="vl-home" class="vl-hero-section" aria-labelledby="vl-hero-heading">
+      <div class="vl-hero">
+        <div class="vl-hero-visual" aria-hidden="true">
+          <img [src]="condoBackgroundUrl" alt="" />
+        </div>
+
+        <div class="vl-hero-content" data-reveal>
+          <div class="vl-Badge">
+            <i class="ri-shield-check-line" aria-hidden="true"></i>
+            Acceso inteligente
+          </div>
+          <p class="vl-hero-kicker">VC-Ingreso</p>
+          <h1 id="vl-hero-heading" class="vl-hero-title">
+            La tranquilidad<br />
+            <span class="vl-highlight">de tu condominio</span>
+          </h1>
+          <p class="vl-subhead">
+            Digitaliza accesos, visitas, reservas y aforo. Elimina las llamadas, los cuadernos y la incertidumbre.
+          </p>
+          <div class="vl-button-group">
+            <a routerLink="/login" class="vl-Button vl-Button--primary">
+              Iniciar sesión <i class="ri-arrow-right-line" aria-hidden="true"></i>
+            </a>
+            <a routerLink="/registro" class="vl-Button vl-Button--outline">Registro</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="vl-fold" data-reveal>
+        <p class="vl-fold-text">
+          <span class="vl-fold-accent">VC-Ingreso no reemplaza personas, las potencia.</span>
+          No complica el trabajo, lo simplifica. Es orden, seguridad y trazabilidad en una sola plataforma.
+        </p>
+      </div>
+    </section>
+
+    <section id="vl-problematica" class="vl-schedule" aria-labelledby="vl-problematica-title">
+      <div class="vl-schedule-inner" data-reveal>
+        <div class="vl-table-grid">
+          <div class="vl-table-wrapper">
+            <h2 id="vl-problematica-title" class="vl-section-heading">
+              <i class="ri-alert-line" aria-hidden="true"></i> Problemática actual
+            </h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Área</th>
+                  <th>Situación actual</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Accesos</td>
+                  <td>Reconocimiento visual (“lo conozco, pasa”)</td>
+                </tr>
+                <tr>
+                  <td>Validación</td>
+                  <td>Manual con cuaderno o Excel limitado</td>
+                </tr>
+                <tr>
+                  <td>Comunicación</td>
+                  <td>Llamadas constantes a propietarios</td>
+                </tr>
+                <tr>
+                  <td>Visitas</td>
+                  <td>Sin control real del tiempo de permanencia</td>
+                </tr>
+                <tr>
+                  <td>Piscina</td>
+                  <td>Aforo manual, propenso a errores</td>
+                </tr>
+                <tr>
+                  <td>Casa Club</td>
+                  <td>Reservas desordenadas, sin trazabilidad</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="vl-table-wrapper">
+            <h2 class="vl-section-heading">
+              <i class="ri-flashlight-line" aria-hidden="true"></i> Consecuencias
+            </h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Factor</th>
+                  <th>Impacto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Seguridad</td>
+                  <td>Riesgo de accesos no autorizados</td>
+                </tr>
+                <tr>
+                  <td>Eficiencia</td>
+                  <td>Demoras y colas en portería</td>
+                </tr>
+                <tr>
+                  <td>Administración</td>
+                  <td>Desgaste operativo y errores</td>
+                </tr>
+                <tr>
+                  <td>Vecinos</td>
+                  <td>Insatisfacción y falta de control</td>
+                </tr>
+                <tr>
+                  <td>Información</td>
+                  <td>Dispersa, no centralizada ni auditable</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="vl-showcase" data-reveal>
+        <img [src]="condoBackgroundUrl" alt="" />
+        <div class="vl-showcase-overlay">
+          <span class="vl-showcase-label">Desorden → Orden</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="vl-ventajas" class="vl-cards" aria-labelledby="vl-ventajas-title">
+      <h2 id="vl-ventajas-title" class="vl-sr-only">Ventajas del sistema</h2>
+      <div class="vl-cards-container" data-reveal>
+        <article class="vl-Card">
+          <i class="ri-qr-code-line vl-Card-icon" aria-hidden="true"></i>
+          <div>
+            <h3 class="vl-Card-title">QR dinámicos</h3>
+            <ul class="vl-Card-list">
+              <li>Visitas y vehículos con QR temporal</li>
+              <li>Escaneo en segundos en portería</li>
+              <li>Menos llamadas y menos colas</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="vl-Card">
+          <i class="ri-dashboard-line vl-Card-icon" aria-hidden="true"></i>
+          <div>
+            <h3 class="vl-Card-title">Aforo en tiempo real</h3>
+            <ul class="vl-Card-list">
+              <li>Piscina y áreas comunes con conteo automático</li>
+              <li>Ingresos y salidas registrados</li>
+              <li>Cumplimiento de normas del condominio</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="vl-Card">
+          <i class="ri-calendar-check-line vl-Card-icon" aria-hidden="true"></i>
+          <div>
+            <h3 class="vl-Card-title">Reservas inteligentes</h3>
+            <ul class="vl-Card-list">
+              <li>Casa Club sin conflictos de agenda</li>
+              <li>Calendario visible, confirmaciones y rechazos</li>
+              <li>Trazabilidad completa de solicitudes</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="vl-Card">
+          <i class="ri-car-line vl-Card-icon" aria-hidden="true"></i>
+          <div>
+            <h3 class="vl-Card-title">Control vehicular</h3>
+            <ul class="vl-Card-list">
+              <li>Registro por casa y tipo de vehículo</li>
+              <li>Taxis, delivery y movilidad escolar</li>
+              <li>Identificación clara en portería</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="vl-Card">
+          <i class="ri-user-settings-line vl-Card-icon" aria-hidden="true"></i>
+          <div>
+            <h3 class="vl-Card-title">Autonomía vecinal</h3>
+            <ul class="vl-Card-list">
+              <li>Gestión desde el celular</li>
+              <li>Familia, inquilinos y visitas</li>
+              <li>Menos burocracia para todos</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="vl-Card">
+          <i class="ri-bar-chart-2-line vl-Card-icon" aria-hidden="true"></i>
+          <div>
+            <h3 class="vl-Card-title">Reportes y auditoría</h3>
+            <ul class="vl-Card-list">
+              <li>Historial de accesos consultable</li>
+              <li>Base para decisiones y auditorías</li>
+              <li>Transparencia para administración</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="vl-compare-band" aria-labelledby="vl-compare-title">
+      <h2 id="vl-compare-title" class="vl-sr-only">Antes y después</h2>
+      <div class="vl-compare-inner" data-reveal>
+        <div class="vl-compare-col vl-compare-col--before">
+          <span class="vl-compare-tag">Antes</span>
+          <ul>
+            <li>Desorden</li>
+            <li>Lento</li>
+            <li>Manual</li>
+            <li>Inseguro</li>
+            <li>No medible</li>
+          </ul>
+        </div>
+        <div class="vl-compare-col vl-compare-col--after">
+          <span class="vl-compare-tag">Después</span>
+          <ul>
+            <li>Ordenado</li>
+            <li>Rápido</li>
+            <li>Automatizado</li>
+            <li>Seguro</li>
+            <li>Medible</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="vl-impacto" class="vl-about" aria-labelledby="vl-impacto-title">
+      <h2 id="vl-impacto-title" class="vl-sr-only">Impacto y cierre</h2>
+      <div class="vl-about-inner" data-reveal>
+        <p class="vl-impact-word" aria-live="polite">{{ impactWord }}</p>
+        <footer class="vl-about-footer">
+          <p class="vl-about-quote">
+            «Este sistema no es un gasto, es una
+            <strong class="vl-quote-strong">inversión tecnológica</strong> que devuelve el control a la administración y la
+            tranquilidad a los vecinos.»
+          </p>
+          <div class="vl-about-cta">
+            <a routerLink="/login" class="vl-Button vl-Button--primary">Iniciar sesión</a>
+            <a routerLink="/registro" class="vl-Button vl-Button--outline">Registro de propietarios</a>
+          </div>
+          <p class="vl-copyright">© VC-Ingreso · La evolución de la portería</p>
+        </footer>
+      </div>
+    </section>
+  </main>
+</div>

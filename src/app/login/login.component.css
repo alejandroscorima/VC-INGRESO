@@ -87,11 +87,16 @@
   pointer-events: none;
 }
 
-/* Botón de login: normal = naranja + texto blanco; hover = blanco + texto naranja */
+/* Botón de login: CTA llamativo (gradiente + halo, como el antiguo enlace al landing) */
 .login-btn {
-  background-color: #d97706 !important; /* amber-600 */
+  border: none !important;
+  cursor: pointer;
   color: #fff !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #d97706 !important;
+  background-image: linear-gradient(120deg, #b45309 0%, #d97706 45%, #f59e0b 100%) !important;
+  box-shadow:
+    0 8px 24px rgba(217, 119, 6, 0.45),
+    0 0 0 2px rgba(251, 191, 36, 0.5);
 }
 
 .login-btn mat-icon {
@@ -99,19 +104,139 @@
 }
 
 .login-btn:hover:not(:disabled) {
-  background-color: #fff !important;
-  color: #d97706 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
-  border: 2px solid #d97706;
+  filter: brightness(1.08);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 12px 32px rgba(217, 119, 6, 0.55),
+    0 0 0 2px rgba(252, 211, 77, 0.65);
 }
 
 .login-btn:hover:not(:disabled) mat-icon {
-  color: #d97706 !important;
+  color: #fff !important;
 }
 
 .login-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+  filter: brightness(0.98);
+}
+
+.login-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: saturate(0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: none;
+}
+
+/* Círculo de ayuda (misma línea visual que Iniciar Sesión) + globo al hover */
+.landing-info-wrap {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.landing-info-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  box-sizing: border-box;
+  border: 2px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  /* Misma línea visual que .login-btn (gradiente + halo) */
+  background-color: #d97706;
+  background-image: linear-gradient(120deg, #b45309 0%, #d97706 45%, #f59e0b 100%);
+  color: #fff;
+  box-shadow:
+    0 4px 14px rgba(217, 119, 6, 0.4),
+    0 0 0 2px rgba(251, 191, 36, 0.45);
+}
+
+.landing-info-circle mat-icon {
+  color: #fff !important;
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.landing-info-circle:hover,
+.landing-info-circle:focus-visible {
+  filter: brightness(1.08);
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    0 8px 22px rgba(217, 119, 6, 0.5),
+    0 0 0 2px rgba(252, 211, 77, 0.6);
+  outline: none;
+}
+
+.landing-info-circle:hover mat-icon,
+.landing-info-circle:focus-visible mat-icon {
+  color: #fff !important;
+}
+
+.landing-info-bubble {
+  position: absolute;
+  right: 0;
+  /* Solapa el círculo para que el puntero llegue al enlace sin perder el hover */
+  bottom: calc(100% - 10px);
+  min-width: 12rem;
+  max-width: min(18rem, calc(100vw - 2rem));
+  padding: 0.65rem 0.85rem;
+  background: #fff;
+  border: 2px solid #d97706;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+/* Cola del globo hacia el círculo */
+.landing-info-bubble::after {
+  content: '';
+  position: absolute;
+  right: 0.85rem;
+  bottom: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #d97706;
+}
+
+.landing-info-bubble-link {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #b45309;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1.35;
+}
+
+.landing-info-bubble-link:hover {
+  text-decoration: underline;
+  color: #92400e;
+}
+
+.landing-info-wrap:hover .landing-info-bubble,
+.landing-info-wrap:focus-within .landing-info-bubble {
+  opacity: 1;
+  visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* Responsive: márgenes y tamaños en móvil */

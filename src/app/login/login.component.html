@@ -14,7 +14,7 @@
       </div>
 
       <!-- Formulario -->
-      <div class="login-body px-6 pt-2 pb-6 sm:px-8 sm:pt-3 sm:pb-8">
+      <div class="login-body px-6 pt-2 pb-6 sm:px-8 sm:pt-3 sm:pb-8 relative">
         <p class="text-gray-600 text-sm sm:text-base mb-6">Ingresa tus credenciales para acceder al sistema.</p>
 
         <form class="space-y-5" (ngSubmit)="login()" #loginForm="ngForm">
@@ -69,7 +69,7 @@
           <button type="submit"
                   [disabled]="isloading"
                   #log
-                  class="login-btn w-full font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+                  class="login-btn w-full font-bold text-base py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
             <mat-icon>login</mat-icon>
             <span>{{ isloading ? 'Cargando...' : 'Iniciar Sesión' }}</span>
           </button>
@@ -79,6 +79,19 @@
         <div class="mt-8 pt-6 border-t border-gray-200 text-center">
           <p class="text-sm text-gray-500">Versión 1.0</p>
           <p class="text-xs text-gray-400 mt-1">© Crearttech Solutions S.A.C.</p>
+        </div>
+
+        <!-- Ayuda: círculo estilo login + globo al hover -->
+        <div class="landing-info-wrap">
+          <button type="button"
+                  class="landing-info-circle"
+                  aria-label="por qué existe este sistema?"
+                  aria-describedby="landing-info-tooltip">
+            <mat-icon>help_outline</mat-icon>
+          </button>
+          <div id="landing-info-tooltip" class="landing-info-bubble" role="tooltip">
+            <a routerLink="/landing" class="landing-info-bubble-link">Por qué existe este sistema?</a>
+          </div>
         </div>
       </div>
     </div>

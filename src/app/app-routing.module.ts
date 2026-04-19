@@ -14,6 +14,7 @@ import { PetsComponent } from './pets/pets.component';
 import { AccessPointsComponent } from './access-points/access-points.component';
 import { ReservationsComponent } from './reservations/reservations.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
+import { LandingComponent } from './landing/landing.component';
 import { CodigoQrPageComponent } from './qr/codigo-qr-page.component';
 import { AuthGuard } from './auth.guard';
 import { MyHouseGuard } from './my-house.guard';
@@ -23,6 +24,7 @@ import { AccessPointsGuard } from './access-points.guard';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
+  { path: "landing", component: LandingComponent },
   { path: "registro", component: PublicRegistrationComponent },
   { path: "", component: DashboardComponent, canActivate: [AuthGuard] },
   { path: "history", component: HistoryComponent, canActivate: [AuthGuard] },

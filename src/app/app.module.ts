@@ -61,6 +61,7 @@ import { ReservationsComponent } from './reservations/reservations.component';
 import { QrScannerComponent } from './qr/qr-scanner.component';
 import { CodigoQrPageComponent } from './qr/codigo-qr-page.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
+import { LandingComponent } from './landing/landing.component';
 import { AccessPointsComponent } from './access-points/access-points.component';
 
 import { NgChartsModule } from 'ng2-charts';
@@ -80,6 +81,7 @@ Chart.register(...registerables);
         DialogDatos,
         DialogHistoryDetail,
         LoginComponent,
+        LandingComponent,
         NavBarComponent,
         SideNavComponent,
         SettingsComponent,
