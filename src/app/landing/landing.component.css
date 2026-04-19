@@ -12,7 +12,7 @@
   --vl-text-2: oklch(0.71 0.01 260);
   --vl-brand-1: oklch(0.75 0.18 75);
   --vl-brand-2: oklch(0.85 0.15 85);
-  --vl-nav-h: 11.5rem;
+  --vl-nav-h: 8rem;
   --vl-radius: 12px;
   --vl-gap: 2rem;
   --vl-container: min(1200px, 100% - 2rem);
