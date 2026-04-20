@@ -13,6 +13,7 @@ require_once __DIR__ . '/../utils/Router.php';
 require_once __DIR__ . '/../auth_middleware.php';
 require_once __DIR__ . '/../helpers/house_permissions.php';
 require_once __DIR__ . '/../config/reservation_business_rules.php';
+require_once __DIR__ . '/../helpers/holidays_ics.php';
 
 use Utils\Response;
 use Utils\Router;
@@ -181,6 +182,31 @@ class ReservationController
         }
 
         Response::json(['success' => true, 'data' => $out]);
+    }
+
+    /**
+     * GET /api/v1/reservations/holidays
+     * Festivos (Perú) desde ICS público de Google; solo informativo para el calendario.
+     * Query: start_date, end_date (YYYY-MM-DD).
+     */
+    public function holidays(): void
+    {
+        $auth = requireAuth();
+        if (!canAccessReservationsModule($this->pdo, $auth)) {
+            Response::json(['success' => false, 'error' => 'Sin permiso para el módulo de reservaciones'], 403);
+            return;
+        }
+
+        $params = Router::getParams();
+        $start = isset($params['start_date']) ? trim((string) $params['start_date']) : '';
+        $end = isset($params['end_date']) ? trim((string) $params['end_date']) : '';
+        if ($start === '' || $end === '') {
+            Response::json(['success' => false, 'error' => 'start_date y end_date son requeridos (YYYY-MM-DD)'], 400);
+            return;
+        }
+
+        $list = holidays_ics_list_for_range($start, $end);
+        Response::json(['success' => true, 'data' => $list]);
     }
 
     /**

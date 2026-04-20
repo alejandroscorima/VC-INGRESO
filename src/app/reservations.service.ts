@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { Reservation, ReservationDayAvailability } from './reservation';
+import { HolidayEntry, Reservation, ReservationDayAvailability } from './reservation';
 import { ApiService } from './api.service';
 import { AccessPoint } from './accessPoint';
 
@@ -105,6 +105,18 @@ export class ReservationsService {
   /**
    * Vista calendario (todas las casas); filas ajenas pueden traer solo house_label + campos mínimos.
    */
+  /**
+   * Festivos (Perú) desde ICS público de Google; solo informativo en la UI.
+   */
+  getHolidaysInRange(startDate: string, endDate: string): Observable<HolidayEntry[]> {
+    return this.api.getRaw('api/v1/reservations/holidays', {
+      start_date: startDate,
+      end_date: endDate,
+    }).pipe(
+      map((res: { data?: HolidayEntry[] }) => (Array.isArray(res?.data) ? res.data : []))
+    );
+  }
+
   getCalendarReservations(
     startDate: string,
     endDate: string,

@@ -53,6 +53,12 @@ export interface TimeSlot {
   available: boolean;
 }
 
+/** Un día festivo para el calendario (GET /reservations/holidays). */
+export interface HolidayEntry {
+  date: string;
+  summary: string;
+}
+
 /** Respuesta de GET /reservations/availability (día lógico 8–8). */
 export interface ReservationDayAvailability {
   date: string;

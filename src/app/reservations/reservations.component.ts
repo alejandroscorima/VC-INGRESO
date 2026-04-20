@@ -1,9 +1,10 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ReservationsService } from '../reservations.service';
-import { Reservation } from '../reservation';
+import { HolidayEntry, Reservation } from '../reservation';
 import { AccessPoint } from '../accessPoint';
 import { House } from '../house';
 import { AuthService } from '../auth.service';
@@ -19,6 +20,8 @@ interface MonthCell {
   date: Date;
   inMonth: boolean;
   isToday: boolean;
+  /** Festivo (Google Calendar Perú), solo informativo. */
+  holidaySummary?: string;
   tags: CalendarTag[];
   extraCount: number;
 }
@@ -62,6 +65,9 @@ export class ReservationsComponent implements OnInit {
 
   /** Grilla mensual (no usar getter: evita reconstruir en cada ciclo de detección de cambios). */
   monthCells: MonthCell[] = [];
+
+  /** Festivos del mes visible (YYYY-MM-DD → texto del ICS). */
+  private holidaysByDate = new Map<string, string>();
 
   readonly weekDayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   private readonly monthNames = [
@@ -214,10 +220,13 @@ export class ReservationsComponent implements OnInit {
       badgeClass: this.statusBadgeClass(r.status ?? ''),
     }));
     const extraCount = Math.max(0, list.length - maxTags);
+    const ymd = this.formatYmd(date);
+    const holidaySummary = inMonth ? this.holidaysByDate.get(ymd) : undefined;
     return {
       date,
       inMonth,
       isToday: this.isSameDay(date, new Date()),
+      holidaySummary,
       tags,
       extraCount,
     };
@@ -284,15 +293,25 @@ export class ReservationsComponent implements OnInit {
     forkJoin({
       calendar: this.reservationsService.getCalendarReservations(start, end, 500, apFilter),
       table: this.reservationsService.getReservationsInRange(start, end, 250),
+      holidays: this.reservationsService.getHolidaysInRange(start, end).pipe(
+        catchError(() => of([] as HolidayEntry[]))
+      ),
     }).subscribe({
-      next: ({ calendar, table }) => {
+      next: ({ calendar, table, holidays }) => {
         this.monthCalendarReservations = calendar;
         this.monthTableReservations = table;
+        this.holidaysByDate.clear();
+        for (const h of holidays) {
+          if (h.date && h.summary) {
+            this.holidaysByDate.set(h.date, h.summary);
+          }
+        }
         this.loading = false;
         this.rebuildMonthCells();
       },
       error: () => {
         this.loading = false;
+        this.holidaysByDate.clear();
         this.toastr.error('No se pudieron cargar las reservas del mes.');
         this.rebuildMonthCells();
       },
@@ -590,14 +609,23 @@ export class ReservationsComponent implements OnInit {
     return map[s] ?? (s.slice(0, 4) || '—');
   }
 
+  /**
+   * Reservas que se muestran en la celda del calendario (tags).
+   * Solo el día lógico reservado (fecha de inicio de ventana 8:00–8:00), no el “arrastre”
+   * hasta las 8:00 del día siguiente: así el día siguiente se ve libre en la grilla.
+   */
   private reservationsForDay(d: Date): Reservation[] {
-    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).getTime();
-    const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, 0).getTime();
-    return this.reservationsForMonthView.filter((r) => {
-      const rs = this.parseApiDate(r.reservation_date).getTime();
-      const re = this.parseApiDate(r.end_date ?? r.reservation_date).getTime();
-      return rs < dayEnd && re > dayStart;
-    });
+    const ymd = this.formatYmd(d);
+    return this.reservationsForMonthView.filter((r) => this.reservationLogicalDayYmd(r) === ymd);
+  }
+
+  /** YYYY-MM-DD del día de reserva según el API (parte fecha de reservation_date). */
+  private reservationLogicalDayYmd(r: Reservation): string {
+    const raw = (r.reservation_date || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+      return raw.substring(0, 10);
+    }
+    return this.formatYmd(this.parseApiDate(r.reservation_date));
   }
 
   private isSameDay(a: Date, b: Date): boolean {

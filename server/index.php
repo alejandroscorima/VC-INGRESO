@@ -581,6 +581,14 @@ if (str_starts_with($uri, '/api/v1/')) {
             exit;
         }
 
+        // reservations/holidays (festivos Perú, ICS Google; informativo)
+        if (str_contains($path, 'holidays')) {
+            if ($method === 'GET') {
+                $controller->holidays();
+            }
+            exit;
+        }
+
         // reservations/calendar (vista comunitaria; payload mínimo para casas ajenas)
         if (str_contains($path, 'calendar')) {
             if ($method === 'GET') {
@@ -713,6 +721,7 @@ echo json_encode([
             'DELETE /api/v1/reservations/:id' => 'Eliminar reservación',
             'GET /api/v1/reservations/areas' => 'Listar áreas disponibles',
             'GET /api/v1/reservations/availability' => 'Día lógico 8–8 libre u ocupado',
-            'GET /api/v1/reservations/calendar' => 'Calendario comunitario (payload mínimo en ajenas)'
+            'GET /api/v1/reservations/calendar' => 'Calendario comunitario (payload mínimo en ajenas)',
+            'GET /api/v1/reservations/holidays' => 'Festivos Perú (ICS Google; informativo)'
         ]
 ]);

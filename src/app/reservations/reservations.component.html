@@ -79,11 +79,20 @@
             <span
               class="text-sm font-medium"
               [class.text-gray-400]="!cell.inMonth"
-              [class.text-gray-900]="cell.inMonth"
-              [class.dark:text-white]="cell.inMonth"
+              [class.text-gray-900]="cell.inMonth && !cell.holidaySummary"
+              [class.dark:text-white]="cell.inMonth && !cell.holidaySummary"
+              [class.text-rose-600]="cell.inMonth && !!cell.holidaySummary"
+              [class.dark:text-rose-300]="cell.inMonth && !!cell.holidaySummary"
             >
               {{ cell.date.getDate() }}
             </span>
+            <p
+              *ngIf="cell.holidaySummary && cell.inMonth"
+              class="mt-0.5 text-[9px] font-medium leading-tight text-rose-800 dark:text-rose-200 line-clamp-2 break-words hyphens-auto"
+              [attr.title]="cell.holidaySummary"
+            >
+              {{ cell.holidaySummary }}
+            </p>
             <div class="mt-1 flex flex-wrap gap-0.5 items-center">
               <span
                 *ngFor="let tag of cell.tags"
@@ -96,6 +105,10 @@
           </button>
         </div>
       </div>
+
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        Los días Festivos en Perú son informativos; no limitan las reservas.
+      </p>
 
       <div *ngIf="loading" class="text-center text-sm text-gray-500 py-2">Cargando reservas del mes…</div>
 
