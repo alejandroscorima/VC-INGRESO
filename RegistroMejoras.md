@@ -10,6 +10,7 @@ Posibles mejoras a implementar, al menos evaluar, dependiendo de complejidad imp
 4. Notificaciones push up de comunicados.
 5. Sección de Tutorial para vecinos.
 6. Sección de Documentos para vecinos o link de autorización de uso de datos en la interfaz.
+7. Numeros de contacto o emergencia
 7. Módulo/Componente para registro de pagos
 7.1. Permite carga de adjuntos (vouchers, transferencias, yapeos, plineos, etc. jpg, png, pdf livianos)
 7.2. Reconocimiento y extracción de adjuntos por IA y llenado en Base de datos luego de registrar el pago.
