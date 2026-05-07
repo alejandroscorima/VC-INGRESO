@@ -63,9 +63,11 @@ import { CodigoQrPageComponent } from './qr/codigo-qr-page.component';
 import { PublicRegistrationComponent } from './public-registration/public-registration.component';
 import { LandingComponent } from './landing/landing.component';
 import { AccessPointsComponent } from './access-points/access-points.component';
-import { TutorialPageComponent } from './readonly/tutorial-page.component';
-import { DocumentsPageComponent } from './readonly/documents-page.component';
-import { EmergencyContactsPageComponent } from './readonly/emergency-contacts-page.component';
+import { TutorialComponent } from './readonly/tutorial.component';
+import { DocumentsComponent } from './readonly/documents.component';
+import { EmergencyContactsComponent } from './readonly/emergency-contacts.component';
+import { AnnouncementsComponent } from './announcements/announcements.component';
+import { SurveysComponent } from './surveys/surveys.component';
 
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
@@ -97,9 +99,11 @@ Chart.register(...registerables);
         WebcamComponent,
         PublicRegistrationComponent,
         AccessPointsComponent,
-        TutorialPageComponent,
-        DocumentsPageComponent,
-        EmergencyContactsPageComponent,
+        TutorialComponent,
+        DocumentsComponent,
+        EmergencyContactsComponent,
+        AnnouncementsComponent,
+        SurveysComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

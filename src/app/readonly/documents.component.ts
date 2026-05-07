@@ -7,23 +7,28 @@ export interface DocumentLink {
   title: string;
   url: string;
   description?: string;
+  date?: string;
 }
 
 @Component({
-  selector: 'app-documents-page',
-  templateUrl: './documents-page.component.html',
-  styleUrls: ['./documents-page.component.css']
+  selector: 'app-documents',
+  templateUrl: './documents.component.html',
+  styleUrls: ['./documents.component.css']
 })
-export class DocumentsPageComponent implements OnInit {
+export class DocumentsComponent implements OnInit {
   documents: DocumentLink[] = [];
   authorizationUrl = '';
 
   loading = false;
   saving = false;
+  authEditorOpen = false;
+  addUrlOpen = false;
+  uploadOpen = false;
 
   draftTitle = '';
   draftUrl = '';
   draftDescription = '';
+  draftDate = '';
   draftAuthorizationUrl = '';
 
   // Upload desde el equipo (solo admin). Los archivos subidos NO se borran del servidor;
@@ -32,6 +37,7 @@ export class DocumentsPageComponent implements OnInit {
   uploadingFile = false;
   uploadTitle = '';
   uploadDescription = '';
+  uploadDate = '';
 
   constructor(
     public readonly auth: AuthService,
@@ -81,17 +87,19 @@ export class DocumentsPageComponent implements OnInit {
     const title = this.draftTitle.trim();
     const url = this.draftUrl.trim();
     const description = this.draftDescription.trim();
+    const date = this.normalizeDate(this.draftDate);
     if (!title || !url) {
       this.toastr.warning('Ingrese Título y URL.');
       return;
     }
     this.documents = [
       ...this.documents,
-      { title, url, description: description || undefined }
+      { title, url, description: description || undefined, date }
     ];
     this.draftTitle = '';
     this.draftUrl = '';
     this.draftDescription = '';
+    this.draftDate = '';
     this.persistDocuments('URL agregada.');
   }
 
@@ -126,7 +134,8 @@ export class DocumentsPageComponent implements OnInit {
           {
             title,
             url,
-            description: this.uploadDescription.trim() || undefined
+            description: this.uploadDescription.trim() || undefined,
+            date: this.normalizeDate(this.uploadDate)
           }
         ];
 
@@ -134,6 +143,7 @@ export class DocumentsPageComponent implements OnInit {
         this.uploadingFile = false;
         this.uploadTitle = '';
         this.uploadDescription = '';
+        this.uploadDate = '';
         this.persistDocuments('Archivo agregado al listado.');
       },
       error: (e) => {
@@ -150,6 +160,18 @@ export class DocumentsPageComponent implements OnInit {
 
   saveAuthorizationUrl(): void {
     this.persistDocuments('URL de autorización actualizada.');
+  }
+
+  toggleAuthEditor(): void {
+    this.authEditorOpen = !this.authEditorOpen;
+  }
+
+  toggleAddUrl(): void {
+    this.addUrlOpen = !this.addUrlOpen;
+  }
+
+  toggleUpload(): void {
+    this.uploadOpen = !this.uploadOpen;
   }
 
   private persistDocuments(successMessage?: string): void {
@@ -178,6 +200,12 @@ export class DocumentsPageComponent implements OnInit {
         this.loadDocuments();
       }
     });
+  }
+
+  private normalizeDate(value: string): string {
+    const date = String(value ?? '').trim();
+    if (date) return date;
+    return new Date().toISOString().slice(0, 10);
   }
 
   getUrlIcon(url: string): string {

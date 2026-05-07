@@ -15,13 +15,12 @@ interface TutorialTopic {
 }
 
 @Component({
-  selector: 'app-tutorial-page',
-  templateUrl: './tutorial-page.component.html',
-  styleUrls: ['./tutorial-page.component.css']
+  selector: 'app-tutorial',
+  templateUrl: './tutorial.component.html',
+  styleUrls: ['./tutorial.component.css']
 })
-export class TutorialPageComponent {
+export class TutorialComponent implements OnInit {
   topics: TutorialTopic[] = [];
-
   loading = false;
 
   constructor(

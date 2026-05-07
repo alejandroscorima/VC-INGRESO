@@ -26,6 +26,9 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 1. CASAS (houses)
 -- -----------------------------------------------------------------------------
 DROP TABLE IF EXISTS `house_members`;
+DROP TABLE IF EXISTS `survey_responses`;
+DROP TABLE IF EXISTS `surveys`;
+DROP TABLE IF EXISTS `announcements`;
 DROP TABLE IF EXISTS `reservations`;
 DROP TABLE IF EXISTS `pets`;
 DROP TABLE IF EXISTS `temporary_access_logs`;
@@ -302,6 +305,62 @@ CREATE TABLE `reservations` (
     KEY `idx_created_by_user` (`created_by_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Reservaciones de áreas comunes';
 
+-- -----------------------------------------------------------------------------
+-- 11. COMUNICADOS (announcements)
+-- -----------------------------------------------------------------------------
+CREATE TABLE `announcements` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(180) NOT NULL,
+    `message` TEXT NOT NULL,
+    `start_at` DATETIME DEFAULT NULL,
+    `end_at` DATETIME DEFAULT NULL,
+    `cta_label` VARCHAR(80) DEFAULT NULL,
+    `cta_url` VARCHAR(500) DEFAULT NULL,
+    `image_url` VARCHAR(600) DEFAULT NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_active` (`is_active`),
+    KEY `idx_start_at` (`start_at`),
+    KEY `idx_end_at` (`end_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Comunicados visibles para usuarios autenticados';
+
+-- -----------------------------------------------------------------------------
+-- 12. ENCUESTAS (surveys)
+-- -----------------------------------------------------------------------------
+CREATE TABLE `surveys` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(180) NOT NULL,
+    `description` TEXT DEFAULT NULL,
+    `question_type` ENUM('CLOSED','OPEN','MULTIPLE','CHECKBOX') NOT NULL DEFAULT 'CLOSED',
+    `options_json` TEXT DEFAULT NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `start_at` DATETIME DEFAULT NULL,
+    `end_at` DATETIME DEFAULT NULL,
+    `created_by_user_id` INT UNSIGNED DEFAULT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_surveys_active` (`is_active`),
+    KEY `idx_surveys_start` (`start_at`),
+    KEY `idx_surveys_end` (`end_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Encuestas para usuarios autenticados';
+
+CREATE TABLE `survey_responses` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `survey_id` INT UNSIGNED NOT NULL,
+    `user_id` INT UNSIGNED NOT NULL,
+    `answer_text` TEXT DEFAULT NULL,
+    `answer_option` VARCHAR(255) DEFAULT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_survey_user` (`survey_id`, `user_id`),
+    KEY `idx_survey_responses_survey` (`survey_id`),
+    KEY `idx_survey_responses_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Respuestas por usuario a cada encuesta';
+
 -- =============================================================================
 -- CLAVES FORÁNEAS
 -- =============================================================================
@@ -357,6 +416,15 @@ ALTER TABLE `reservations`
     ADD CONSTRAINT `fk_reservations_person` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `fk_reservations_house` FOREIGN KEY (`house_id`) REFERENCES `houses` (`house_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
     ADD CONSTRAINT `fk_reservations_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- surveys -> users
+ALTER TABLE `surveys`
+    ADD CONSTRAINT `fk_surveys_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- survey_responses -> surveys, users
+ALTER TABLE `survey_responses`
+    ADD CONSTRAINT `fk_survey_responses_survey` FOREIGN KEY (`survey_id`) REFERENCES `surveys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_survey_responses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- =============================================================================
 -- DATOS INICIALES (puntos de acceso para reservas y API)

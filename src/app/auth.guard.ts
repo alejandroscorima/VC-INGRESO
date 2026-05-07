@@ -7,7 +7,8 @@ export class AuthGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
   canActivate(): boolean | UrlTree {
-    if (this.auth.isAuthenticated()) {
+    const user = this.auth.getUser();
+    if (this.auth.isAuthenticated() && !user?.force_password_change) {
       return true;
     }
     return this.router.parseUrl('/login');

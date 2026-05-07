@@ -1,0 +1,132 @@
+<div class="p-4 dark:bg-gray-900 min-h-screen">
+  <div class="vc-card bg-white dark:bg-gray-800/90 p-4 sm:p-6 max-w-5xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Gestión de comunicados</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Solo administradores pueden crear, editar o inhabilitar comunicados.
+    </p>
+
+    <div *ngIf="!auth.isAdministratorRole()" class="rounded-lg border border-dashed border-red-300 dark:border-red-700 p-6 text-center text-red-700 dark:text-red-300">
+      No tiene permisos para esta pantalla.
+    </div>
+
+    <ng-container *ngIf="auth.isAdministratorRole()">
+      <section class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/20 p-4 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+            {{ editingId ? 'Editar comunicado' : 'Nuevo comunicado' }}
+          </h3>
+          <button *ngIf="editingId" type="button" (click)="cancelEdit()"
+            class="text-sm text-gray-600 dark:text-gray-300 hover:underline">
+            Cancelar edición
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="block md:col-span-2">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Título</span>
+            <input [(ngModel)]="form.title" type="text"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+
+          <label class="block md:col-span-2">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Mensaje</span>
+            <textarea [(ngModel)]="form.message" rows="4"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Inicio (opcional)</span>
+            <input [(ngModel)]="form.start_at" type="datetime-local"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Fin (opcional)</span>
+            <input [(ngModel)]="form.end_at" type="datetime-local"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Texto del botón (opcional)</span>
+            <input [(ngModel)]="form.cta_label" type="text"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">URL del botón (opcional)</span>
+            <input [(ngModel)]="form.cta_url" type="text" placeholder="#/documentos o https://..."
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Imagen (URL opcional)</span>
+            <input [(ngModel)]="form.image_url" type="text" placeholder="/uploads/public/announcements/..."
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Subir imagen</span>
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onAnnouncementImageSelected($event)"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100" />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Sube JPG, PNG, WEBP o GIF (max 8MB).</p>
+          </label>
+        </div>
+
+        <label class="mt-3 inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <input type="checkbox" [(ngModel)]="form.is_active" />
+          Activo
+        </label>
+
+        <div *ngIf="announcementImagePreview()" class="mt-3">
+          <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Vista previa</p>
+          <img [src]="announcementImagePreview() || ''" alt="Vista previa comunicado"
+            class="max-h-44 rounded-lg border border-gray-200 dark:border-gray-600 object-cover" />
+        </div>
+
+        <div class="mt-4">
+          <button type="button" [disabled]="saving || uploadingImage" (click)="save()"
+            class="vc-btn-primary inline-flex items-center gap-2 disabled:opacity-60">
+            <mat-icon class="!text-lg !w-5 !h-5">save</mat-icon>
+            {{ editingId ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Comunicados registrados</h3>
+        <div *ngIf="loading" class="text-sm text-gray-500 dark:text-gray-400">Cargando...</div>
+        <div *ngIf="!loading && announcements.length === 0" class="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-5 text-center text-sm text-gray-600 dark:text-gray-400">
+          No hay comunicados registrados.
+        </div>
+
+        <ul *ngIf="!loading && announcements.length > 0" class="space-y-3">
+          <li *ngFor="let a of announcements" class="rounded-xl border border-gray-200 dark:border-gray-600 p-4 bg-gray-50/70 dark:bg-gray-700/30">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold text-gray-900 dark:text-white">{{ a.title }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line mt-1">{{ a.message }}</p>
+                <img *ngIf="a.image_url" [src]="announcementRowImage(a.image_url) || ''" alt="Imagen comunicado"
+                  class="mt-2 max-h-24 rounded border border-gray-200 dark:border-gray-600 object-cover" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Inicio: {{ a.start_at || '—' }} | Fin: {{ a.end_at || '—' }} | Estado: {{ a.is_active ? 'Activo' : 'Inactivo' }}
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button type="button" (click)="editRow(a)"
+                  class="inline-flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <mat-icon class="!text-base !w-4 !h-4">edit</mat-icon>
+                  Editar
+                </button>
+                <label class="inline-flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <input type="checkbox" [checked]="a.is_active" (change)="toggleRowActive(a)" />
+                  {{ a.is_active ? 'Activo' : 'Inactivo' }}
+                </label>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </ng-container>
+  </div>
+</div>
+

@@ -105,10 +105,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Si no hay sesión activa (ni token ni cookie heredada), no llames al backend: evita bucles de navegación
+    // Si no hay sesión activa válida, no llames al backend: evita bucles de navegación.
     const storedUser = this.auth.getUser();
-    const cookieUserId = this.auth.checkToken('user_id') ? parseInt(this.auth.getTokenItem('user_id'), 10) : null;
-    if (!storedUser && !cookieUserId) {
+    if (!storedUser || !this.auth.isAuthenticated()) {
       this.logged = false;
       if (!isPublicGuestPath(bootPath)) {
         this.router.navigateByUrl('/login');
@@ -125,17 +124,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
           this.logged = true;
           this.user = existing;
           this.usersService.setUsr(existing);
-        } else if (cookieUserId) {
-          this.user.user_id = cookieUserId;
-          this.logged = true;
-
-          this.usersService.getUserById(this.user.user_id).subscribe((u: User) => {
-            this.user = u;
-            this.usersService.setUsr(u);
-            // Sincronizar auth storage para siguientes cargas
-            localStorage.setItem('auth_user', JSON.stringify(u));
-            this.auth['userSubject'].next(u as any);
-          });
         } else {
           this.router.navigateByUrl('/login');
         }

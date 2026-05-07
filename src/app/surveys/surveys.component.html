@@ -1,0 +1,98 @@
+<div class="p-4 dark:bg-gray-900 min-h-screen">
+  <div class="vc-card bg-white dark:bg-gray-800/90 p-4 sm:p-6 max-w-6xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Gestión de encuestas</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">CRUD de encuestas para administrador (sin borrado físico).</p>
+
+    <div *ngIf="!auth.isAdministratorRole()" class="rounded-lg border border-dashed border-red-300 dark:border-red-700 p-6 text-center text-red-700 dark:text-red-300">
+      No tiene permisos para esta pantalla.
+    </div>
+
+    <ng-container *ngIf="auth.isAdministratorRole()">
+      <section class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/20 p-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="block md:col-span-2">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Título</span>
+            <input [(ngModel)]="form.title" type="text" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+          </label>
+
+          <label class="block md:col-span-2">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Pregunta / descripción</span>
+            <textarea [(ngModel)]="form.description" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"></textarea>
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Tipo</span>
+            <select [(ngModel)]="form.question_type" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
+              <option value="CLOSED">Cerrada (Si / No / Tal vez)</option>
+              <option value="OPEN">Abierta</option>
+              <option value="MULTIPLE">Opción múltiple (una sola respuesta)</option>
+              <option value="CHECKBOX">Casillas de verificación (múltiples respuestas)</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Inicio (opcional)</span>
+            <input [(ngModel)]="form.start_at" type="datetime-local" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Fin (opcional)</span>
+            <input [(ngModel)]="form.end_at" type="datetime-local" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+          </label>
+
+          <label class="block md:col-span-2" *ngIf="form.question_type === 'MULTIPLE' || form.question_type === 'CHECKBOX'">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Opciones (una por línea)</span>
+            <textarea [(ngModel)]="optionsText" rows="4" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"></textarea>
+          </label>
+        </div>
+
+        <label class="mt-3 inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <input type="checkbox" [(ngModel)]="form.is_active" />
+          Activa
+        </label>
+
+        <div class="mt-4 flex gap-2">
+          <button type="button" [disabled]="saving" (click)="save()" class="vc-btn-primary inline-flex items-center gap-2 disabled:opacity-60">
+            <mat-icon class="!text-lg !w-5 !h-5">save</mat-icon>
+            {{ editingId ? 'Actualizar' : 'Crear' }}
+          </button>
+          <button *ngIf="editingId" type="button" (click)="startCreate()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm dark:border-gray-600">
+            Cancelar
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Encuestas registradas</h3>
+        <div *ngIf="loading" class="text-sm text-gray-500 dark:text-gray-400">Cargando...</div>
+        <ul *ngIf="!loading" class="space-y-3">
+          <li *ngFor="let s of surveys" class="rounded-xl border border-gray-200 dark:border-gray-600 p-4 bg-gray-50/70 dark:bg-gray-700/30">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold text-gray-900 dark:text-white">{{ s.title }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ s.description }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Tipo: {{ s.question_type }} | Respuestas: {{ s.answers_count ?? 0 }} | Estado: {{ s.is_active ? 'Activa' : 'Inactiva' }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {{ optionCountsText(s) }}
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button type="button" (click)="editRow(s)" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs">
+                  <mat-icon class="!text-base !w-4 !h-4">edit</mat-icon>
+                  Editar
+                </button>
+                <label class="inline-flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <input type="checkbox" [checked]="s.is_active" (change)="removeRow(s)" />
+                  {{ s.is_active ? 'Activa' : 'Inactiva' }}
+                </label>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </ng-container>
+  </div>
+</div>
+

@@ -19,10 +19,12 @@
     </div>
 
     <div class="flex items-center gap-2 sm:gap-3">
-      <!-- Notificaciones (sin funcionalidad por ahora) -->
-      <button type="button" aria-label="Notificaciones"
+      <!-- Notificaciones -->
+      <button type="button" aria-label="Comunicados" (click)="onBellClick()"
         class="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
         <mat-icon>notifications</mat-icon>
+        <span *ngIf="hasBellAlerts()"
+          class="absolute right-1 top-1 inline-flex h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-gray-800"></span>
       </button>
 
       <!-- Toggle tema claro/oscuro -->
@@ -60,3 +62,102 @@
     </div>
   </div>
 </header>
+
+<div *ngIf="isAnnouncementModalOpen" class="fixed inset-0 z-40 flex items-center justify-center bg-black/45 p-4"
+  (click)="onAnnouncementBackdropClick($event)">
+  <div class="w-full max-w-[38rem] min-h-[32rem] max-h-[90vh] overflow-y-auto rounded-xl bg-white p-5 shadow-2xl dark:bg-gray-800" (click)="$event.stopPropagation()">
+    <div class="mb-3 flex items-start justify-between gap-3">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ currentAnnouncement?.title || 'Comunicado' }}
+      </h3>
+      <span *ngIf="announcementQueue.length > 1" class="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+        {{ announcementQueueIndex + 1 }} / {{ announcementQueue.length }}
+      </span>
+      <button type="button" aria-label="Cerrar comunicado"
+        class="rounded-lg p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+        (click)="closeAnnouncementModal(true)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <p class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300 text-center">
+      {{ currentAnnouncement?.message }}
+    </p>
+
+    <img *ngIf="announcementImageUrl(currentAnnouncement)"
+      [src]="announcementImageUrl(currentAnnouncement) || ''"
+      alt="Imagen comunicado"
+      class="mt-3 max-h-[45vh] w-full rounded-lg border border-gray-200 dark:border-gray-600 object-contain bg-gray-50 dark:bg-gray-900/30" />
+
+    <div class="mt-5 flex justify-end gap-2">
+      <a *ngIf="currentAnnouncement?.cta_url"
+        [href]="currentAnnouncement?.cta_url || '#'"
+        class="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700"
+        (click)="closeAnnouncementModal(true)">
+        {{ currentAnnouncement?.cta_label || 'Abrir' }}
+      </a>
+      <button type="button"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+        (click)="closeAnnouncementModal(true)">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isSurveyModalOpen && currentSurvey" class="fixed inset-0 z-40 flex items-center justify-center bg-black/45 p-4"
+  (click)="onSurveyBackdropClick($event)">
+  <div class="w-full max-w-[38rem] min-h-[22rem] max-h-[90vh] overflow-y-auto rounded-xl bg-white p-5 shadow-2xl dark:bg-gray-800"
+    (click)="$event.stopPropagation()">
+    <div class="mb-3 flex items-start justify-between gap-3">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Encuesta: {{ currentSurvey.title }}
+      </h3>
+      <button type="button" aria-label="Cerrar encuesta"
+        class="rounded-lg p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+        (click)="closeSurveyModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <p class="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300 text-center mb-4">
+      {{ currentSurvey.description }}
+    </p>
+
+    <div *ngIf="currentSurvey.question_type === 'CLOSED' || currentSurvey.question_type === 'MULTIPLE'" class="space-y-2">
+      <label *ngFor="let opt of surveyOptions(currentSurvey)" class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <input type="radio" name="survey-option" [value]="opt" [(ngModel)]="surveyAnswerOption" />
+        <span>{{ opt }}</span>
+      </label>
+    </div>
+
+    <div *ngIf="currentSurvey.question_type === 'CHECKBOX'" class="space-y-2">
+      <label *ngFor="let opt of surveyOptions(currentSurvey)" class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <input type="checkbox"
+          [checked]="surveyAnswerOptions.includes(opt)"
+          (change)="onSurveyOptionToggle(opt, $any($event.target).checked)" />
+        <span>{{ opt }}</span>
+      </label>
+    </div>
+
+    <p *ngIf="(currentSurvey.question_type === 'CLOSED' || currentSurvey.question_type === 'MULTIPLE' || currentSurvey.question_type === 'CHECKBOX') && surveyOptions(currentSurvey).length === 0"
+      class="text-sm text-amber-700 dark:text-amber-300 italic">
+      Esta encuesta no tiene opciones configuradas.
+    </p>
+
+    <div *ngIf="currentSurvey.question_type === 'OPEN'">
+      <textarea [(ngModel)]="surveyAnswerText" rows="4"
+        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        placeholder="Escribe tu respuesta"></textarea>
+    </div>
+
+    <div class="mt-5 flex justify-end">
+      <button type="button" [disabled]="submittingSurvey"
+        class="vc-btn-primary inline-flex items-center gap-2 disabled:opacity-60"
+        (click)="submitSurvey()">
+        <mat-icon class="!text-lg !w-5 !h-5">send</mat-icon>
+        Enviar respuesta
+      </button>
+    </div>
+  </div>
+</div>

@@ -281,6 +281,81 @@ if (str_starts_with($uri, '/api/v1/')) {
             exit;
         }
     }
+
+    // ==================== ANNOUNCEMENTS (Comunicados) ====================
+    if ($path === 'announcements/active' && $method === 'GET') {
+        require_once __DIR__ . '/controllers/AnnouncementController.php';
+        \Controllers\AnnouncementController::active();
+        exit;
+    }
+
+    if ($path === 'announcements' && $method === 'GET') {
+        require_once __DIR__ . '/controllers/AnnouncementController.php';
+        \Controllers\AnnouncementController::index();
+        exit;
+    }
+
+    if ($path === 'announcements' && $method === 'POST') {
+        require_once __DIR__ . '/controllers/AnnouncementController.php';
+        \Controllers\AnnouncementController::store();
+        exit;
+    }
+
+    if ($path === 'announcements/upload-image' && $method === 'POST') {
+        require_once __DIR__ . '/controllers/AnnouncementController.php';
+        \Controllers\AnnouncementController::uploadImage();
+        exit;
+    }
+
+    if (preg_match('#^announcements/(\d+)$#', $path, $m)) {
+        require_once __DIR__ . '/controllers/AnnouncementController.php';
+        if ($method === 'PUT') {
+            \Controllers\AnnouncementController::update((int) $m[1]);
+            exit;
+        }
+        if ($method === 'DELETE') {
+            \Controllers\AnnouncementController::destroy((int) $m[1]);
+            exit;
+        }
+    }
+
+    // ==================== SURVEYS (Encuestas) ====================
+    if ($path === 'surveys' && $method === 'GET') {
+        require_once __DIR__ . '/controllers/SurveyController.php';
+        \Controllers\SurveyController::index();
+        exit;
+    }
+    if ($path === 'surveys/active' && $method === 'GET') {
+        require_once __DIR__ . '/controllers/SurveyController.php';
+        \Controllers\SurveyController::active();
+        exit;
+    }
+    if ($path === 'surveys' && $method === 'POST') {
+        require_once __DIR__ . '/controllers/SurveyController.php';
+        \Controllers\SurveyController::store();
+        exit;
+    }
+    if (preg_match('#^surveys/(\d+)/respond$#', $path, $m) && $method === 'POST') {
+        require_once __DIR__ . '/controllers/SurveyController.php';
+        \Controllers\SurveyController::respond((int) $m[1]);
+        exit;
+    }
+    if (preg_match('#^surveys/(\d+)/results$#', $path, $m) && $method === 'GET') {
+        require_once __DIR__ . '/controllers/SurveyController.php';
+        \Controllers\SurveyController::results((int) $m[1]);
+        exit;
+    }
+    if (preg_match('#^surveys/(\d+)$#', $path, $m)) {
+        require_once __DIR__ . '/controllers/SurveyController.php';
+        if ($method === 'PUT') {
+            \Controllers\SurveyController::update((int) $m[1]);
+            exit;
+        }
+        if ($method === 'DELETE') {
+            \Controllers\SurveyController::destroy((int) $m[1]);
+            exit;
+        }
+    }
     
     // ==================== HOUSES ====================
     if (str_starts_with($path, 'houses')) {

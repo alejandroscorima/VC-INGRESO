@@ -39,7 +39,34 @@ class ReadonlyDocumentsController
             'documents' => [],
             'authorization_url' => '',
             'emergency_contacts' => [],
+            'announcements' => [],
         ];
+    }
+
+    private static function normalizeAnnouncements($items): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+        $out = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) continue;
+            $id = trim((string) ($item['id'] ?? ''));
+            $title = trim((string) ($item['title'] ?? ''));
+            $message = trim((string) ($item['message'] ?? ''));
+            if ($title === '' || $message === '') continue;
+            $out[] = [
+                'id' => ($id !== '' ? $id : null),
+                'title' => $title,
+                'message' => $message,
+                'start_at' => trim((string) ($item['start_at'] ?? '')),
+                'end_at' => trim((string) ($item['end_at'] ?? '')),
+                'cta_label' => trim((string) ($item['cta_label'] ?? '')),
+                'cta_url' => trim((string) ($item['cta_url'] ?? '')),
+                'updated_at' => trim((string) ($item['updated_at'] ?? '')),
+            ];
+        }
+        return $out;
     }
 
     private static function loadOrInitData(): array
@@ -81,6 +108,7 @@ class ReadonlyDocumentsController
         if (!isset($data['documents']) || !is_array($data['documents'])) $data['documents'] = [];
         if (!isset($data['authorization_url']) || !is_string($data['authorization_url'])) $data['authorization_url'] = '';
         if (!isset($data['emergency_contacts']) || !is_array($data['emergency_contacts'])) $data['emergency_contacts'] = [];
+        if (!isset($data['announcements']) || !is_array($data['announcements'])) $data['announcements'] = [];
 
         return $data;
     }
@@ -113,6 +141,7 @@ class ReadonlyDocumentsController
         $docs = self::normalizeDocs($data['documents'] ?? []);
         $data['documents'] = $docs;
         $data['authorization_url'] = trim((string) ($data['authorization_url'] ?? ''));
+        $data['announcements'] = self::normalizeAnnouncements($data['announcements'] ?? []);
 
         Response::json(['success' => true, 'data' => $data]);
     }

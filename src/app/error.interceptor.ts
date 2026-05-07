@@ -2,7 +2,10 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
 import { currentInternalPath, isPublicGuestPath } from './public-route.utils';
+
+let loginRedirectInProgress = false;
 
 /**
  * ErrorInterceptor - Manejo centralizado de errores HTTP
@@ -14,6 +17,7 @@ import { currentInternalPath, isPublicGuestPath } from './public-route.utils';
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
+  const auth = inject(AuthService);
   
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -33,10 +37,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             {
               const path = currentInternalPath(router);
               const publicNoRedirect = isPublicGuestPath(path);
-              if (!publicNoRedirect) {
-                localStorage.removeItem('auth_user');
-                localStorage.removeItem('auth_token');
-                router.navigate(['/login']);
+              auth.clearAuthState();
+              if (!publicNoRedirect && !loginRedirectInProgress) {
+                loginRedirectInProgress = true;
+                router.navigate(['/login'], { replaceUrl: true }).finally(() => {
+                  loginRedirectInProgress = false;
+                });
               }
             }
             break;

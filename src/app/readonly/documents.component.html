@@ -17,23 +17,34 @@
       </a>
 
       <div *ngIf="auth.isAdministratorRole()" class="mt-4 border-t border-amber-300/70 dark:border-amber-900/60 pt-3">
-        <label class="block">
-          <span class="text-xs font-medium text-amber-900 dark:text-amber-200">Editar URL de autorización</span>
-          <input [(ngModel)]="draftAuthorizationUrl" type="url" placeholder="https://..."
-            class="mt-1 w-full rounded-lg border border-amber-300 dark:border-amber-800 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-        </label>
-        <button type="button" [disabled]="saving" (click)="saveAuthorizationUrl()"
-          class="mt-2 inline-flex items-center gap-2 rounded-lg bg-amber-700 px-3 py-2 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-500">
-          <mat-icon class="!text-lg !w-5 !h-5">save</mat-icon>
-          Guardar URL
+        <button type="button" (click)="toggleAuthEditor()"
+          class="vc-btn-primary w-full flex items-center justify-between !px-3 !py-2 text-sm font-semibold">
+          <span>Editar URL de autorización</span>
+          <mat-icon class="!text-base !w-4 !h-4 transition-transform duration-200" [class.rotate-180]="authEditorOpen">expand_more</mat-icon>
         </button>
+
+        <div *ngIf="authEditorOpen" class="mt-3">
+          <label class="block">
+            <input [(ngModel)]="draftAuthorizationUrl" type="url" placeholder="https://..."
+              class="mt-1 w-full rounded-lg border border-amber-300 dark:border-amber-800 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <button type="button" [disabled]="saving" (click)="saveAuthorizationUrl()"
+            class="mt-2 inline-flex items-center gap-2 rounded-lg bg-amber-700 px-3 py-2 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <mat-icon class="!text-lg !w-5 !h-5">save</mat-icon>
+            Guardar URL
+          </button>
+        </div>
       </div>
     </div>
 
     <div *ngIf="auth.isAdministratorRole()" class="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
       <section class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/20 p-4">
-        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Agregar por URL</h3>
-        <div class="space-y-3">
+        <button type="button" (click)="toggleAddUrl()"
+          class="vc-btn-primary w-full flex items-center justify-between !px-3 !py-2 text-sm font-semibold mb-3">
+          <span>Agregar por URL</span>
+          <mat-icon class="!text-base !w-4 !h-4 transition-transform duration-200" [class.rotate-180]="addUrlOpen">expand_more</mat-icon>
+        </button>
+        <div *ngIf="addUrlOpen" class="space-y-3">
           <label class="block">
             <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Título</span>
             <input [(ngModel)]="draftTitle" type="text"
@@ -49,6 +60,11 @@
             <input [(ngModel)]="draftDescription" type="text"
               class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
           </label>
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Fecha (opcional)</span>
+            <input [(ngModel)]="draftDate" type="date"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
           <button type="button" [disabled]="saving" (click)="addUrlDocument()"
             class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-500">
             <mat-icon class="!text-lg !w-5 !h-5">add_link</mat-icon>
@@ -58,8 +74,12 @@
       </section>
 
       <section class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/20 p-4">
-        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Subir archivo</h3>
-        <div class="space-y-3">
+        <button type="button" (click)="toggleUpload()"
+          class="vc-btn-primary w-full flex items-center justify-between !px-3 !py-2 text-sm font-semibold mb-3">
+          <span>Subir archivo</span>
+          <mat-icon class="!text-base !w-4 !h-4 transition-transform duration-200" [class.rotate-180]="uploadOpen">expand_more</mat-icon>
+        </button>
+        <div *ngIf="uploadOpen" class="space-y-3">
           <label class="block">
             <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Archivo</span>
             <input type="file"
@@ -78,6 +98,11 @@
           <label class="block">
             <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Descripción (opcional)</span>
             <input [(ngModel)]="uploadDescription" type="text"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Fecha (opcional)</span>
+            <input [(ngModel)]="uploadDate" type="date"
               class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
           </label>
           <button type="button"
@@ -113,6 +138,7 @@
             <p class="text-sm font-medium text-sky-700 dark:text-sky-400 break-words w-full">
               {{ doc.title }}
             </p>
+            <p *ngIf="doc.date" class="text-xs text-gray-500 dark:text-gray-400">{{ doc.date }}</p>
             <p *ngIf="doc.description" class="text-xs text-gray-600 dark:text-gray-400 break-words w-full">{{ doc.description }}</p>
           </a>
         </li>

@@ -9,6 +9,7 @@ import { isResidentPersonType, isValidRolePersonPair, normalizePersonType } from
 
 const STORAGE_KEY = 'auth_user';
 const TOKEN_KEY = 'auth_token';
+const LEGACY_SESSION_KEYS = ['user_id', 'user_role', 'userOnSes', 'onSession', 'role_system'] as const;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -57,10 +58,17 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearAuthState();
+    this.router.navigate(['/login']);
+  }
+
+  clearAuthState(): void {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    for (const key of LEGACY_SESSION_KEYS) {
+      localStorage.removeItem(key);
+    }
     this.userSubject.next(null);
-    this.router.navigate(['/login']);
   }
 
   getUser(): User | null {
@@ -106,11 +114,19 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      return null;
+    }
+    if (this.isTokenExpired(token)) {
+      this.clearAuthState();
+      return null;
+    }
+    return token;
   }
 
   isAuthenticated(): boolean {
-    return !!this.getUser();
+    return !!this.getUser() && !!this.getToken();
   }
 
   /** Personal de puerta / administración (puede usar escáner y validar QR). */
@@ -288,5 +304,19 @@ export class AuthService {
    */
   deleteToken(token_name: string): void {
     this.removeItem(token_name);
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payloadPart = token.split('.')[1];
+      if (!payloadPart) return true;
+      const base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64)) as { exp?: number };
+      if (!payload?.exp) return false;
+      const now = Math.floor(Date.now() / 1000);
+      return payload.exp <= now;
+    } catch {
+      return true;
+    }
   }
 }

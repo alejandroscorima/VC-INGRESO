@@ -142,6 +142,14 @@ export class SideNavComponent extends AppComponent implements OnInit {
     return this.auth.isAdministratorRole() && this.auth.isSessionRolePersonValid();
   }
 
+  showAnnouncementsNav(): boolean {
+    return this.auth.isAdministratorRole() && this.auth.isSessionRolePersonValid();
+  }
+
+  showSurveysNav(): boolean {
+    return this.auth.isAdministratorRole() && this.auth.isSessionRolePersonValid();
+  }
+
   toggleInfoSection(): void {
     this.infoSectionExpanded = !this.infoSectionExpanded;
   }

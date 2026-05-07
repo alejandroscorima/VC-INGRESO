@@ -9,11 +9,11 @@ interface EmergencyContact {
 }
 
 @Component({
-  selector: 'app-emergency-contacts-page',
-  templateUrl: './emergency-contacts-page.component.html',
-  styleUrls: ['./emergency-contacts-page.component.css']
+  selector: 'app-emergency-contacts',
+  templateUrl: './emergency-contacts.component.html',
+  styleUrls: ['./emergency-contacts.component.css']
 })
-export class EmergencyContactsPageComponent {
+export class EmergencyContactsComponent implements OnInit {
   contacts: EmergencyContact[] = [];
 
   constructor(

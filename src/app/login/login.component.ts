@@ -128,8 +128,15 @@ export class LoginComponent implements OnInit {
     this.route.queryParams.subscribe(q => {
       if (q['username']) this.username_system = q['username'];
     });
+    const currentUser = this.auth.getUser();
+    if (currentUser?.force_password_change) {
+      // Evita sesión "a medias" tras recarga: sin password actual no puede completar el cambio.
+      this.auth.clearAuthState();
+      this.toastr.info('Debe iniciar sesión y cambiar la contraseña para continuar');
+      return;
+    }
     if (this.auth.isAuthenticated()) {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/', { replaceUrl: true });
     }
   }
 
@@ -138,23 +145,19 @@ export class LoginComponent implements OnInit {
       next: (resPay: Payment) => {
         this.isloading = false;
         if ((resPay as any)?.error) {
-          this.auth.deleteToken('user_id');
-          this.auth.deleteToken('user_role');
-          this.auth.deleteToken('onSession');
+          this.auth.clearAuthState();
           this.toastr.error('Error al obtener la licencia: ' + (resPay as any).error);
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl('/login', { replaceUrl: true });
           return;
         }
         this.toastr.success('Inicio de sesión exitoso');
-        this.router.navigateByUrl('/');
+        this.router.navigateByUrl('/', { replaceUrl: true });
       },
       error: (error) => {
         this.isloading = false;
-        this.auth.deleteToken('user_id');
-        this.auth.deleteToken('user_role');
-        this.auth.deleteToken('onSession');
+        this.auth.clearAuthState();
         this.toastr.error('Error al obtener la licencia: ' + error);
-        this.router.navigateByUrl('/login');
+        this.router.navigateByUrl('/login', { replaceUrl: true });
       }
     });
   }
@@ -196,10 +199,10 @@ export class LoginComponent implements OnInit {
     this.showChangePasswordModal = false;
     this.newPassword = '';
     this.confirmPassword = '';
-    this.auth.deleteToken('user_id');
-    this.auth.deleteToken('user_role');
-    this.auth.deleteToken('userOnSes');
+    this.tempCurrentPassword = '';
+    this.auth.clearAuthState();
     this.toastr.info('Debe cambiar la contraseña para continuar');
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
   onSubmit() {
