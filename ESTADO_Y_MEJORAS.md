@@ -175,6 +175,7 @@ stateDiagram-v2
 
 - **2026-03-16**: mejoras base (tablas, fotos, backend house members, domicilio en listados).
 - **2026-03-18**: carga de fotos en mascotas/vehículos y estandarización de modales.
+- **2026-05-07**: comunicados y encuestas (CRUD admin + UX de notificaciones y priorización en navbar).
 
 ### 10.1 Mi Casa — Tablas (Residentes, Inquilinos, Mascotas, Vehículos)
 
@@ -235,6 +236,27 @@ stateDiagram-v2
 
 - Verificación en `my-house.component.ts` / `.html` sin errores de compilación reportados tras cambios.
 - Recomendación: `ng serve` o `npm test` para validación UI.
+
+### 10.12 Comunicados y encuestas (actualización 2026-05-07)
+
+- **Comunicados (admin)**:
+  - Componente en `src/app/announcements/announcements.component.*` (fuera de `readonly`).
+  - CRUD con estado **Activo/Inactivo** (sin borrado físico).
+  - Soporte de imagen: carga de archivo + `image_url` + vista previa en formulario y en popup.
+- **Encuestas (admin)**:
+  - Componente en `src/app/surveys/surveys.component.*`.
+  - CRUD con estado **Activa/Inactiva** (sin borrado físico).
+  - Tipos soportados: `CLOSED`, `OPEN`, `MULTIPLE`, `CHECKBOX`.
+  - Registro de resultados por alternativa (`option_counts`) en listado admin.
+- **Flujo UX en navbar**:
+  - Prioridad de visualización: **cola completa de comunicados activos** y luego **encuestas pendientes**.
+  - Reapertura desde campana de notificaciones.
+  - Indicador visual (punto **amarillo**) cuando existen comunicados no vistos o encuestas pendientes.
+- **Backend/API y datos**:
+  - Rutas nuevas en `server/index.php` para `announcements` y `surveys` (incluye `active`, `respond`, `results`, upload de imagen).
+  - `AnnouncementController` y `SurveyController` con inactivación por estado (`is_active = 0`) para preservar histórico.
+  - `server/storage/readonly_data.json` ya no contiene bloque `announcements` (migrado a BD).
+  - Script de esquema actualizado en `database/vc_create_database.sql` para tablas `announcements`, `surveys`, `survey_responses`.
 
 ---
 
