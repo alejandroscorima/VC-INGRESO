@@ -14,6 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class SideNavComponent extends AppComponent implements OnInit {
   uploadingPhoto = false;
+  infoSectionExpanded = false;
 
   constructor(
     router: Router,
@@ -139,6 +140,10 @@ export class SideNavComponent extends AppComponent implements OnInit {
 
   showAccessPointsNav(): boolean {
     return this.auth.isAdministratorRole() && this.auth.isSessionRolePersonValid();
+  }
+
+  toggleInfoSection(): void {
+    this.infoSectionExpanded = !this.infoSectionExpanded;
   }
 
   private removeMobileDrawerBackdrops(): void {

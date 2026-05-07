@@ -21,6 +21,9 @@ import { MyHouseGuard } from './my-house.guard';
 import { CodigoQrGuard } from './qr/codigo-qr.guard';
 import { ReservationsGuard } from './reservations.guard';
 import { AccessPointsGuard } from './access-points.guard';
+import { TutorialPageComponent } from './readonly/tutorial-page.component';
+import { DocumentsPageComponent } from './readonly/documents-page.component';
+import { EmergencyContactsPageComponent } from './readonly/emergency-contacts-page.component';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
@@ -40,6 +43,9 @@ const routes: Routes = [
   { path: "calendar", redirectTo: "reservations", pathMatch: "full" },
   { path: "codigo-qr", component: CodigoQrPageComponent, canActivate: [AuthGuard, CodigoQrGuard] },
   { path: "scanner", redirectTo: "codigo-qr", pathMatch: "full" },
+  { path: "tutorials", component: TutorialPageComponent, canActivate: [AuthGuard] },
+  { path: "documents", component: DocumentsPageComponent, canActivate: [AuthGuard] },
+  { path: "emergency-contacts", component: EmergencyContactsPageComponent, canActivate: [AuthGuard] },
   //{ path: "", redirectTo: "/clientes", pathMatch: "full" },// Cuando es la raíz
   //{ path: "**", redirectTo: "/clientes" }
 ];

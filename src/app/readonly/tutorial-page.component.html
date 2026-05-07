@@ -1,0 +1,44 @@
+<div class="p-4 dark:bg-gray-900 min-h-screen">
+  <div class="vc-card bg-white dark:bg-gray-800/90 p-4 sm:p-6 max-w-5xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Tutoriales</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Videos organizados por tema.
+    </p>
+
+    <div *ngIf="topics.length === 0" class="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-6 text-center text-gray-600 dark:text-gray-400">
+      <p class="mb-1">Aún no hay temas configurados.</p>
+      <p class="text-sm">El contenido se gestiona desde el backend.</p>
+    </div>
+
+    <mat-accordion *ngIf="topics.length > 0" multi="true">
+      <mat-expansion-panel *ngFor="let topic of topics" class="mb-2 dark:bg-gray-800/80" [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title class="text-gray-900 dark:text-white font-medium">
+            {{ topic.title }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p *ngIf="topic.description" class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ topic.description }}</p>
+
+        <div *ngIf="topic.videos.length === 0" class="text-sm text-gray-500 dark:text-gray-400 italic">
+          Sin videos en este tema.
+        </div>
+
+        <div *ngIf="topic.videos.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div *ngFor="let v of topic.videos" class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 p-4 shadow-sm">
+            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">{{ v.title }}</h3>
+            <div class="relative w-full overflow-hidden rounded-lg bg-black aspect-video shadow-md">
+              <iframe
+                [title]="v.title"
+                [src]="embedUrl(v.youtubeId)"
+                class="absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

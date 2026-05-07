@@ -81,8 +81,28 @@ if ($method === 'GET' && str_starts_with($uri, '/uploads/')) {
     $filePath = __DIR__ . $uri;
     if (is_file($filePath) && is_readable($filePath)) {
         $mime = mime_content_type($filePath);
-        if (str_starts_with($mime, 'image/')) {
-            header('Content-Type: ' . $mime);
+        $ext = strtolower(pathinfo($uri, PATHINFO_EXTENSION));
+        $allowedExts = [
+            // Images (existing)
+            'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg',
+            // Documents
+            'pdf',
+            'doc', 'docx', 'odt', 'rtf',
+            'xls', 'xlsx', 'ods', 'csv',
+            'txt', 'md', 'log',
+            'ppt', 'pptx', 'odp',
+            // Archives (optional)
+            'zip', 'rar', '7z', 'tar', 'gz'
+        ];
+
+        // Servir imágenes y documentos permitidos.
+        $ok = is_string($mime) && str_starts_with($mime, 'image/');
+        if (!$ok && in_array($ext, $allowedExts, true)) {
+            $ok = true;
+        }
+
+        if ($ok) {
+            header('Content-Type: ' . ($mime ?: 'application/octet-stream'));
             header('Cache-Control: public, max-age=86400');
             readfile($filePath);
             exit;
@@ -220,6 +240,44 @@ if (str_starts_with($uri, '/api/v1/')) {
                     }
                     break;
             }
+            exit;
+        }
+    }
+
+    // ==================== READONLY CONTENT (Documentos solo lectura) ====================
+    if ($path === 'readonly/content') {
+        require_once __DIR__ . '/controllers/ReadonlyDocumentsController.php';
+        if ($method === 'GET') {
+            \Controllers\ReadonlyDocumentsController::index();
+            exit;
+        }
+    }
+
+    if ($path === 'readonly/content/documents') {
+        require_once __DIR__ . '/controllers/ReadonlyDocumentsController.php';
+        if ($method === 'PUT') {
+            \Controllers\ReadonlyDocumentsController::update();
+            exit;
+        }
+    }
+
+    // Compatibilidad: /readonly/documents (antiguo)
+    if ($path === 'readonly/documents') {
+        require_once __DIR__ . '/controllers/ReadonlyDocumentsController.php';
+        if ($method === 'GET') {
+            \Controllers\ReadonlyDocumentsController::index();
+            exit;
+        }
+        if ($method === 'PUT') {
+            \Controllers\ReadonlyDocumentsController::update();
+            exit;
+        }
+    }
+
+    if ($path === 'readonly/documents/upload') {
+        require_once __DIR__ . '/controllers/ReadonlyDocumentsController.php';
+        if ($method === 'POST') {
+            \Controllers\ReadonlyDocumentsController::upload();
             exit;
         }
     }

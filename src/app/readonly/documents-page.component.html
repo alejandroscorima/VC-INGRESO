@@ -1,0 +1,127 @@
+<div class="p-4 dark:bg-gray-900 min-h-screen">
+  <div class="vc-card bg-white dark:bg-gray-800/90 p-4 sm:p-6 max-w-3xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Documentos</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Enlaces y referencias.
+    </p>
+
+    <div *ngIf="showAuthorization" class="mb-8 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30 p-4">
+      <h3 class="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-2">Autorización de datos personales</h3>
+      <p class="text-sm text-amber-900/80 dark:text-amber-200/90 mb-3">
+        Consulte el documento o página oficial sobre tratamiento de datos.
+      </p>
+      <a [href]="authorizationUrl" target="_blank" rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500">
+        Abrir enlace
+        <mat-icon class="!text-lg !w-5 !h-5">open_in_new</mat-icon>
+      </a>
+
+      <div *ngIf="auth.isAdministratorRole()" class="mt-4 border-t border-amber-300/70 dark:border-amber-900/60 pt-3">
+        <label class="block">
+          <span class="text-xs font-medium text-amber-900 dark:text-amber-200">Editar URL de autorización</span>
+          <input [(ngModel)]="draftAuthorizationUrl" type="url" placeholder="https://..."
+            class="mt-1 w-full rounded-lg border border-amber-300 dark:border-amber-800 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </label>
+        <button type="button" [disabled]="saving" (click)="saveAuthorizationUrl()"
+          class="mt-2 inline-flex items-center gap-2 rounded-lg bg-amber-700 px-3 py-2 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <mat-icon class="!text-lg !w-5 !h-5">save</mat-icon>
+          Guardar URL
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="auth.isAdministratorRole()" class="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <section class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/20 p-4">
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Agregar por URL</h3>
+        <div class="space-y-3">
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Título</span>
+            <input [(ngModel)]="draftTitle" type="text"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">URL</span>
+            <input [(ngModel)]="draftUrl" type="url" placeholder="https://..."
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Descripción (opcional)</span>
+            <input [(ngModel)]="draftDescription" type="text"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <button type="button" [disabled]="saving" (click)="addUrlDocument()"
+            class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <mat-icon class="!text-lg !w-5 !h-5">add_link</mat-icon>
+            Agregar URL
+          </button>
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/20 p-4">
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Subir archivo</h3>
+        <div class="space-y-3">
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Archivo</span>
+            <input type="file"
+              (change)="onUploadFileSelected($event)"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.log,.ppt,.pptx,image/*"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <p *ngIf="uploadFile" class="mt-2 text-xs text-gray-500 dark:text-gray-400 break-all">
+              {{ uploadFile.name }}
+            </p>
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Título</span>
+            <input [(ngModel)]="uploadTitle" type="text" placeholder="Ej. Reglamento interno 2026"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Descripción (opcional)</span>
+            <input [(ngModel)]="uploadDescription" type="text"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </label>
+          <button type="button"
+            [disabled]="uploadingFile || !uploadFile || saving"
+            (click)="uploadSelectedFile()"
+            class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-60">
+            <mat-icon class="!text-lg !w-5 !h-5">file_upload</mat-icon>
+            Subir archivo
+          </button>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Quitar URL no elimina el archivo físico del servidor.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div *ngIf="showDocuments">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Documentos y enlaces</h3>
+      <ul class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <li *ngFor="let doc of documents; let i = index"
+          class="relative rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-3 aspect-square hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+          <button *ngIf="auth.isAdministratorRole()" type="button" (click)="removeDoc(i)"
+            class="absolute right-2 top-2 inline-flex items-center justify-center rounded-md p-1 text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900/20"
+            title="Quitar URL">
+            <mat-icon class="!text-base !w-4 !h-4">delete</mat-icon>
+          </button>
+
+          <a [href]="doc.url" target="_blank" rel="noopener noreferrer" class="h-full flex flex-col items-center justify-center text-center gap-3 px-2">
+            <img *ngIf="isImageUrl(doc.url)" [src]="doc.url" alt="" class="h-16 w-16 rounded object-cover border border-gray-200 dark:border-gray-600" />
+            <div *ngIf="!isImageUrl(doc.url)" class="h-16 w-16 rounded-lg border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-800/60 flex items-center justify-center">
+              <mat-icon class="!text-3xl !w-8 !h-8 text-gray-600 dark:text-gray-300">{{ getUrlIcon(doc.url) }}</mat-icon>
+            </div>
+            <p class="text-sm font-medium text-sky-700 dark:text-sky-400 break-words w-full">
+              {{ doc.title }}
+            </p>
+            <p *ngIf="doc.description" class="text-xs text-gray-600 dark:text-gray-400 break-words w-full">{{ doc.description }}</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="showEmpty" class="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-6 text-center text-gray-600 dark:text-gray-400">
+      <p class="mb-1">No hay documentos ni URL de autorización configurados.</p>
+      <p class="text-sm">Un administrador puede agregar documentos por URL o archivo.</p>
+    </div>
+  </div>
+</div>

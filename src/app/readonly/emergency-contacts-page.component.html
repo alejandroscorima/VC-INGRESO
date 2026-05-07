@@ -1,0 +1,28 @@
+<div class="p-4 dark:bg-gray-900 min-h-screen">
+  <div class="vc-card bg-white dark:bg-gray-800/90 p-4 sm:p-6 max-w-3xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-1">Emergencias</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Números en caso de emergencias.
+    </p>
+
+    <ul class="space-y-3">
+      <li *ngFor="let c of contacts"
+        class="rounded-xl border border-gray-200 dark:border-gray-600 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gray-50/80 dark:bg-gray-700/30">
+        <div>
+          <p class="font-semibold text-gray-900 dark:text-white">{{ c.label }}</p>
+          <p *ngIf="c.detail" class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ c.detail }}</p>
+        </div>
+        <div class="shrink-0">
+          <a *ngIf="hasDialablePhone(c.phone)" [href]="telHref(c.phone)"
+            class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+            <mat-icon class="!text-lg !w-5 !h-5">call</mat-icon>
+            {{ c.phone }}
+          </a>
+          <span *ngIf="!hasDialablePhone(c.phone)" class="text-sm text-gray-500 dark:text-gray-400 italic">
+            — número pendiente —
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

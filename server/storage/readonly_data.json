@@ -1,0 +1,68 @@
+{
+    "tutorial_topics": [
+        {
+            "title": "Registro e inicio de sesión",
+            "description": "Videos cortos para registrarse y usar el portal.",
+            "videos": [
+                {
+                    "title": "Registro de Propietario",
+                    "youtubeId": "rbuYtrNUxg4&t=3s"
+                },
+                {
+                    "title": "Inicio de sesión",
+                    "youtubeId": "rbuYtrNUxg4&t=3s"
+                }
+            ]
+        }
+    ],
+    "documents": [
+        {
+            "title": "Autorización de uso de datos personales",
+            "url": "https:\/\/villa-club5.com\/assets\/docs\/autorizacion-uso-datos-personales.html",
+            "description": "PDF"
+        },
+        {
+            "title": "Manual",
+            "url": "https:\/\/bkpsitecpsnew.blob.core.windows.net\/uploadsitecps\/sites\/8\/2020\/07\/Manual_do_aluno_ingles.pdf",
+            "description": "Manual de usuario del sistema"
+        },
+        {
+            "title": "Instrucciones_de_uso_VC5",
+            "url": "\/uploads\/public\/readonly-docs\/20260507_020335_a8e66c82.docx",
+            "description": "Instrucciones de Uso"
+        },
+        {
+            "title": "RHE10704164306E00133",
+            "url": "\/uploads\/public\/readonly-docs\/20260507_020429_bf8d68c7.pdf",
+            "description": "Recibo por honorarios"
+        }
+    ],
+    "authorization_url": "https:\/\/villa-club5.com\/assets\/docs\/autorizacion-uso-datos-personales.html",
+    "emergency_contacts": [
+        {
+            "label": "Emergencias generales",
+            "phone": "105",
+            "detail": "Policia Nacional del Perú."
+        },
+        {
+            "label": "Ambulancia",
+            "phone": "106",
+            "detail": "Ambulancia del SAMU - MINSA."
+        },
+        {
+            "label": "Bomberos",
+            "phone": "544-0566",
+            "detail": "Compañía de Bomberos de Carabayllo N°164."
+        },
+        {
+            "label": "Serenazgo",
+            "phone": "51967747646",
+            "detail": "Número de serenazgo de la Municipalidad de Carabayllo."
+        },
+        {
+            "label": "Garita",
+            "phone": "51967747646",
+            "detail": "Número interno de la Garita de Villa Club 5."
+        }
+    ]
+}

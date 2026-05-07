@@ -103,6 +103,18 @@ export class ApiService {
   }
 
   /**
+   * Subir documento para sección readonly/documents.
+   * Devuelve { url, title, ext }.
+   */
+  uploadReadonlyDocument(file: File): Observable<ApiResponse<any>> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/v1/readonly/documents/upload`, form).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Devuelve la URL completa para mostrar una foto (vehículo, mascota, perfil, etc.).
    * - http(s):// → tal cual.
    * - /assets/… → estáticos de la SPA: URL completa con `environment.publicAppUrl` (no el API).
