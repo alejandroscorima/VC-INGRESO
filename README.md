@@ -16,6 +16,14 @@ Sistema web de **control de acceso residencial**: personas, vehículos, ingresos
 - **Puntos de acceso:** el registro de ingresos/egresos se apoya en catálogo **tipificado** de puntos, con opciones como **permitir reservas** y **control de aforo** según el ambiente.
 - **Reservaciones (áreas comunes):** flujo para **solicitar, confirmar, rechazar, cancelar y marcar como completada** (p. ej. casa club). Pensado para extenderse a **losas deportivas** u otros espacios reservables. Las solicitudes se visualizan en **vista calendario**.
 - **Control de aforo (piscina y similares):** registro de **ingresos y salidas** con **indicador de ocupación en tiempo real**; el mismo enfoque puede aplicarse a otros ambientes con cupo limitado.
+- **Comunicados y encuestas post-login:** al iniciar sesión se muestra primero la **cola completa de comunicados activos** (uno tras otro) y, al finalizar, se muestran las **encuestas pendientes**. La campana incluye **indicador amarillo** cuando hay comunicados no vistos o encuestas por responder.
+
+### Comunicados y encuestas (UX + gestión)
+
+- **Comunicados (admin):** CRUD en `Gestión > Comunicados`, con soporte de imagen (`image_url` y carga de archivo), estado `Activo/Inactivo` y preservación de histórico (sin borrado físico).
+- **Encuestas (admin):** CRUD en `Gestión > Encuestas`, tipos `CLOSED`, `OPEN`, `MULTIPLE` y `CHECKBOX`, estado `Activo/Inactivo` y preservación de histórico.
+- **Prioridad de visualización:** los comunicados tienen prioridad sobre encuestas en el flujo automático y en reapertura desde la campana.
+- **Reapertura manual:** desde la campana el usuario puede volver a ver comunicados activos o encuestas pendientes.
 
 ### Beneficios para los vecinos
 
