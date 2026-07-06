@@ -131,7 +131,7 @@
                 </div>
         
                 <div class="mb-4">
-                    <input [(ngModel)]="externalSearchTerm" type="text" placeholder="Buscar por categoría, placa o responsable..." class="vc-input-search" />
+                    <input [(ngModel)]="externalSearchTerm" type="text" placeholder="Buscar por categoría, placa, nombre o empresa..." class="vc-input-search" />
                 </div>
 
                 <div class="vc-table-wrap">
@@ -141,7 +141,8 @@
                                 <th scope="col" class="vc-th w-12"></th>
                                 <th scope="col" class="vc-th">Categoría</th>
                                 <th scope="col" class="vc-th">Placa</th>
-                                <th scope="col" class="vc-th">Responsable</th>
+                                <th scope="col" class="vc-th">Nombre visita externa</th>
+                                <th scope="col" class="vc-th">Empresa/Negocio</th>
                                 <th scope="col" class="vc-th">Celular</th>
                                 <th scope="col" class="vc-th">Estado</th>
                                 <th scope="col" class="vc-th text-right">
@@ -162,6 +163,7 @@
                                 </th>
                                 <td class="vc-td uppercase">{{ev.temp_visit_plate}}</td>
                                 <td class="vc-td uppercase">{{ev.temp_visit_name}}</td>
+                                <td class="vc-td uppercase">{{ev.temp_visit_company}}</td>
                                 <td class="vc-td uppercase">{{ev.temp_visit_cel}}</td>
                                 <td class="vc-td uppercase">{{ev.status_system}}</td>
                                 <td class="vc-td text-right">
@@ -399,36 +401,40 @@
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-type_externalVehicleNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
-                    <select [(ngModel)]="externalVehicleToAdd.temp_visit_type" name="type_ExternalVehicleNew" id="vehicles-type_ExternalvehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <select [(ngModel)]="externalVehicleToAdd.temp_visit_type" name="type_ExternalVehicleNew" id="vehicles-type_ExternalvehicleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo...">
                         <option *ngFor="let t of temp_visit_type">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="vehicles-external_license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa</label>
+                    <label for="vehicles-external_license_plateNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa <span class="text-red-600">*</span></label>
                     <input [(ngModel)]="externalVehicleToAdd.temp_visit_plate" type="text" name="external_license_plateNew" id="vehicles-external_license_plateNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="vehicles-externalDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc. Responsable</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_doc" type="text" name="externalDocNew" id="vehicles-externalDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad..." required/>
+                    <label for="vehicles-externalNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre de Visita Externa <span class="text-red-600">*</span></label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_name" type="text" name="externalNameNew" id="vehicles-externalNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombre de la visita externa..." required/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="vehicles-externalNameNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_name" type="text" name="externalNameNew" id="vehicles-externalNameNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Datos del responsable..." required/>
+                    <label for="vehicles-externalCompanyNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Empresa/Negocio</label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_company" type="text" name="externalCompanyNew" id="vehicles-externalCompanyNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Empresa o negocio (opcional)..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="vehicles-externalDocNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc de Visita Externa</label>
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_doc" type="text" name="externalDocNew" id="vehicles-externalDocNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad (opcional)..."/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-externalCelNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_cel" type="text" name="externalCelNew" id="vehicles-externalCelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <input [(ngModel)]="externalVehicleToAdd.temp_visit_cel" type="text" name="externalCelNew" id="vehicles-externalCelNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular (opcional)..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-externalStatus_validatedNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
                     <!-- <input [(ngModel)]="userToAdd.entrance_role" type="text" name="entranceRoleNew" id="vehicles-entranceRoleNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="externalVehicleToAdd.status_validated" name="externalStatus_validatedNew" id="vehicles-externalStatus_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <select [(ngModel)]="externalVehicleToAdd.status_validated" name="externalStatus_validatedNew" id="vehicles-externalStatus_validatedNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado...">
                         <option *ngFor="let s of status">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-externalStatus_reasonNew" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="externalVehicleToAdd.status_reason" type="text" name="externalStatus_reasonNew" id="vehicles-externalStatus_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <input [(ngModel)]="externalVehicleToAdd.status_reason" type="text" name="externalStatus_reasonNew" id="vehicles-externalStatus_reasonNew" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo (opcional)..." />
                 </div>
             </div>
             <!-- Modal footer -->
@@ -467,36 +473,40 @@
             <div class="p-4 md:p-5 grid sm:grid-cols-2 grid-cols-1">
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-type_externalVehicleEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría</label>
-                    <select [(ngModel)]="externalVehicleToEdit.temp_visit_type" name="type_ExternalVehicleEdit" id="vehicles-type_ExternalvehicleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo..." required>
+                    <select [(ngModel)]="externalVehicleToEdit.temp_visit_type" name="type_ExternalVehicleEdit" id="vehicles-type_ExternalvehicleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Tipo de vehiculo...">
                         <option *ngFor="let t of temp_visit_type">{{t}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="vehicles-external_license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa</label>
+                    <label for="vehicles-external_license_plateEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Placa <span class="text-red-600">*</span></label>
                     <input [(ngModel)]="externalVehicleToEdit.temp_visit_plate" type="text" name="external_license_plateEdit" id="vehicles-external_license_plateEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de placa..." required />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="vehicles-externalDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc. Responsable</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_doc" type="text" name="externalDocEdit" id="vehicles-externalDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad..." required/>
+                    <label for="vehicles-externalNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre de Visita Externa <span class="text-red-600">*</span></label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_name" type="text" name="externalNameEdit" id="vehicles-externalNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Nombre de la visita externa..." required/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
-                    <label for="vehicles-externalNameEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsable</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_name" type="text" name="externalNameEdit" id="vehicles-externalNameEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Datos del responsable..." required/>
+                    <label for="vehicles-externalCompanyEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Empresa/Negocio</label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_company" type="text" name="externalCompanyEdit" id="vehicles-externalCompanyEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Empresa o negocio (opcional)..." />
+                </div>
+                <div class="col-span-1 mb-2 mx-1">
+                    <label for="vehicles-externalDocEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Doc de Visita Externa</label>
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_doc" type="text" name="externalDocEdit" id="vehicles-externalDocEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Documento de identidad (opcional)..."/>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-externalCelEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Celular</label>
-                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_cel" type="text" name="externalCelEdit" id="vehicles-externalCelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular..." required />
+                    <input [(ngModel)]="externalVehicleToEdit.temp_visit_cel" type="text" name="externalCelEdit" id="vehicles-externalCelEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Número de celular (opcional)..." />
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-externalStatus_validatedEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
                     <!-- <input [(ngModel)]="userToEdit.entrance_role" type="text" name="entranceRoleEdit" id="vehicles-entranceRoleEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Rol..." required /> -->
-                    <select [(ngModel)]="externalVehicleToEdit.status_validated" name="externalStatus_validatedEdit" id="vehicles-externalStatus_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado..." required>
+                    <select [(ngModel)]="externalVehicleToEdit.status_validated" name="externalStatus_validatedEdit" id="vehicles-externalStatus_validatedEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Estado...">
                         <option *ngFor="let s of status">{{s}}</option>
                     </select>
                 </div>
                 <div class="col-span-1 mb-2 mx-1">
                     <label for="vehicles-externalStatus_reasonEdit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Motivo</label>
-                    <input [(ngModel)]="externalVehicleToEdit.status_reason" type="text" name="externalStatus_reasonEdit" id="vehicles-externalStatus_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo..." required />
+                    <input [(ngModel)]="externalVehicleToEdit.status_reason" type="text" name="externalStatus_reasonEdit" id="vehicles-externalStatus_reasonEdit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Motivo (opcional)..." />
                 </div>
             </div>
             <!-- Modal footer -->

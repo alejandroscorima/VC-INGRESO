@@ -109,15 +109,15 @@ class ExternalVehicleController extends Controller {
 
         $data = $this->getInput();
 
-        $required = ['temp_visit_doc'];
+        $required = ['temp_visit_plate', 'temp_visit_name'];
         foreach ($required as $field) {
-            if (empty($data[$field])) {
+            if (empty(trim((string) ($data[$field] ?? '')))) {
                 Response::error("Campo requerido faltante: $field", 400);
                 return;
             }
         }
 
-        $allowed = ['temp_visit_name', 'temp_visit_doc', 'temp_visit_plate', 'temp_visit_cel', 'temp_visit_type', 'status_validated', 'status_reason', 'status_system'];
+        $allowed = ['temp_visit_name', 'temp_visit_company', 'temp_visit_doc', 'temp_visit_plate', 'temp_visit_cel', 'temp_visit_type', 'status_validated', 'status_reason', 'status_system'];
 
         $filtered = [];
         foreach ($allowed as $field) {
@@ -128,6 +128,10 @@ class ExternalVehicleController extends Controller {
         if (array_key_exists('temp_visit_plate', $filtered)) {
             $pn = normalize_license_plate((string) $filtered['temp_visit_plate']);
             $filtered['temp_visit_plate'] = $pn === '' ? null : $pn;
+        }
+        if (!isset($filtered['temp_visit_plate']) || $filtered['temp_visit_plate'] === null) {
+            Response::error('Campo requerido faltante: temp_visit_plate', 400);
+            return;
         }
         $filtered['registered_by_user_id'] = $uid;
 
@@ -161,7 +165,7 @@ class ExternalVehicleController extends Controller {
 
         $data = $this->getInput();
 
-        $allowed = ['temp_visit_name', 'temp_visit_doc', 'temp_visit_plate', 'temp_visit_cel', 'temp_visit_type', 'status_validated', 'status_reason', 'status_system'];
+        $allowed = ['temp_visit_name', 'temp_visit_company', 'temp_visit_doc', 'temp_visit_plate', 'temp_visit_cel', 'temp_visit_type', 'status_validated', 'status_reason', 'status_system'];
 
         $filtered = [];
         foreach ($allowed as $field) {
@@ -172,6 +176,15 @@ class ExternalVehicleController extends Controller {
         if (array_key_exists('temp_visit_plate', $filtered)) {
             $pn = normalize_license_plate((string) $filtered['temp_visit_plate']);
             $filtered['temp_visit_plate'] = $pn === '' ? null : $pn;
+        }
+
+        if (isset($filtered['temp_visit_plate']) && $filtered['temp_visit_plate'] === null) {
+            Response::error('Campo requerido faltante: temp_visit_plate', 400);
+            return;
+        }
+        if (array_key_exists('temp_visit_name', $filtered) && trim((string) $filtered['temp_visit_name']) === '') {
+            Response::error('Campo requerido faltante: temp_visit_name', 400);
+            return;
         }
 
         if (empty($filtered)) {

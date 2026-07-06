@@ -1379,7 +1379,7 @@ saveNewVehicle(): void {
 
   saveEditExternalVehicle(){
     // Validar campos obligatorios
-    if (!this.externalVehicleToEdit.temp_visit_plate || !this.externalVehicleToEdit.temp_visit_doc||!this.externalVehicleToEdit.temp_visit_cel) {
+    if (!this.externalVehicleToEdit.temp_visit_plate?.trim() || !this.externalVehicleToEdit.temp_visit_name?.trim()) {
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');
       this.clean();
       return;
@@ -1404,7 +1404,7 @@ saveNewVehicle(): void {
   
   saveNewExternalVehicle(): void {
     // Validar campos obligatorios
-    if (!this.externalVehicleToAdd.temp_visit_plate || !this.externalVehicleToAdd.temp_visit_doc||!this.externalVehicleToAdd.temp_visit_cel) {
+    if (!this.externalVehicleToAdd.temp_visit_plate?.trim() || !this.externalVehicleToAdd.temp_visit_name?.trim()) {
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');
       this.clean();
       return;

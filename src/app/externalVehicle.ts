@@ -9,6 +9,7 @@ export class ExternalVehicle {
     public status_validated: string,
     public status_reason: string,
     public status_system: string,
+    public temp_visit_company: string = '',
     public temp_visit_id?: number,
     /** Usuario que registró la visita (API: registered_by_user_id). */
     public registered_by_user_id?: number,

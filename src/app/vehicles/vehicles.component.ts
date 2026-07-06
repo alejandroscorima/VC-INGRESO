@@ -220,7 +220,8 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
       const matchesSearch = !this.externalSearchTerm.trim() ||
         ev.temp_visit_type.toLowerCase().includes(search) ||
         ev.temp_visit_plate.toLowerCase().includes(search) ||
-        (ev.temp_visit_name && ev.temp_visit_name.toLowerCase().includes(search));
+        (ev.temp_visit_name && ev.temp_visit_name.toLowerCase().includes(search)) ||
+        (ev.temp_visit_company && ev.temp_visit_company.toLowerCase().includes(search));
       // Visitas temporales no van ligadas a un lote; filtros Mz/Lt no aplican salvo que añadas otro modelo.
       return matchesSearch;
     });
@@ -439,7 +440,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
 
   saveEditExternalVehicle(){
     // Validar campos obligatorios
-    if (!this.externalVehicleToEdit.temp_visit_plate || !this.externalVehicleToEdit.temp_visit_doc||!this.externalVehicleToEdit.temp_visit_cel) {
+    if (!this.externalVehicleToEdit.temp_visit_plate?.trim() || !this.externalVehicleToEdit.temp_visit_name?.trim()) {
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');
       this.clean();
       return;
@@ -464,7 +465,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit{
   
   saveNewExternalVehicle(): void {
     // Validar campos obligatorios
-    if (!this.externalVehicleToAdd.temp_visit_plate || !this.externalVehicleToAdd.temp_visit_doc||!this.externalVehicleToAdd.temp_visit_cel) {
+    if (!this.externalVehicleToAdd.temp_visit_plate?.trim() || !this.externalVehicleToAdd.temp_visit_name?.trim()) {
       this.toastr.error('Los campos obligatorios no pueden estar vacíos');
       this.clean();
       return;
