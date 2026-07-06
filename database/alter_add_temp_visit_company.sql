@@ -1,6 +1,5 @@
--- Migración: campo Empresa/Negocio en visitas externas (temporary_visits)
--- Ejecutar una vez en bases de datos ya desplegadas:
---   mysql -u ... -p vc_db < database/alter_add_temp_visit_company.sql
+-- Migración movida a database/migrations/001_add_temp_visit_company.sql
+-- (este archivo se mantiene por compatibilidad con despliegues que ya lo referencian)
 
 ALTER TABLE `temporary_visits`
     ADD COLUMN `temp_visit_company` VARCHAR(150) DEFAULT NULL
